@@ -8,7 +8,7 @@ Cell {
 	.neighbours = references to any cells that are above/below/left/right of this cell
 	.drawn = bool that says whether this cell should be drawn or not
 
-	.arrow = the arrow that's inside this cell (undefined if empty)
+	.arrows = array of arrows that are inside this cell
 	.doorRight = the door that's to the right of this cell (undefined if empty)
 	.doorDown = the door that's below this cell (undefined if empty)
 
@@ -24,6 +24,6 @@ Arrow = {
 
 Door {
 	.sound = sound that plays when going through this door (default: none)
-	.destination = reference to a door that this door portals to (default: itself)
+	.destinations = reference to any doors that this door portals to (default: just itself)
 	.delay = how long to wait before sending to destination (default: 0) (can be negative)
 }
