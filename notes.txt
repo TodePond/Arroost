@@ -23,7 +23,6 @@ Arrow = {
 }
 
 Door {
-	.isVertical
 	.sound = sound that plays when going through this door (default: none)
 	.destination = reference to a door that this door portals to (default: itself)
 	.delay = how long to wait before sending to destination (default: 0) (can be negative)
