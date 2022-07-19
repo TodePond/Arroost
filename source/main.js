@@ -1,10 +1,12 @@
-import { makeGlobal } from "./global.js"
-import { updateGrid, drawGrid } from "./grid.js"
+import { drawCamera, makeCamera } from "./camera.js"
+import { updateGrid } from "./grid.js"
+import { makeWorld } from "./world.js"
 
-const global = makeGlobal()
+const world = makeWorld()
+const camera = makeCamera(world)
+
 const stage = Stage.start()
 stage.tick = (context) => {
-	const {world, currentGrid} = global
 	updateGrid(world)
-	drawGrid(context, currentGrid)
+	drawCamera(context, camera)
 }
