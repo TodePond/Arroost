@@ -1,7 +1,6 @@
 import { makeCell } from "./cell.js"
 
 export const makeGrid = () => {
-	const head = makeCell()
 	const cells = new LinkedList()
 	const grid = {cells}
 	return grid
