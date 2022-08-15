@@ -6,7 +6,6 @@ Cell {
 
 	.position = vector representing the cell's position in the grid
 	.neighbours = references to any cells that are above/below/left/right of this cell
-	.drawn = bool that says whether this cell should be drawn or not
 
 	.arrows = array of arrows that are inside this cell
 	.doorRight = the door that's to the right of this cell (undefined if empty)
@@ -19,7 +18,6 @@ Arrow = {
 	.direction
 	.speed
 	.volume
-	.length = how long the arrow (so, how long it plays sounds for)
 }
 
 Door {
@@ -37,7 +35,7 @@ By default, they do nothing - arrows just go through them.
 
 You can click on a door to see some options:
 * Record a sound (that plays whenever an arrow enters it)
-* Set volume/speed/length of arrows that enter it
+* Set volume/speed of arrows that enter it
 * Add/Delete destinations - and each destination can have a different delay?
 
 Pitch is determined by y-position of door, relative to wherever the sound was recorded.
