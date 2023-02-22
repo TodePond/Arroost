@@ -1,6 +1,6 @@
 import { WHITE } from "../../libraries/habitat-import.js"
 
-export const Entity = class {
+export const Thing = class {
 	position = [0, 0]
 	dimensions = [10, 10]
 
