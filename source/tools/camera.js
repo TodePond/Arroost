@@ -7,7 +7,7 @@ export const Camera = class {
 
 	ZOOM_SPEED = 0.1
 	ZOOM_FRICTION = 0.9
-	PAN_FRICTION = 0.99
+	PAN_FRICTION = 0.9
 
 	panVelocity = [0, 0]
 	zoomSpeed = 0
@@ -54,6 +54,7 @@ export const Camera = class {
 				event.preventDefault()
 				canvas.releasePointerCapture(event.pointerId)
 				canvas.removeEventListener("pointermove", onPointerMove)
+				this.panVelocity = shared.pointer.velocity
 			}
 
 			canvas.addEventListener("pointermove", onPointerMove, { passive: false })
