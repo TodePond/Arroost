@@ -9,8 +9,8 @@ stage.start = ([context, html]) => {
 	shared.camera.registerControls(context.canvas)
 }
 
-stage.tick = (layers, delta) => {
-	shared.pointer.tick(delta)
-	shared.camera.tick(delta)
+stage.tick = (layers, time) => {
+	shared.pointer.tick(time)
+	shared.camera.tick(time)
 	shared.camera.draw(layers)
 }

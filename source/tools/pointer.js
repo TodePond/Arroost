@@ -8,21 +8,17 @@ export const getPointer = memo(() => {
 	const HISTORY_LENGTH = 5
 
 	let previousPosition = [undefined, undefined]
-	let previousTime = undefined
 
-	pointer.tick = (time) => {
+	pointer.tick = () => {
 		const { position } = pointer
 
-		if (equals(previousPosition, [undefined, undefined]) || previousTime === undefined) {
-			previousTime = time
+		if (equals(previousPosition, [undefined, undefined])) {
 			previousPosition = [...position]
 			return
 		}
 
-		const delta = time - previousTime
 		const velocity = subtract(position, previousPosition)
 
-		previousTime = time
 		previousPosition = [...position]
 
 		velocityHistory.push(velocity)
