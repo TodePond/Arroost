@@ -1,0 +1,45 @@
+<script src="../libraries/habitat-embed.js"></script>
+<script>
+	try {
+		Habitat.registerEverything()
+	} catch {
+		const promptHabitat = async () => {
+			const messages = [
+				"You're almost ready :)",
+				"Click anywhere on the page to download the Habitat library.",
+				"Then place it into the `libraries` folder.",
+			]
+
+			const message = document.createElement("p")
+			message.innerText = messages.join("\n")
+
+			addEventListener("load", () => {
+				document.body.appendChild(message)
+			})
+
+			addEventListener("click", async () => {
+				const response = await fetch("https://raw.githubusercontent.com/TodePond/Habitat/main/habitat-embed.js")
+				const text = await response.text()
+				const result = await showSaveFilePicker({
+					excludeAcceptAllOption: true,
+					suggestedName: "habitat-embed",
+					startIn: "downloads",
+					types: [
+						{
+							description: "JavaScript file",
+							accept: { "text/javascript": [".js"] },
+						},
+					],
+				})
+				const writable = await result.createWritable()
+				await writable.write(text)
+				await writable.close()
+			})
+		}
+
+		promptHabitat()
+	}
+</script>
+
+<!-- You can add extra test files below this line :) -->
+<script src="main.test.js"></script>
