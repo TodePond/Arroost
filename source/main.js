@@ -1,7 +1,8 @@
-import { registerMethods, Stage } from "../libraries/habitat-import.js"
+import { print, registerMethods, Stage } from "../libraries/habitat-import.js"
 import { shared } from "./shared.js"
 
 registerMethods()
+window.print = print
 
 const stage = new Stage({ context: ["2d", "html"] })
 stage.start = ([context, html]) => {
