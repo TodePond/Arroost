@@ -13,8 +13,8 @@ stage.start = ([context, html]) => {
 	shared.world.things.add(new Thing({ dimensions: [100, 100], colour: GREEN }))
 }
 
-stage.tick = (layers, time) => {
-	shared.pointer.tick(time)
-	shared.camera.tick(layers, time)
-	shared.camera.draw(layers, time)
+stage.tick = () => {
+	shared.pointer.tick()
+	shared.camera.tick()
+	//shared.camera.draw(stage.layers)
 }

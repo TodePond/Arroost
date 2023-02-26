@@ -4,7 +4,7 @@ export const World = class extends Thing {
 	dimensions = [100, 100]
 	things = new Set()
 
-	draw(layers, time) {
+	draw(layers) {
 		for (const thing of this.things) {
 			if (!thing.started) {
 				thing.start(layers, time)

@@ -13,21 +13,38 @@ export const Camera = class {
 	PAN_FRICTION = 0.9
 	PAN_MIN_SPEED = 0.1
 
-	draw(layers) {
-		const [context, html] = layers
+	draw(stage) {
+		for (const layer of stage.layers) {
+			const { context } = layer
+			switch (layer.type) {
+				case "2d":
+					this.draw2D(context)
+					continue
+				case "html":
+					this.drawHTML(context)
+					continue
+			}
+		}
+	}
+
+	drawHTML(context) {
+		if (this.positionChanged) {
+			this.positionChanged = false
+			context.style["transform"] = `translate(${this.position.x}px, ${this.position.y}px)`
+		}
+
+		shared.world.drawHTML(context)
+	}
+
+	draw2D(context) {
 		context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 		context.save()
 		context.translate(...shared.camera.position)
 		context.scale(shared.camera.zoom, shared.camera.zoom)
 
-		shared.world.draw(layers)
+		shared.world.draw2D(context)
 
 		context.restore()
-
-		if (this.positionChanged) {
-			this.positionChanged = false
-			html.style["transform"] = `translate(${this.position.x}px, ${this.position.y}px)`
-		}
 	}
 
 	tick() {
