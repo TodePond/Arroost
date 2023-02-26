@@ -2,33 +2,49 @@ import { add, clamp, scale, subtract } from "../../libraries/habitat-import.js"
 import { shared } from "../shared.js"
 
 export const Camera = class {
-	// Public properties
-	pan = [0, 0]
+	position = [0, 0]
+	positionChanged = false
 	panVelocity = [0, 0]
 	zoom = 1.0
 
 	ZOOM_SPEED = 0.02
+	MIN_ZOOM = 0.1
+	MAX_ZOOM = 10.0
 	PAN_FRICTION = 0.9
 	PAN_MIN_SPEED = 0.1
 
 	draw(layers) {
 		const [context, html] = layers
-
 		context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 		context.save()
-		context.translate(...shared.camera.pan)
+		context.translate(...shared.camera.position)
 		context.scale(shared.camera.zoom, shared.camera.zoom)
 
 		shared.world.draw(layers)
 
 		context.restore()
+
+		if (this.positionChanged) {
+			this.positionChanged = false
+			html.style["transform"] = `translate(${this.position.x}px, ${this.position.y}px)`
+		}
 	}
 
 	tick() {
 		if (!shared.pointer.down) {
-			this.pan = add(this.pan, this.panVelocity)
-			this.panVelocity = scale(this.panVelocity, this.PAN_FRICTION)
+			const panSpeed = Math.hypot(...this.panVelocity)
+			if (panSpeed < this.PAN_MIN_SPEED) {
+				this.panVelocity = [0, 0]
+			} else {
+				this.pan(this.panVelocity)
+				this.panVelocity = scale(this.panVelocity, this.PAN_FRICTION)
+			}
 		}
+	}
+
+	pan(displacement) {
+		this.positionChanged = true
+		this.position = add(this.position, displacement)
 	}
 
 	registerControls(canvas) {
@@ -48,18 +64,19 @@ export const Camera = class {
 		const onPinch = (event) => {
 			const previousZoom = this.zoom
 			this.zoom -= event.deltaY * this.ZOOM_SPEED
-			this.zoom = clamp(this.zoom, 0.1, 10.0)
+			this.zoom = clamp(this.zoom, this.MIN_ZOOM, this.MAX_ZOOM)
 
 			// Adjust pan to keep the same point under the cursor
 			const zoomScale = this.zoom / previousZoom
 			const cursor = [event.clientX, event.clientY]
-			const offset = subtract(this.pan, cursor)
+			const offset = subtract(this.position, cursor)
 			const scaledOffset = scale(offset, zoomScale)
-			this.pan = add(cursor, scaledOffset)
+			this.position = add(cursor, scaledOffset)
+			this.positionChanged = true
 		}
 
 		const onTwoFingerPan = (event) => {
-			this.pan = subtract(this.pan, [event.deltaX, event.deltaY])
+			this.pan([-event.deltaX, -event.deltaY])
 		}
 
 		const onMouseWheel = (event) => {}
@@ -69,12 +86,13 @@ export const Camera = class {
 			canvas.setPointerCapture(event.pointerId)
 
 			const start = [event.clientX, event.clientY]
-			const offset = subtract(this.pan, start)
+			const offset = subtract(this.position, start)
 
 			const onPointerMove = (event) => {
 				event.preventDefault()
 				const end = [event.clientX, event.clientY]
-				this.pan = add(end, offset)
+				this.position = add(end, offset)
+				this.positionChanged = true
 			}
 
 			const onPointerUp = (event) => {
