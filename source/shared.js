@@ -1,6 +1,6 @@
+import { getPointer } from "./input/pointer.js"
 import { Camera } from "./things/camera.js"
 import { World } from "./things/world.js"
-import { getPointer } from "./tools/pointer.js"
 
 export const shared = {
 	world: new World(),
