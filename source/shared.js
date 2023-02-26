@@ -1,5 +1,5 @@
+import { Camera } from "./things/camera.js"
 import { World } from "./things/world.js"
-import { Camera } from "./tools/camera.js"
 import { getPointer } from "./tools/pointer.js"
 
 export const shared = {
