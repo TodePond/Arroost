@@ -551,6 +551,7 @@ const HabitatFrogasaurus = {}
 		HabitatFrogasaurus["./signal.js"].usePush = usePush
 		HabitatFrogasaurus["./signal.js"].useEffect = useEffect
 		HabitatFrogasaurus["./signal.js"].useUpdate = useUpdate
+		HabitatFrogasaurus["./signal.js"].Signal = Signal
 	}
 
 	//====== ./vector.js ======
@@ -1541,6 +1542,7 @@ export const registerDebugMethods = HabitatFrogasaurus["./console.js"].registerD
 export const defineGetter = HabitatFrogasaurus["./property.js"].defineGetter
 export const defineAccessor = HabitatFrogasaurus["./property.js"].defineAccessor
 export const LinkedList = HabitatFrogasaurus["./linked-list.js"].LinkedList
+export const Signal = HabitatFrogasaurus["./signal.js"].Signal
 export const useSignal = HabitatFrogasaurus["./signal.js"].useSignal
 export const usePull = HabitatFrogasaurus["./signal.js"].usePull
 export const usePush = HabitatFrogasaurus["./signal.js"].usePush

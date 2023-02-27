@@ -1,9 +1,12 @@
 import { GREEN, print, registerMethods, Stage } from "../libraries/habitat-import.js"
 import { shared } from "./shared.js"
 import { Thing } from "./things/thing.js"
+import { set } from "./utilities/signal.js"
 
 registerMethods()
 window.print = print
+window.shared = shared
+set(window, shared)
 
 const stage = new Stage({ context: ["2d", "html"] })
 stage.start = ([context, html]) => {

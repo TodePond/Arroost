@@ -1,14 +1,16 @@
-import { useSignal, WHITE } from "../../libraries/habitat-import.js"
+import { WHITE } from "../../libraries/habitat-import.js"
+import { set, use } from "../utilities/signal.js"
 
 export const Thing = class {
-	position = useSignal([0, 0])
-	dimensions = useSignal([10, 10])
-	colour = useSignal(WHITE)
+	position = use([0, 0])
+	dimensions = use([10, 10])
+	colour = use(WHITE)
 
 	constructor(options = {}) {
-		Object.assign(this, options)
+		set(this, options)
 	}
 
 	start(context) {}
 	draw(context) {}
+	update(context) {}
 }
