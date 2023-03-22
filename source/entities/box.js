@@ -14,14 +14,14 @@ export const Box = class extends Entity {
 	}
 
 	start({ svg }) {
-		const rect = SVG(`<rect />`)
+		const rectangle = SVG(`<rect />`)
 
-		use(() => rect.setAttribute("fill", this.style.fill))
-		use(() => rect.setAttribute("x", this.transform.position.x))
-		use(() => rect.setAttribute("y", this.transform.position.y))
-		use(() => rect.setAttribute("width", this.rectangle.scaledDimensions.width))
-		use(() => rect.setAttribute("height", this.rectangle.scaledDimensions.height))
+		use(() => rectangle.setAttribute("fill", this.style.fill))
+		use(() => rectangle.setAttribute("x", this.transform.position.x))
+		use(() => rectangle.setAttribute("y", this.transform.position.y))
+		use(() => rectangle.setAttribute("width", this.rectangle.scaledDimensions.width))
+		use(() => rectangle.setAttribute("height", this.rectangle.scaledDimensions.height))
 
-		svg.append(rect)
+		svg.append(rectangle)
 	}
 }
