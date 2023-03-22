@@ -1,7 +1,9 @@
-import { Component, Entity } from "../../libraries/habitat-import.js"
+import { Box } from "./box.js"
 
-export const World = class extends Entity {
+export const World = class extends Box {
 	constructor() {
-		super([new Component.Transform(), new Component.Stage()])
+		super()
+		this.dimensions = [16, 12]
+		this.transform.scale = [20, 20]
 	}
 }
