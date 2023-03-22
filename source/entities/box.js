@@ -1,7 +1,6 @@
 import { Component, Entity, SVG, use } from "../../libraries/habitat-import.js"
 import { Style } from "../components/colour.js"
 import { Movement } from "../components/movement.js"
-import { shared } from "../main.js"
 
 export const Box = class extends Entity {
 	constructor(dimensions = [10, 10]) {
@@ -24,14 +23,5 @@ export const Box = class extends Entity {
 		use(() => rect.setAttribute("height", this.rectangle.scaledDimensions.height))
 
 		svg.append(rect)
-	}
-
-	update() {
-		const { transform } = this
-		const { pointer } = shared
-		if (pointer.position.x === undefined) {
-			return
-		}
-		transform.position = pointer.position
 	}
 }

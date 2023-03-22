@@ -5,10 +5,4 @@ export const Camera = class extends Entity {
 	constructor(stage) {
 		super([new Component.Transform(), new Component.Stage(stage), new Movement()])
 	}
-
-	start() {
-		this.registerControls()
-	}
-
-	registerControls() {}
 }
