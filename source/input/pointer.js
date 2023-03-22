@@ -7,7 +7,7 @@ import {
 	subtract,
 } from "../../libraries/habitat-import.js"
 
-// This file injects some custom behaviour into the Habitat pointer object
+// This function injects a 'velocity' property into the Habitat pointer object
 export const getPointer = memo(() => {
 	const pointer = _getPointer()
 	pointer.velocity = [0, 0]
