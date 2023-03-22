@@ -1506,13 +1506,23 @@ const HabitatFrogasaurus = {}
 				const options = new Options(Stage.options)(head, tail)
 		
 				const layered = typeof options.context !== "string"
+				const keyed = layered && !Array.isArray(options.context)
 		
 				const contextTypes = layered ? options.context : [options.context]
-				const layers = contextTypes.map((v) => new Layer(v))
-				const context = layered ? layers.map((v) => v.context) : layers[0].context
+				const layers = keyed ? {} : []
+				const contexts = keyed ? {} : []
+				for (const key in contextTypes) {
+					const type = contextTypes[key]
+					const layer = new Layer(type)
+					layers[key] = layer
+					contexts[key] = layer.context
+				}
+		
+				const context = layered ? contexts : contexts[0]
 		
 				const internal = {
 					layered,
+					keyed,
 					layers,
 					context,
 					clock: 0.0,
@@ -1537,11 +1547,18 @@ const HabitatFrogasaurus = {}
 				document.body.style["margin"] = "0px"
 				document.body.style["overflow"] = "hidden"
 		
-				for (const layer of this.layers) {
+				for (const key in this.layers) {
+					const layer = this.layers[key]
 					layer.context = layer.start()
 				}
 		
-				this.context = this.layered ? this.layers.map((v) => v.context) : this.layers[0].context
+				const contexts = this.keyed ? {} : []
+				for (const key in this.layers) {
+					const layer = this.layers[key]
+					contexts[key] = layer.context
+				}
+		
+				this.context = this.layered ? contexts : contexts[0]
 		
 				on("resize", () => this.fireResize())
 				on(keyDown(" "), () => (this.paused = !this.paused))
@@ -1552,7 +1569,8 @@ const HabitatFrogasaurus = {}
 			}
 		
 			fireResize = () => {
-				for (const layer of this.layers) {
+				for (const key in this.layers) {
+					const layer = this.layers[key]
 					layer.resize(layer.context)
 				}
 		

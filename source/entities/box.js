@@ -1,6 +1,6 @@
 import { Component, Entity, SVG, use } from "../../libraries/habitat-import.js"
-import { Style } from "../components/colour.js"
 import { Movement } from "../components/movement.js"
+import { Style } from "../components/style.js"
 
 export const Box = class extends Entity {
 	constructor(dimensions = [10, 10]) {
@@ -13,7 +13,7 @@ export const Box = class extends Entity {
 		])
 	}
 
-	start([background, html, svg, foreground]) {
+	start({ svg }) {
 		const rect = SVG(`<rect />`)
 
 		use(() => rect.setAttribute("fill", this.style.fill))

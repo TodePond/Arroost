@@ -9,7 +9,9 @@ window.dir = console.dir.bind(console)
 registerMethods()
 
 const pointer = getPointer()
-const stage = new Stage(["2d", "html", "svg", "2d"])
+const stage = new Stage({
+	context: { background: "2d", html: "html", svg: "svg", foreground: "2d" },
+})
 const camera = new Camera(stage)
 const world = new World()
 
