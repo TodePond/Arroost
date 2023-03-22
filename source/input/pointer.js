@@ -1,5 +1,13 @@
-import { add, equals, getPointer as _getPointer, memo, scale, subtract } from "../../libraries/habitat-import.js"
+import {
+	add,
+	equals,
+	getPointer as _getPointer,
+	memo,
+	scale,
+	subtract,
+} from "../../libraries/habitat-import.js"
 
+// This file injects some custom behaviour into the Habitat pointer object
 export const getPointer = memo(() => {
 	const pointer = _getPointer()
 	pointer.velocity = [0, 0]
