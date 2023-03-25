@@ -14,7 +14,7 @@ export const Svg = class extends Component {
 			use(() =>
 				group.setAttribute(
 					"transform",
-					`translate(${this.entity.transform.position.x}, ${this.entity.transform.position.y}) scale(${this.entity.transform.scale.x}, ${this.entity.transform.scale.y})`,
+					`rotate(${this.entity.transform.rotation}) translate(${this.entity.transform.position.x}, ${this.entity.transform.position.y}) scale(${this.entity.transform.scale.x}, ${this.entity.transform.scale.y})`,
 				),
 			)
 
