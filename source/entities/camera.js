@@ -1,8 +1,12 @@
-import { Component, Entity } from "../../libraries/habitat-import.js"
-import { Movement } from "../components/movement.js"
+import { Thing } from "./thing.js"
 
-export const Camera = class extends Entity {
+export const Camera = class extends Thing {
 	constructor(stage) {
-		super([new Component.Transform(), new Component.Stage(stage), new Movement()])
+		super()
+		this.stage.connect(stage)
+	}
+
+	start({ svg }) {
+		svg.append(this.svg.element)
 	}
 }
