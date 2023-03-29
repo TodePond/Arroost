@@ -13,7 +13,7 @@ export const getPointer = memo(() => {
 	pointer.velocity = [0, 0]
 
 	const velocityHistory = []
-	const HISTORY_LENGTH = 5
+	const HISTORY_LENGTH = 4
 
 	let previousPosition = [undefined, undefined]
 
