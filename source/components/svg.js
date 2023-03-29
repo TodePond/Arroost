@@ -11,6 +11,7 @@ export const Svg = class extends DisposableComponent {
 		if (this._element === undefined) {
 			const group = SVG(`<g />`)
 			group.entity = this.entity
+			group.input = this.entity?.input
 			this._element = group
 			const rendered = this.render()
 
@@ -30,6 +31,7 @@ export const Svg = class extends DisposableComponent {
 
 			if (rendered) {
 				rendered.entity = this.entity
+				rendered.input = this.entity?.input
 				group.prepend(rendered)
 			}
 		}

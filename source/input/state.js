@@ -7,26 +7,21 @@ export const Idle = new State({
 	},
 
 	pointerover(event) {
-		const { entity } = event
-		if (entity === undefined) return
+		const { input } = event
+		if (input === undefined) return
 		return Hovering
 	},
 })
 
 export const Hovering = new State({
-	entity: undefined,
-
 	enter() {
 		setCursor("pointer")
 	},
 
 	pointerover(event) {
-		const { entity } = event
-		if (entity !== this.entity) {
-			this.entity = entity
-		}
+		const { entity, input } = event
 
-		if (entity === undefined) {
+		if (input === undefined) {
 			return Idle
 		}
 	},
