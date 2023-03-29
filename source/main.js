@@ -48,6 +48,3 @@ arrowOfCreation.transform.position = [
 ]
 
 camera.add(arrowOfCreation)
-camera.tick = () => {
-	camera.transform.position.x++
-}

@@ -24,7 +24,6 @@ export const Idle = new State({
 
 export const Hovering = new State({
 	enter() {
-		print("HOVER")
 		const { input } = shared.hover
 		input.hovered = true
 		setCursor("pointer")
@@ -55,6 +54,9 @@ export const Panning = new State({
 	},
 
 	pointermove(event) {
-		const { entity } = event
+		const { camera } = shared
+		const { movementX, movementY } = event
+		camera.transform.position.x += movementX / devicePixelRatio
+		camera.transform.position.y += movementY / devicePixelRatio
 	},
 })
