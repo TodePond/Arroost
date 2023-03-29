@@ -3,7 +3,6 @@ import { DisposableComponent } from "./disposable.js"
 
 export const Input = class extends DisposableComponent {
 	name = "input"
-
 	hovered = use(false)
 	constructor() {
 		super()
