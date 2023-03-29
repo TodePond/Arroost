@@ -5,11 +5,12 @@ import { Svg } from "../components/svg.js"
 import { DisposableEntity } from "./disposable.js"
 
 export const Thing = class extends DisposableEntity {
+	// Add any children in the constructor
 	constructor(components = []) {
 		super([
 			new Component.Transform(),
 			new Component.Stage(),
-			new Component.Rectangle(),
+			new Component.Rectangle([0, 0]),
 			new Style(),
 			new Movement(),
 			new Svg(),
@@ -17,6 +18,7 @@ export const Thing = class extends DisposableEntity {
 		])
 	}
 
+	// Control appearance in the render method
 	render() {
 		return undefined
 	}

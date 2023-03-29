@@ -1,8 +1,14 @@
-import { add, use } from "../../libraries/habitat-import.js"
+import { add, glue, use } from "../../libraries/habitat-import.js"
 import { DisposableComponent } from "./disposable.js"
 
 export const Movement = class extends DisposableComponent {
 	name = "movement"
+
+	constructor() {
+		super()
+		glue(this)
+	}
+
 	velocity = use([0, 0])
 	acceleration = use([0, 0])
 

@@ -9,8 +9,9 @@ export const Svg = class extends DisposableComponent {
 
 	get element() {
 		if (this._element === undefined) {
-			const rendered = this.render()
 			const group = SVG(`<g />`)
+			this._element = group
+			const rendered = this.render()
 
 			this.use(() => {
 				const [width, height] = this.entity.rectangle.dimensions
@@ -27,10 +28,8 @@ export const Svg = class extends DisposableComponent {
 			})
 
 			if (rendered) {
-				group.append(rendered)
+				group.prepend(rendered)
 			}
-
-			this._element = group
 		}
 
 		return this._element

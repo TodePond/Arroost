@@ -19,14 +19,14 @@ const HabitatFrogasaurus = {}
 			}
 			return array
 		}
-		
+
 		const trimArray = (array) => {
 			// If the array is empty just return it
 			if (array.length == 0) return array
-		
+
 			let start = array.length - 1
 			let end = 0
-		
+
 			// Find the first non-undefined index
 			for (let i = 0; i < array.length; i++) {
 				const value = array[i]
@@ -35,7 +35,7 @@ const HabitatFrogasaurus = {}
 					break
 				}
 			}
-		
+
 			// Find the last non-undefined index
 			for (let i = array.length - 1; i >= 0; i--) {
 				const value = array[i]
@@ -44,35 +44,34 @@ const HabitatFrogasaurus = {}
 					break
 				}
 			}
-		
+
 			// Cut off the start and end of the array
 			array.splice(end)
 			array.splice(0, start)
 			return array
 		}
-		
+
 		const repeatArray = (array, count) => {
 			// If count is zero, empty the array
 			if (count === 0) {
 				array.splice(0)
 				return array
 			}
-		
+
 			// If count is less than zero, reverse the array
 			else if (count < 0) {
 				array.reverse()
 				count = Math.abs(count)
 			}
-		
+
 			// Otherwise repeat the array
 			const clone = [...array]
 			for (let i = 0; i < count - 1; i++) {
 				array.push(...clone)
 			}
-		
+
 			return array
 		}
-		
 
 		HabitatFrogasaurus["./array.js"].shuffleArray = shuffleArray
 		HabitatFrogasaurus["./array.js"].trimArray = trimArray
@@ -83,7 +82,6 @@ const HabitatFrogasaurus = {}
 	{
 		HabitatFrogasaurus["./async.js"] = {}
 		const sleep = (duration) => new Promise((resolve) => setTimeout(resolve, duration))
-		
 
 		HabitatFrogasaurus["./async.js"].sleep = sleep
 	}
@@ -91,7 +89,7 @@ const HabitatFrogasaurus = {}
 	//====== ./colour.js ======
 	{
 		HabitatFrogasaurus["./colour.js"] = {}
-		
+
 		//===========//
 		// UTILITIES //
 		//===========//
@@ -100,13 +98,13 @@ const HabitatFrogasaurus = {}
 			while (number > 999) number -= 1000
 			return number
 		}
-		
+
 		const getThreeDigits = (number) => {
 			const chars = number.toString().padStart(3, "0").split("")
 			const digits = chars.map((v) => parseInt(v))
 			return digits
 		}
-		
+
 		//=========//
 		// CLASSES //
 		//=========//
@@ -118,17 +116,17 @@ const HabitatFrogasaurus = {}
 					this.push(alpha)
 				}
 			}
-		
+
 			toString() {
 				const [red, green, blue, alpha] = this.map((v) => v.toString(16).padStart(2, "0"))
 				if (this.alpha === 255) {
 					return `#${red}${green}${blue}`
 				}
-		
+
 				return `#${red}${green}${blue}${alpha}`
 			}
 		}
-		
+
 		const Splash = class extends Colour {
 			constructor(number) {
 				const wrappedNumber = wrapSplashNumber(number)
@@ -140,14 +138,14 @@ const HabitatFrogasaurus = {}
 				Reflect.defineProperty(this, "splash", { value: wrappedNumber, enumerable: false })
 			}
 		}
-		
+
 		//===========//
 		// FUNCTIONS //
 		//===========//
 		const showColour = (colour) => {
 			console.log("%c   ", `background-color: ${new Colour(...colour)}`)
 		}
-		
+
 		//=========//
 		// METHODS //
 		//=========//
@@ -162,7 +160,7 @@ const HabitatFrogasaurus = {}
 					this[0] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"green",
@@ -173,7 +171,7 @@ const HabitatFrogasaurus = {}
 					this[1] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"blue",
@@ -184,7 +182,7 @@ const HabitatFrogasaurus = {}
 					this[2] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"alpha",
@@ -196,20 +194,20 @@ const HabitatFrogasaurus = {}
 				},
 			)
 		}
-		
+
 		//===========//
 		// CONSTANTS //
 		//===========//
 		const RED_SPLASH_VALUES = [23, 55, 70, 98, 128, 159, 174, 204, 242, 255]
 		const GREEN_SPLASH_VALUES = [29, 67, 98, 128, 159, 174, 204, 222, 245, 255]
 		const BLUE_SPLASH_VALUES = [40, 70, 98, 128, 159, 174, 204, 222, 247, 255]
-		
+
 		const VOID = new Colour(6, 7, 10)
 		const BLACK = new Splash(0)
 		const GREY = new Splash(112)
 		const SILVER = new Splash(556)
 		const WHITE = new Splash(999)
-		
+
 		const GREEN = new Splash(293)
 		const CYAN = new Splash(269)
 		const BLUE = new Splash(239)
@@ -219,13 +217,12 @@ const HabitatFrogasaurus = {}
 		const RED = new Splash(911)
 		const ORANGE = new Splash(931)
 		const YELLOW = new Splash(991)
-		
+
 		const HUES = [GREEN, CYAN, BLUE, PURPLE, PINK, CORAL, RED, ORANGE, YELLOW]
-		
+
 		const SHADES = [VOID, BLACK, GREY, SILVER, WHITE]
-		
+
 		const COLOURS = [...SHADES, ...HUES]
-		
 
 		HabitatFrogasaurus["./colour.js"].Colour = Colour
 		HabitatFrogasaurus["./colour.js"].Splash = Splash
@@ -253,14 +250,14 @@ const HabitatFrogasaurus = {}
 	//====== ./component.js ======
 	{
 		HabitatFrogasaurus["./component.js"] = {}
-		
+
 		const Component = class {
 			static options = {
 				default: "name",
 				isDefault: (v) => typeof v === "string",
 				name: () => "component",
 			}
-		
+
 			constructor(head, tail) {
 				const options = new Options(Component.options)(head, tail)
 				Object.assign(this, options)
@@ -268,19 +265,19 @@ const HabitatFrogasaurus = {}
 				glue(this)
 			}
 		}
-		
+
 		Component.Transform = class extends Component {
 			name = "transform"
 			position = use([0, 0])
 			scale = use([1, 1])
 			rotation = use(0)
-		
+
 			constructor(properties = {}) {
 				super()
 				Object.assign(this, properties)
 				glue(this)
 			}
-		
+
 			absolutePosition = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
@@ -290,7 +287,7 @@ const HabitatFrogasaurus = {}
 				const rotatedPosition = rotate(this.position, parent.transform.absoluteRotation)
 				return add(parent.transform.absolutePosition, rotatedPosition)
 			})
-		
+
 			absoluteScale = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
@@ -301,7 +298,7 @@ const HabitatFrogasaurus = {}
 				const [px, py] = parent.transform.absoluteScale
 				return [x * px, y * py]
 			})
-		
+
 			absoluteRotation = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
@@ -311,7 +308,7 @@ const HabitatFrogasaurus = {}
 				return this.rotation + parent.transform.absoluteRotation
 			})
 		}
-		
+
 		Component.Stage = class extends Component {
 			constructor(stage) {
 				super("stage")
@@ -319,7 +316,7 @@ const HabitatFrogasaurus = {}
 					this.connect(stage)
 				}
 			}
-		
+
 			tick(context) {
 				const { entity } = this
 				entity.tick?.(context)
@@ -327,7 +324,7 @@ const HabitatFrogasaurus = {}
 					child.stage?.tick(context)
 				}
 			}
-		
+
 			update(context) {
 				const { entity } = this
 				entity.update?.(context)
@@ -335,7 +332,7 @@ const HabitatFrogasaurus = {}
 					child.stage?.update(context)
 				}
 			}
-		
+
 			start(context) {
 				const { entity } = this
 				entity.start?.(context)
@@ -343,7 +340,7 @@ const HabitatFrogasaurus = {}
 					child.stage?.start(context)
 				}
 			}
-		
+
 			resize(context) {
 				const { entity } = this
 				entity.resize?.(context)
@@ -351,7 +348,7 @@ const HabitatFrogasaurus = {}
 					child.stage?.resize(context)
 				}
 			}
-		
+
 			connect(stage) {
 				stage.tick = this.tick.bind(this)
 				stage.update = this.update.bind(this)
@@ -359,27 +356,27 @@ const HabitatFrogasaurus = {}
 				stage.resize = this.resize.bind(this)
 			}
 		}
-		
+
 		Component.Rectangle = class extends Component {
 			constructor(dimensions = [10, 10]) {
 				super("rectangle")
-				this.dimensions = dimensions
 				glue(this)
+				this.dimensions = dimensions
 			}
-		
+
 			dimensions = use([10, 10])
 			scaledDimensions = snuse(() => {
 				const [width, height] = this.dimensions
 				const [scaleX, scaleY] = this.entity.transform.scale
 				return [width * scaleX, height * scaleY]
 			})
-		
+
 			absoluteDimensions = snuse(() => {
 				const [width, height] = this.dimensions
 				const [scaleX, scaleY] = this.entity.transform.absoluteScale
 				return [width * scaleX, height * scaleY]
 			})
-		
+
 			bounds = snuse(() => {
 				const { entity } = this
 				const [x, y] = entity.transform.position
@@ -391,7 +388,7 @@ const HabitatFrogasaurus = {}
 					bottom: y + height,
 				}
 			})
-		
+
 			scaledBounds = snuse(() => {
 				const { entity } = this
 				const [x, y] = entity.transform.position
@@ -403,7 +400,7 @@ const HabitatFrogasaurus = {}
 					bottom: y + height,
 				}
 			})
-		
+
 			absoluteBounds = snuse(() => {
 				const { entity } = this
 				const [x, y] = entity.transform.absolutePosition
@@ -416,7 +413,6 @@ const HabitatFrogasaurus = {}
 				}
 			})
 		}
-		
 
 		HabitatFrogasaurus["./component.js"].Component = Component
 	}
@@ -424,30 +420,29 @@ const HabitatFrogasaurus = {}
 	//====== ./console.js ======
 	{
 		HabitatFrogasaurus["./console.js"] = {}
-		
+
 		const print = console.log.bind(console)
-		
+
 		let printCount = 0
 		const print9 = (message) => {
 			if (printCount > 9) return
 			printCount++
 			print(message)
 		}
-		
+
 		const registerDebugMethods = () => {
 			defineGetter(Object.prototype, "d", function () {
 				const value = this.valueOf()
 				print(value)
 				return value
 			})
-		
+
 			defineGetter(Object.prototype, "d9", function () {
 				const value = this.valueOf()
 				print9(value)
 				return value
 			})
 		}
-		
 
 		HabitatFrogasaurus["./console.js"].print = print
 		HabitatFrogasaurus["./console.js"].print9 = print9
@@ -459,7 +454,6 @@ const HabitatFrogasaurus = {}
 		HabitatFrogasaurus["./document.js"] = {}
 		const $ = (...args) => document.querySelector(...args)
 		const $$ = (...args) => document.querySelectorAll(...args)
-		
 
 		HabitatFrogasaurus["./document.js"].$ = $
 		HabitatFrogasaurus["./document.js"].$$ = $$
@@ -468,57 +462,56 @@ const HabitatFrogasaurus = {}
 	//====== ./entity.js ======
 	{
 		HabitatFrogasaurus["./entity.js"] = {}
-		
+
 		const Entity = class {
 			components = []
 			parent = use(null)
 			children = new Set() //TODO: use a signal here once other signal types are implemented
-		
+
 			static options = {
 				default: "components",
 				isDefault: (v) => Array.isArray(v),
 				components: () => [],
 			}
-		
+
 			constructor(head, tail) {
 				const options = new Options(Entity.options)(head, tail)
-		
+
 				for (const component of options.components) {
 					this[component.name] = component
 					component.entity = this
 				}
-		
+
 				Object.assign(this, options)
 				glue(this)
 			}
-		
+
 			add(entity) {
 				if (entity === this) {
 					throw new Error("Parent can't adopt itself")
 				}
-		
+
 				if (entity.parent === this) {
 					throw new Error("Parent already adopted child")
 				}
-		
+
 				if (entity.parent !== null) {
 					throw new Error("Parent can't adopt child that already has a parent")
 				}
-		
+
 				entity.parent = this
 				this.children.add(entity)
 			}
-		
+
 			delete(entity) {
 				if (entity.parent !== this) {
 					throw new Error("Parent can't delete child that it doesn't own")
 				}
-		
+
 				entity.parent = null
 				this.children.delete(entity)
 			}
 		}
-		
 
 		HabitatFrogasaurus["./entity.js"].Entity = Entity
 	}
@@ -534,11 +527,10 @@ const HabitatFrogasaurus = {}
 			}
 			target.dispatchEvent(event)
 		}
-		
+
 		const on = (event, func, options) => {
 			return addEventListener(event, func, options)
 		}
-		
 
 		HabitatFrogasaurus["./event.js"].fireEvent = fireEvent
 		HabitatFrogasaurus["./event.js"].on = on
@@ -547,22 +539,21 @@ const HabitatFrogasaurus = {}
 	//====== ./habitat.js ======
 	{
 		HabitatFrogasaurus["./habitat.js"] = {}
-		
+
 		const registerMethods = () => {
 			registerDebugMethods()
 			registerColourMethods()
 			registerVectorMethods()
 		}
-		
+
 		const registerGlobals = () => {
 			Object.assign(window, Habitat)
 		}
-		
+
 		const registerEverything = () => {
 			registerGlobals()
 			registerMethods()
 		}
-		
 
 		HabitatFrogasaurus["./habitat.js"].registerMethods = registerMethods
 		HabitatFrogasaurus["./habitat.js"].registerGlobals = registerGlobals
@@ -581,7 +572,6 @@ const HabitatFrogasaurus = {}
 			}
 			return template.content
 		}
-		
 
 		HabitatFrogasaurus["./html.js"].HTML = HTML
 	}
@@ -594,7 +584,6 @@ const HabitatFrogasaurus = {}
 			const value = new Function(code)()
 			return value
 		}
-		
 
 		HabitatFrogasaurus["./javascript.js"].JavaScript = JavaScript
 	}
@@ -605,7 +594,6 @@ const HabitatFrogasaurus = {}
 		const _ = (value) => {
 			return JSON.stringify(value)
 		}
-		
 
 		HabitatFrogasaurus["./json.js"]._ = _
 	}
@@ -613,7 +601,7 @@ const HabitatFrogasaurus = {}
 	//====== ./keyboard.js ======
 	{
 		HabitatFrogasaurus["./keyboard.js"] = {}
-		
+
 		const keyboard = {}
 		let isKeyboardTracked = false
 		const getKeyboard = () => {
@@ -622,14 +610,14 @@ const HabitatFrogasaurus = {}
 			on("keydown", (e) => {
 				keyboard[e.key] = true
 			})
-		
+
 			on("keyup", (e) => {
 				keyboard[e.key] = false
 			})
-		
+
 			return keyboard
 		}
-		
+
 		let isKeyDownTracked = false
 		const keyDown = (key) => {
 			if (!isKeyDownTracked) {
@@ -638,7 +626,7 @@ const HabitatFrogasaurus = {}
 			}
 			return `keyDown("${key}")`
 		}
-		
+
 		let isKeyUpTracked = false
 		const keyUp = (key) => {
 			if (!isKeyUpTracked) {
@@ -647,7 +635,6 @@ const HabitatFrogasaurus = {}
 			}
 			return `keyUp("${key}")`
 		}
-		
 
 		HabitatFrogasaurus["./keyboard.js"].getKeyboard = getKeyboard
 		HabitatFrogasaurus["./keyboard.js"].keyDown = keyDown
@@ -657,22 +644,22 @@ const HabitatFrogasaurus = {}
 	//====== ./lerp.js ======
 	{
 		HabitatFrogasaurus["./lerp.js"] = {}
-		
+
 		const lerp = ([a, b], distance) => {
 			const range = subtract(b, a)
 			const displacement = scale(range, distance)
 			return add(a, displacement)
 		}
-		
+
 		const bilerp = ([a, b, c, d], displacement) => {
 			const [dx, dy] = displacement
 			const la = lerp([a, b], dx)
 			const lb = lerp([d, c], dx)
-		
+
 			const line = [la, lb]
 			return lerp(line, dy)
 		}
-		
+
 		// based on https://iquilezles.org/articles/ibilinear
 		// adapted by Magnogen https://magnogen.net
 		const ibilerp = ([a, b, c, d], value) => {
@@ -681,37 +668,36 @@ const HabitatFrogasaurus = {}
 					`[Habitat] Sorry, 'ibilerp' doesn't support numbers yet - only vectors... Please contact @todepond :)`,
 				)
 			}
-		
+
 			const e = subtract(b, a)
 			const f = subtract(d, a)
 			const g = add(subtract(a, b), subtract(c, d))
 			const h = subtract(value, a)
-		
+
 			const k2 = crossProduct(g, f)
 			const k1 = crossProduct(e, f) + crossProduct(h, g)
 			const k0 = crossProduct(h, e)
-		
+
 			if (Math.abs(k2) < 0.0001) {
 				const x = (h[0] * k1 + f[0] * k0) / (e[0] * k1 - g[0] * k0)
 				const y = -k0 / k1
 				return [x, y]
 			}
-		
+
 			let w = k1 * k1 - 4 * k0 * k2
 			w = Math.sqrt(w)
-		
+
 			const ik2 = 0.5 / k2
 			let v = (-k1 - w) * ik2
 			let u = (h[0] - f[0] * v) / (e[0] + g[0] * v)
-		
+
 			if (u < 0.0 || u > 1.0 || v < 0.0 || v > 1.0) {
 				v = (-k1 + w) * ik2
 				u = (h[0] - f[0] * v) / (e[0] + g[0] * v)
 			}
-		
+
 			return [u, v]
 		}
-		
 
 		HabitatFrogasaurus["./lerp.js"].lerp = lerp
 		HabitatFrogasaurus["./lerp.js"].bilerp = bilerp
@@ -726,12 +712,12 @@ const HabitatFrogasaurus = {}
 				this.start = undefined
 				this.end = undefined
 				this.isEmpty = true
-		
+
 				for (const value of iterable) {
 					this.push(value)
 				}
 			}
-		
+
 			*[Symbol.iterator]() {
 				let link = this.start
 				while (link !== undefined) {
@@ -739,11 +725,11 @@ const HabitatFrogasaurus = {}
 					link = link.next
 				}
 			}
-		
+
 			toString() {
 				return [...this].toString()
 			}
-		
+
 			push(...values) {
 				for (const value of values) {
 					const link = makeLink(value)
@@ -758,58 +744,57 @@ const HabitatFrogasaurus = {}
 					}
 				}
 			}
-		
+
 			pop() {
 				if (this.isEmpty) {
 					return undefined
 				}
-		
+
 				const value = this.start.value
 				if (this.start === this.end) {
 					this.clear()
 					return value
 				}
-		
+
 				this.end = this.end.previous
 				this.end.next = undefined
 				return value
 			}
-		
+
 			shift() {
 				if (this.isEmpty) {
 					return undefined
 				}
-		
+
 				const value = this.start.value
 				if (this.start === this.end) {
 					this.clear()
 					return value
 				}
-		
+
 				this.start = this.start.next
 				this.start.previous = undefined
 				return value
 			}
-		
+
 			clear() {
 				this.start = undefined
 				this.end = undefined
 				this.isEmpty = true
 			}
-		
+
 			setStart(link) {
 				this.start = link
 				link.previous = undefined
 			}
 		}
-		
+
 		const makeLink = (value) => {
 			const previous = undefined
 			const next = undefined
 			const link = { value, previous, next }
 			return link
 		}
-		
 
 		HabitatFrogasaurus["./linked-list.js"].LinkedList = LinkedList
 	}
@@ -824,13 +809,12 @@ const HabitatFrogasaurus = {}
 				if (cache.has(key)) {
 					return cache.get(key)
 				}
-		
+
 				const result = func(...args)
 				cache.set(key, result)
 				return result
 			}
 		}
-		
 
 		HabitatFrogasaurus["./memo.js"].memo = memo
 	}
@@ -838,39 +822,39 @@ const HabitatFrogasaurus = {}
 	//====== ./mouse.js ======
 	{
 		HabitatFrogasaurus["./mouse.js"] = {}
-		
+
 		let isMouseTracked = false
 		const buttonNames = ["Left", "Middle", "Right", "Back", "Forward"]
 		const mouse = {
 			position: [undefined, undefined],
 		}
-		
+
 		const getMouse = () => {
 			if (isMouseTracked) return mouse
 			isMouseTracked = true
-		
+
 			on("mousemove", (e) => {
 				mouse.position[0] = e.clientX
 				mouse.position[1] = e.clientY
 			})
-		
+
 			on("mousedown", (e) => {
 				mouse.position[0] = e.clientX
 				mouse.position[1] = e.clientY
 				const buttonName = buttonNames[e.button]
 				mouse[buttonName] = true
 			})
-		
+
 			on("mouseup", (e) => {
 				mouse.position[0] = e.clientX
 				mouse.position[1] = e.clientY
 				const buttonName = buttonNames[e.button]
 				mouse[buttonName] = false
 			})
-		
+
 			return mouse
 		}
-		
+
 		let isMouseDownTracked = false
 		const mouseDown = (buttonName) => {
 			const button = buttonNames.indexOf(buttonName)
@@ -880,7 +864,7 @@ const HabitatFrogasaurus = {}
 			}
 			return `mouseDown("${button}")`
 		}
-		
+
 		let isMouseUpTracked = false
 		const mouseUp = (buttonName) => {
 			const button = buttonNames.indexOf(buttonName)
@@ -890,7 +874,6 @@ const HabitatFrogasaurus = {}
 			}
 			return `mouseUp("${button}")`
 		}
-		
 
 		HabitatFrogasaurus["./mouse.js"].getMouse = getMouse
 		HabitatFrogasaurus["./mouse.js"].mouseDown = mouseDown
@@ -903,22 +886,22 @@ const HabitatFrogasaurus = {}
 		const clamp = (number, min, max) => {
 			return Math.min(Math.max(number, min), max)
 		}
-		
+
 		const wrap = (number, min, max) => {
 			return min + ((number - min) % (max - min))
 		}
-		
+
 		const getDigits = (number) => {
 			const chars = number.toString().split("")
 			const digits = chars.map((v) => parseInt(v)).filter((v) => !isNaN(v))
 			return digits
 		}
-		
+
 		const gcd = (...numbers) => {
 			const [head, ...tail] = numbers
 			if (numbers.length === 1) return head
 			if (numbers.length > 2) return gcd(head, gcd(...tail))
-		
+
 			let [a, b] = [head, ...tail]
 			while (true) {
 				if (b === 0) return a
@@ -927,12 +910,12 @@ const HabitatFrogasaurus = {}
 				b = b % a
 			}
 		}
-		
+
 		const simplifyRatio = (...numbers) => {
 			const divisor = gcd(...numbers)
 			return numbers.map((n) => n / divisor)
 		}
-		
+
 		const range = function* (start, end) {
 			let i = start
 			if (i <= end)
@@ -946,7 +929,6 @@ const HabitatFrogasaurus = {}
 					i--
 				}
 		}
-		
 
 		HabitatFrogasaurus["./number.js"].clamp = clamp
 		HabitatFrogasaurus["./number.js"].wrap = wrap
@@ -969,25 +951,25 @@ const HabitatFrogasaurus = {}
 				self.isDefault = isDefault
 				return self
 			}
-		
+
 			match(head, tail) {
 				// If we don't have a default option, just use the first as an object
 				if (this.default === undefined || this.isDefault === undefined) {
 					return this.call(head)
 				}
-		
+
 				// If the first argument doesn't match the default, use it as an object
 				if (!this.isDefault(head)) {
 					return this.call(head)
 				}
-		
+
 				// Otherwise, use the first argument as the default option, and the second as an object
 				return this.call({
 					[this.default]: head,
 					...tail,
 				})
 			}
-		
+
 			call(options = {}) {
 				const result = {}
 				for (const key in this.options) {
@@ -995,17 +977,16 @@ const HabitatFrogasaurus = {}
 					const value = arg === undefined ? this.options[key]() : arg
 					result[key] = value
 				}
-		
+
 				for (const key in options) {
 					if (this.options[key] === undefined) {
 						result[key] = options[key]
 					}
 				}
-		
+
 				return result
 			}
 		}
-		
 
 		HabitatFrogasaurus["./options.js"].Options = Options
 	}
@@ -1018,31 +999,30 @@ const HabitatFrogasaurus = {}
 			position: [undefined, undefined],
 			down: undefined,
 		}
-		
+
 		const getPointer = () => {
 			if (isPointerTracked) return pointer
 			isPointerTracked = true
-		
+
 			addEventListener("pointermove", (e) => {
 				pointer.position[0] = e.clientX
 				pointer.position[1] = e.clientY
 			})
-		
+
 			addEventListener("pointerdown", (e) => {
 				pointer.position[0] = e.clientX
 				pointer.position[1] = e.clientY
 				pointer.down = true
 			})
-		
+
 			addEventListener("pointerup", (e) => {
 				pointer.position[0] = e.clientX
 				pointer.position[1] = e.clientY
 				pointer.down = false
 			})
-		
+
 			return pointer
 		}
-		
 
 		HabitatFrogasaurus["./pointer.js"].getPointer = getPointer
 	}
@@ -1065,7 +1045,7 @@ const HabitatFrogasaurus = {}
 				enumerable: false,
 			})
 		}
-		
+
 		const defineAccessor = (object, name, get, set) => {
 			return Reflect.defineProperty(object, name, {
 				get,
@@ -1074,7 +1054,6 @@ const HabitatFrogasaurus = {}
 				enumerable: false,
 			})
 		}
-		
 
 		HabitatFrogasaurus["./property.js"].defineGetter = defineGetter
 		HabitatFrogasaurus["./property.js"].defineAccessor = defineAccessor
@@ -1086,7 +1065,7 @@ const HabitatFrogasaurus = {}
 		const maxRandomNumberIndex = 2 ** 14
 		const randomNumbersBuffer = new Uint32Array(maxRandomNumberIndex)
 		let randomNumberIndex = Infinity
-		
+
 		const random = () => {
 			if (randomNumberIndex >= maxRandomNumberIndex) {
 				crypto.getRandomValues(randomNumbersBuffer)
@@ -1096,20 +1075,19 @@ const HabitatFrogasaurus = {}
 			randomNumberIndex++
 			return result
 		}
-		
+
 		const randomFrom = (array) => {
 			const index = random() % array.length
 			return array[index]
 		}
-		
+
 		const randomBetween = (min, max) => {
 			const range = max - min
 			return (random() % range) + min
 		}
-		
+
 		const oneIn = (times) => random() % times < 1
 		const maybe = (chance) => oneIn(1 / chance)
-		
 
 		HabitatFrogasaurus["./random.js"].random = random
 		HabitatFrogasaurus["./random.js"].randomFrom = randomFrom
@@ -1125,7 +1103,7 @@ const HabitatFrogasaurus = {}
 			clock: 0,
 			active: null,
 		}
-		
+
 		// The underlying signal class
 		const Signal = class extends Function {
 			constructor(value, options = {}) {
@@ -1140,7 +1118,7 @@ const HabitatFrogasaurus = {}
 						self.set(value)
 					}
 				})
-		
+
 				self.setInternalProperty("_isSignal", true)
 				self.setInternalProperty("dynamic", false)
 				self.setInternalProperty("lazy", false)
@@ -1158,11 +1136,11 @@ const HabitatFrogasaurus = {}
 						if (Array.isArray(self._current)) {
 							return self._current.length
 						}
-		
+
 						return 1
 					},
 				})
-		
+
 				// Apply options
 				Object.assign(self, {
 					dynamic: false,
@@ -1170,29 +1148,29 @@ const HabitatFrogasaurus = {}
 					store: false,
 					...options,
 				})
-		
+
 				// Initialise our value
 				if (self.dynamic) {
 					self._evaluate = value
 				} else {
 					self._current = value
 				}
-		
+
 				// Initialise the signal if eager
 				if (!self.lazy) {
 					self.update()
 				}
-		
+
 				return self
 			}
-		
+
 			setInternalProperty(key, value) {
 				Reflect.defineProperty(this, key, {
 					value,
 					writable: true,
 				})
 			}
-		
+
 			set(value) {
 				// If we're a store, update our properties
 				if (this.store) {
@@ -1206,7 +1184,7 @@ const HabitatFrogasaurus = {}
 						this._properties.set(key, property)
 						property.glueTo(this, key)
 					}
-		
+
 					// Update existing properties
 					for (const [key, property] of this._properties) {
 						if (key in value) {
@@ -1218,45 +1196,45 @@ const HabitatFrogasaurus = {}
 						}
 					}
 				}
-		
+
 				// Update our value
 				this._previous = this._current
 				this._birth = shared.clock++
 				if (!this.store) {
 					this._current = value
 				}
-		
+
 				// Update our eager children
 				const children = [...this._children]
 				for (const child of children) {
 					child.update()
 				}
 			}
-		
+
 			_isDirty() {
 				if (!this.lazy) {
 					return false
 				}
-		
+
 				if (this._birth < 0) {
 					return true
 				}
-		
+
 				for (const parent of this._parents) {
 					if (parent._birth > this._birth) {
 						return true
 					}
 				}
-		
+
 				return false
 			}
-		
+
 			get() {
 				// If our value is out-of-date, update our value
 				if (this._isDirty()) {
 					this.update()
 				}
-		
+
 				// If there's an active signal, adopt it as a child
 				// because it's using us as a dependency
 				const { active } = shared
@@ -1272,18 +1250,18 @@ const HabitatFrogasaurus = {}
 						this._children.add(active)
 					}
 				}
-		
+
 				// Return our value
 				return this._current
 			}
-		
+
 			update() {
 				// If we're not dynamic, just pointlessly update our value
 				if (!this.dynamic) {
 					this.set(this._current)
 					return
 				}
-		
+
 				// If we're dynamic, run away from our parents
 				// because we might not need them this time
 				if (!this.lazy) {
@@ -1292,23 +1270,23 @@ const HabitatFrogasaurus = {}
 					}
 				}
 				this._parents.clear()
-		
+
 				// Keep hold of the active signal
 				// It's our turn! We're the active signal now!
 				// but we need to give it back afterwards
 				const paused = shared.active
 				shared.active = this
-		
+
 				// Evaluate our function
 				const value = this._evaluate()
-		
+
 				// Give the active signal back
 				shared.active = paused
-		
+
 				// Update our value
 				this.set(value)
 			}
-		
+
 			dispose() {
 				// Remove ourselves from our parents
 				const parents = [...this._parents]
@@ -1316,28 +1294,28 @@ const HabitatFrogasaurus = {}
 					parent._children.delete(this)
 				}
 				this._parents.clear()
-		
+
 				// Remove ourselves from our children
 				const children = [...this._children]
 				for (const child of children) {
 					child._parents.delete(this)
 				}
 				this._children.clear()
-		
+
 				// Remove properties
 				const properties = [...this._properties]
 				for (const [, property] of properties) {
 					property.dispose()
 				}
 				this._properties.clear()
-		
+
 				if (this._store !== undefined) {
 					this._store.dispose()
 				}
-		
+
 				this._children.clear()
 			}
-		
+
 			glueTo(object, key) {
 				if (this.store) {
 					Reflect.defineProperty(object, key, {
@@ -1348,7 +1326,7 @@ const HabitatFrogasaurus = {}
 					})
 					return
 				}
-		
+
 				Reflect.defineProperty(object, key, {
 					get: () => this.get(),
 					set: (value) => this.set(value),
@@ -1356,15 +1334,15 @@ const HabitatFrogasaurus = {}
 					configurable: true,
 				})
 			}
-		
+
 			get value() {
 				return this.get()
 			}
-		
+
 			set value(value) {
 				this.set(value)
 			}
-		
+
 			*[Symbol.iterator]() {
 				if (this.store) {
 					if (Array.isArray(this._current)) {
@@ -1378,27 +1356,27 @@ const HabitatFrogasaurus = {}
 					}
 					return
 				}
-		
+
 				yield this
 				yield (value) => this.set(value)
 			}
-		
+
 			[Symbol.toPrimitive](hint) {
 				if (hint === "string") {
 					return this.get().toString()
 				}
 				return this.get()
 			}
-		
+
 			valueOf() {
 				return this.get()
 			}
-		
+
 			toString() {
 				return this.get().toString()
 			}
 		}
-		
+
 		const ArrayView = class extends Array {
 			constructor(signal) {
 				if (typeof signal === "number") {
@@ -1414,31 +1392,31 @@ const HabitatFrogasaurus = {}
 					})
 				}
 			}
-		
+
 			dispose() {
 				this._signal.dispose()
 			}
-		
+
 			set(value) {
 				this._signal.set(value)
 			}
-		
+
 			get() {
 				return this._signal.get()
 			}
-		
+
 			update() {
 				this._signal.update()
 			}
-		
+
 			get value() {
 				return this._signal.get()
 			}
-		
+
 			set value(value) {
 				this._signal.value = value
 			}
-		
+
 			glueTo(object, key) {
 				Reflect.defineProperty(object, key, {
 					get: () => this,
@@ -1449,7 +1427,7 @@ const HabitatFrogasaurus = {}
 				return
 			}
 		}
-		
+
 		const use = (value, options = {}) => {
 			const properties = {
 				dynamic: typeof value === "function",
@@ -1457,18 +1435,18 @@ const HabitatFrogasaurus = {}
 				store: Array.isArray(value) || value?.constructor === Object,
 				...options,
 			}
-		
+
 			const signal = new Signal(value, properties)
 			if (Array.isArray(value) && properties.store) {
 				return new ArrayView(signal)
 			}
 			return signal
 		}
-		
+
 		const snuse = (value, options = {}) => {
 			return use(value, { lazy: true, ...options })
 		}
-		
+
 		const glue = (source, target = source) => {
 			for (const key in source) {
 				const value = source[key]
@@ -1477,7 +1455,6 @@ const HabitatFrogasaurus = {}
 				}
 			}
 		}
-		
 
 		HabitatFrogasaurus["./signal.js"].ArrayView = ArrayView
 		HabitatFrogasaurus["./signal.js"].use = use
@@ -1488,7 +1465,7 @@ const HabitatFrogasaurus = {}
 	//====== ./stage.js ======
 	{
 		HabitatFrogasaurus["./stage.js"] = {}
-		
+
 		const Stage = class {
 			static options = {
 				default: "context",
@@ -1501,13 +1478,13 @@ const HabitatFrogasaurus = {}
 				tick: () => () => {},
 				update: () => () => {},
 			}
-		
+
 			constructor(head, tail) {
 				const options = new Options(Stage.options)(head, tail)
-		
+
 				const layered = typeof options.context !== "string"
 				const keyed = layered && !Array.isArray(options.context)
-		
+
 				const contextTypes = layered ? options.context : [options.context]
 				const layers = keyed ? {} : []
 				const contexts = keyed ? {} : []
@@ -1517,9 +1494,9 @@ const HabitatFrogasaurus = {}
 					layers[key] = layer
 					contexts[key] = layer.context
 				}
-		
+
 				const context = layered ? contexts : contexts[0]
-		
+
 				const internal = {
 					layered,
 					keyed,
@@ -1527,12 +1504,12 @@ const HabitatFrogasaurus = {}
 					context,
 					clock: 0.0,
 				}
-		
+
 				Object.assign(this, {
 					...options,
 					...internal,
 				})
-		
+
 				if (document.body === null) {
 					addEventListener("load", () => {
 						requestAnimationFrame(() => this.fireStart())
@@ -1541,42 +1518,42 @@ const HabitatFrogasaurus = {}
 					requestAnimationFrame(() => this.fireStart())
 				}
 			}
-		
+
 			fireStart = () => {
 				document.body.style["background-color"] = BLACK
 				document.body.style["margin"] = "0px"
 				document.body.style["overflow"] = "hidden"
-		
+
 				for (const key in this.layers) {
 					const layer = this.layers[key]
 					layer.context = layer.start()
 				}
-		
+
 				const contexts = this.keyed ? {} : []
 				for (const key in this.layers) {
 					const layer = this.layers[key]
 					contexts[key] = layer.context
 				}
-		
+
 				this.context = this.layered ? contexts : contexts[0]
-		
+
 				on("resize", () => this.fireResize())
 				on(keyDown(" "), () => (this.paused = !this.paused))
-		
+
 				this.fireResize()
 				this.start(this.context)
 				this.fireTick()
 			}
-		
+
 			fireResize = () => {
 				for (const key in this.layers) {
 					const layer = this.layers[key]
 					layer.resize(layer.context)
 				}
-		
+
 				this.resize(this.context)
 			}
-		
+
 			fireTick = (time) => {
 				this.clock += this.speed
 				while (this.clock > 0) {
@@ -1584,16 +1561,16 @@ const HabitatFrogasaurus = {}
 					this.tick(this.context, time)
 					this.clock--
 				}
-		
+
 				requestAnimationFrame((time) => this.fireTick(time))
 			}
 		}
-		
+
 		const LayerTemplate = class {
 			start() {}
 			resize() {}
 		}
-		
+
 		const CanvasLayer = class extends LayerTemplate {
 			start() {
 				const canvas = document.createElement("canvas")
@@ -1601,7 +1578,7 @@ const HabitatFrogasaurus = {}
 				document.body.appendChild(canvas)
 				return canvas.getContext("2d")
 			}
-		
+
 			resize(context) {
 				const { canvas } = context
 				canvas.width = Math.round(innerWidth)
@@ -1610,7 +1587,7 @@ const HabitatFrogasaurus = {}
 				canvas.style["height"] = canvas.height
 			}
 		}
-		
+
 		const HTMLLayer = class extends LayerTemplate {
 			start() {
 				const div = document.createElement("div")
@@ -1623,7 +1600,7 @@ const HabitatFrogasaurus = {}
 				return div
 			}
 		}
-		
+
 		const SVGLayer = class extends LayerTemplate {
 			start() {
 				const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -1636,14 +1613,14 @@ const HabitatFrogasaurus = {}
 				return svg
 			}
 		}
-		
+
 		const Layer = class {
 			static types = {
 				"2d": CanvasLayer,
 				"html": HTMLLayer,
 				"svg": SVGLayer,
 			}
-		
+
 			constructor(type) {
 				const Constructor = Layer.types[type]
 				const layer = new Constructor()
@@ -1652,7 +1629,6 @@ const HabitatFrogasaurus = {}
 				return layer
 			}
 		}
-		
 
 		HabitatFrogasaurus["./stage.js"].Stage = Stage
 	}
@@ -1660,19 +1636,19 @@ const HabitatFrogasaurus = {}
 	//====== ./state.js ======
 	{
 		HabitatFrogasaurus["./state.js"] = {}
-		
+
 		const State = class {
 			static options = {
 				default: "name",
 				isDefault: (v) => typeof v === "string",
 				name: () => "state",
 			}
-		
+
 			constructor(head, tail) {
 				const options = new Options(State.options)(head, tail)
 				Object.assign(this, options)
 			}
-		
+
 			fire = (name) => {
 				const method = this[name]
 				if (method) {
@@ -1680,17 +1656,17 @@ const HabitatFrogasaurus = {}
 				}
 			}
 		}
-		
+
 		const Machine = class {
 			state = use(undefined)
-		
+
 			constructor(initial) {
 				glue(this)
 				if (initial) {
 					this.set(initial)
 				}
 			}
-		
+
 			set(state) {
 				if (this.state) {
 					this.state.fire("exit")
@@ -1701,22 +1677,21 @@ const HabitatFrogasaurus = {}
 				}
 				this.state.fire("enter")
 			}
-		
+
 			fire(name, args) {
 				if (this.state === undefined) {
 					return
 				}
-		
+
 				const result = this.state.fire(name, args)
 				if (result instanceof State) {
 					this.set(result)
 					return this.fire(name, args)
 				}
-		
+
 				return result
 			}
 		}
-		
 
 		HabitatFrogasaurus["./state.js"].State = State
 		HabitatFrogasaurus["./state.js"].Machine = Machine
@@ -1729,7 +1704,6 @@ const HabitatFrogasaurus = {}
 			const regExp = RegExp(`[^]{1,${length}}`, "g")
 			return string.match(regExp)
 		}
-		
 
 		HabitatFrogasaurus["./string.js"].divideString = divideString
 	}
@@ -1737,9 +1711,6 @@ const HabitatFrogasaurus = {}
 	//====== ./struct.js ======
 	{
 		HabitatFrogasaurus["./struct.js"] = {}
-		
-
-
 	}
 
 	//====== ./svg.js ======
@@ -1753,7 +1724,6 @@ const HabitatFrogasaurus = {}
 			}
 			return group
 		}
-		
 
 		HabitatFrogasaurus["./svg.js"].SVG = SVG
 	}
@@ -1761,27 +1731,27 @@ const HabitatFrogasaurus = {}
 	//====== ./touch.js ======
 	{
 		HabitatFrogasaurus["./touch.js"] = {}
-		
+
 		const touches = []
-		
+
 		let isTouchTracked = false
 		const getTouches = () => {
 			if (!isTouchTracked) {
 				isTouchTracked = true
-		
+
 				on("touchstart", (e) => {
 					for (const changedTouch of e.changedTouches) {
 						const id = changedTouch.identifier
 						if (touches[id] === undefined) {
 							touches[id] = { position: [undefined, undefined] }
 						}
-		
+
 						const touch = touches[id]
 						touch.position[0] = changedTouch.clientX
 						touch.position[1] = changedTouch.clientY
 					}
 				})
-		
+
 				on("touchmove", (e) => {
 					for (const changedTouch of e.changedTouches) {
 						const id = changedTouch.identifier
@@ -1790,7 +1760,7 @@ const HabitatFrogasaurus = {}
 						touch.position[1] = changedTouch.clientY
 					}
 				})
-		
+
 				on("touchend", (e) => {
 					for (const changedTouch of e.changedTouches) {
 						const id = changedTouch.identifier
@@ -1798,10 +1768,9 @@ const HabitatFrogasaurus = {}
 					}
 				})
 			}
-		
+
 			return touches
 		}
-		
 
 		HabitatFrogasaurus["./touch.js"].getTouches = getTouches
 	}
@@ -1809,18 +1778,25 @@ const HabitatFrogasaurus = {}
 	//====== ./tween.js ======
 	{
 		HabitatFrogasaurus["./tween.js"] = {}
-		
+
 		const tween = (object, key, options) => {
 			const value = object[key]
-		
-			const { start = value, end = value, duration = 1000, easeIn = 0.0, easeOut = 0.0, ratio = 0.5 } = options
-		
+
+			const {
+				start = value,
+				end = value,
+				duration = 1000,
+				easeIn = 0.0,
+				easeOut = 0.0,
+				ratio = 0.5,
+			} = options
+
 			const startTime = performance.now()
 			const endTime = startTime + duration
-		
+
 			defineGetter(object, key, () => {
 				const currentTime = performance.now()
-		
+
 				if (currentTime >= endTime) {
 					Reflect.defineProperty(object, key, {
 						value: end,
@@ -1830,7 +1806,7 @@ const HabitatFrogasaurus = {}
 					})
 					return end
 				}
-		
+
 				const time = currentTime - startTime
 				const interpolation = ease(time / duration, {
 					easeIn,
@@ -1840,12 +1816,14 @@ const HabitatFrogasaurus = {}
 				return lerp([start, end], interpolation)
 			})
 		}
-		
+
 		const ease = (t, { easeIn, easeOut, ratio }) => {
 			const f = (t, slope) => t ** (1.0 + slope)
-			return f(t * ratio * 2, easeIn) / (f(t * ratio * 2, easeIn) + f((1 - t) * (1 - ratio) * 2, easeOut))
+			return (
+				f(t * ratio * 2, easeIn) /
+				(f(t * ratio * 2, easeIn) + f((1 - t) * (1 - ratio) * 2, easeOut))
+			)
 		}
-		
 
 		HabitatFrogasaurus["./tween.js"].tween = tween
 	}
@@ -1853,7 +1831,7 @@ const HabitatFrogasaurus = {}
 	//====== ./vector.js ======
 	{
 		HabitatFrogasaurus["./vector.js"] = {}
-		
+
 		const equals = (a, b) => {
 			if (typeof a === "number") return a === b
 			if (a.length === 2) {
@@ -1866,23 +1844,23 @@ const HabitatFrogasaurus = {}
 				return ax === bx && ay === by && az === bz
 			}
 		}
-		
+
 		const scale = (value, scale) => {
 			if (typeof value === "number") return value * scale
 			return value.map((v) => v * scale)
 		}
-		
+
 		const multiply = (a, b) => {
 			if (typeof b === "number") return scale(a, b)
 			if (typeof a === "number") return scale(b, a)
 			throw new Error("Unimplemented because I can't decide what to do with vectors")
 		}
-		
+
 		const add = (a, b) => {
 			if (typeof a === "number") {
 				return a + b
 			}
-		
+
 			if (a.length === 2) {
 				const [ax, ay] = a
 				const [bx, by] = b
@@ -1898,12 +1876,12 @@ const HabitatFrogasaurus = {}
 				return [x, y, z]
 			}
 		}
-		
+
 		const subtract = (a, b) => {
 			if (typeof a === "number") {
 				return a - b
 			}
-		
+
 			if (a.length === 2) {
 				const [ax, ay] = a
 				const [bx, by] = b
@@ -1919,7 +1897,7 @@ const HabitatFrogasaurus = {}
 				return [x, y, z]
 			}
 		}
-		
+
 		const crossProduct = (a, b) => {
 			if (a.length === 2) {
 				const [ax, ay] = a
@@ -1931,18 +1909,18 @@ const HabitatFrogasaurus = {}
 				return [ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx]
 			}
 		}
-		
+
 		const distanceBetween = (a, b) => {
 			if (typeof a === "number") {
 				return Math.abs(a - b)
 			}
-		
+
 			const displacement = subtract(a, b)
 			const [dx, dy, dz = 0] = displacement
 			const distance = Math.hypot(dx, dy, dz)
 			return distance
 		}
-		
+
 		const angleBetween = (a, b) => {
 			if (a.length !== 2) {
 				throw new Error(
@@ -1954,7 +1932,7 @@ const HabitatFrogasaurus = {}
 			const angle = Math.atan2(dy, dx)
 			return angle
 		}
-		
+
 		const rotate = (vector, angle, origin = [0, 0]) => {
 			const displacement = subtract(vector, origin)
 			const [dx, dy] = displacement
@@ -1965,14 +1943,14 @@ const HabitatFrogasaurus = {}
 			const rotated = add([x, y], origin)
 			return rotated
 		}
-		
+
 		const normalise = (vector) => {
 			const origin = vector.map(() => 0)
 			const distance = distanceBetween(vector, origin)
 			const normalised = scale(vector, 1 / distance)
 			return normalised
 		}
-		
+
 		const registerVectorMethods = () => {
 			defineAccessor(
 				Array.prototype,
@@ -1984,7 +1962,7 @@ const HabitatFrogasaurus = {}
 					this[0] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"y",
@@ -1995,7 +1973,7 @@ const HabitatFrogasaurus = {}
 					this[1] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"z",
@@ -2006,7 +1984,7 @@ const HabitatFrogasaurus = {}
 					this[2] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"width",
@@ -2017,7 +1995,7 @@ const HabitatFrogasaurus = {}
 					this[0] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"height",
@@ -2028,7 +2006,7 @@ const HabitatFrogasaurus = {}
 					this[1] = value
 				},
 			)
-		
+
 			defineAccessor(
 				Array.prototype,
 				"depth",
@@ -2040,7 +2018,6 @@ const HabitatFrogasaurus = {}
 				},
 			)
 		}
-		
 
 		HabitatFrogasaurus["./vector.js"].equals = equals
 		HabitatFrogasaurus["./vector.js"].scale = scale
@@ -2058,13 +2035,13 @@ const HabitatFrogasaurus = {}
 	const { defineAccessor, defineGetter } = HabitatFrogasaurus["./property.js"]
 	const { Options } = HabitatFrogasaurus["./options.js"]
 	const { glue, snuse, use } = HabitatFrogasaurus["./signal.js"]
-	const { add, rotate, registerVectorMethods, crossProduct, scale, subtract } = HabitatFrogasaurus["./vector.js"]
+	const { add, rotate, registerVectorMethods, crossProduct, scale, subtract } =
+		HabitatFrogasaurus["./vector.js"]
 	const { registerColourMethods, BLACK } = HabitatFrogasaurus["./colour.js"]
 	const { registerDebugMethods } = HabitatFrogasaurus["./console.js"]
 	const { fireEvent, on } = HabitatFrogasaurus["./event.js"]
 	const { keyDown } = HabitatFrogasaurus["./keyboard.js"]
 	const { lerp } = HabitatFrogasaurus["./lerp.js"]
-
 }
 
 //=========//
