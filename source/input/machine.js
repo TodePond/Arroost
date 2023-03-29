@@ -13,4 +13,5 @@ const listen = (machine, name) => {
 
 export const connectMachine = (machine) => {
 	listen(machine, "pointerover")
+	listen(machine, "pointerout")
 }

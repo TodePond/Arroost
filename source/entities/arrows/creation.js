@@ -1,10 +1,10 @@
-import { GREY, SILVER } from "../../../libraries/habitat-import.js"
+import { GREY, SILVER, WHITE } from "../../../libraries/habitat-import.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Rectangle } from "../shapes/rectangle.js"
 
 export const ArrowOfCreation = class extends Ellipse {
 	render() {
-		const { style, rectangle } = this
+		const { style, rectangle, input } = this
 		const { dimensions } = rectangle
 
 		const horizontal = new Rectangle()
@@ -20,8 +20,12 @@ export const ArrowOfCreation = class extends Ellipse {
 		vertical.svg.element.setAttribute("pointer-events", "none")
 
 		style.fill = GREY
-		horizontal.style.fill = SILVER
-		vertical.style.fill = SILVER
+
+		this.use(() => {
+			const colour = input.hovered ? WHITE : SILVER
+			horizontal.style.fill = colour
+			vertical.style.fill = colour
+		})
 
 		this.use(() => {
 			const [width, height] = dimensions

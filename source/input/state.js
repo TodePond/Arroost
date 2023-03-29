@@ -19,10 +19,17 @@ export const Hovering = new State({
 	},
 
 	pointerover(event) {
-		const { entity, input } = event
-
+		const { input } = event
 		if (input === undefined) {
 			return Idle
 		}
+
+		input.hovered = true
+	},
+
+	pointerout(event) {
+		const { input } = event
+		input.hovered = false
+		return Idle
 	},
 })
