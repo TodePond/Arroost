@@ -1,4 +1,5 @@
 import { Component } from "../../libraries/habitat-import.js"
+import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { Style } from "../components/style.js"
 import { Svg } from "../components/svg.js"
@@ -14,6 +15,7 @@ export const Thing = class extends DisposableEntity {
 			new Style(),
 			new Movement(),
 			new Svg(),
+			new Input(),
 			...components,
 		])
 	}

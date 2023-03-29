@@ -10,6 +10,7 @@ export const Svg = class extends DisposableComponent {
 	get element() {
 		if (this._element === undefined) {
 			const group = SVG(`<g />`)
+			group.entity = this.entity
 			this._element = group
 			const rendered = this.render()
 
@@ -28,6 +29,7 @@ export const Svg = class extends DisposableComponent {
 			})
 
 			if (rendered) {
+				rendered.entity = this.entity
 				group.prepend(rendered)
 			}
 		}

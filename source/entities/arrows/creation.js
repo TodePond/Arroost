@@ -16,6 +16,9 @@ export const ArrowOfCreation = class extends Ellipse {
 		horizontal.transform.scale = [0.8, 0.8]
 		vertical.transform.scale = [0.8, 0.8]
 
+		horizontal.svg.element.setAttribute("pointer-events", "none")
+		vertical.svg.element.setAttribute("pointer-events", "none")
+
 		style.fill = GREY
 		horizontal.style.fill = SILVER
 		vertical.style.fill = SILVER

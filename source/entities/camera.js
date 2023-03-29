@@ -6,7 +6,8 @@ export const Camera = class extends Thing {
 		this.stage.connect(stage)
 	}
 
-	start({ svg }) {
+	start({ background, html, svg, foreground }) {
 		svg.append(this.svg.element)
+		foreground.canvas.style["pointer-events"] = "none"
 	}
 }

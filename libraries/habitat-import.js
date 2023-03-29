@@ -1649,10 +1649,10 @@ const HabitatFrogasaurus = {}
 				Object.assign(this, options)
 			}
 
-			fire = (name) => {
+			fire = (name, args) => {
 				const method = this[name]
 				if (method) {
-					return method()
+					return method.apply(this, args)
 				}
 			}
 		}
