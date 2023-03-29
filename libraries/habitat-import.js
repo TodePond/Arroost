@@ -1675,7 +1675,10 @@ const HabitatFrogasaurus = {}
 				if (this.state === undefined) {
 					return
 				}
-				this.state.fire("enter")
+				const result = this.state.fire("enter")
+				if (result instanceof State) {
+					this.set(result)
+				}
 			}
 
 			fire(name, args) {
