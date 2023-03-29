@@ -1,4 +1,4 @@
-import { print, range, registerMethods, Stage, WHITE } from "../libraries/habitat-import.js"
+import { print, registerMethods, Stage } from "../libraries/habitat-import.js"
 import { Box } from "./entities/box.js"
 import { Camera } from "./entities/camera.js"
 import { getPointer } from "./input/pointer.js"
@@ -15,31 +15,24 @@ const stage = new Stage({
 
 const camera = new Camera(stage)
 
-const box = new Box()
-box.rectangle.dimensions = [100, 100]
-box.transform.position = [-50, -50]
-
-camera.add(box)
-camera.tick = () => {
-	camera.transform.position = pointer.position
-	box.transform.rotation++
-}
-
-let prevBox = box
-for (const i of range(0, 200)) {
-	const _box = new Box()
-	_box.rectangle.dimensions = [10, 10]
-	_box.transform.position = [prevBox.transform.position.x * 0.99, 0]
-	_box.style.fill = WHITE
-	prevBox.add(_box)
-	prevBox = _box
-	_box.tick = () => {
-		_box.transform.rotation += 0.01
-	}
+const things = [new Box()]
+camera.add(things[0])
+things[0].transform.position = [100, 100]
+things[0].transform.scale = [10, 10]
+things[0].tick = () => {
+	things[0].transform.rotation += 0.1
 }
 
 export const shared = {
 	pointer,
 	stage,
 	camera,
+	things,
 }
+
+addEventListener("keydown", (e) => {
+	if (e.key !== " ") return
+	things[0].dispose()
+})
+
+Object.assign(window, shared)

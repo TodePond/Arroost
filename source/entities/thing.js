@@ -1,9 +1,10 @@
-import { Component, Entity } from "../../libraries/habitat-import.js"
+import { Component } from "../../libraries/habitat-import.js"
 import { Movement } from "../components/movement.js"
-import { Svg } from "../components/render.js"
 import { Style } from "../components/style.js"
+import { Svg } from "../components/svg.js"
+import { DisposableEntity } from "./disposable.js"
 
-export const Thing = class extends Entity {
+export const Thing = class extends DisposableEntity {
 	constructor(components = []) {
 		super([
 			new Component.Transform(),
