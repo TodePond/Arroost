@@ -1,5 +1,8 @@
 import { Component, use } from "../../libraries/habitat-import.js"
 
+// This probably isn't needed!
+// From my tests, chrome doesn't leak memory when we delete an entity.
+// But let's dispose of the signals just in case.
 export const DisposableComponent = class extends Component {
 	signals = new Set()
 
