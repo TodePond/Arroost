@@ -5,6 +5,7 @@ import {
 	repeatArray,
 	Stage,
 } from "../libraries/habitat-import.js"
+import { ArrowOfArrow } from "./entities/arrows/arrow.js"
 import { ArrowOfCreation } from "./entities/arrows/creation.js"
 import { ArrowOfDestruction } from "./entities/arrows/destruction.js"
 import { Camera } from "./entities/camera.js"
@@ -61,6 +62,13 @@ const arrowOfDestruction = new ArrowOfDestruction()
 camera.add(arrowOfDestruction)
 arrowOfDestruction.transform.position = [
 	((innerWidth / camera.transform.scale.x) * 1) / 3,
+	innerHeight / 2 / camera.transform.scale.y,
+]
+
+const arrowOfArrow = new ArrowOfArrow()
+camera.add(arrowOfArrow)
+arrowOfArrow.transform.position = [
+	innerWidth / 2 / camera.transform.scale.x,
 	innerHeight / 2 / camera.transform.scale.y,
 ]
 
