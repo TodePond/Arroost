@@ -16,6 +16,8 @@ export const Rectangle = class extends Thing {
 		this.use(() => rectangle.setAttribute("fill", style.fill))
 		this.use(() => rectangle.setAttribute("width", dimensions.width))
 		this.use(() => rectangle.setAttribute("height", dimensions.height))
+		this.use(() => rectangle.setAttribute("x", -dimensions.width / 2))
+		this.use(() => rectangle.setAttribute("y", -dimensions.height / 2))
 
 		return rectangle
 	}

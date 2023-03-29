@@ -6,6 +6,7 @@ import {
 	Stage,
 } from "../libraries/habitat-import.js"
 import { ArrowOfCreation } from "./entities/arrows/creation.js"
+import { ArrowOfDestruction } from "./entities/arrows/destruction.js"
 import { Camera } from "./entities/camera.js"
 import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
@@ -50,12 +51,18 @@ machine.set(Idle)
 // Setup Arroost //
 //===============//
 const arrowOfCreation = new ArrowOfCreation()
+camera.add(arrowOfCreation)
 arrowOfCreation.transform.position = [
-	innerWidth / 2 / camera.transform.scale.x,
+	((innerWidth / camera.transform.scale.x) * 2) / 3,
 	innerHeight / 2 / camera.transform.scale.y,
 ]
 
-camera.add(arrowOfCreation)
+const arrowOfDestruction = new ArrowOfDestruction()
+camera.add(arrowOfDestruction)
+arrowOfDestruction.transform.position = [
+	((innerWidth / camera.transform.scale.x) * 1) / 3,
+	innerHeight / 2 / camera.transform.scale.y,
+]
 
 //=================//
 // Setup Debugging //

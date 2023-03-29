@@ -16,11 +16,6 @@ export const Svg = class extends DisposableComponent {
 			const rendered = this.render()
 
 			this.use(() => {
-				const [width, height] = this.entity.rectangle.dimensions
-				group.setAttribute("transform-origin", `${width / 2}px ${height / 2}px`)
-			})
-
-			this.use(() => {
 				const { transform } = this.entity
 				const { position, rotation, scale } = transform
 				group.setAttribute(
