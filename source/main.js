@@ -12,8 +12,9 @@ import { Camera } from "./entities/camera.js"
 import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
 import { getPointer } from "./input/pointer.js"
-import { preventDefaults } from "./input/prevent.js"
-import { Idle } from "./input/state.js"
+import { registerPreventDefaults } from "./input/prevent.js"
+import { registerSlide } from "./input/slide.js"
+import { Idle } from "./input/states/idle.js"
 
 //===============//
 // Setup Habitat //
@@ -45,7 +46,8 @@ export const shared = {
 }
 
 connectMachine(machine)
-preventDefaults()
+registerSlide()
+registerPreventDefaults()
 machine.set(Idle)
 
 //===============//
