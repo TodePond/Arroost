@@ -23,4 +23,9 @@ export const Hovering = new State({
 		input.hovered = false
 		return Idle
 	},
+
+	pointerdown(event) {
+		const { input } = event
+		return input.fire("pointerdown", event)
+	},
 })

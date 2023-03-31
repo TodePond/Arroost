@@ -31,24 +31,24 @@ const stage = new Stage({
 })
 
 const camera = new Camera(stage)
-camera.transform.scale = repeatArray([5], 2)
-
+const machine = new Machine()
 const pointer = getPointer()
 const hover = getHover()
-const machine = new Machine()
 
 export const shared = {
-	pointer,
 	stage,
 	camera,
 	machine,
+	pointer,
 	hover,
 }
 
+camera.transform.scale = repeatArray([5], 2)
 connectMachine(machine)
+machine.set(Idle)
+
 registerSlide()
 registerPreventDefaults()
-machine.set(Idle)
 
 //===============//
 // Setup Arroost //
@@ -68,7 +68,7 @@ arrowOfDestruction.transform.position = [
 ]
 
 const arrowOfArrow = new ArrowOfArrow()
-camera.add(arrowOfArrow)
+//camera.add(arrowOfArrow)
 arrowOfArrow.transform.position = [
 	innerWidth / 2 / camera.transform.scale.x,
 	innerHeight / 2 / camera.transform.scale.y,

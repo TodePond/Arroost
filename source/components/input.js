@@ -8,4 +8,18 @@ export const Input = class extends DisposableComponent {
 		super()
 		glue(this)
 	}
+
+	fire(name, args) {
+		const { entity } = this
+		if (entity === undefined) {
+			return
+		}
+
+		const method = entity[name]
+		if (method === undefined) {
+			return
+		}
+
+		return method.apply(entity, args)
+	}
 }
