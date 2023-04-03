@@ -1,7 +1,7 @@
 import { GREY, SILVER, WHITE } from "../../../libraries/habitat-import.js"
 import { Ellipse } from "../shapes/ellipse.js"
 
-export const ArrowOfArrow = class extends Ellipse {
+export const ArrowOfConnection = class extends Ellipse {
 	render() {
 		const { style, rectangle, input } = this
 		const { dimensions } = rectangle

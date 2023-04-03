@@ -1,13 +1,11 @@
-import { COLOURS, Component, randomFrom } from "../../libraries/habitat-import.js"
+import { Component } from "../../libraries/habitat-import.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { Style } from "../components/style.js"
 import { Svg } from "../components/svg.js"
 import { DisposableEntity } from "./disposable.js"
-import { Ellipse } from "./shapes/ellipse.js"
 
 export const Thing = class extends DisposableEntity {
-	// Add any children in the constructor
 	constructor(components = []) {
 		super([
 			new Component.Transform(),
@@ -21,7 +19,6 @@ export const Thing = class extends DisposableEntity {
 		])
 	}
 
-	// Control appearance in the render method
 	render() {
 		return undefined
 	}
@@ -34,15 +31,5 @@ export const Thing = class extends DisposableEntity {
 	delete(child) {
 		super.delete(child)
 		this.svg.element.removeChild(child.svg.element)
-	}
-
-	pointerdown() {
-		const colour = randomFrom(COLOURS)
-		for (const child of this.children) {
-			if (child instanceof Ellipse) {
-				child.style.fill = colour
-			}
-		}
-		this.style.fill = colour
 	}
 }
