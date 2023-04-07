@@ -1,4 +1,5 @@
 import { WHITE, distanceBetween, scale, subtract } from "../../../../libraries/habitat-import.js"
+import { shared } from "../../../main.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { Line } from "../../shapes/line.js"
 import { Polyline } from "../../shapes/polyline.js"
@@ -53,6 +54,11 @@ export const ArrowTickler = class extends Ellipse {
 		tickle.svg.element.style["z-index"] = 1
 
 		return super.render()
+	}
+
+	onGrab() {
+		const { hover } = shared
+		if (hover.entity === this) return false
 	}
 
 	onPoint() {

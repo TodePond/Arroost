@@ -23,8 +23,10 @@ export const Pointing = new State({
 
 	pointermove(event) {
 		const { input } = this
-		input.fire("onGrab", event)
-		input.dragged = true
-		return Dragging
+		const result = input.fire("onGrab", event)
+		if (result !== false) {
+			input.dragged = true
+			return Dragging
+		}
 	},
 })
