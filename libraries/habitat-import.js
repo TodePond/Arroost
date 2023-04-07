@@ -278,13 +278,30 @@ const HabitatFrogasaurus = {}
 				glue(this)
 			}
 
+			scaledPosition = snuse(() => {
+				const { entity } = this
+				const { parent } = entity
+				if (!parent || !parent.transform) {
+					return this.position
+				}
+
+				const [x, y] = this.position
+				const [sx, sy] = this.absoluteScale
+				return [x * sx, y * sy]
+			})
+
 			absolutePosition = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
 				if (!parent || !parent.transform) {
 					return this.position
 				}
-				const rotatedPosition = rotate(this.position, parent.transform.absoluteRotation)
+
+				const [x, y] = this.position
+				const [sx, sy] = this.absoluteScale
+				const scaledPosition = [x * sx, y * sy]
+
+				const rotatedPosition = rotate(scaledPosition, parent.transform.absoluteRotation)
 				return add(parent.transform.absolutePosition, rotatedPosition)
 			})
 
@@ -1668,14 +1685,16 @@ const HabitatFrogasaurus = {}
 			}
 
 			set(state) {
+				const next = state
+				const previous = this.state
 				if (this.state) {
-					this.state.fire("exit")
+					this.state.fire("exit", [next])
 				}
-				this.state = state
+				this.state = next
 				if (this.state === undefined) {
 					return
 				}
-				const result = this.state.fire("enter")
+				const result = this.state.fire("enter", [previous])
 				if (result instanceof State) {
 					this.set(result)
 				}

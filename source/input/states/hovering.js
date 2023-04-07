@@ -2,6 +2,7 @@ import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { setCursor } from "../cursor.js"
 import { Idle } from "./idle.js"
+import { Pointing } from "./pointing.js"
 
 export const Hovering = new State({
 	enter() {
@@ -26,6 +27,7 @@ export const Hovering = new State({
 
 	pointerdown(event) {
 		const { input } = event
-		return input.fire("pointerdown", event)
+		input.fire("onPoint", event)
+		return Pointing
 	},
 })

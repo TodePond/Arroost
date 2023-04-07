@@ -6,7 +6,7 @@ const fire = (machine, name, event) => {
 }
 
 const listen = (machine, name) => {
-	addEventListener(name, (event) => fire(machine, name, event), { passive: true })
+	addEventListener(name, (event) => fire(machine, name, event), { passive: false })
 }
 
 export const connectMachine = (machine) => {

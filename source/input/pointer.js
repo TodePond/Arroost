@@ -1,16 +1,21 @@
 import {
+	getPointer as _getPointer,
 	add,
 	equals,
-	getPointer as _getPointer,
+	glue,
 	memo,
 	scale,
 	subtract,
+	use,
 } from "../../libraries/habitat-import.js"
 
 // This function injects a 'velocity' property into the Habitat pointer object
+// It also makes the pointer position a signal
 export const getPointer = memo(() => {
 	const pointer = _getPointer()
-	pointer.velocity = [0, 0]
+	pointer.position = use([undefined, undefined])
+	pointer.velocity = use([0, 0])
+	glue(pointer)
 
 	const velocityHistory = []
 	const HISTORY_LENGTH = 4
