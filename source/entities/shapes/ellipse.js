@@ -2,9 +2,9 @@ import { SVG } from "../../../libraries/habitat-import.js"
 import { Thing } from "../thing.js"
 
 export const Ellipse = class extends Thing {
-	constructor() {
+	constructor(dimensions = [10, 10]) {
 		super()
-		this.rectangle.dimensions = [10, 10]
+		this.rectangle.dimensions = dimensions
 	}
 
 	render() {

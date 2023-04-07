@@ -5,6 +5,7 @@ export const Input = class extends Component {
 	name = "input"
 	hovered = use(false)
 	pointed = use(false)
+	dragged = use(false)
 
 	static events = new Set(["onPoint", "onRelease", "onGrab", "onDrag", "onDrop"])
 

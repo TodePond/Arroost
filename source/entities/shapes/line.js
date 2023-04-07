@@ -2,10 +2,12 @@ import { SVG } from "../../../libraries/habitat-import.js"
 import { Thing } from "../thing.js"
 
 export const Line = class extends Thing {
-	constructor(components = []) {
-		super([...components])
-		this.target = new Thing()
+	target = new Thing()
+
+	constructor(end = [10, 0]) {
+		super()
 		this.add(this.target)
+		this.target.transform.position = end
 	}
 
 	render() {

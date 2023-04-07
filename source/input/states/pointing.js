@@ -24,6 +24,7 @@ export const Pointing = new State({
 	pointermove(event) {
 		const { input } = this
 		input.fire("onGrab", event)
+		input.dragged = true
 		return Dragging
 	},
 })

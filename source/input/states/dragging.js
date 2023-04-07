@@ -8,7 +8,7 @@ export const Dragging = new State({
 	enter(previous) {
 		const { input } = previous
 		this.input = input
-		setCursor("move")
+		setCursor("none")
 	},
 
 	pointermove(event) {
@@ -20,6 +20,7 @@ export const Dragging = new State({
 		const { input } = this
 		input.fire("onDrop", event)
 		input.pointed = false
+		input.dragged = false
 		return Idle
 	},
 })
