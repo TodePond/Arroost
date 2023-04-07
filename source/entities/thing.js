@@ -25,7 +25,7 @@ export const Thing = class extends Entity {
 
 	add(child) {
 		super.add(child)
-		this.svg.element.prepend(child.svg.element)
+		this.svg.element.append(child.svg.element)
 	}
 
 	delete(child) {

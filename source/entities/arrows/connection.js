@@ -14,8 +14,8 @@ export const ArrowOfConnection = class extends Ellipse {
 		outer.svg.element.setAttribute("pointer-events", "none")
 		inner.svg.element.setAttribute("pointer-events", "none")
 
-		this.add(inner)
 		this.add(outer)
+		this.add(inner)
 
 		outer.transform.scale = [0.8, 0.8]
 		inner.transform.scale = [0.4, 0.4]
