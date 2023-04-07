@@ -1,8 +1,10 @@
-import { GREY, SILVER, WHITE } from "../../../libraries/habitat-import.js"
-import { Ellipse } from "../shapes/ellipse.js"
+import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import { Ellipse } from "../../shapes/ellipse.js"
+import { ArrowTickler } from "./tickler.js"
 
-export const ArrowOfConnection = class extends Ellipse {
+export const ArrowOfConnection = class extends ArrowTickler {
 	render() {
+		const element = super.render()
 		const { style, rectangle, input } = this
 		const { dimensions } = rectangle
 
@@ -17,11 +19,14 @@ export const ArrowOfConnection = class extends Ellipse {
 		this.add(outer)
 		this.add(inner)
 
+		outer.bringToFront()
+		inner.bringToFront()
+
 		outer.transform.scale = [0.8, 0.8]
 		inner.transform.scale = [0.4, 0.4]
 
 		this.use(() => {
-			const colour = input.hovered ? WHITE : SILVER
+			const colour = input.pointed ? WHITE : SILVER
 			outer.style.fill = colour
 			inner.style.fill = GREY
 		})
@@ -31,7 +36,6 @@ export const ArrowOfConnection = class extends Ellipse {
 			outer.rectangle.dimensions = [width, height]
 			inner.rectangle.dimensions = [width, height]
 		})
-
-		return super.render()
+		return element
 	}
 }

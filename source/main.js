@@ -5,9 +5,9 @@ import {
 	repeatArray,
 	Stage,
 } from "../libraries/habitat-import.js"
-import { ArrowOfConnection } from "./entities/arrows/connection.js"
-import { ArrowOfCreation } from "./entities/arrows/creation.js"
-import { ArrowOfDestruction } from "./entities/arrows/destruction.js"
+import { ArrowOfConnection } from "./entities/arrows/tickler/connection.js"
+import { ArrowOfCreation } from "./entities/arrows/tickler/creation.js"
+import { ArrowOfDestruction } from "./entities/arrows/tickler/destruction.js"
 import { Camera } from "./entities/camera.js"
 import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
