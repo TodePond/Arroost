@@ -27,8 +27,9 @@ export const ArrowTickler = class extends Ellipse {
 		flaps.style.fill = "none"
 		flaps.style.strokeWidth = (0.8 * 10) / 3
 		this.use(() => {
-			tickle.svg.element.setAttribute("visibility", input.dragged ? "visible" : "hidden")
-			flaps.svg.element.setAttribute("visibility", input.dragged ? "visible" : "hidden")
+			const visibility = input.dragged || input.carried ? "visible" : "hidden"
+			tickle.svg.element.setAttribute("visibility", visibility)
+			flaps.svg.element.setAttribute("visibility", visibility)
 		})
 		this.use(() => {
 			if (!input.pointed) return
@@ -54,6 +55,10 @@ export const ArrowTickler = class extends Ellipse {
 		tickle.svg.element.style["z-index"] = 1
 
 		return super.render()
+	}
+
+	onClick() {
+		return true
 	}
 
 	onGrab() {

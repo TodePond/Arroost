@@ -1,8 +1,8 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../cursor.js"
-import { Idle } from "./idle.js"
+import { Placing } from "./placing.js"
 
-export const Dragging = new State({
+export const Carrying = new State({
 	input: undefined,
 
 	enter(previous) {
@@ -13,15 +13,12 @@ export const Dragging = new State({
 
 	pointermove(event) {
 		const { input } = this
-		input.fire("onDrag", event)
+		input.fire("onCarry", event)
 	},
 
-	pointerup(event) {
+	pointerdown(event) {
 		const { input } = this
-		input.fire("onDrop", event)
-		input.fire("onRelease", event)
-		input.pointed = false
-		input.dragged = false
-		return Idle
+		input.fire("onLand", event)
+		return Placing
 	},
 })

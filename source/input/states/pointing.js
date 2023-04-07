@@ -1,6 +1,7 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { setCursor } from "../cursor.js"
+import { Carrying } from "./carrying.js"
 import { Dragging } from "./dragging.js"
 import { Idle } from "./idle.js"
 
@@ -16,6 +17,11 @@ export const Pointing = new State({
 
 	pointerup(event) {
 		const { input } = this
+		const result = input.fire("onClick", event)
+		if (result === true) {
+			input.carried = true
+			return Carrying
+		}
 		input.fire("onRelease", event)
 		input.pointed = false
 		return Idle

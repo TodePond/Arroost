@@ -6,8 +6,18 @@ export const Input = class extends Component {
 	hovered = use(false)
 	pointed = use(false)
 	dragged = use(false)
+	carried = use(false)
 
-	static events = new Set(["onPoint", "onRelease", "onGrab", "onDrag", "onDrop"])
+	static events = new Set([
+		"onPoint",
+		"onRelease",
+		"onGrab",
+		"onDrag",
+		"onDrop",
+		"onClick",
+		"onCarry",
+		"onPlace",
+	])
 
 	constructor() {
 		super()
