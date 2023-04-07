@@ -14,13 +14,12 @@ export const registerWheel = () => {
 				const delta = event.deltaY * ZOOM_SPEED
 				const oldZoom = transform.scale.x
 				const newZoom = oldZoom * (1 - delta)
-				const scaleRatio = newZoom / oldZoom
 				transform.scale = [newZoom, newZoom]
 
 				const pointerOffset = subtract(pointer.position, transform.position)
+				const scaleRatio = newZoom / oldZoom
 				const scaledPointerOffset = scale(pointerOffset, scaleRatio)
-				const newCameraPosition = subtract(pointer.position, scaledPointerOffset)
-				transform.position = newCameraPosition
+				transform.position = subtract(pointer.position, scaledPointerOffset)
 				return
 			}
 			transform.position = subtract(transform.position, [event.deltaX, event.deltaY])
