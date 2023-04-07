@@ -40,7 +40,7 @@ export const ArrowOfCreation = class extends Ellipse {
 
 		// Indicator
 		indicator.style.stroke = WHITE
-		indicator.style.strokeWidth = 2
+		indicator.style.strokeWidth = (0.8 * 10) / 3
 		this.use(() =>
 			indicator.svg.element.setAttribute("visibility", input.pointed ? "visible" : "hidden"),
 		)
@@ -55,6 +55,13 @@ export const ArrowOfCreation = class extends Ellipse {
 
 		indicator.target.transform.position = [0, 0]
 
+		// Bring to front
+		this.indicator.svg.element.style["z-index"] = 1
+
 		return super.render()
+	}
+
+	onPoint() {
+		this.bringToFront()
 	}
 }

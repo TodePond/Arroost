@@ -25,11 +25,18 @@ export const Thing = class extends Entity {
 
 	add(child) {
 		super.add(child)
-		this.svg.element.append(child.svg.element)
+		this.svg.element.prepend(child.svg.element)
 	}
 
 	delete(child) {
 		super.delete(child)
 		this.svg.element.removeChild(child.svg.element)
+	}
+
+	bringToFront() {
+		const { parent, svg } = this
+		if (parent === undefined) return
+		parent.svg.element.removeChild(svg.element)
+		parent.svg.element.append(svg.element)
 	}
 }

@@ -55,17 +55,17 @@ registerPreventDefaults()
 //===============//
 // Setup Arroost //
 //===============//
-const arrowOfCreation = new ArrowOfCreation()
-camera.add(arrowOfCreation)
-arrowOfCreation.transform.position = [
-	((innerWidth / camera.transform.scale.x) * 2) / 3,
-	innerHeight / 2 / camera.transform.scale.y,
-]
-
 const arrowOfDestruction = new ArrowOfDestruction()
 camera.add(arrowOfDestruction)
 arrowOfDestruction.transform.position = [
 	((innerWidth / camera.transform.scale.x) * 1) / 3,
+	innerHeight / 2 / camera.transform.scale.y,
+]
+
+const arrowOfCreation = new ArrowOfCreation()
+camera.add(arrowOfCreation)
+arrowOfCreation.transform.position = [
+	((innerWidth / camera.transform.scale.x) * 2) / 3,
 	innerHeight / 2 / camera.transform.scale.y,
 ]
 
