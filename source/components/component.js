@@ -1,9 +1,9 @@
-import { Entity, use } from "../../libraries/habitat-import.js"
+import { Component as _Component, use } from "../../libraries/habitat-import.js"
 
 // This probably isn't needed!
 // From my tests, chrome doesn't leak memory when we delete an entity.
 // But let's dispose of the signals just in case.
-export const DisposableEntity = class extends Entity {
+export const Component = class extends _Component {
 	signals = new Set()
 
 	use(template, options) {
@@ -15,12 +15,6 @@ export const DisposableEntity = class extends Entity {
 	dispose() {
 		for (const signal of this.signals) {
 			signal.dispose()
-		}
-		for (const component of this.components) {
-			component.dispose?.()
-		}
-		if (this.parent) {
-			this.parent.delete(this)
 		}
 	}
 }

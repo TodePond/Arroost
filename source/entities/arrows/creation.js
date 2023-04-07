@@ -1,5 +1,6 @@
 import { GREY, SILVER, WHITE } from "../../../libraries/habitat-import.js"
 import { Ellipse } from "../shapes/ellipse.js"
+import { Line } from "../shapes/line.js"
 import { Rectangle } from "../shapes/rectangle.js"
 
 export const ArrowOfCreation = class extends Ellipse {
@@ -33,6 +34,14 @@ export const ArrowOfCreation = class extends Ellipse {
 			vertical.rectangle.dimensions = [width / 3, height]
 		})
 
+		// INDICATOR //
+		const indicator = new Line()
+		indicator.style.stroke = WHITE
+		indicator.style.strokeWidth = 1
+		this.add(indicator)
+
 		return super.render()
 	}
+
+	pointerdown() {}
 }

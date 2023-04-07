@@ -1,7 +1,7 @@
 import { SVG } from "../../libraries/habitat-import.js"
-import { DisposableComponent } from "./disposable.js"
+import { Component } from "./component.js"
 
-export const Svg = class extends DisposableComponent {
+export const Svg = class extends Component {
 	name = "svg"
 	render() {
 		return this.entity?.render()

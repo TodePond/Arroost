@@ -3,9 +3,9 @@ import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { Style } from "../components/style.js"
 import { Svg } from "../components/svg.js"
-import { DisposableEntity } from "./disposable.js"
+import { Entity } from "./entity.js"
 
-export const Thing = class extends DisposableEntity {
+export const Thing = class extends Entity {
 	constructor(components = []) {
 		super([
 			new Component.Transform(),
