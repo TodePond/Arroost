@@ -1,7 +1,8 @@
-import { scale, subtract } from "../../libraries/habitat-import.js"
+import { subtract } from "../../libraries/habitat-import.js"
 import { shared } from "../main.js"
 
-const ZOOM_SPEED = 0.01
+const ZOOM_MOUSE_SPEED = 0.00075
+const ZOOM_TRACKPAD_SPEED = 0.01
 export const registerWheel = () => {
 	const { camera, pointer } = shared
 	const { transform } = camera
@@ -9,19 +10,16 @@ export const registerWheel = () => {
 		"wheel",
 		(event) => {
 			event.preventDefault()
-			if (event.ctrlKey) {
-				if (pointer.position.x === undefined) return
-				const delta = event.deltaY * ZOOM_SPEED
-				const oldZoom = transform.scale.x
-				const newZoom = oldZoom * (1 - delta)
-				transform.scale = [newZoom, newZoom]
+			pointer.position = [event.clientX, event.clientY]
 
-				const pointerOffset = subtract(pointer.position, transform.position)
-				const scaleRatio = newZoom / oldZoom
-				const scaledPointerOffset = scale(pointerOffset, scaleRatio)
-				transform.position = subtract(pointer.position, scaledPointerOffset)
+			const isTrackpad = Math.abs(event.deltaY) < 20
+			if (!isTrackpad || event.ctrlKey) {
+				const isTrackpad = Math.abs(event.deltaY) < 20
+				const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
+				camera.zoomSpeed = delta
 				return
 			}
+
 			transform.position = subtract(transform.position, [event.deltaX, event.deltaY])
 		},
 		{ passive: false },

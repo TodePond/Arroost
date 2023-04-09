@@ -1,12 +1,16 @@
-import { scale } from "../../libraries/habitat-import.js"
+import { glue, scale, subtract } from "../../libraries/habitat-import.js"
 import { shared } from "../main.js"
 import { Thing } from "./thing.js"
 
-export const PAN_FRICTION = 0.9
+const PAN_FRICTION = 0.9
+const ZOOM_FRICTION = 0.75
 
 export const Camera = class extends Thing {
+	zoomSpeed = this.use(0.0)
+
 	constructor(stage) {
 		super()
+		glue(this)
 		this.stage.connect(stage)
 	}
 
@@ -23,5 +27,21 @@ export const Camera = class extends Thing {
 		const { velocity } = movement
 		movement.update()
 		movement.velocity = scale(velocity, PAN_FRICTION)
+
+		this.zoom(this.zoomSpeed)
+		this.zoomSpeed *= ZOOM_FRICTION
+	}
+
+	zoom(delta) {
+		const { pointer } = shared
+		const { transform } = this
+		const oldZoom = transform.scale.x
+		const newZoom = oldZoom * (1 - delta)
+		transform.scale = [newZoom, newZoom]
+
+		const pointerOffset = subtract(pointer.position, transform.position)
+		const scaleRatio = newZoom / oldZoom
+		const scaledPointerOffset = scale(pointerOffset, scaleRatio)
+		transform.position = subtract(pointer.position, scaledPointerOffset)
 	}
 }
