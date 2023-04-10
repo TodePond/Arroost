@@ -1,4 +1,5 @@
 import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import { Pointing } from "../../../input/states.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { ArrowTickler } from "./tickler.js"
 
@@ -26,7 +27,7 @@ export const ArrowOfConnection = class extends ArrowTickler {
 		inner.transform.scale = [0.4, 0.4]
 
 		this.use(() => {
-			const colour = this.isTickling() ? WHITE : SILVER
+			const colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
 			outer.style.fill = colour
 			inner.style.fill = GREY
 		})

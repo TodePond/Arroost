@@ -1,4 +1,5 @@
 import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import { Pointing } from "../../../input/states.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowTickler } from "./tickler.js"
 
@@ -24,7 +25,7 @@ export const ArrowOfDestruction = class extends ArrowTickler {
 		vertical.svg.element.setAttribute("pointer-events", "none")
 
 		this.use(() => {
-			const colour = this.isTickling() ? WHITE : SILVER
+			const colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
 			horizontal.style.fill = colour
 			vertical.style.fill = colour
 		})

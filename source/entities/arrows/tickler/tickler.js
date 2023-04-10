@@ -1,6 +1,7 @@
 import { WHITE, scale, subtract } from "../../../../libraries/habitat-import.js"
 import { State } from "../../../input/state.js"
 import { Dragging } from "../../../input/states.js"
+import { shared } from "../../../main.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { Line } from "../../shapes/line.js"
 import { Polyline } from "../../shapes/polyline.js"
@@ -59,6 +60,11 @@ export const ArrowTickler = class extends Ellipse {
 		return this.input.state === Tickling || this.input.state === Dragging
 	}
 
+	onPointingPointerMove() {
+		if (shared.hover.entity === this) return null
+		return Tickling
+	}
+
 	onDraggingEnter() {
 		this.bringToFront()
 	}
@@ -75,4 +81,8 @@ export const ArrowTickler = class extends Ellipse {
 export const Tickling = new State({
 	name: "Tickling",
 	cursor: "none",
+
+	onPointerDown() {
+		return Dragging
+	},
 })
