@@ -1,4 +1,5 @@
 import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
+import { Dragging } from "../../../input/states.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowTickler } from "./tickler.js"
 
@@ -22,7 +23,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Colour
 		style.fill = GREY
 		this.use(() => {
-			const colour = input.hovered ? WHITE : SILVER
+			const colour = input.state === Dragging ? WHITE : SILVER
 			horizontal.style.fill = colour
 			vertical.style.fill = colour
 		})

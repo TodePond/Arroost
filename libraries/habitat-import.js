@@ -1689,18 +1689,22 @@ const HabitatFrogasaurus = {}
 				const next = state
 
 				if (previous !== undefined) {
-					const result = previous.fire("exit", [next])
+					const result = previous.fire("exit", [next, previous])
 					if (result === null) {
 						this.set(previous)
 						return null
+					} else if (result instanceof State) {
+						this.set(result)
 					}
 				}
 
 				this.state = next
-				const enterResult = next.fire("enter", [previous])
+				const enterResult = next.fire("enter", [previous, next])
 				if (enterResult === null) {
 					this.set(previous)
 					return null
+				} else if (enterResult instanceof State) {
+					this.set(enterResult)
 				}
 			}
 

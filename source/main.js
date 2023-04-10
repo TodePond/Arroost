@@ -13,7 +13,7 @@ import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
 import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
-import { Hovering } from "./input/states.js"
+import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
 
 //===============//
@@ -33,7 +33,7 @@ const stage = new Stage({
 const camera = new Camera(stage)
 const machine = new Machine()
 const pointer = getPointer()
-const hover = getHover()
+const hover = getHover(camera)
 
 export const shared = {
 	stage,
@@ -48,7 +48,7 @@ camera.transform.scale = repeatArray([5], 2)
 
 // Register inputs
 connectMachine(machine)
-machine.set(Hovering)
+machine.set(Idle)
 registerWheel()
 registerPreventDefaults()
 

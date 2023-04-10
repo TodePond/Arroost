@@ -1,4 +1,5 @@
-import { glue, scale, subtract } from "../../libraries/habitat-import.js"
+import { add, glue, scale, subtract } from "../../libraries/habitat-import.js"
+import { setCursor } from "../input/cursor.js"
 import { Dragging } from "../input/states.js"
 import { shared } from "../main.js"
 import { Thing } from "./thing.js"
@@ -52,11 +53,27 @@ export const Camera = class extends Thing {
 		transform.position = subtract(pointer.position, scaledPointerOffset)
 	}
 
+	onHoveringEnter() {
+		setCursor("default")
+	}
+
 	onHoveringPointerDown() {
 		return Dragging
 	}
 
-	onDraggingEnter() {
-		//return null
+	onDraggingEnter(previous, state) {
+		state.pointerStart = [...shared.pointer.position]
+		state.cameraStart = [...this.transform.position]
+		this.movement.velocity = [0, 0]
+	}
+
+	onDraggingPointerUp() {
+		this.movement.velocity = [...shared.pointer.velocity]
+	}
+
+	onDraggingPointerMove(event, state) {
+		const { pointerStart, cameraStart } = state
+		const pointerDisplacement = subtract(shared.pointer.position, pointerStart)
+		this.transform.position = add(cameraStart, pointerDisplacement)
 	}
 }

@@ -1,5 +1,4 @@
 import { State as _State } from "../../../libraries/habitat-import.js"
-import { shared } from "../main.js"
 import { setCursor } from "./cursor.js"
 
 export const State = class extends _State {
@@ -10,12 +9,13 @@ export const State = class extends _State {
 	}
 
 	fire(name, args) {
-		if (this.input === undefined) {
-			this.input = shared.camera.input
-		}
-
 		if (name === "enter") {
 			setCursor(this.cursor)
+			const [previous] = args
+			this.input = previous?.input
+			if (this.input !== undefined) {
+				this.input.state = this
+			}
 		}
 
 		return this.resolve(name, args)
@@ -24,11 +24,13 @@ export const State = class extends _State {
 	resolve(name, args) {
 		name = name[0].toUpperCase() + name.slice(1)
 
-		const inputStateResult = this.input.fire(`on${this.name}${name}`.d, args)
-		if (inputStateResult !== undefined) return inputStateResult
+		if (this.input) {
+			const inputStateResult = this.input.fire(`on${this.name}${name}`, args)
+			if (inputStateResult !== undefined) return inputStateResult
 
-		const inputGeneralResult = this.input.fire(`on${name}`, args)
-		if (inputGeneralResult !== undefined) return inputGeneralResult
+			const inputGeneralResult = this.input.fire(`on${name}`, args)
+			if (inputGeneralResult !== undefined) return inputGeneralResult
+		}
 
 		return super.fire(`on${name}`, args)
 	}

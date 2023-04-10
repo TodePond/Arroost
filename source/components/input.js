@@ -3,10 +3,7 @@ import { Component } from "./component.js"
 
 export const Input = class extends Component {
 	name = "input"
-	hovered = use(false)
-	pointed = use(false)
-	dragged = use(false)
-	carried = use(false)
+	state = use(null)
 
 	constructor() {
 		super()

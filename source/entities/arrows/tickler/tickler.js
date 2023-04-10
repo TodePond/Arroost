@@ -1,5 +1,6 @@
 import { WHITE, scale, subtract } from "../../../../libraries/habitat-import.js"
-import { shared } from "../../../main.js"
+import { setCursor } from "../../../input/cursor.js"
+import { Dragging } from "../../../input/states.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { Line } from "../../shapes/line.js"
 import { Polyline } from "../../shapes/polyline.js"
@@ -27,12 +28,13 @@ export const ArrowTickler = class extends Ellipse {
 		flaps.style.fill = "none"
 		flaps.style.strokeWidth = (0.8 * 10) / 3
 		this.use(() => {
-			const visibility = input.dragged || input.carried ? "visible" : "hidden"
+			const visibility = input.state === Dragging ? "visible" : "hidden"
 			tickle.svg.element.setAttribute("visibility", visibility)
 			flaps.svg.element.setAttribute("visibility", visibility)
 		})
+
 		this.use(() => {
-			if (!input.pointed) return
+			if (input.state !== Dragging) return
 
 			const position = scale(
 				subtract(pointer.position, this.transform.absolutePosition),
@@ -53,16 +55,8 @@ export const ArrowTickler = class extends Ellipse {
 		return super.render()
 	}
 
-	onClick() {
-		return true
-	}
-
-	onGrab() {
-		const { hover } = shared
-		if (hover.entity === this) return false
-	}
-
-	onPoint() {
+	onDraggingEnter() {
 		this.bringToFront()
+		setCursor("none")
 	}
 }
