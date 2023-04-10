@@ -1662,7 +1662,7 @@ const HabitatFrogasaurus = {}
 			}
 
 			constructor(head, tail) {
-				const options = new Options(State.options)(head, tail)
+				const options = new Options(this.constructor.options)(head, tail)
 				Object.assign(this, options)
 			}
 
@@ -1685,30 +1685,38 @@ const HabitatFrogasaurus = {}
 			}
 
 			set(state) {
-				const next = state
 				const previous = this.state
-				if (this.state) {
-					this.state.fire("exit", [next])
+				const next = state
+
+				if (previous !== undefined) {
+					const result = previous.fire("exit", [next])
+					if (result === null) {
+						this.set(previous)
+						return null
+					}
 				}
+
 				this.state = next
-				if (this.state === undefined) {
-					return
-				}
-				const result = this.state.fire("enter", [previous])
-				if (result instanceof State) {
-					this.set(result)
+				const enterResult = next.fire("enter", [previous])
+				if (enterResult === null) {
+					this.set(previous)
+					return null
 				}
 			}
 
+			// Fire a method, and resolve any state changes
 			fire(name, args) {
 				if (this.state === undefined) {
 					return
 				}
 
 				const result = this.state.fire(name, args)
+
 				if (result instanceof State) {
-					this.set(result)
-					return this.fire(name, args)
+					const setResult = this.set(result)
+					if (setResult !== null) {
+						return this.fire(name, args)
+					}
 				}
 
 				return result

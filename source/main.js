@@ -13,7 +13,7 @@ import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
 import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
-import { Idle } from "./input/states/idle.js"
+import { Hovering } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
 
 //===============//
@@ -48,7 +48,7 @@ camera.transform.scale = repeatArray([5], 2)
 
 // Register inputs
 connectMachine(machine)
-machine.set(Idle)
+machine.set(Hovering)
 registerWheel()
 registerPreventDefaults()
 

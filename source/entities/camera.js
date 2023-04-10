@@ -1,4 +1,5 @@
 import { glue, scale, subtract } from "../../libraries/habitat-import.js"
+import { Dragging } from "../input/states.js"
 import { shared } from "../main.js"
 import { Thing } from "./thing.js"
 
@@ -7,6 +8,7 @@ const ZOOM_FRICTION = 0.75
 
 export const Camera = class extends Thing {
 	zoomSpeed = this.use(0.0)
+	state = this.use(null)
 
 	constructor(stage) {
 		super()
@@ -48,5 +50,13 @@ export const Camera = class extends Thing {
 		const scaleRatio = newZoom / oldZoom
 		const scaledPointerOffset = scale(pointerOffset, scaleRatio)
 		transform.position = subtract(pointer.position, scaledPointerOffset)
+	}
+
+	onHoveringPointerDown() {
+		return Dragging
+	}
+
+	onDraggingEnter() {
+		//return null
 	}
 }

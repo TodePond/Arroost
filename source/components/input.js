@@ -8,27 +8,12 @@ export const Input = class extends Component {
 	dragged = use(false)
 	carried = use(false)
 
-	static events = new Set([
-		"onPoint",
-		"onRelease",
-		"onGrab",
-		"onDrag",
-		"onDrop",
-		"onClick",
-		"onCarry",
-		"onPlace",
-	])
-
 	constructor() {
 		super()
 		glue(this)
 	}
 
 	fire(name, args) {
-		if (!Input.events.has(name)) {
-			throw new Error(`Couldn't find event '${name}' in list of approved events.`)
-		}
-
 		const { entity } = this
 		if (entity === undefined) {
 			return

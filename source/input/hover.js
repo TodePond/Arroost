@@ -5,12 +5,12 @@ export const getHover = memo(() => {
 	const hover = new State({
 		input: undefined,
 		entity: undefined,
-		pointerover(event) {
+		pointerOver(event) {
 			const { entity, input } = event
 			this.entity = entity
 			this.input = input
 		},
-		pointerout() {
+		pointerOut() {
 			this.entity = undefined
 			this.input = undefined
 		},

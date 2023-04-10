@@ -1,4 +1,4 @@
-import { WHITE, distanceBetween, scale, subtract } from "../../../../libraries/habitat-import.js"
+import { WHITE, scale, subtract } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { Line } from "../../shapes/line.js"
@@ -39,7 +39,6 @@ export const ArrowTickler = class extends Ellipse {
 				1 / this.transform.absoluteScale.x,
 			)
 
-			const distance = distanceBetween(position, [0, 0])
 			const scaling = 1
 			const angle = Math.atan2(position.y, position.x) * (180 / Math.PI) - 45
 
@@ -50,9 +49,6 @@ export const ArrowTickler = class extends Ellipse {
 		})
 
 		tickle.target.transform.position = [0, 0]
-
-		// Bring to front
-		tickle.svg.element.style["z-index"] = 1
 
 		return super.render()
 	}

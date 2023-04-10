@@ -22,7 +22,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Colour
 		style.fill = GREY
 		this.use(() => {
-			const colour = input.pointed ? WHITE : SILVER
+			const colour = input.hovered ? WHITE : SILVER
 			horizontal.style.fill = colour
 			vertical.style.fill = colour
 		})
