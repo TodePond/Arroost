@@ -21,6 +21,11 @@ export const Camera = class extends Thing {
 
 	tick() {
 		const { pointer } = shared
+
+		if (pointer.position.x === undefined || pointer.position.y === undefined) {
+			return
+		}
+
 		pointer.tick()
 
 		const { movement } = this

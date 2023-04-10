@@ -18,6 +18,10 @@ export const Svg = class extends Component {
 			this.use(() => {
 				const { transform } = this.entity
 				const { position, rotation, scale } = transform
+				if (isNaN(position.x)) {
+					print(this.entity)
+					throw new Error(`Position x is NaN`)
+				}
 				group.setAttribute(
 					"transform",
 					`translate(${position.x}, ${position.y}) rotate(${rotation}) scale(${scale.x}, ${scale.y})`,
