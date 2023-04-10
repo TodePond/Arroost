@@ -13,6 +13,8 @@ export const ArrowOfConnection = class extends ArrowTickler {
 		const inner = new Ellipse()
 
 		style.fill = GREY
+		outer.style.stroke = "none"
+		inner.style.stroke = "none"
 
 		outer.svg.element.setAttribute("pointer-events", "none")
 		inner.svg.element.setAttribute("pointer-events", "none")

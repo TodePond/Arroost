@@ -19,6 +19,8 @@ export const ArrowTickler = class extends Ellipse {
 		this.add(tickle)
 		this.add(flaps)
 
+		this.style.stroke = "none"
+
 		tickle.svg.element.setAttribute("pointer-events", "none")
 		flaps.svg.element.setAttribute("pointer-events", "none")
 

@@ -9,6 +9,7 @@ import { ArrowOfConnection } from "./entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./entities/arrows/tickler/destruction.js"
 import { Camera } from "./entities/camera.js"
+import { registerDebugs } from "./input/debug.js"
 import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
 import { getPointer } from "./input/pointer.js"
@@ -51,6 +52,7 @@ connectMachine(machine)
 machine.set(Idle)
 registerWheel()
 registerPreventDefaults()
+registerDebugs(false)
 
 //===============//
 // Setup Arroost //
