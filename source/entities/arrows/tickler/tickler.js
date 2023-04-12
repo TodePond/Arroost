@@ -59,6 +59,10 @@ export const ArrowTickler = class extends Ellipse {
 
 	onPointingPointerMove() {
 		if (shared.hover.entity === this) return null
+		return Dragging
+	}
+
+	onPointingPointerUp() {
 		return Tickling
 	}
 
@@ -66,20 +70,16 @@ export const ArrowTickler = class extends Ellipse {
 		this.bringToFront()
 	}
 
-	onPointingPointerUp() {
-		return Tickling
-	}
-
 	onTicklingEnter() {
 		this.bringToFront()
+	}
+
+	onTicklingPointerDown() {
+		return Dragging
 	}
 }
 
 export const Tickling = new State({
 	name: "Tickling",
-	cursor: "default",
-
-	onPointerDown() {
-		return Dragging
-	},
+	cursor: "none",
 })
