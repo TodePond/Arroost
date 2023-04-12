@@ -293,17 +293,35 @@ const HabitatFrogasaurus = {}
 			absolutePosition = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
+
 				if (!parent || !parent.transform) {
 					return this.position
 				}
 
 				const [x, y] = this.position
-				const [sx, sy] = this.absoluteScale
+				const [sx, sy] = parent.transform.absoluteScale
 				const scaledPosition = [x * sx, y * sy]
 
 				const rotatedPosition = rotate(scaledPosition, parent.transform.absoluteRotation)
 				return add(parent.transform.absolutePosition, rotatedPosition)
 			})
+
+			setAbsolutePosition(position) {
+				const { entity } = this
+				const { parent } = entity
+
+				if (!parent || !parent.transform) {
+					this.position = position
+					return
+				}
+
+				this.position = [
+					(position.x - parent.transform.absolutePosition.x) /
+						parent.transform.absoluteScale.x,
+					(position.y - parent.transform.absolutePosition.y) /
+						parent.transform.absoluteScale.y,
+				]
+			}
 
 			absoluteScale = snuse(() => {
 				const { entity } = this

@@ -1,4 +1,4 @@
-import { WHITE, scale, subtract } from "../../../../libraries/habitat-import.js"
+import { WHITE, subtract } from "../../../../libraries/habitat-import.js"
 import { State } from "../../../input/state.js"
 import { Dragging } from "../../../input/states.js"
 import { shared } from "../../../main.js"
@@ -15,6 +15,7 @@ export const ArrowTickler = class extends Ellipse {
 	])
 
 	render() {
+		const { pointer } = shared
 		const { tickle, flaps, input } = this
 		this.add(tickle)
 		this.add(flaps)
@@ -39,18 +40,12 @@ export const ArrowTickler = class extends Ellipse {
 		this.use(() => {
 			if (!this.isTickling()) return
 
-			const position = scale(
-				subtract(pointer.position, this.transform.absolutePosition),
-				1 / this.transform.absoluteScale.x,
-			)
-
-			const scaling = 1
-			const angle = Math.atan2(position.y, position.x) * (180 / Math.PI) - 45
-
-			tickle.target.transform.position = position
-			flaps.transform.position = position
+			const displacement = subtract(pointer.position, this.transform.absolutePosition)
+			const angle = Math.atan2(displacement.y, displacement.x) * (180 / Math.PI) - 45
 			flaps.transform.rotation = angle
-			flaps.transform.scale = [scaling, scaling]
+
+			tickle.target.transform.setAbsolutePosition(pointer.position)
+			flaps.transform.setAbsolutePosition(pointer.position)
 		})
 
 		tickle.target.transform.position = [0, 0]
@@ -82,7 +77,7 @@ export const ArrowTickler = class extends Ellipse {
 
 export const Tickling = new State({
 	name: "Tickling",
-	cursor: "none",
+	cursor: "default",
 
 	onPointerDown() {
 		return Dragging

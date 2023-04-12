@@ -9,6 +9,7 @@ import { ArrowOfConnection } from "./entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./entities/arrows/tickler/destruction.js"
 import { Camera } from "./entities/camera.js"
+import { Display } from "./entities/display.js"
 import { registerDebugs } from "./input/debug.js"
 import { getHover } from "./input/hover.js"
 import { connectMachine } from "./input/machine.js"
@@ -31,9 +32,13 @@ const stage = new Stage({
 	context: { background: "2d", html: "html", svg: "svg", foreground: "2d" },
 })
 
-const camera = new Camera(stage)
+const display = new Display(stage)
+const camera = new Camera()
+display.add(camera)
+display.input = camera.input
+
 const machine = new Machine()
-const pointer = getPointer()
+const pointer = getPointer(camera)
 const hover = getHover(camera)
 
 export const shared = {
@@ -42,6 +47,7 @@ export const shared = {
 	machine,
 	pointer,
 	hover,
+	display,
 }
 
 // Set default zoom

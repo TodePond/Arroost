@@ -1,4 +1,4 @@
-import { add, glue, scale, subtract } from "../../libraries/habitat-import.js"
+import { add, scale, subtract } from "../../libraries/habitat-import.js"
 import { setCursor } from "../input/cursor.js"
 import { Dragging } from "../input/states.js"
 import { shared } from "../main.js"
@@ -9,18 +9,6 @@ const ZOOM_FRICTION = 0.75
 
 export const Camera = class extends Thing {
 	zoomSpeed = this.use(0.0)
-	state = this.use(null)
-
-	constructor(stage) {
-		super()
-		glue(this)
-		this.stage.connect(stage)
-	}
-
-	start({ background, html, svg, foreground }) {
-		svg.append(this.svg.element)
-		foreground.canvas.style["pointer-events"] = "none"
-	}
 
 	tick() {
 		const { pointer } = shared
@@ -65,6 +53,7 @@ export const Camera = class extends Thing {
 		state.pointerStart = [...shared.pointer.position]
 		state.cameraStart = [...this.transform.position]
 		this.movement.velocity = [0, 0]
+		setCursor("move")
 	}
 
 	onDraggingPointerUp() {

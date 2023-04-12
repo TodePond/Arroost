@@ -3,18 +3,21 @@ import {
 	add,
 	equals,
 	glue,
-	memo,
 	scale,
 	subtract,
 	use,
 } from "../../libraries/habitat-import.js"
 
-// This function injects a 'velocity' property into the Habitat pointer object
-// It also makes the pointer position a signal
-export const getPointer = memo(() => {
+export const getPointer = (camera) => {
 	const pointer = _getPointer()
 	pointer.position = use([undefined, undefined])
 	pointer.velocity = use([0, 0])
+	pointer.absolutePosition = use(() => {
+		const [x, y] = pointer.position
+		const [sx, sy] = camera.transform.scale
+
+		return [x, y]
+	})
 	glue(pointer)
 
 	const velocityHistory = []
@@ -50,4 +53,4 @@ export const getPointer = memo(() => {
 	}
 
 	return pointer
-})
+}
