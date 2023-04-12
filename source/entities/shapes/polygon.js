@@ -1,7 +1,7 @@
 import { SVG, glue } from "../../../libraries/habitat-import.js"
 import { Thing } from "../thing.js"
 
-export const Polyline = class extends Thing {
+export const Polygon = class extends Thing {
 	targets = this.use([], { store: false })
 
 	constructor(points = []) {
@@ -28,7 +28,7 @@ export const Polyline = class extends Thing {
 		const { parent } = this
 		if (parent === undefined) return
 
-		const polyline = SVG(`<polyline />`)
+		const polyline = SVG(`<polygon />`)
 
 		this.use(() => polyline.setAttribute("stroke", this.style.stroke))
 		this.use(() => polyline.setAttribute("stroke-width", this.style.strokeWidth))

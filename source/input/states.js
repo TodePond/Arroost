@@ -50,7 +50,7 @@ export const Pointing = new State({
 
 export const Dragging = new State({
 	name: "Dragging",
-	cursor: "none",
+	cursor: "move",
 
 	onPointerUp() {
 		return Idle

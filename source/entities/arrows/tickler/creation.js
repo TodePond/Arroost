@@ -1,6 +1,8 @@
 import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
+import { shared } from "../../../main.js"
 import { Rectangle } from "../../shapes/rectangle.js"
+import { ArrowOfRecording } from "../recording.js"
 import { ArrowTickler } from "./tickler.js"
 
 export const ArrowOfCreation = class extends ArrowTickler {
@@ -36,5 +38,11 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		})
 
 		return super.render()
+	}
+
+	onTickle() {
+		const recording = new ArrowOfRecording()
+		shared.camera.add(recording)
+		recording.transform.setAbsolutePosition(shared.pointer.position)
 	}
 }

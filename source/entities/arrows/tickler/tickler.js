@@ -1,4 +1,5 @@
 import { WHITE, subtract } from "../../../../libraries/habitat-import.js"
+import { setCursor } from "../../../input/cursor.js"
 import { State } from "../../../input/state.js"
 import { Dragging } from "../../../input/states.js"
 import { shared } from "../../../main.js"
@@ -16,7 +17,7 @@ export const ArrowTickler = class extends Ellipse {
 
 	render() {
 		const { pointer } = shared
-		const { tickle, flaps, input } = this
+		const { tickle, flaps } = this
 		this.add(tickle)
 		this.add(flaps)
 
@@ -68,6 +69,7 @@ export const ArrowTickler = class extends Ellipse {
 
 	onDraggingEnter() {
 		this.bringToFront()
+		setCursor("none")
 	}
 
 	onDraggingPointerUp() {
@@ -83,7 +85,7 @@ export const ArrowTickler = class extends Ellipse {
 	}
 
 	onTickle() {
-		print("TICKLE TIME")
+		// Override this
 	}
 }
 
