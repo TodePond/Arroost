@@ -18,6 +18,24 @@ export const Movement = class extends Component {
 	scaleVelocity = use([1, 1])
 	scaleAcceleration = use([1, 1])
 
+	setAbsoluteVelocity(velocity) {
+		const { transform } = this.entity
+		if (transform === undefined) {
+			this.velocity = velocity
+			return
+		}
+		const parent = this.entity.parent
+		if (parent === undefined || parent.transform === undefined) {
+			this.velocity = velocity
+			return
+		}
+
+		this.velocity = [
+			velocity.x / transform.absoluteScale.x,
+			velocity.y / transform.absoluteScale.y,
+		]
+	}
+
 	update() {
 		this.velocity = add(this.velocity, this.acceleration)
 

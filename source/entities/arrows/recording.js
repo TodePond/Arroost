@@ -1,6 +1,6 @@
 import { GREY, SILVER, WHITE, add, scale, subtract } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
-import { Pointing } from "../../input/states.js"
+import { Dragging, Pointing } from "../../input/states.js"
 import { shared } from "../../main.js"
 import { Triangle } from "../shapes/triangle.js"
 
@@ -18,8 +18,18 @@ export const ArrowOfRecording = class extends Triangle {
 
 		inner.transform.scale = [0.6, 0.6]
 		inner.style.stroke = "none"
-		this.use(() => (inner.style.fill = input.state === Pointing ? WHITE : SILVER))
+		this.use(() => (inner.style.fill = this.getColour()))
 		inner.svg.element.style["pointer-events"] = "none"
+	}
+
+	getColour() {
+		if (this.input.state === Pointing) return WHITE
+		if (this.input.state === Dragging) return WHITE
+		return SILVER
+	}
+
+	onPointingEnter() {
+		this.bringToFront()
 	}
 
 	onPointingPointerUp() {
@@ -41,7 +51,7 @@ export const ArrowOfRecording = class extends Triangle {
 	}
 
 	onDraggingPointerUp() {
-		this.movement.velocity = [...shared.pointer.velocity]
+		this.movement.setAbsoluteVelocity(shared.pointer.velocity)
 	}
 
 	tick() {

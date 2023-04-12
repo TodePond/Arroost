@@ -44,5 +44,6 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		const recording = new ArrowOfRecording()
 		shared.camera.add(recording)
 		recording.transform.setAbsolutePosition(shared.pointer.position)
+		recording.movement.setAbsoluteVelocity(shared.pointer.velocity)
 	}
 }
