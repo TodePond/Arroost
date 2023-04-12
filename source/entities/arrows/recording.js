@@ -1,4 +1,7 @@
-import { GREY, SILVER } from "../../../libraries/habitat-import.js"
+import { GREY, SILVER, WHITE, add, scale, subtract } from "../../../libraries/habitat-import.js"
+import { setCursor } from "../../input/cursor.js"
+import { Pointing } from "../../input/states.js"
+import { shared } from "../../main.js"
 import { Triangle } from "../shapes/triangle.js"
 
 export const ArrowOfRecording = class extends Triangle {
@@ -6,7 +9,7 @@ export const ArrowOfRecording = class extends Triangle {
 
 	constructor() {
 		super()
-		const { transform, style, inner } = this
+		const { transform, style, inner, input } = this
 		this.add(inner)
 
 		transform.rotation = -90
@@ -15,6 +18,40 @@ export const ArrowOfRecording = class extends Triangle {
 
 		inner.transform.scale = [0.6, 0.6]
 		inner.style.stroke = "none"
-		inner.style.fill = SILVER
+		this.use(() => (inner.style.fill = input.state === Pointing ? WHITE : SILVER))
+		inner.svg.element.style["pointer-events"] = "none"
+	}
+
+	onPointingPointerUp() {
+		this.onRecord()
+	}
+
+	onDraggingEnter(previous, state) {
+		state.pointerStart = [...shared.pointer.position]
+		state.start = [...this.transform.absolutePosition]
+		this.movement.velocity = [0, 0]
+		setCursor("move")
+	}
+
+	onDraggingPointerMove(event, state) {
+		const { pointerStart, start } = state
+		if (pointerStart === undefined) return
+		const pointerDisplacement = subtract(shared.pointer.position, pointerStart)
+		this.transform.setAbsolutePosition(add(start, pointerDisplacement))
+	}
+
+	onDraggingPointerUp() {
+		this.movement.velocity = [...shared.pointer.velocity]
+	}
+
+	tick() {
+		const { movement } = this
+		const { velocity } = movement
+		movement.update()
+		movement.velocity = scale(velocity, 0.9)
+	}
+
+	onRecord() {
+		print("RECORD")
 	}
 }
