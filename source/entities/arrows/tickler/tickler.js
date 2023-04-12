@@ -70,12 +70,20 @@ export const ArrowTickler = class extends Ellipse {
 		this.bringToFront()
 	}
 
+	onDraggingPointerUp() {
+		this.onTickle()
+	}
+
 	onTicklingEnter() {
 		this.bringToFront()
 	}
 
 	onTicklingPointerDown() {
 		return Dragging
+	}
+
+	onTickle() {
+		print("TICKLE TIME")
 	}
 }
 
