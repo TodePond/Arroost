@@ -17,6 +17,8 @@ import { Triangle } from "../shapes/triangle.js"
 export const ArrowOfRecording = class extends Triangle {
 	inner = new Triangle()
 	recording = this.use(false)
+	noise = this.use(null, { store: false })
+
 	colour = this.use(
 		() => {
 			if (this.recording === true) {

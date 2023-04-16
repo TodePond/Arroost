@@ -14,6 +14,7 @@ export const Polygon = class extends Thing {
 			this.targets.push(target)
 		}
 		this.targets = this.targets
+		this.style.apply()
 	}
 
 	addPoint(point) {
@@ -29,10 +30,6 @@ export const Polygon = class extends Thing {
 		if (parent === undefined) return
 
 		const polyline = SVG(`<polygon />`)
-
-		this.use(() => polyline.setAttribute("stroke", this.style.stroke))
-		this.use(() => polyline.setAttribute("stroke-width", this.style.strokeWidth))
-		this.use(() => polyline.setAttribute("fill", this.style.fill))
 
 		this.use(() => {
 			polyline.setAttribute(

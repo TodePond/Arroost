@@ -261,7 +261,7 @@ const HabitatFrogasaurus = {}
 			constructor(head, tail) {
 				const options = new Options(Component.options)(head, tail)
 				Object.assign(this, options)
-				this.entity = use(undefined)
+				this.entity = use(undefined, { store: false })
 				glue(this)
 			}
 		}
