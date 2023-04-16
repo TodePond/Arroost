@@ -13,6 +13,7 @@ import { setCursor } from "../../input/cursor.js"
 import { Pointing } from "../../input/states.js"
 import { shared } from "../../main.js"
 import { Triangle } from "../shapes/triangle.js"
+import { ArrowOfNoise } from "./noise.js"
 
 export const ArrowOfRecording = class extends Triangle {
 	inner = new Triangle()
@@ -69,10 +70,14 @@ export const ArrowOfRecording = class extends Triangle {
 	}
 
 	onPointingPointerUp() {
-		if (!this.recording) {
+		if (this.noise === null) {
 			this.onRecordStart()
-		} else {
+		} else if (this.recording === true) {
 			this.onRecordStop()
+		} else if (this.playing) {
+			this.onPlayStop()
+		} else {
+			this.onPlayStart()
 		}
 	}
 
@@ -102,6 +107,8 @@ export const ArrowOfRecording = class extends Triangle {
 
 	onRecordStart() {
 		this.recording = true
+		this.noise = new ArrowOfNoise()
+		this.add(this.noise)
 	}
 
 	onRecordStop() {
