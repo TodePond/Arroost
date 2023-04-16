@@ -13,8 +13,12 @@ export const State = class extends _State {
 			setCursor(this.cursor)
 			const [previous] = args
 			this.input = previous?.input
+			if (previous) {
+				this.input[previous.name] = false
+			}
 			if (this.input !== undefined) {
 				this.input.state = this
+				this.input[this.name] = true
 			}
 		}
 

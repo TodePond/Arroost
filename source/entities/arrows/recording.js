@@ -22,12 +22,12 @@ export const ArrowOfRecording = class extends Triangle {
 	colour = this.use(
 		() => {
 			if (this.recording === true) {
-				if (this.input.state === Pointing) {
+				if (this.input.Pointing) {
 					return CORAL
 				}
 				return RED
 			}
-			if (this.input.state === Pointing) return WHITE
+			if (this.input.Pointing) return WHITE
 			return SILVER
 		},
 		{ store: false },
