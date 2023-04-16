@@ -1,15 +1,40 @@
-import { GREY, SILVER, WHITE, add, scale, subtract } from "../../../libraries/habitat-import.js"
+import {
+	CORAL,
+	GREY,
+	RED,
+	SILVER,
+	WHITE,
+	add,
+	glue,
+	scale,
+	subtract,
+} from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
-import { Dragging, Pointing } from "../../input/states.js"
+import { Pointing } from "../../input/states.js"
 import { shared } from "../../main.js"
 import { Triangle } from "../shapes/triangle.js"
 
 export const ArrowOfRecording = class extends Triangle {
 	inner = new Triangle()
+	recording = this.use(false)
+	colour = this.use(
+		() => {
+			if (this.recording === true) {
+				if (this.input.state === Pointing) {
+					return CORAL
+				}
+				return RED
+			}
+			if (this.input.state === Pointing) return WHITE
+			return SILVER
+		},
+		{ store: false },
+	)
 
 	constructor() {
 		super()
-		const { transform, style, inner, input } = this
+		const { transform, style, inner } = this
+		glue(this)
 		this.add(inner)
 
 		transform.rotation = -90
@@ -18,7 +43,7 @@ export const ArrowOfRecording = class extends Triangle {
 
 		inner.transform.scale = [0.6, 0.6]
 		inner.style.stroke = "none"
-		this.use(() => (inner.style.fill = this.getColour()))
+		this.use(() => (inner.style.fill = this.colour))
 		inner.svg.element.style["pointer-events"] = "none"
 	}
 
@@ -32,8 +57,21 @@ export const ArrowOfRecording = class extends Triangle {
 		this.bringToFront()
 	}
 
+	onPointingPointerMove(event, state) {
+		const { pointerStartPosition, inputStartPosition } = state
+		const displacement = subtract(shared.pointer.position, pointerStartPosition)
+		const distance = Math.hypot(displacement.x, displacement.y)
+		if (distance < 10) {
+			return null
+		}
+	}
+
 	onPointingPointerUp() {
-		this.onRecord()
+		if (!this.recording) {
+			this.onRecordStart()
+		} else {
+			this.onRecordStop()
+		}
 	}
 
 	onDraggingEnter(previous, state) {
@@ -44,10 +82,9 @@ export const ArrowOfRecording = class extends Triangle {
 	}
 
 	onDraggingPointerMove(event, state) {
-		const { pointerStart, start } = state
-		if (pointerStart === undefined) return
-		const pointerDisplacement = subtract(shared.pointer.position, pointerStart)
-		this.transform.setAbsolutePosition(add(start, pointerDisplacement))
+		const { pointerStartPosition, inputStartPosition } = state
+		const displacement = subtract(shared.pointer.position, pointerStartPosition)
+		this.transform.setAbsolutePosition(add(inputStartPosition, displacement))
 	}
 
 	onDraggingPointerUp() {
@@ -61,7 +98,11 @@ export const ArrowOfRecording = class extends Triangle {
 		movement.velocity = scale(velocity, 0.9)
 	}
 
-	onRecord() {
-		print("RECORD")
+	onRecordStart() {
+		this.recording = true
+	}
+
+	onRecordStop() {
+		this.recording = false
 	}
 }

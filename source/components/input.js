@@ -3,7 +3,7 @@ import { Component } from "./component.js"
 
 export const Input = class extends Component {
 	name = "input"
-	state = use(null)
+	state = use(null, { store: false })
 
 	constructor() {
 		super()

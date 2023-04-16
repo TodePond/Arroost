@@ -50,8 +50,6 @@ export const Camera = class extends Thing {
 	}
 
 	onDraggingEnter(previous, state) {
-		state.pointerStart = [...shared.pointer.position]
-		state.cameraStart = [...this.transform.position]
 		this.movement.velocity = [0, 0]
 		setCursor("move")
 	}
@@ -61,8 +59,8 @@ export const Camera = class extends Thing {
 	}
 
 	onDraggingPointerMove(event, state) {
-		const { pointerStart, cameraStart } = state
-		const pointerDisplacement = subtract(shared.pointer.position, pointerStart)
-		this.transform.position = add(cameraStart, pointerDisplacement)
+		const { pointerStartPosition, inputStartPosition } = state
+		const pointerDisplacement = subtract(shared.pointer.position, pointerStartPosition)
+		this.transform.position = add(inputStartPosition, pointerDisplacement)
 	}
 }

@@ -39,6 +39,11 @@ export const Pointing = new State({
 	name: "Pointing",
 	cursor: "pointer",
 
+	onEnter() {
+		this.pointerStartPosition = [...shared.pointer.position]
+		this.inputStartPosition = [...this.input.entity.transform.absolutePosition]
+	},
+
 	onPointerUp() {
 		return Idle
 	},
@@ -51,6 +56,16 @@ export const Pointing = new State({
 export const Dragging = new State({
 	name: "Dragging",
 	cursor: "move",
+
+	onEnter(previous) {
+		const {
+			pointerStartPosition = [...shared.pointer.position],
+			inputStartPosition = [...this.input.entity.transform.absolutePosition],
+		} = previous
+
+		this.pointerStartPosition = pointerStartPosition
+		this.inputStartPosition = inputStartPosition
+	},
 
 	onPointerUp() {
 		return Idle
