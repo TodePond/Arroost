@@ -3,7 +3,7 @@ import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
 
 export const ArrowOfNoise = class extends Thing {
-	duration = this.use(10)
+	duration = this.use(0)
 
 	line = new Line()
 
@@ -20,7 +20,7 @@ export const ArrowOfNoise = class extends Thing {
 
 		this.use(() => {
 			target.transform.position.x = 0
-			target.transform.position.y = this.duration
+			target.transform.position.y = this.duration * 0.01
 		})
 	}
 }

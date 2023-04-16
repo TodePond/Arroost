@@ -48,6 +48,7 @@ export const shared = {
 	pointer,
 	hover,
 	display,
+	time: performance.now(),
 }
 
 // Set default zoom

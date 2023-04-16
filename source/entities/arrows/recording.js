@@ -17,7 +17,12 @@ import { ArrowOfNoise } from "./noise.js"
 
 export const ArrowOfRecording = class extends Triangle {
 	inner = new Triangle()
+
 	recording = this.use(false)
+	playing = this.use(false)
+
+	recordingStartTime = this.use(null)
+
 	noise = this.use(null, { store: false })
 
 	colour = this.use(
@@ -72,7 +77,7 @@ export const ArrowOfRecording = class extends Triangle {
 	onPointingPointerUp() {
 		if (this.noise === null) {
 			this.onRecordStart()
-		} else if (this.recording === true) {
+		} else if (this.recording) {
 			this.onRecordStop()
 		} else if (this.playing) {
 			this.onPlayStop()
@@ -103,15 +108,28 @@ export const ArrowOfRecording = class extends Triangle {
 		const { velocity } = movement
 		movement.update()
 		movement.velocity = scale(velocity, 0.9)
+
+		if (this.recording) {
+			this.noise.duration = shared.time - this.recordingStartTime
+		}
 	}
 
 	onRecordStart() {
 		this.recording = true
 		this.noise = new ArrowOfNoise()
 		this.add(this.noise)
+		this.recordingStartTime = shared.time
 	}
 
 	onRecordStop() {
 		this.recording = false
+	}
+
+	onPlayStart() {
+		this.playing = true
+	}
+
+	onPlayStop() {
+		this.playing = false
 	}
 }

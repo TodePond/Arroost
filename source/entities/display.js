@@ -1,4 +1,5 @@
 import { BLACK, SVG, glue } from "../../libraries/habitat-import.js"
+import { shared } from "../main.js"
 import { Thing } from "./thing.js"
 
 export const Display = class extends Thing {
@@ -11,6 +12,10 @@ export const Display = class extends Thing {
 	start({ background, html, svg, foreground }) {
 		svg.append(this.svg.element)
 		foreground.canvas.style["pointer-events"] = "none"
+	}
+
+	tick() {
+		shared.time = performance.now()
 	}
 
 	render() {
