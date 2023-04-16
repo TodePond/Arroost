@@ -16,7 +16,7 @@ export const ArrowOfNoise = class extends Thing {
 	render() {
 		this.line.style.stroke = RED
 
-		const target = this.line.target.d
+		const target = this.line.target
 
 		this.use(() => {
 			target.transform.position.x = 0

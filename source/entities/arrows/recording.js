@@ -10,9 +10,14 @@ import {
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
-import { Pointing } from "../../input/states.js"
 import { shared } from "../../main.js"
-import { MAGNET_UNIT } from "../../unit.js"
+import {
+	INNER_RATIO,
+	MAGNET_UNIT,
+	TRIANGLE_OFFSET,
+	TRIANGLE_RATIO,
+	TRIANGLE_UNIT,
+} from "../../unit.js"
 import { Triangle } from "../shapes/triangle.js"
 import { ArrowOfNoise } from "./noise.js"
 
@@ -50,15 +55,15 @@ export const ArrowOfRecording = class extends Triangle {
 		style.stroke = "none"
 		style.fill = GREY
 
-		inner.transform.scale = [0.6, 0.6]
+		inner.transform.scale = [INNER_RATIO * TRIANGLE_RATIO.d, INNER_RATIO * TRIANGLE_RATIO]
 		inner.style.stroke = "none"
 		this.use(() => (inner.style.fill = this.colour))
 		inner.svg.element.style["pointer-events"] = "none"
 	}
 
 	getColour() {
-		if (this.input.state === Pointing) return WHITE
-		if (this.input.state === Dragging) return WHITE
+		if (this.input.Pointing) return WHITE
+		if (this.input.Dragging) return WHITE
 		return SILVER
 	}
 
@@ -67,7 +72,7 @@ export const ArrowOfRecording = class extends Triangle {
 	}
 
 	onPointingPointerMove(event, state) {
-		const { pointerStartPosition, inputStartPosition } = state
+		const { pointerStartPosition } = state
 		const displacement = subtract(shared.pointer.position, pointerStartPosition)
 		const distance = Math.hypot(displacement.x, displacement.y)
 		if (distance < MAGNET_UNIT) {
@@ -119,6 +124,7 @@ export const ArrowOfRecording = class extends Triangle {
 		this.recording = true
 		this.noise = new ArrowOfNoise()
 		this.add(this.noise)
+		this.noise.transform.position.y = TRIANGLE_UNIT / 2 - TRIANGLE_OFFSET
 		this.recordingStartTime = shared.time
 	}
 
