@@ -3,6 +3,7 @@ import { setCursor } from "../../../input/cursor.js"
 import { State } from "../../../input/state.js"
 import { Dragging } from "../../../input/states.js"
 import { shared } from "../../../main.js"
+import { INNER_ATOM_UNIT } from "../../../unit.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { Line } from "../../shapes/line.js"
 import { Polyline } from "../../shapes/polyline.js"
@@ -28,10 +29,10 @@ export const ArrowTickler = class extends Ellipse {
 
 		// Indicator
 		tickle.style.stroke = WHITE
-		tickle.style.strokeWidth = (0.8 * 10) / 3
+		tickle.style.strokeWidth = INNER_ATOM_UNIT
 		flaps.style.stroke = WHITE
 		flaps.style.fill = "none"
-		flaps.style.strokeWidth = (0.8 * 10) / 3
+		flaps.style.strokeWidth = INNER_ATOM_UNIT
 		this.use(() => {
 			const visibility = this.isTickling() ? "visible" : "hidden"
 			tickle.style.visibility = visibility

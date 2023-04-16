@@ -12,6 +12,7 @@ import {
 import { setCursor } from "../../input/cursor.js"
 import { Pointing } from "../../input/states.js"
 import { shared } from "../../main.js"
+import { MAGNET_UNIT } from "../../unit.js"
 import { Triangle } from "../shapes/triangle.js"
 import { ArrowOfNoise } from "./noise.js"
 
@@ -69,7 +70,7 @@ export const ArrowOfRecording = class extends Triangle {
 		const { pointerStartPosition, inputStartPosition } = state
 		const displacement = subtract(shared.pointer.position, pointerStartPosition)
 		const distance = Math.hypot(displacement.x, displacement.y)
-		if (distance < 10) {
+		if (distance < MAGNET_UNIT) {
 			return null
 		}
 	}

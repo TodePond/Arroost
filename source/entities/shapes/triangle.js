@@ -1,11 +1,12 @@
+import { UNIT } from "../../unit.js"
 import { Polygon } from "./polygon.js"
 
 export const Triangle = class extends Polygon {
-	constructor(width = 10, height = Math.sqrt(3 / 4) * width) {
+	constructor(width = UNIT, height = Math.sqrt(3 / 4) * width) {
 		super([
 			[0, 0],
-			[10, 0],
-			[0, 10],
+			[UNIT, 0],
+			[0, UNIT],
 		])
 
 		this.rectangle.dimensions = [width, height]

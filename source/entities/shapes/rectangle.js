@@ -1,8 +1,9 @@
 import { SVG } from "../../../libraries/habitat-import.js"
+import { UNIT } from "../../unit.js"
 import { Thing } from "../thing.js"
 
 export const Rectangle = class extends Thing {
-	constructor(dimensions = [10, 10]) {
+	constructor(dimensions = [UNIT, UNIT]) {
 		super()
 		this.rectangle.dimensions = dimensions
 	}
