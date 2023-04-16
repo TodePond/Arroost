@@ -23,8 +23,8 @@ export const ArrowTickler = class extends Ellipse {
 
 		this.style.stroke = "none"
 
-		tickle.svg.element.setAttribute("pointer-events", "none")
-		flaps.svg.element.setAttribute("pointer-events", "none")
+		tickle.style.pointerEvents = "none"
+		flaps.style.pointerEvents = "none"
 
 		// Indicator
 		tickle.style.stroke = WHITE
@@ -34,8 +34,8 @@ export const ArrowTickler = class extends Ellipse {
 		flaps.style.strokeWidth = (0.8 * 10) / 3
 		this.use(() => {
 			const visibility = this.isTickling() ? "visible" : "hidden"
-			tickle.svg.element.setAttribute("visibility", visibility)
-			flaps.svg.element.setAttribute("visibility", visibility)
+			tickle.style.visibility = visibility
+			flaps.style.visibility = visibility
 		})
 
 		this.use(() => {

@@ -16,8 +16,8 @@ export const ArrowOfConnection = class extends ArrowTickler {
 		outer.style.stroke = "none"
 		inner.style.stroke = "none"
 
-		outer.svg.element.setAttribute("pointer-events", "none")
-		inner.svg.element.setAttribute("pointer-events", "none")
+		outer.style.pointerEvents = "none"
+		inner.style.pointerEvents = "none"
 
 		this.add(outer)
 		this.add(inner)

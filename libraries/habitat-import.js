@@ -536,6 +536,11 @@ const HabitatFrogasaurus = {}
 
 				entity.parent = this
 				this.children.add(entity)
+
+				for (const component of entity.components) {
+					component.onParent?.(this)
+				}
+				entity.onParent?.(this)
 			}
 
 			delete(entity) {
@@ -545,6 +550,11 @@ const HabitatFrogasaurus = {}
 
 				entity.parent = null
 				this.children.delete(entity)
+
+				for (const component of entity.components) {
+					component.onUnparent?.(this)
+				}
+				entity.onUnparent?.(this)
 			}
 		}
 

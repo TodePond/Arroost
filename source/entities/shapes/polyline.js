@@ -30,10 +30,6 @@ export const Polyline = class extends Thing {
 
 		const polyline = SVG(`<polyline />`)
 
-		this.use(() => polyline.setAttribute("stroke", this.style.stroke))
-		this.use(() => polyline.setAttribute("stroke-width", this.style.strokeWidth))
-		this.use(() => polyline.setAttribute("fill", this.style.fill))
-
 		this.use(() => {
 			polyline.setAttribute(
 				"points",

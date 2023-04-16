@@ -20,8 +20,6 @@ export const Line = class extends Thing {
 
 		const end = target.transform.position
 
-		this.use(() => line.setAttribute("stroke", this.style.stroke))
-		this.use(() => line.setAttribute("stroke-width", this.style.strokeWidth))
 		this.use(() => {
 			line.setAttribute("x2", end.x)
 			line.setAttribute("y2", end.y)

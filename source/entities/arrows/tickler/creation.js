@@ -19,8 +19,8 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		horizontal.transform.scale = [0.8, 0.8]
 		vertical.transform.scale = [0.8, 0.8]
 
-		horizontal.svg.element.setAttribute("pointer-events", "none")
-		vertical.svg.element.setAttribute("pointer-events", "none")
+		horizontal.style.pointerEvents = "none"
+		vertical.style.pointerEvents = "none"
 
 		// Colour
 		style.fill = GREY

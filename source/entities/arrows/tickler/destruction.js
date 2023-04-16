@@ -21,8 +21,8 @@ export const ArrowOfDestruction = class extends ArrowTickler {
 		horizontal.transform.rotation = 45
 		vertical.transform.rotation = 45
 
-		horizontal.svg.element.setAttribute("pointer-events", "none")
-		vertical.svg.element.setAttribute("pointer-events", "none")
+		horizontal.style.pointerEvents = "none"
+		vertical.style.pointerEvents = "none"
 
 		this.use(() => {
 			const colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
