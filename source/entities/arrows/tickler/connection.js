@@ -1,5 +1,6 @@
 import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
+import { HALF_INNER_RATIO, INNER_RATIO } from "../../../unit.js"
 import { Ellipse } from "../../shapes/ellipse.js"
 import { ArrowTickler } from "./tickler.js"
 
@@ -25,8 +26,8 @@ export const ArrowOfConnection = class extends ArrowTickler {
 		outer.bringToFront()
 		inner.bringToFront()
 
-		outer.transform.scale = [0.8, 0.8]
-		inner.transform.scale = [0.4, 0.4]
+		outer.transform.scale = [INNER_RATIO, INNER_RATIO]
+		inner.transform.scale = [HALF_INNER_RATIO, HALF_INNER_RATIO]
 
 		this.use(() => {
 			const colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
