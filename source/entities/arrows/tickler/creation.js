@@ -1,6 +1,7 @@
 import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
 import { shared } from "../../../main.js"
+import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowOfRecording } from "../recording.js"
 import { ArrowTickler } from "./tickler.js"
@@ -16,8 +17,8 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		this.add(horizontal)
 		this.add(vertical)
 
-		horizontal.transform.scale = [0.8, 0.8]
-		vertical.transform.scale = [0.8, 0.8]
+		horizontal.transform.scale = [INNER_RATIO, INNER_RATIO]
+		vertical.transform.scale = [INNER_RATIO, INNER_RATIO]
 
 		horizontal.style.pointerEvents = "none"
 		vertical.style.pointerEvents = "none"

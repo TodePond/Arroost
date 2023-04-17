@@ -6,12 +6,14 @@ import {
 	WHITE,
 	add,
 	glue,
+	repeatArray,
 	scale,
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
 import { shared } from "../../main.js"
 import {
+	INNER_ATOM_RATIO,
 	INNER_RATIO,
 	MAGNET_UNIT,
 	TRIANGLE_OFFSET,
@@ -23,6 +25,7 @@ import { ArrowOfNoise } from "./noise.js"
 
 export const ArrowOfRecording = class extends Triangle {
 	inner = new Triangle()
+	innerInner = new Triangle()
 
 	recording = this.use(false)
 	playing = this.use(false)
@@ -47,18 +50,23 @@ export const ArrowOfRecording = class extends Triangle {
 
 	constructor() {
 		super()
-		const { transform, style, inner } = this
+		const { transform, style, inner, innerInner } = this
 		glue(this)
 		this.add(inner)
+		this.add(innerInner)
 
 		transform.rotation = -90
 		style.stroke = "none"
 		style.fill = GREY
 
-		inner.transform.scale = [INNER_RATIO * TRIANGLE_RATIO.d, INNER_RATIO * TRIANGLE_RATIO]
-		inner.style.stroke = "none"
+		inner.transform.scale = repeatArray([INNER_RATIO * TRIANGLE_RATIO], 2)
+		innerInner.transform.scale = repeatArray([INNER_ATOM_RATIO], 2)
+
+		innerInner.style.fill = GREY
+
 		this.use(() => (inner.style.fill = this.colour))
-		inner.svg.element.style["pointer-events"] = "none"
+		inner.style.pointerEvents = "none"
+		innerInner.style.pointerEvents = "none"
 	}
 
 	getColour() {
