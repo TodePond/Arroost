@@ -17,6 +17,7 @@ import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
 import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
+import { UNIT } from "./unit.js"
 
 //===============//
 // Setup Habitat //
@@ -52,7 +53,7 @@ export const shared = {
 }
 
 // Set default zoom
-camera.transform.scale = repeatArray([5], 2)
+camera.transform.scale = repeatArray([UNIT], 2)
 
 // Register inputs
 connectMachine(machine)
@@ -66,24 +67,17 @@ registerDebugs(false)
 //===============//
 const arrowOfDestruction = new ArrowOfDestruction()
 camera.add(arrowOfDestruction)
-arrowOfDestruction.transform.position = [
-	((innerWidth / camera.transform.scale.x) * 1) / 3,
-	innerHeight / 2 / camera.transform.scale.y,
-]
+arrowOfDestruction.transform.position = [-UNIT * 6, 0]
 
 const arrowOfCreation = new ArrowOfCreation()
 camera.add(arrowOfCreation)
-arrowOfCreation.transform.position = [
-	((innerWidth / camera.transform.scale.x) * 2) / 3,
-	innerHeight / 2 / camera.transform.scale.y,
-]
+arrowOfCreation.transform.position = [0, 0]
 
 const arrowOfConnection = new ArrowOfConnection()
 camera.add(arrowOfConnection)
-arrowOfConnection.transform.position = [
-	innerWidth / 2 / camera.transform.scale.x,
-	innerHeight / 2 / camera.transform.scale.y,
-]
+arrowOfConnection.transform.position = [-UNIT * 3, 0]
+
+camera.transform.position = [innerWidth / 2, innerHeight / 2]
 
 //=================//
 // Setup Debugging //
