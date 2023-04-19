@@ -5,16 +5,12 @@ import { Dragging } from "../../../input/states.js"
 import { shared } from "../../../main.js"
 import { INNER_ATOM_UNIT } from "../../../unit.js"
 import { Ellipse } from "../../shapes/ellipse.js"
+import { Flaps } from "../../shapes/flaps.js"
 import { Line } from "../../shapes/line.js"
-import { Polyline } from "../../shapes/polyline.js"
 
 export const ArrowTickler = class extends Ellipse {
 	tickle = new Line()
-	flaps = new Polyline([
-		[-6, 0],
-		[0, 0],
-		[0, -6],
-	])
+	flaps = new Flaps()
 
 	render() {
 		const { pointer } = shared

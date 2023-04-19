@@ -1,11 +1,11 @@
 import { SVG, WHITE } from "../../../libraries/habitat-import.js"
-import { INNER_ATOM_UNIT, UNIT } from "../../unit.js"
+import { INNER_ATOM_UNIT } from "../../unit.js"
 import { Thing } from "../thing.js"
 
 export const Line = class extends Thing {
 	target = new Thing()
 
-	constructor(end = [UNIT, 0]) {
+	constructor(end = [0, 0]) {
 		super()
 		this.add(this.target)
 		this.target.transform.position = end
