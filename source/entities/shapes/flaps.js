@@ -19,12 +19,12 @@ export const Flaps = class extends Polyline {
 	}
 
 	render() {
-		const { dimensions } = this.rectangle
 		this.use(() => {
 			if (this.targets.length !== 3) return
 			const [a, b, c] = this.targets
-			//a.transform.position.x = -dimensions.width / 2
-			//c.transform.position.y = -dimensions.height / 2
+			if (this.style.stroke === "none") return
+			if (this.style.strokeWidth === 0) return
+			//a.transform.position.x =
 		})
 		return super.render()
 	}

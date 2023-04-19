@@ -1,3 +1,5 @@
+// This is a modified version of Habitat
+
 //=============//
 // FROGASAURUS //
 //=============//
@@ -1219,26 +1221,29 @@ const HabitatFrogasaurus = {}
 			set(value) {
 				// If we're a store, update our properties
 				if (this.store) {
-					// Add new properties
-					for (const key in value) {
-						if (this._properties.has(key)) continue
-						const property = use(value[key], { lazy: this.lazy })
-						property._store = use(() => {
-							this._current[key] = property.get()
-						})
-						this._properties.set(key, property)
-						property.glueTo(this, key)
+					if (!this.storeInitialised) {
+						// Add new properties
+						for (const key in value) {
+							if (this._properties.has(key)) continue
+							const property = use(value[key], { lazy: this.lazy })
+							property._store = use(() => {
+								this._current[key] = property.get()
+							})
+							this._properties.set(key, property)
+							property.glueTo(this, key)
+						}
+						this.storeInitialised = true
 					}
 
 					// Update existing properties
 					for (const [key, property] of this._properties) {
-						if (key in value) {
-							property.set(value[key])
-						} else {
-							property.dispose()
-							this._properties.delete(key)
-							Reflect.deleteProperty(this, key)
-						}
+						// if (key in value) {
+						property.set(value[key])
+						// } else {
+						// 	property.dispose()
+						// 	this._properties.delete(key)
+						// 	Reflect.deleteProperty(this, key)
+						// }
 					}
 				}
 
