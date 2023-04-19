@@ -1,17 +1,19 @@
 import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
-import { shared } from "../../../main.js"
+import { shared, unlockTool } from "../../../main.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowOfRecording } from "../recording.js"
 import { ArrowTickler } from "./tickler.js"
+
+let createdCount = 0
 
 export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
 	render() {
-		const { style, rectangle, horizontal, vertical, input } = this
+		const { style, rectangle, horizontal, vertical } = this
 		const { dimensions } = rectangle
 
 		this.add(horizontal)
@@ -42,6 +44,10 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	}
 
 	onTickle() {
+		if (createdCount < 2) {
+			unlockTool()
+		}
+		createdCount++
 		const recording = new ArrowOfRecording()
 		shared.camera.add(recording)
 		recording.transform.setAbsolutePosition(shared.pointer.position)

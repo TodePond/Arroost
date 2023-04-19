@@ -9,7 +9,7 @@ export const Ellipse = class extends Thing {
 	}
 
 	render() {
-		const ellipse = SVG(`<ellipse />`)
+		const ellipse = SVG("ellipse")
 
 		const { dimensions } = this.rectangle
 

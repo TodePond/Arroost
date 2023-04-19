@@ -1150,10 +1150,9 @@ const HabitatFrogasaurus = {}
 		}
 
 		// The underlying signal class
-		const Signal = class extends Function {
+		const Signal = class {
 			constructor(value, options = {}) {
-				super("value", "return this._self._func(value)")
-				const self = this.bind(this)
+				const self = this
 				this.setInternalProperty("_self", self)
 				Object.assign(self, this)
 				self.setInternalProperty("_func", (value) => {
@@ -1176,15 +1175,15 @@ const HabitatFrogasaurus = {}
 				self.setInternalProperty("_current", undefined)
 				self.setInternalProperty("_previous", undefined)
 				self.setInternalProperty("_evaluate", () => self._current)
-				Reflect.defineProperty(self, "length", {
-					get: () => {
-						if (Array.isArray(self._current)) {
-							return self._current.length
-						}
+				// Reflect.defineProperty(self, "length", {
+				// 	get: () => {
+				// 		if (Array.isArray(self._current)) {
+				// 			return self._current.length
+				// 		}
 
-						return 1
-					},
-				})
+				// 		return 1
+				// 	},
+				// })
 
 				// Apply options
 				Object.assign(self, {
@@ -1210,10 +1209,11 @@ const HabitatFrogasaurus = {}
 			}
 
 			setInternalProperty(key, value) {
-				Reflect.defineProperty(this, key, {
-					value,
-					writable: true,
-				})
+				this[key] = value
+				// Reflect.defineProperty(this, key, {
+				// 	value,
+				// 	writable: true,
+				// })
 			}
 
 			set(value) {
@@ -1778,11 +1778,10 @@ const HabitatFrogasaurus = {}
 	//====== ./svg.js ======
 	{
 		HabitatFrogasaurus["./svg.js"] = {}
-		const SVG = (source) => {
-			const group = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-			group.innerHTML = source
-			if (group.childElementCount === 1) {
-				return group.firstChild
+		const SVG = (tag, attributes = {}) => {
+			const group = document.createElementNS("http://www.w3.org/2000/svg", tag)
+			for (const [key, value] of Object.entries(attributes)) {
+				group.setAttribute(key, value)
 			}
 			return group
 		}

@@ -9,7 +9,7 @@ export const Rectangle = class extends Thing {
 	}
 
 	render() {
-		const rectangle = SVG(`<rect />`)
+		const rectangle = SVG("rect")
 
 		const { style } = this
 		const { dimensions } = this.rectangle

@@ -62,22 +62,30 @@ registerWheel()
 registerPreventDefaults()
 registerDebugs(false)
 
-//===============//
-// Setup Arroost //
-//===============//
-const arrowOfDestruction = new ArrowOfDestruction()
-camera.add(arrowOfDestruction)
-arrowOfDestruction.transform.position = [-UNIT * 6, 0]
-
+//=======//
+// Tools //
+//=======//
 const arrowOfCreation = new ArrowOfCreation()
 camera.add(arrowOfCreation)
 arrowOfCreation.transform.position = [0, 0]
 
-const arrowOfConnection = new ArrowOfConnection()
-camera.add(arrowOfConnection)
-arrowOfConnection.transform.position = [-UNIT * 3, 0]
-
 camera.transform.position = [innerWidth / 2, innerHeight / 2]
+
+let arrowOfConnection
+let arrowOfDestruction
+export const unlockTool = () => {
+	if (arrowOfDestruction === undefined) {
+		arrowOfDestruction = new ArrowOfDestruction()
+		camera.add(arrowOfDestruction)
+		arrowOfDestruction.transform.position = [-UNIT * 6, 0]
+		arrowOfDestruction.unlocked = false
+	} else if (arrowOfConnection === undefined) {
+		arrowOfConnection = new ArrowOfConnection()
+		camera.add(arrowOfConnection)
+		arrowOfConnection.transform.position = [-UNIT * 3, 0]
+		arrowOfConnection.unlocked = false
+	}
+}
 
 //=================//
 // Setup Debugging //

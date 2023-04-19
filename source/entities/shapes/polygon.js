@@ -29,7 +29,7 @@ export const Polygon = class extends Thing {
 		const { parent } = this
 		if (parent === undefined) return
 
-		const polyline = SVG(`<polygon />`)
+		const polyline = SVG("polygon")
 
 		this.use(() => {
 			polyline.setAttribute(

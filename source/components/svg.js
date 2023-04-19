@@ -9,7 +9,7 @@ export const Svg = class extends Component {
 
 	get element() {
 		if (this._element === undefined) {
-			const group = SVG(`<g />`)
+			const group = SVG("g")
 			group.entity = this.entity
 			group.input = this.entity?.input
 			this._element = group

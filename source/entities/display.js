@@ -19,7 +19,7 @@ export const Display = class extends Thing {
 	}
 
 	render() {
-		const rectangle = SVG(`<rect width="100%" height="100%" fill="${BLACK}" />`)
+		const rectangle = SVG("rect", { width: "100%", height: "100%", fill: BLACK })
 		return rectangle
 	}
 }

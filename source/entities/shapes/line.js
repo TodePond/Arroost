@@ -17,7 +17,7 @@ export const Line = class extends Thing {
 		const { parent, target } = this
 		if (parent === undefined) return
 
-		const line = SVG(`<line />`)
+		const line = SVG("line")
 		line.setAttribute("x1", 0)
 		line.setAttribute("y1", 0)
 
