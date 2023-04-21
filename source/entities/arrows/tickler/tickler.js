@@ -26,6 +26,7 @@ export const ArrowTickler = class extends Ellipse {
 		// Indicator
 		tickle.style.stroke = WHITE
 		tickle.style.strokeWidth = INNER_ATOM_UNIT
+		tickle.extra = INNER_ATOM_UNIT
 		flaps.style.stroke = WHITE
 		flaps.style.fill = "none"
 		flaps.style.strokeWidth = INNER_ATOM_UNIT
@@ -35,7 +36,7 @@ export const ArrowTickler = class extends Ellipse {
 			flaps.style.visibility = visibility
 		})
 
-		this.use(() => {
+		this.use((v) => {
 			if (!this.isTickling()) return
 
 			const displacement = subtract(pointer.position, this.transform.absolutePosition)

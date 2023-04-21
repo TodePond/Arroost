@@ -1,4 +1,5 @@
 import { RED, glue } from "../../../libraries/habitat-import.js"
+import { INNER_ATOM_UNIT } from "../../unit.js"
 import { Flaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
@@ -18,6 +19,7 @@ export const ArrowOfNoise = class extends Thing {
 
 	render() {
 		this.line.style.stroke = RED
+		this.line.extra = INNER_ATOM_UNIT
 
 		const target = this.line.target
 		const { flaps } = this
