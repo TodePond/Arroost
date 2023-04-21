@@ -24,7 +24,22 @@ export const Flaps = class extends Polyline {
 			const [a, b, c] = this.targets
 			if (this.style.stroke === "none") return
 			if (this.style.strokeWidth === 0) return
-			//a.transform.position.x =
+			const extra = this.style.strokeWidth / 2
+			const displacement = [-extra, -extra]
+
+			const baseCorners = [
+				[-6, 0],
+				[0, 0],
+				[0, -6],
+			]
+
+			let i = 0
+			for (const target of this.targets) {
+				const base = baseCorners[i]
+				target.transform.position.x = base.x + displacement.x
+				target.transform.position.y = base.y + displacement.y
+				i++
+			}
 		})
 		return super.render()
 	}
