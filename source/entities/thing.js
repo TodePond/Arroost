@@ -1,4 +1,4 @@
-import { Component } from "../../libraries/habitat-import.js"
+import { Component, glue } from "../../libraries/habitat-import.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { Style } from "../components/style.js"
@@ -6,6 +6,8 @@ import { Svg } from "../components/svg.js"
 import { Entity } from "./entity.js"
 
 export const Thing = class extends Entity {
+	ghost = this.use(false)
+
 	constructor(components = []) {
 		super([
 			new Component.Transform(),
@@ -17,6 +19,8 @@ export const Thing = class extends Entity {
 			new Input(),
 			...components,
 		])
+
+		glue(this)
 	}
 
 	render() {
@@ -25,11 +29,13 @@ export const Thing = class extends Entity {
 
 	add(child) {
 		super.add(child)
+		if (child.ghost) return
 		this.svg.element.append(child.svg.element)
 	}
 
 	delete(child) {
 		super.delete(child)
+		if (child.ghost) return
 		this.svg.element.removeChild(child.svg.element)
 	}
 

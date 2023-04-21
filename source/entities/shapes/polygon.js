@@ -1,4 +1,5 @@
 import { SVG, glue } from "../../../libraries/habitat-import.js"
+import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 
 export const Polygon = class extends Thing {
@@ -8,7 +9,7 @@ export const Polygon = class extends Thing {
 		super()
 		glue(this)
 		for (const point of points) {
-			const target = new Thing()
+			const target = new Ghost()
 			this.add(target)
 			target.transform.position = point
 			this.targets.push(target)

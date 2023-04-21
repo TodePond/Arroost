@@ -1,9 +1,10 @@
 import { SVG, WHITE } from "../../../libraries/habitat-import.js"
 import { INNER_ATOM_UNIT } from "../../unit.js"
+import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 
 export const Line = class extends Thing {
-	target = new Thing()
+	target = new Ghost()
 
 	constructor(end = [0, 0]) {
 		super()
