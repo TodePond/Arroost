@@ -6,7 +6,6 @@ import {
 	add,
 	glue,
 	repeatArray,
-	scale,
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
@@ -104,7 +103,7 @@ export const ArrowOfRecording = class extends Ellipse {
 		const { movement } = this
 		const { velocity } = movement
 		movement.update()
-		movement.velocity = scale(velocity, 0.9)
+		movement.applyFriction()
 
 		if (this.recording) {
 			this.noise.duration = shared.time - this.recordingStartTime

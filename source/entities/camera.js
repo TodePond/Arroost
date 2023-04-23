@@ -4,7 +4,6 @@ import { Dragging } from "../input/states.js"
 import { shared } from "../main.js"
 import { Thing } from "./thing.js"
 
-const PAN_FRICTION = 0.9
 const ZOOM_FRICTION = 0.75
 
 export const Camera = class extends Thing {
@@ -22,7 +21,7 @@ export const Camera = class extends Thing {
 		const { movement } = this
 		const { velocity } = movement
 		movement.update()
-		movement.velocity = scale(velocity, PAN_FRICTION)
+		movement.applyFriction()
 
 		this.zoom(this.zoomSpeed)
 		this.zoomSpeed *= ZOOM_FRICTION

@@ -1,4 +1,4 @@
-import { add, glue, use } from "../../libraries/habitat-import.js"
+import { add, glue, scale } from "../../libraries/habitat-import.js"
 import { Component } from "./component.js"
 
 export const Movement = class extends Component {
@@ -9,14 +9,15 @@ export const Movement = class extends Component {
 		glue(this)
 	}
 
-	velocity = use([0, 0])
-	acceleration = use([0, 0])
+	velocity = this.use([0, 0])
+	acceleration = this.use([0, 0])
+	friction = this.use(0.9)
 
-	rotationalVelocity = use(0)
-	rotationalAcceleration = use(0)
+	rotationalVelocity = this.use(0)
+	rotationalAcceleration = this.use(0)
 
-	scaleVelocity = use([1, 1])
-	scaleAcceleration = use([1, 1])
+	scaleVelocity = this.use([1, 1])
+	scaleAcceleration = this.use([1, 1])
 
 	setAbsoluteVelocity(velocity) {
 		const { transform } = this.entity
@@ -34,6 +35,10 @@ export const Movement = class extends Component {
 			velocity.x / transform.absoluteScale.x,
 			velocity.y / transform.absoluteScale.y,
 		]
+	}
+
+	applyFriction(friction = 0.9) {
+		this.velocity = scale(this.velocity, friction)
 	}
 
 	update() {

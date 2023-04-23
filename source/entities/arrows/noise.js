@@ -5,8 +5,11 @@ import { Flaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
 
+const DURATION_RATIO = 0.01
+
 export const ArrowOfNoise = class extends Thing {
 	duration = this.use(0)
+	startingPoint = this.use(() => this.transform.position / DURATION_RATIO)
 
 	line = new Line()
 	flaps = new Flaps()
@@ -64,7 +67,7 @@ export const ArrowOfNoise = class extends Thing {
 		})
 
 		this.use(() => {
-			const x = this.duration * 0.01
+			const x = this.duration * DURATION_RATIO
 			target.transform.position.x = x
 
 			const flapOffset = (Math.hypot(6, 6) / 2) * INNER_RATIO - 0.1
@@ -92,5 +95,14 @@ export const ArrowOfNoise = class extends Thing {
 			state.inputStartPosition.x + movement,
 			state.inputStartPosition.y,
 		])
+	}
+
+	onDraggingPointerUp(event, state) {
+		this.movement.setAbsoluteVelocity([shared.pointer.velocity.x, 0])
+	}
+
+	tick() {
+		this.movement.applyFriction()
+		this.movement.update()
 	}
 }
