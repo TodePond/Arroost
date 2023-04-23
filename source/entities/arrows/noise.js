@@ -1,6 +1,6 @@
 import { RED, glue } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { INNER_RATIO } from "../../unit.js"
+import { INNER_RATIO, INNER_UNIT } from "../../unit.js"
 import { Flaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
@@ -9,7 +9,7 @@ const DURATION_RATIO = 0.01
 
 export const ArrowOfNoise = class extends Thing {
 	duration = this.use(0)
-	startingPoint = this.use(() => this.transform.position / DURATION_RATIO)
+	startingPoint = this.use(0)
 
 	line = new Line()
 	flaps = new Flaps()
@@ -47,32 +47,13 @@ export const ArrowOfNoise = class extends Thing {
 		this.startFlaps.transform.scale = [INNER_RATIO, INNER_RATIO]
 		this.startFlaps.transform.rotation = 45 + 90 * 1
 
-		this.use(() => {
-			if (this.transform.position.x > 0) {
-				this.startFlaps.style.visibility = "hidden"
-				this.startFlaps.style.pointerEvents = "none"
-			} else {
-				this.startFlaps.style.visibility = "visible"
-				this.startFlaps.style.pointerEvents = "all"
-			}
-
-			const lineLength = target.transform.position.x
-			if (this.transform.position.x + lineLength < 0) {
-				this.flaps.style.visibility = "hidden"
-				this.flaps.style.pointerEvents = "none"
-			} else {
-				this.flaps.style.visibility = "visible"
-				this.flaps.style.pointerEvents = "all"
-			}
-		})
+		const flapOffset = (Math.hypot(6, 6) / 2) * INNER_RATIO - 0.1
+		this.startFlaps.transform.position.x = -flapOffset
 
 		this.use(() => {
-			const x = this.duration * DURATION_RATIO
-			target.transform.position.x = x
-
-			const flapOffset = (Math.hypot(6, 6) / 2) * INNER_RATIO - 0.1
-			flaps.transform.position.x = x + flapOffset
-			this.startFlaps.transform.position.x = -flapOffset
+			this.transform.position.x = -INNER_UNIT / 2 - this.startingPoint * DURATION_RATIO
+			this.line.target.transform.position.x = this.duration * DURATION_RATIO + INNER_UNIT
+			this.flaps.transform.position.x = this.duration * DURATION_RATIO + INNER_UNIT + flapOffset
 		})
 
 		this.use(() => {
@@ -88,13 +69,16 @@ export const ArrowOfNoise = class extends Thing {
 		this.line.input = this.input
 	}
 
+	onDraggingEnter(previous, state) {
+		state.startingStartingPoint = this.startingPoint
+	}
+
 	onDraggingPointerMove(event, state) {
+		if (state.startingStartingPoint === undefined) return
 		const currentPointerPosition = shared.pointer.position
 		const movement = currentPointerPosition.x - state.pointerStartPosition.x
-		this.transform.setAbsolutePosition([
-			state.inputStartPosition.x + movement,
-			state.inputStartPosition.y,
-		])
+		const relativeMovement = this.transform.getRelative([movement, 0])
+		this.startingPoint = state.startingStartingPoint - relativeMovement.x / DURATION_RATIO
 	}
 
 	onDraggingPointerUp(event, state) {
@@ -102,7 +86,9 @@ export const ArrowOfNoise = class extends Thing {
 	}
 
 	tick() {
-		this.movement.applyFriction()
-		this.movement.update()
+		this.movement.velocity.x *= 0.9
+		if (Math.abs(this.movement.velocity.x) < 0.01) this.movement.velocity.x = 0
+		if (this.movement.velocity.x === 0) return
+		this.startingPoint -= this.movement.velocity.x / DURATION_RATIO
 	}
 }

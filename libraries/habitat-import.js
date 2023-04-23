@@ -292,6 +292,13 @@ const HabitatFrogasaurus = {}
 				return [x * sx, y * sy]
 			})
 
+			// TODO: make this support rotation
+			getRelative(vector) {
+				const [x, y] = vector
+				const [sx, sy] = this.absoluteScale
+				return [x / sx, y / sy]
+			}
+
 			absolutePosition = snuse(() => {
 				const { entity } = this
 				const { parent } = entity
@@ -308,6 +315,7 @@ const HabitatFrogasaurus = {}
 				return add(parent.transform.absolutePosition, rotatedPosition)
 			})
 
+			// TODO: make this support rotation
 			setAbsolutePosition(position) {
 				const { entity } = this
 				const { parent } = entity

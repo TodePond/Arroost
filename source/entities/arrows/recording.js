@@ -10,7 +10,7 @@ import {
 } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
 import { shared } from "../../main.js"
-import { INNER_RATIO, INNER_UNIT, MAGNET_UNIT } from "../../unit.js"
+import { INNER_RATIO, MAGNET_UNIT } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Thing } from "../thing.js"
 import { ArrowOfNoise } from "./noise.js"
@@ -115,7 +115,7 @@ export const ArrowOfRecording = class extends Ellipse {
 		this.noise = new ArrowOfNoise()
 		this.noiseHolder.add(this.noise)
 		this.noise.sendToBack()
-		this.noise.transform.position.x = INNER_UNIT / 3
+		//this.noise.transform.position.x = INNER_UNIT / 3
 		this.recordingStartTime = shared.time
 	}
 
