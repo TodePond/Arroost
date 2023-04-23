@@ -25,6 +25,9 @@ export const Camera = class extends Thing {
 
 		this.zoom(this.zoomSpeed)
 		this.zoomSpeed *= ZOOM_FRICTION
+		// if (Math.abs(this.zoomSpeed).d < 0.5) {
+		// 	this.zoomSpeed = 0
+		// }
 	}
 
 	zoom(delta) {

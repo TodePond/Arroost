@@ -1,4 +1,4 @@
-import { add, glue, scale } from "../../libraries/habitat-import.js"
+import { add, distanceBetween, glue, scale } from "../../libraries/habitat-import.js"
 import { Component } from "./component.js"
 
 export const Movement = class extends Component {
@@ -37,8 +37,13 @@ export const Movement = class extends Component {
 		]
 	}
 
-	applyFriction(friction = 0.9) {
-		this.velocity = scale(this.velocity, friction)
+	applyFriction(friction = 0.9, minimum = 0.05) {
+		const velocity = scale(this.velocity, friction)
+		if (distanceBetween(velocity, [0, 0]) < minimum) {
+			this.velocity = [0, 0]
+			return
+		}
+		this.velocity = velocity
 	}
 
 	update() {
