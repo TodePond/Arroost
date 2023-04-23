@@ -1,4 +1,4 @@
-import { RED, glue } from "../../../libraries/habitat-import.js"
+import { RED, clamp, glue } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { INNER_RATIO, INNER_UNIT } from "../../unit.js"
 import { Flaps } from "../shapes/flaps.js"
@@ -32,7 +32,6 @@ export const ArrowOfNoise = class extends Thing {
 		this.line.style.stroke = RED
 		//this.line.extra = INNER_ATOM_UNIT
 
-		const target = this.line.target
 		const { flaps } = this
 
 		flaps.style.stroke = "none"
@@ -78,7 +77,8 @@ export const ArrowOfNoise = class extends Thing {
 		const currentPointerPosition = shared.pointer.position
 		const movement = currentPointerPosition.x - state.pointerStartPosition.x
 		const relativeMovement = this.transform.getRelative([movement, 0])
-		this.startingPoint = state.startingStartingPoint - relativeMovement.x / DURATION_RATIO
+		const startingPoint = state.startingStartingPoint - relativeMovement.x / DURATION_RATIO
+		this.startingPoint = clamp(startingPoint, 0, this.duration)
 	}
 
 	onDraggingPointerUp(event, state) {
@@ -89,6 +89,7 @@ export const ArrowOfNoise = class extends Thing {
 		this.movement.velocity.x *= 0.9
 		if (Math.abs(this.movement.velocity.x) < 0.01) this.movement.velocity.x = 0
 		if (this.movement.velocity.x === 0) return
-		this.startingPoint -= this.movement.velocity.x / DURATION_RATIO
+		const startingPoint = this.startingPoint - this.movement.velocity.x / DURATION_RATIO
+		this.startingPoint = clamp(startingPoint, 0, this.duration)
 	}
 }
