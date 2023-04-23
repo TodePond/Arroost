@@ -1,5 +1,3 @@
-import { WHITE } from "../../../libraries/habitat-import.js"
-import { INNER_ATOM_UNIT } from "../../unit.js"
 import { Polyline } from "./polyline.js"
 
 export const Flaps = class extends Polyline {
@@ -11,9 +9,9 @@ export const Flaps = class extends Polyline {
 		])
 
 		this.transform.rotation = 45
-		this.style.fill = "none"
-		this.style.stroke = WHITE
-		this.style.strokeWidth = INNER_ATOM_UNIT
+		//this.style.fill = "none"
+		//this.style.stroke = WHITE
+		//this.style.strokeWidth = INNER_ATOM_UNIT
 		//this.rectangle.dimensions.width = INNER_ATOM_UNIT
 		//this.rectangle.dimensions.height = INNER_ATOM_UNIT
 	}
@@ -25,6 +23,7 @@ export const Flaps = class extends Polyline {
 			if (this.style.stroke === "none") return
 			if (this.style.strokeWidth === 0) return
 			const extra = this.style.strokeWidth / 2
+			this.style.strokeWidth
 			const displacement = [-extra, -extra]
 
 			const baseCorners = [

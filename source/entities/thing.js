@@ -45,4 +45,11 @@ export const Thing = class extends Entity {
 		parent.svg.element.removeChild(svg.element)
 		parent.svg.element.append(svg.element)
 	}
+
+	sendToBack() {
+		const { parent, svg } = this
+		if (parent === undefined) return
+		parent.svg.element.removeChild(svg.element)
+		parent.svg.element.prepend(svg.element)
+	}
 }
