@@ -52,6 +52,11 @@ export const ArrowTickler = class extends Ellipse {
 		return super.render()
 	}
 
+	tick() {
+		this.movement.applyFriction()
+		this.movement.update()
+	}
+
 	isTickling() {
 		return this.input.state === Tickling || this.input.state === Dragging
 	}

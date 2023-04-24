@@ -45,7 +45,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 
 	onTickle() {
 		if (createdCount < 2) {
-			unlockTool()
+			unlockTool(this)
 		}
 		createdCount++
 		const recording = new ArrowOfRecording()

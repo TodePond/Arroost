@@ -73,17 +73,19 @@ camera.transform.position = [innerWidth / 2, innerHeight / 2]
 
 let arrowOfConnection
 let arrowOfDestruction
-export const unlockTool = () => {
+export const unlockTool = (source) => {
 	if (arrowOfDestruction === undefined) {
 		arrowOfDestruction = new ArrowOfDestruction()
 		camera.add(arrowOfDestruction)
-		arrowOfDestruction.transform.position = [-UNIT * 6, 0]
+		arrowOfDestruction.movement.velocity = [0, 2]
 		arrowOfDestruction.unlocked = false
+		source.bringToFront()
 	} else if (arrowOfConnection === undefined) {
 		arrowOfConnection = new ArrowOfConnection()
 		camera.add(arrowOfConnection)
-		arrowOfConnection.transform.position = [-UNIT * 3, 0]
+		arrowOfConnection.movement.velocity = [0, -2]
 		arrowOfConnection.unlocked = false
+		source.bringToFront()
 	}
 }
 
