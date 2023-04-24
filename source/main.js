@@ -77,13 +77,13 @@ export const unlockTool = (source) => {
 	if (arrowOfDestruction === undefined) {
 		arrowOfDestruction = new ArrowOfDestruction()
 		camera.add(arrowOfDestruction)
-		arrowOfDestruction.movement.velocity = [0, 2]
+		arrowOfDestruction.movement.velocity = [-2, 0]
 		arrowOfDestruction.unlocked = false
 		source.bringToFront()
 	} else if (arrowOfConnection === undefined) {
 		arrowOfConnection = new ArrowOfConnection()
 		camera.add(arrowOfConnection)
-		arrowOfConnection.movement.velocity = [0, -2]
+		arrowOfConnection.movement.velocity = [2, 0]
 		arrowOfConnection.unlocked = false
 		source.bringToFront()
 	}

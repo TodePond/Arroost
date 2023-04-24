@@ -106,7 +106,9 @@ export const ArrowOfRecording = class extends Ellipse {
 		movement.applyFriction()
 
 		if (this.recording) {
+			const difference = this.noise.duration - this.noise.trimEnd
 			this.noise.duration = shared.time - this.recordingStartTime
+			this.noise.trimEnd = this.noise.duration - difference
 		}
 	}
 
