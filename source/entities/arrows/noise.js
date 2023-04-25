@@ -1,8 +1,8 @@
-import { RED, SILVER, clamp, glue } from "../../../libraries/habitat-import.js"
+import { GREY, RED, SILVER, clamp, glue } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
 import { Dragging } from "../../input/states.js"
 import { shared } from "../../main.js"
-import { INNER_RATIO, INNER_UNIT } from "../../unit.js"
+import { INNER_RATIO, INNER_UNIT, MARGIN_UNIT } from "../../unit.js"
 import { Flaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
@@ -17,6 +17,7 @@ export const ArrowOfNoise = class extends Thing {
 	trimStart = this.use(0)
 
 	line = new Line()
+	backLine = new Line()
 	flaps = new Flaps()
 	startFlaps = new Flaps()
 
@@ -26,16 +27,13 @@ export const ArrowOfNoise = class extends Thing {
 	})
 
 	colour = this.use(() => {
-		if (!this.parent) return SILVER
-		if (this.recording.value || this.recording === true) {
-			return this.parent.parent.inner.style.fill
-		}
 		return RED
 	})
 
 	constructor() {
 		super()
 		glue(this)
+		//this.add(this.backLine)
 		this.add(this.line)
 		this.add(this.flaps)
 		this.add(this.startFlaps)
@@ -59,13 +57,28 @@ export const ArrowOfNoise = class extends Thing {
 		const flapOffset = (Math.hypot(6, 6) / 2) * INNER_RATIO - 0.1
 
 		this.use(() => {
-			this.transform.position.x = -INNER_UNIT / 2 - this.startingPoint * DURATION_RATIO
-			this.line.target.transform.position.x = this.duration * DURATION_RATIO + INNER_UNIT
+			this.transform.position.x =
+				-INNER_UNIT / 2 -
+				MARGIN_UNIT -
+				this.startingPoint * DURATION_RATIO +
+				this.trimStart * DURATION_RATIO
+			this.line.target.transform.position.x =
+				INNER_UNIT +
+				MARGIN_UNIT * 2 +
+				this.trimEnd * DURATION_RATIO -
+				this.trimStart * DURATION_RATIO
+			// this.backLine.target.transform.position.x =
+			// 	this.duration * DURATION_RATIO + INNER_UNIT + MARGIN_UNIT * 2
 		})
 
 		this.use(() => {
-			this.flaps.transform.position.x = INNER_UNIT + flapOffset + this.trimEnd * DURATION_RATIO
-			this.startFlaps.transform.position.x = -flapOffset + this.trimStart * DURATION_RATIO
+			this.flaps.transform.position.x =
+				INNER_UNIT +
+				MARGIN_UNIT * 2 +
+				flapOffset +
+				this.trimEnd * DURATION_RATIO -
+				this.trimStart * DURATION_RATIO
+			this.startFlaps.transform.position.x = -flapOffset
 		})
 
 		this.use(() => {
@@ -78,11 +91,12 @@ export const ArrowOfNoise = class extends Thing {
 		})
 
 		this.use(() => {
-			this.line.style.stroke = this.line.input.Dragging ? this.colour : this.colour
-			flaps.style.fill = this.colour
-			this.startFlaps.style.fill = this.colour
+			this.line.style.stroke = this.recording ? RED : GREY
+			flaps.style.fill = SILVER
+			this.startFlaps.style.fill = SILVER
 		})
 
+		this.backLine.style.stroke = GREY
 		this.line.input = this.input
 
 		this.flaps.onHoveringEnter = this.onEndHoveringEnter
@@ -122,8 +136,8 @@ export const ArrowOfNoise = class extends Thing {
 		const movement = currentPointerPosition.x - state.pointerStartPosition.x
 		const relativeMovement = this.transform.getRelative([movement, 0])
 		const trim = state.trimStartingPoint + relativeMovement.x / DURATION_RATIO
-		if (side === "Start") this.trimStart = clamp(trim, 0, this.trimEnd)
-		if (side === "End") this.trimEnd = clamp(trim, this.trimStart, this.duration)
+		if (side === "Start") this.trimStart = clamp(trim, 0.1, this.trimEnd)
+		if (side === "End") this.trimEnd = clamp(trim, this.trimStart - 0.1, this.duration)
 	}
 
 	onHoveringEnter() {
