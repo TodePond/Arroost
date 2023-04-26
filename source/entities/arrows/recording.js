@@ -1,20 +1,12 @@
-import {
-	GREY,
-	SILVER,
-	WHITE,
-	add,
-	glue,
-	repeatArray,
-	subtract,
-} from "../../../libraries/habitat-import.js"
-import { setCursor } from "../../input/cursor.js"
+import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { INNER_RATIO, MAGNET_UNIT } from "../../unit.js"
+import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Thing } from "../thing.js"
+import { Carryable } from "./carryable.js"
 import { ArrowOfNoise } from "./noise.js"
 
-export const ArrowOfRecording = class extends Ellipse {
+export const ArrowOfRecording = class extends Carryable {
 	recording = this.use(false)
 	playing = this.use(false)
 
@@ -50,28 +42,6 @@ export const ArrowOfRecording = class extends Ellipse {
 		style.fill = GREY
 	}
 
-	getColour() {
-		if (this.input.Pointing) return WHITE
-		if (this.input.Dragging) return WHITE
-		return SILVER
-	}
-
-	onPointingEnter() {
-		this.bringToFront()
-	}
-
-	onPointingPointerMove(event, state) {
-		const { pointerStartDisplacedPosition } = state
-		const displacement = subtract(
-			shared.pointer.displacedPosition,
-			pointerStartDisplacedPosition,
-		)
-		const distance = Math.hypot(displacement.x, displacement.y)
-		if (distance < MAGNET_UNIT) {
-			return null
-		}
-	}
-
 	onPointingPointerUp() {
 		if (this.noise === null) {
 			this.onRecordStart()
@@ -84,29 +54,8 @@ export const ArrowOfRecording = class extends Ellipse {
 		}
 	}
 
-	onDraggingEnter(previous, state) {
-		state.pointerStart = [...shared.pointer.position]
-		state.start = [...this.transform.absolutePosition]
-		this.movement.velocity = [0, 0]
-		setCursor("move")
-	}
-
-	onDraggingPointerMove(event, state) {
-		const { pointerStartPosition, inputStartPosition } = state
-		const displacement = subtract(shared.pointer.position, pointerStartPosition)
-		this.transform.setAbsolutePosition(add(inputStartPosition, displacement))
-	}
-
-	onDraggingPointerUp() {
-		this.movement.setAbsoluteVelocity(shared.pointer.velocity)
-	}
-
 	tick() {
-		const { movement } = this
-		const { velocity } = movement
-		movement.update()
-		movement.applyFriction()
-
+		super.tick()
 		if (this.recording) {
 			const difference = this.noise.duration - this.noise.trimEnd
 			this.noise.duration = shared.time - this.recordingStartTime
@@ -121,14 +70,20 @@ export const ArrowOfRecording = class extends Ellipse {
 		this.noise.sendToBack()
 		//this.noise.transform.position.x = INNER_UNIT / 3
 		this.recordingStartTime = shared.time
+
+		this.mediaRecorder = shared.audio.startRecording((blob, url) => {
+			print(blob, url)
+		})
 	}
 
-	onRecordStop() {
+	async onRecordStop() {
 		this.recording = false
+		this.mediaRecorder.stop()
 	}
 
 	onPlayStart() {
 		this.playing = true
+		print(this.chunks)
 	}
 
 	onPlayStop() {

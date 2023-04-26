@@ -43,7 +43,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		return super.render()
 	}
 
-	onTickle() {
+	onTickle(event, state) {
 		if (createdCount < 2) {
 			unlockTool(this)
 		}

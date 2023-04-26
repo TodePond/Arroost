@@ -1,14 +1,13 @@
 import { WHITE, subtract } from "../../../../libraries/habitat-import.js"
-import { setCursor } from "../../../input/cursor.js"
 import { State } from "../../../input/state.js"
-import { Dragging } from "../../../input/states.js"
+import { Idle } from "../../../input/states.js"
 import { shared } from "../../../main.js"
 import { INNER_ATOM_UNIT } from "../../../unit.js"
-import { Ellipse } from "../../shapes/ellipse.js"
 import { Flaps } from "../../shapes/flaps.js"
 import { Line } from "../../shapes/line.js"
+import { Carryable } from "../carryable.js"
 
-export const ArrowTickler = class extends Ellipse {
+export const ArrowTickler = class extends Carryable {
 	tickle = new Line()
 	flaps = new Flaps()
 
@@ -58,44 +57,40 @@ export const ArrowTickler = class extends Ellipse {
 	}
 
 	isTickling() {
-		return this.input.state === Tickling || this.input.state === Dragging
-	}
-
-	onPointingPointerDown() {
-		this.bringToFront()
-	}
-
-	onPointingPointerMove() {
-		if (shared.hover.entity === this) return null
-		return Dragging
+		return this.input.state === Tickling || this.input.state === Prodding
 	}
 
 	onPointingPointerUp() {
 		return Tickling
 	}
 
-	onDraggingEnter() {
-		setCursor("none")
-	}
-
-	onDraggingPointerUp() {
-		this.onTickle()
-	}
-
 	onTicklingEnter() {
 		this.bringToFront()
 	}
 
-	onTicklingPointerDown() {
-		return Dragging
+	onTicklingPointerDown(event, state) {
+		return Prodding
 	}
 
-	onTickle() {
+	onProddingPointerUp(event, state) {
+		const result = this.onTickle(event, state)
+		if (result === undefined) {
+			return Idle
+		}
+		return result
+	}
+
+	onTickle(event, state) {
 		// Override this
 	}
 }
 
 export const Tickling = new State({
 	name: "Tickling",
+	cursor: "none",
+})
+
+export const Prodding = new State({
+	name: "Prodding",
 	cursor: "none",
 })
