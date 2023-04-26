@@ -139,6 +139,12 @@ export const ArrowOfNoise = class extends Thing {
 		this.startFlaps.onDraggingEnter = (previous, state) => {
 			return this.onEndDraggingEnter(previous, state, "Start")
 		}
+		this.flaps.onDraggingPointerUp = (event, state) => {
+			return this.onEndDraggingPointerUp(event, state, "End")
+		}
+		this.startFlaps.onDraggingPointerUp = (event, state) => {
+			return this.onEndDraggingPointerUp(event, state, "Start")
+		}
 	}
 
 	onEndHoveringEnter() {
@@ -160,8 +166,13 @@ export const ArrowOfNoise = class extends Thing {
 		const movement = currentPointerPosition.x - state.pointerStartPosition.x
 		const relativeMovement = this.transform.getRelative([movement, 0])
 		const trim = state.trimStartingPoint + relativeMovement.x / DURATION_RATIO
-		if (side === "Start") this.trimStart = clamp(trim, 0.1, this.trimEnd)
-		if (side === "End") this.trimEnd = clamp(trim, this.trimStart - 0.1, this.duration)
+		if (side === "Start") this.trimStart = clamp(trim, 0, this.startingPoint)
+		if (side === "End") this.trimEnd = clamp(trim, this.startingPoint, this.duration)
+	}
+
+	onEndDraggingPointerUp(event, state, side) {
+		const flaps = side === "Start" ? this.startFlaps : this.flaps
+		flaps.movement.setAbsoluteVelocity([-shared.pointer.velocity.x, 0])
 	}
 
 	onHoveringEnter() {
@@ -178,7 +189,7 @@ export const ArrowOfNoise = class extends Thing {
 		const movement = currentPointerPosition.x - state.pointerStartPosition.x
 		const relativeMovement = this.transform.getRelative([movement, 0])
 		const startingPoint = state.startingStartingPoint - relativeMovement.x / DURATION_RATIO
-		this.startingPoint = clamp(startingPoint, 0, this.duration)
+		this.startingPoint = clamp(startingPoint, this.trimStart, this.trimEnd)
 	}
 
 	onDraggingPointerUp(event, state) {
@@ -190,10 +201,26 @@ export const ArrowOfNoise = class extends Thing {
 	}
 
 	tick() {
-		this.movement.velocity.x *= 0.9
-		if (Math.abs(this.movement.velocity.x) < 0.01) this.movement.velocity.x = 0
-		if (this.movement.velocity.x === 0) return
-		const startingPoint = this.startingPoint - this.movement.velocity.x / DURATION_RATIO
-		this.startingPoint = clamp(startingPoint, 0, this.duration)
+		for (const thing of [this, this.flaps, this.startFlaps]) {
+			thing.movement.velocity.x *= 0.9
+			if (Math.abs(thing.movement.velocity.x) < 0.01) {
+				thing.movement.velocity.x = 0
+			}
+		}
+
+		if (this.movement.velocity.x !== 0) {
+			const startingPoint = this.startingPoint - this.movement.velocity.x / DURATION_RATIO
+			this.startingPoint = clamp(startingPoint, this.trimStart, this.trimEnd)
+		}
+
+		if (this.flaps.movement.velocity.x !== 0) {
+			const trimEnd = this.trimEnd - this.flaps.movement.velocity.x / DURATION_RATIO
+			this.trimEnd = clamp(trimEnd, this.startingPoint, this.duration)
+		}
+
+		if (this.startFlaps.movement.velocity.x !== 0) {
+			const trimStart = this.trimStart - this.startFlaps.movement.velocity.x / DURATION_RATIO
+			this.trimStart = clamp(trimStart, 0, this.startingPoint)
+		}
 	}
 }
