@@ -1,4 +1,4 @@
-import { add, scale, subtract } from "../../libraries/habitat-import.js"
+import { add, equals, fireEvent, scale, subtract } from "../../libraries/habitat-import.js"
 import { setCursor } from "../input/cursor.js"
 import { Dragging } from "../input/states.js"
 import { shared } from "../main.js"
@@ -20,7 +20,19 @@ export const Camera = class extends Thing {
 
 		const { movement } = this
 		const { velocity } = movement
+
 		movement.update()
+		if (!equals(movement.velocity, [0, 0])) {
+			fireEvent(
+				"pointermove",
+				{
+					clientX: pointer.position.x,
+					clientY: pointer.position.y,
+					target: shared.machine.state.input.entity.svg.element,
+				},
+				PointerEvent,
+			)
+		}
 		movement.applyFriction()
 
 		this.zoom(this.zoomSpeed)

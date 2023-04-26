@@ -15,8 +15,13 @@ export const getPointer = (camera) => {
 	pointer.absolutePosition = use(() => {
 		const [x, y] = pointer.position
 		const [sx, sy] = camera.transform.scale
-
-		return [x, y]
+		const [cx, cy] = camera.transform.position
+		return [x * sx + cx, y * sy + cy]
+	})
+	pointer.displacedPosition = use(() => {
+		const [x, y] = pointer.position
+		const [cx, cy] = camera.transform.position
+		return [x + cx, y + cy]
 	})
 	glue(pointer)
 

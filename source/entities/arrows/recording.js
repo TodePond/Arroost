@@ -61,8 +61,11 @@ export const ArrowOfRecording = class extends Ellipse {
 	}
 
 	onPointingPointerMove(event, state) {
-		const { pointerStartPosition } = state
-		const displacement = subtract(shared.pointer.position, pointerStartPosition)
+		const { pointerStartDisplacedPosition } = state
+		const displacement = subtract(
+			shared.pointer.displacedPosition,
+			pointerStartDisplacedPosition,
+		)
 		const distance = Math.hypot(displacement.x, displacement.y)
 		if (distance < MAGNET_UNIT) {
 			return null
