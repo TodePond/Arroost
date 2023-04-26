@@ -1,9 +1,9 @@
-import { GREY, RED, SILVER, clamp, glue } from "../../../libraries/habitat-import.js"
+import { GREY, RED, SILVER, clamp, glue, repeatArray } from "../../../libraries/habitat-import.js"
 import { setCursor } from "../../input/cursor.js"
 import { Dragging } from "../../input/states.js"
 import { shared } from "../../main.js"
-import { INNER_RATIO, INNER_UNIT, MARGIN_UNIT } from "../../unit.js"
-import { Flaps } from "../shapes/flaps.js"
+import { INNER_RATIO, INNER_UNIT, MARGIN_RATIO, MARGIN_UNIT } from "../../unit.js"
+import { ClosedFlaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
 import { Thing } from "../thing.js"
 
@@ -18,8 +18,10 @@ export const ArrowOfNoise = class extends Thing {
 
 	line = new Line()
 	backLine = new Line()
-	flaps = new Flaps()
-	startFlaps = new Flaps()
+	flaps = new ClosedFlaps()
+	backFlaps = new ClosedFlaps()
+	startFlaps = new ClosedFlaps()
+	startBackFlaps = new ClosedFlaps()
 
 	recording = this.use(() => {
 		if (!this.parent) return false
@@ -36,7 +38,9 @@ export const ArrowOfNoise = class extends Thing {
 		//this.add(this.backLine)
 		this.add(this.line)
 		this.add(this.flaps)
+		this.flaps.add(this.backFlaps)
 		this.add(this.startFlaps)
+		this.startFlaps.add(this.startBackFlaps)
 	}
 
 	render() {
@@ -46,13 +50,31 @@ export const ArrowOfNoise = class extends Thing {
 
 		flaps.style.stroke = "none"
 		flaps.style.strokeWidth = 0
-		flaps.transform.scale = [INNER_RATIO, INNER_RATIO]
 		flaps.transform.rotation = -45
+
+		this.backFlaps.style.stroke = "none"
+		this.backFlaps.style.strokeWidth = 0
+		this.backFlaps.transform.rotation = 0
+		this.backFlaps.transform.scale = [1 - MARGIN_RATIO * 4, 1 - MARGIN_RATIO * 4]
+		this.backFlaps.transform.position = repeatArray(
+			[-Math.hypot(MARGIN_UNIT / 2, MARGIN_UNIT / 2)],
+			2,
+		)
+		this.backFlaps.style.pointerEvents = "none"
 
 		this.startFlaps.style.stroke = "none"
 		this.startFlaps.strokeWidth = 0
-		this.startFlaps.transform.scale = [INNER_RATIO, INNER_RATIO]
 		this.startFlaps.transform.rotation = 45 + 90 * 1
+
+		this.startBackFlaps.style.stroke = "none"
+		this.startBackFlaps.style.strokeWidth = 0
+		this.startBackFlaps.transform.rotation = 0
+		this.startBackFlaps.transform.scale = [1 - MARGIN_RATIO * 4, 1 - MARGIN_RATIO * 4]
+		this.startBackFlaps.transform.position = repeatArray(
+			[-Math.hypot(MARGIN_UNIT / 2, MARGIN_UNIT / 2)],
+			2,
+		)
+		this.startBackFlaps.style.pointerEvents = "none"
 
 		const flapOffset = (Math.hypot(6, 6) / 2) * INNER_RATIO - 0.1
 
@@ -92,8 +114,10 @@ export const ArrowOfNoise = class extends Thing {
 
 		this.use(() => {
 			this.line.style.stroke = this.recording ? RED : GREY
-			flaps.style.fill = SILVER
-			this.startFlaps.style.fill = SILVER
+			flaps.style.fill = GREY
+			this.backFlaps.style.fill = SILVER
+			this.startFlaps.style.fill = GREY
+			this.startBackFlaps.style.fill = SILVER
 		})
 
 		this.backLine.style.stroke = GREY

@@ -1,3 +1,4 @@
+import { Polygon } from "./polygon.js"
 import { Polyline } from "./polyline.js"
 
 export const Flaps = class extends Polyline {
@@ -17,29 +18,50 @@ export const Flaps = class extends Polyline {
 	}
 
 	render() {
-		this.use(() => {
-			if (this.targets.length !== 3) return
-			const [a, b, c] = this.targets
-			if (this.style.stroke === "none") return
-			if (this.style.strokeWidth === 0) return
-			const extra = this.style.strokeWidth / 2
-			this.style.strokeWidth
-			const displacement = [-extra, -extra]
+		render.apply(this, [])
+		return super.render()
+	}
+}
 
-			const baseCorners = [
-				[-6, 0],
-				[0, 0],
-				[0, -6],
-			]
+const render = function () {
+	this.use(() => {
+		if (this.targets.length !== 3) return
+		const [a, b, c] = this.targets
+		if (this.style.stroke === "none") return
+		if (this.style.strokeWidth === 0) return
+		const extra = this.style.strokeWidth / 2
+		this.style.strokeWidth
+		const displacement = [-extra, -extra]
 
-			let i = 0
-			for (const target of this.targets) {
-				const base = baseCorners[i]
-				target.transform.position.x = base.x + displacement.x
-				target.transform.position.y = base.y + displacement.y
-				i++
-			}
-		})
+		const baseCorners = [
+			[-6, 0],
+			[0, 0],
+			[0, -6],
+		]
+
+		let i = 0
+		for (const target of this.targets) {
+			const base = baseCorners[i]
+			target.transform.position.x = base.x + displacement.x
+			target.transform.position.y = base.y + displacement.y
+			i++
+		}
+	})
+}
+
+export const ClosedFlaps = class extends Polygon {
+	constructor() {
+		super([
+			[-6, 0],
+			[0, 0],
+			[0, -6],
+		])
+
+		this.transform.rotation = 45
+	}
+
+	render() {
+		render.apply(this, [])
 		return super.render()
 	}
 }

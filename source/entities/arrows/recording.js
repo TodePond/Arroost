@@ -1,6 +1,5 @@
 import {
 	GREY,
-	RED,
 	SILVER,
 	WHITE,
 	add,
@@ -29,7 +28,7 @@ export const ArrowOfRecording = class extends Ellipse {
 		() => {
 			if (this.input.Pointing) return WHITE
 			if (this.recording === true) {
-				return RED
+				//return RED
 			}
 			return SILVER
 		},
