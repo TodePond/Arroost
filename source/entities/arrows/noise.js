@@ -41,6 +41,11 @@ export const ArrowOfNoise = class extends Thing {
 		this.flaps.add(this.backFlaps)
 		this.add(this.startFlaps)
 		this.startFlaps.add(this.startBackFlaps)
+
+		this.use(() => {
+			if (!this.parent) return
+			this.parent.parent.updateTrim([this.trimStart, this.trimEnd])
+		})
 	}
 
 	render() {

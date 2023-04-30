@@ -1,6 +1,11 @@
-import { memo } from "../libraries/habitat-import.js"
+import { memo } from "../../libraries/habitat-import.js"
 
 export const getAudioContext = memo(() => new AudioContext())
+export const getAudioWorklets = memo(async () => {
+	const context = getAudioContext()
+	await context.audioWorklet.addModule("source/audio/worklets/trim.js")
+})
+
 export const getInputStream = memo(
 	async () =>
 		await navigator.mediaDevices.getUserMedia({
@@ -46,23 +51,27 @@ export const record = async () => {
 	}
 }
 
-export const play = (node) => {
-	const context = getAudioContext()
-	const destination = context.destination
-
-	const clone = cloneNode(node)
-
+export const play = (source, destination) => {
+	const clone = cloneSourceNode(source)
 	clone.connect(destination)
 	clone.start()
+
+	// TODO: cleanup after end
+
 	return () => {
-		clone.stop()
-		clone.disconnect(destination)
+		// TODO: stop
 	}
 }
 
-export const cloneNode = (node) => {
+export const cloneSourceNode = (node) => {
 	const context = getAudioContext()
 	const clone = context.createBufferSource()
 	clone.buffer = node.buffer
 	return clone
+}
+
+export const getWorklet = async (name) => {
+	const context = getAudioContext()
+	await getAudioWorklets()
+	return new AudioWorkletNode(context, name)
 }
