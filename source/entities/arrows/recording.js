@@ -1,5 +1,5 @@
 import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../libraries/habitat-import.js"
-import { Recorder } from "../../audio.js"
+import { play, record } from "../../audio.js"
 import { shared } from "../../main.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -14,9 +14,8 @@ export const ArrowOfRecording = class extends Carryable {
 	noiseHolder = new Thing()
 	noise = this.use(null, { store: false })
 
-	recorder = new Recorder()
-	recording = this.use(false)
-	playing = this.use(false)
+	isRecording = this.use(false)
+	isPlaying = this.use(false)
 
 	colour = this.use(
 		() => {
@@ -44,7 +43,7 @@ export const ArrowOfRecording = class extends Carryable {
 	onPointingPointerUp() {
 		if (this.noise === null) {
 			this.onRecordStart()
-		} else if (this.recording) {
+		} else if (this.isRecording) {
 			this.onRecordStop()
 		} else {
 			this.onPlayStart()
@@ -53,35 +52,34 @@ export const ArrowOfRecording = class extends Carryable {
 
 	tick() {
 		super.tick()
-		if (this.recording) {
+		if (this.isRecording) {
 			const difference = this.noise.duration - this.noise.trimEnd
 			this.noise.duration = shared.time - this.recordingStartTime
 			this.noise.trimEnd = this.noise.duration - difference
 		}
 	}
 
-	onRecordStart() {
+	async onRecordStart() {
 		this.noise = new ArrowOfNoise()
 		this.noiseHolder.add(this.noise)
 		this.noise.sendToBack()
 		//this.noise.transform.position.x = INNER_UNIT / 3
 		this.recordingStartTime = shared.time
 
-		this.recording = true
-		this.recorder.start()
+		this.isRecording = true
+		//this.recorder.start()
+		this.stop = await record()
 	}
 
-	onRecordStop() {
-		this.recording = false
-		this.recorder.stop()
+	async onRecordStop() {
+		this.isRecording = false
+		this.recording = await this.stop()
+		//this.recorder.stop()
 	}
 
 	onPlayStart() {
-		this.playing = true
-		shared.audio.play(this.recorder)
-	}
-
-	onPlayStop() {
-		this.playing = false
+		this.isPlaying = true
+		play(this.recording)
+		//shared.audio.play(this.recorder)
 	}
 }

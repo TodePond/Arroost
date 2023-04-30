@@ -5,7 +5,6 @@ import {
 	repeatArray,
 	Stage,
 } from "../libraries/habitat-import.js"
-import { getAudio } from "./audio.js"
 import { ArrowOfConnection } from "./entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./entities/arrows/tickler/destruction.js"
@@ -52,10 +51,6 @@ export const shared = {
 	display,
 	time: performance.now(),
 }
-
-getAudio().then((audio) => {
-	shared.audio = audio
-})
 
 // Set default zoom
 camera.transform.scale = repeatArray([UNIT], 2)

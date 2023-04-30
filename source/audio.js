@@ -1,67 +1,68 @@
-import { range } from "../libraries/habitat-import.js"
-import { shared } from "./main.js"
+import { memo } from "../libraries/habitat-import.js"
 
-let cachedAudio = undefined
-export const getAudio = async () => {
-	if (cachedAudio !== undefined) {
-		return cachedAudio
-	}
+export const getAudioContext = memo(() => new AudioContext())
+export const getInputStream = memo(
+	async () =>
+		await navigator.mediaDevices.getUserMedia({
+			audio: {
+				echoCancellation: false,
+				noiseSuppression: false,
+				autoGainControl: false,
+			},
+		}),
+)
 
-	const audio = new Audio()
-	await audio.init()
-	cachedAudio = audio
-	return audio
+// Warm it up!
+getInputStream()
+
+export const getInputSource = async () => {
+	const context = getAudioContext()
+	const stream = await getInputStream()
+	return context.createMediaStreamSource(stream)
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
-
-const Audio = class {
-	ready = false
-
-	audios = [...range(0, 99)].map(() => document.createElement("audio"))
-	currentAudioId = 0
-
-	constructor() {
-		this.init()
-	}
-
-	async init() {
-		this.stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-		this.ready = true
-	}
-
-	play(recording) {
-		const audio = this.audios[this.currentAudioId]
-		audio.src = recording.url
-		audio.play()
-		this.currentAudioId = (this.currentAudioId + 1) % this.audios.length
+// Record a sound
+// Return a stop function
+// The stop function returns an audio node
+export const record = async () => {
+	const context = getAudioContext()
+	const source = await getInputSource()
+	const destination = context.createMediaStreamDestination()
+	const recorder = new MediaRecorder(destination.stream)
+	source.connect(destination)
+	recorder.start()
+	return async () => {
+		recorder.stop()
+		return await new Promise((resolve) => {
+			recorder.ondataavailable = async ({ data }) => {
+				source.disconnect(destination)
+				const arrayBuffer = await data.arrayBuffer()
+				const audioBuffer = await context.decodeAudioData(arrayBuffer)
+				const recording = context.createBufferSource()
+				recording.buffer = audioBuffer
+				resolve(recording)
+			}
+		})
 	}
 }
 
-export const Recorder = class {
-	constructor() {
-		this.mediaRecorder = new MediaRecorder(shared.audio.stream)
-		this.chunks = []
-		this.mediaRecorder.ondataavailable = (event) => {
-			this.chunks.push(event.data)
-		}
-		this.mediaRecorder.onstop = () => {
-			this.blob = new Blob(this.chunks, { type: "audio/ogg; codecs=opus" })
-			this.url = window.URL.createObjectURL(this.blob)
-			this.onStop()
-		}
-		this.audio = document.createElement("audio")
-	}
+export const play = (node) => {
+	const context = getAudioContext()
+	const destination = context.destination
 
-	start() {
-		this.recording = true
-		this.mediaRecorder.start()
-	}
+	const clone = cloneNode(node)
 
-	stop() {
-		this.recording = false
-		this.mediaRecorder.stop()
+	clone.connect(destination)
+	clone.start()
+	return () => {
+		clone.stop()
+		clone.disconnect(destination)
 	}
+}
 
-	onStop() {}
+export const cloneNode = (node) => {
+	const context = getAudioContext()
+	const clone = context.createBufferSource()
+	clone.buffer = node.buffer
+	return clone
 }

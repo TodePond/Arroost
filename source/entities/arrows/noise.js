@@ -23,9 +23,9 @@ export const ArrowOfNoise = class extends Thing {
 	startFlaps = new ClosedFlaps()
 	startBackFlaps = new ClosedFlaps()
 
-	recording = this.use(() => {
+	isRecording = this.use(() => {
 		if (!this.parent) return false
-		return this.parent.parent.recording
+		return this.parent.parent.isRecording
 	})
 
 	colour = this.use(() => {
@@ -104,7 +104,7 @@ export const ArrowOfNoise = class extends Thing {
 		})
 
 		this.use(() => {
-			if (this.recording) {
+			if (this.isRecording) {
 				//this._input = this.input
 				//this.input = this.parent.parent.input
 			} else {
@@ -113,7 +113,7 @@ export const ArrowOfNoise = class extends Thing {
 		})
 
 		this.use(() => {
-			this.line.style.stroke = this.recording ? RED : GREY
+			this.line.style.stroke = this.isRecording ? GREY : GREY
 			flaps.style.fill = GREY
 			this.backFlaps.style.fill = SILVER
 			this.startFlaps.style.fill = GREY
