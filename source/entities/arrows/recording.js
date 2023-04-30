@@ -1,4 +1,5 @@
 import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../libraries/habitat-import.js"
+import { Recorder } from "../../audio.js"
 import { shared } from "../../main.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -7,21 +8,19 @@ import { Carryable } from "./carryable.js"
 import { ArrowOfNoise } from "./noise.js"
 
 export const ArrowOfRecording = class extends Carryable {
-	recording = this.use(false)
-	playing = this.use(false)
-
 	recordingStartTime = this.use(null)
 
 	inner = new Ellipse()
 	noiseHolder = new Thing()
 	noise = this.use(null, { store: false })
 
+	recorder = new Recorder()
+	recording = this.use(false)
+	playing = this.use(false)
+
 	colour = this.use(
 		() => {
 			if (this.input.Pointing) return WHITE
-			if (this.recording === true) {
-				//return RED
-			}
 			return SILVER
 		},
 		{ store: false },
@@ -47,8 +46,6 @@ export const ArrowOfRecording = class extends Carryable {
 			this.onRecordStart()
 		} else if (this.recording) {
 			this.onRecordStop()
-		} else if (this.playing) {
-			this.onPlayStop()
 		} else {
 			this.onPlayStart()
 		}
@@ -64,26 +61,24 @@ export const ArrowOfRecording = class extends Carryable {
 	}
 
 	onRecordStart() {
-		this.recording = true
 		this.noise = new ArrowOfNoise()
 		this.noiseHolder.add(this.noise)
 		this.noise.sendToBack()
 		//this.noise.transform.position.x = INNER_UNIT / 3
 		this.recordingStartTime = shared.time
 
-		this.mediaRecorder = shared.audio.startRecording((blob, url) => {
-			print(blob, url)
-		})
+		this.recording = true
+		this.recorder.start()
 	}
 
-	async onRecordStop() {
+	onRecordStop() {
 		this.recording = false
-		this.mediaRecorder.stop()
+		this.recorder.stop()
 	}
 
 	onPlayStart() {
 		this.playing = true
-		print(this.chunks)
+		shared.audio.play(this.recorder)
 	}
 
 	onPlayStop() {

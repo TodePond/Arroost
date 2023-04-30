@@ -17,7 +17,7 @@ export const ArrowOfNoise = class extends Thing {
 	trimStart = this.use(0)
 
 	line = new Line()
-	backLine = new Line()
+	//backLine = new Line()
 	flaps = new ClosedFlaps()
 	backFlaps = new ClosedFlaps()
 	startFlaps = new ClosedFlaps()
@@ -120,7 +120,7 @@ export const ArrowOfNoise = class extends Thing {
 			this.startBackFlaps.style.fill = SILVER
 		})
 
-		this.backLine.style.stroke = GREY
+		//this.backLine.style.stroke = GREY
 		this.line.input = this.input
 
 		this.flaps.onHoveringEnter = this.onEndHoveringEnter
