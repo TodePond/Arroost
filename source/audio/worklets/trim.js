@@ -10,8 +10,9 @@ export const TrimProcessor = class extends AudioWorkletProcessor {
 			const inputChannel = input[i]
 			const outputChannel = output[i]
 
+			const time = currentTime - playStart
 			for (let i = 0; i < inputChannel.length; i++) {
-				if (currentTime - playStart < trimStart || currentTime - playStart > trimEnd) {
+				if (time < trimStart || time > trimEnd) {
 					outputChannel[i] = 0
 				} else {
 					outputChannel[i] = inputChannel[i]
