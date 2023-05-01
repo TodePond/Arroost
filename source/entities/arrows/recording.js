@@ -1,5 +1,5 @@
 import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../libraries/habitat-import.js"
-import { cloneSourceNode, getAudioContext, getWorklet, record } from "../../audio/audio.js"
+import { getAudioContext, makeBufferSource, record } from "../../audio/audio.js"
 import { shared } from "../../main.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -15,7 +15,6 @@ export const ArrowOfRecording = class extends Carryable {
 	noise = this.use(null, { store: false })
 
 	isRecording = this.use(false)
-	isPlaying = this.use(false)
 
 	colour = this.use(
 		() => {
@@ -27,7 +26,7 @@ export const ArrowOfRecording = class extends Carryable {
 
 	constructor() {
 		super()
-		const { transform, style } = this
+		const { style } = this
 		glue(this)
 		this.add(this.noiseHolder)
 		this.add(this.inner)
@@ -63,37 +62,25 @@ export const ArrowOfRecording = class extends Carryable {
 		this.noise = new ArrowOfNoise()
 		this.noiseHolder.add(this.noise)
 		this.noise.sendToBack()
-		//this.noise.transform.position.x = INNER_UNIT / 3
 		this.recordingStartTime = shared.time
 
 		this.isRecording = true
-		//this.recorder.start()
 		this.stop = await record()
 	}
 
 	async onRecordStop() {
 		this.isRecording = false
 		this.recording = await this.stop()
-		//this.recorder.stop()
 	}
 
 	async onPlayStart() {
-		this.isPlaying = true
 		const context = getAudioContext()
-
-		const trimmer = await getWorklet("trim")
-		trimmer.connect(context.destination)
-
-		const trimStartParam = trimmer.parameters.get("trimStart")
-		const trimEndParam = trimmer.parameters.get("trimEnd")
-		const playStartParam = trimmer.parameters.get("playStart")
-		trimStartParam.value = this.noise.trimStart / 1000
-		trimEndParam.value = this.noise.trimEnd / 1000
-		playStartParam.value = context.currentTime
-
-		const clone = cloneSourceNode(this.recording)
-		clone.connect(trimmer)
-		clone.start()
-		//shared.audio.play(this.recorder)
+		const source = makeBufferSource(this.recording)
+		source.connect(context.destination)
+		source.start(
+			context.currentTime,
+			this.noise.startingPoint / 1000,
+			this.noise.trimEnd / 1000 - this.noise.startingPoint / 1000,
+		)
 	}
 }
