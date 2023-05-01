@@ -17,6 +17,7 @@ import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
 import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
+import { Nogan } from "./nogan/nogan.js"
 import { UNIT } from "./unit.js"
 
 //===============//
@@ -50,7 +51,10 @@ export const shared = {
 	hover,
 	display,
 	time: performance.now(),
+	nogan: new Nogan(),
 }
+
+shared.nogan.init()
 
 // Set default zoom
 camera.transform.scale = repeatArray([UNIT], 2)
