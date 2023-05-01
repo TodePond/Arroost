@@ -1,4 +1,3 @@
-import { Layer } from "./items/layer.js"
 import { Nod } from "./items/nod.js"
 import { Wire } from "./items/wire.js"
 
@@ -9,6 +8,7 @@ export const Nogan = class {
 	items = {}
 	nextId = 0
 	freeIds = []
+	parent = null
 
 	//---------//
 	// METHODS //
@@ -16,7 +16,6 @@ export const Nogan = class {
 	static types = {
 		nod: Nod,
 		wire: Wire,
-		layer: Layer,
 	}
 
 	createId() {
