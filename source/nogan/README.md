@@ -6,7 +6,7 @@ Nogan is the virtual machine that contains and runs the node-based language behi
 
 A Nogan is just a big object of items, each keyed with a unique id.
 
-There are three types of item:
+There are two types of item:
 
 -  Nod
 -  Wire
