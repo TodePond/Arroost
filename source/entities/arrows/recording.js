@@ -1,5 +1,5 @@
 import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../libraries/habitat-import.js"
-import { getAudioContext, getWorklet, play, record } from "../../audio/audio.js"
+import { cloneSourceNode, getAudioContext, getWorklet, record } from "../../audio/audio.js"
 import { shared } from "../../main.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -74,23 +74,26 @@ export const ArrowOfRecording = class extends Carryable {
 	async onRecordStop() {
 		this.isRecording = false
 		this.recording = await this.stop()
-		this.trimmer = await getWorklet("trim")
-		this.trimmer.connect(getAudioContext().destination)
 		//this.recorder.stop()
 	}
 
-	updateTrim([start, end]) {
-		if (this.isRecording) return
-		if (!this.recording) return
-		const trimStartParam = this.trimmer.parameters.get("trimStart")
-		const trimEndParam = this.trimmer.parameters.get("trimEnd")
-		trimStartParam.value = start / this.noise.duration
-		trimEndParam.value = end / this.noise.duration
-	}
-
-	onPlayStart() {
+	async onPlayStart() {
 		this.isPlaying = true
-		play(this.recording, this.trimmer)
+		const context = getAudioContext()
+
+		const trimmer = await getWorklet("trim")
+		trimmer.connect(context.destination)
+
+		const trimStartParam = trimmer.parameters.get("trimStart")
+		const trimEndParam = trimmer.parameters.get("trimEnd")
+		const playStartParam = trimmer.parameters.get("playStart")
+		trimStartParam.value = this.noise.trimStart / 1000
+		trimEndParam.value = this.noise.trimEnd / 1000
+		playStartParam.value = context.currentTime
+
+		const clone = cloneSourceNode(this.recording)
+		clone.connect(trimmer)
+		clone.start()
 		//shared.audio.play(this.recorder)
 	}
 }

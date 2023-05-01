@@ -51,18 +51,6 @@ export const record = async () => {
 	}
 }
 
-export const play = (source, destination) => {
-	const clone = cloneSourceNode(source)
-	clone.connect(destination)
-	clone.start()
-
-	// TODO: cleanup after end
-
-	return () => {
-		// TODO: stop
-	}
-}
-
 export const cloneSourceNode = (node) => {
 	const context = getAudioContext()
 	const clone = context.createBufferSource()
