@@ -76,6 +76,8 @@ export const ArrowOfRecording = class extends Carryable {
 	async onPlayStart() {
 		const context = getAudioContext()
 		const source = makeBufferSource(this.recording)
+		const semitones = 0
+		source.playbackRate.value = 2 ** (semitones / 12)
 		source.connect(context.destination)
 		source.start(
 			context.currentTime,
