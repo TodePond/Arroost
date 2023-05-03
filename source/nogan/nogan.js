@@ -44,8 +44,4 @@ export const Nogan = class {
 		this.items[item.id] = item
 		return item
 	}
-
-	init() {
-		this.createItem("layer")
-	}
 }

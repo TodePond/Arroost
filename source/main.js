@@ -54,8 +54,6 @@ export const shared = {
 	nogan: new Nogan(),
 }
 
-shared.nogan.init()
-
 // Set default zoom
 camera.transform.scale = repeatArray([UNIT], 2)
 
