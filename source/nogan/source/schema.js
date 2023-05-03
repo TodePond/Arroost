@@ -37,14 +37,14 @@ N.Child = N.Parent.extend({
 
 N.Nod = N.Child.extend({
 	isNod: S.True,
-	target: N.Target,
+	targetting: N.Target,
 })
 
 N.Wire = N.Child.extend({
 	isWire: S.True,
 	colour: N.Colour,
 	timing: N.Timing,
-	aim: S.Vector2D,
+	targetLocation: S.Vector2D,
 	input: N.Child.nullable(),
 	output: N.Child.nullable(),
 })
