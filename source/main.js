@@ -17,7 +17,7 @@ import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
 import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
-import { NoganSchema } from "./nogan/item.js"
+import { NoganBoss } from "./nogan/source/nogan.js"
 import { UNIT } from "./unit.js"
 
 //===============//
@@ -42,6 +42,7 @@ display.input = camera.input
 const machine = new Machine()
 const pointer = getPointer(camera)
 const hover = getHover(camera)
+const nogan = NoganBoss.makePhantom()
 
 export const shared = {
 	stage,
@@ -51,7 +52,13 @@ export const shared = {
 	hover,
 	display,
 	time: performance.now(),
-	nogan: NoganSchema.Nogan.make(),
+	nogan: {
+		root: nogan,
+		current: nogan,
+	},
+	debug: {
+		validate: true,
+	},
 }
 
 // Set default zoom

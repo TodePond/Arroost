@@ -53,7 +53,14 @@ export const Schema = class {
 	}
 
 	nullable() {
-		return this.or(Schema.Null)
+		return Schema.Null.or(this)
+	}
+
+	static reference(key) {
+		return new Schema({
+			check: (value) => this[key].check(value),
+			make: () => this[key].make(),
+		})
 	}
 }
 
@@ -104,6 +111,11 @@ Schema.Struct = (struct) => {
 				return false
 			}
 		}
+		for (const key in value) {
+			if (!struct[key]) {
+				return false
+			}
+		}
 		return true
 	}
 
@@ -115,7 +127,13 @@ Schema.Struct = (struct) => {
 		return object
 	}
 
-	return Schema.Object.andCheck(check).withMake(make)
+	const schema = Schema.Object.andCheck(check).withMake(make)
+	schema.struct = struct
+	schema.extend = (other) => {
+		const extended = { ...struct, ...other }
+		return Schema.Struct(extended)
+	}
+	return schema
 }
 
 Schema.ArrayOf = (schema) => {
@@ -144,24 +162,24 @@ Schema.Enum = (values) => {
 	return new Schema({ check, make })
 }
 
+Schema.Finite = Schema.Number.withCheck((value) => Number.isFinite(value))
+Schema.Integer = Schema.Number.withCheck((value) => Number.isInteger(value))
+Schema.SafeInteger = Schema.Number.withCheck((value) => Number.isSafeInteger(value))
+
+Schema.Negative = Schema.Number.andCheck((value) => value <= 0)
+Schema.Positive = Schema.Number.andCheck((value) => value >= 0)
+Schema.PositiveInteger = Schema.Integer.and(Schema.Positive)
+Schema.SafePositiveInteger = Schema.SafeInteger.and(Schema.Positive)
+
 Schema.Vector2D = Schema.Struct({
-	[0]: Schema.Number,
-	[1]: Schema.Number,
+	[0]: Schema.Finite,
+	[1]: Schema.Finite,
 })
 
 Schema.Vector3D = Schema.Struct({
-	[0]: Schema.Number,
-	[1]: Schema.Number,
-	[2]: Schema.Number,
-})
-
-Schema.Integer = Schema.Number.withCheck((value) => Number.isInteger(value))
-Schema.Positive = Schema.Number.andCheck((value) => value >= 0)
-Schema.PositiveInteger = Schema.Integer.and(Schema.Positive)
-
-Schema.Undefined = new Schema({
-	check: (value) => value === undefined,
-	make: () => undefined,
+	[0]: Schema.Finite,
+	[1]: Schema.Finite,
+	[2]: Schema.Finite,
 })
 
 Schema.Truthy = new Schema({
@@ -173,6 +191,19 @@ Schema.Falsy = new Schema({
 	check: (value) => !value,
 	make: () => false,
 })
+
+Schema.Value = (schema) => {
+	return new Schema({
+		check: (value) => value === schema,
+		make: () => schema,
+	})
+}
+
+Schema.True = Schema.Value(true)
+Schema.False = Schema.Value(false)
+
+Schema.Undefined = Schema.Value(undefined)
+Schema.Null = Schema.Value(null)
 
 Schema.ObjectWith = ({ keysOf = Schema.Any, valuesOf = Schema.Any } = {}) => {
 	const check = (value) => {
