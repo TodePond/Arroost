@@ -16,4 +16,6 @@ export const connectMachine = (machine) => {
 	listen(machine, "pointerup", "pointerUp")
 	listen(machine, "pointermove", "pointerMove")
 	listen(machine, "wheel", "wheel")
+	listen(machine, "keydown", "keyDown")
+	listen(machine, "keyup", "keyUp")
 }

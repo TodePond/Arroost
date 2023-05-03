@@ -35,11 +35,6 @@ N.Child = N.Parent.extend({
 	inputs: S.ArrayOf(N.reference("Wire")),
 })
 
-N.Nod = N.Child.extend({
-	isNod: S.True,
-	targetting: N.Target,
-})
-
 N.Wire = N.Child.extend({
 	isWire: S.True,
 	colour: N.Colour,
@@ -47,4 +42,16 @@ N.Wire = N.Child.extend({
 	targetLocation: S.Vector2D,
 	input: N.Child.nullable(),
 	output: N.Child.nullable(),
+})
+
+N.NodType = S.Enum(["nod", "creation"])
+N.Nod = N.Child.extend({
+	isNod: S.True,
+	type: N.NodType,
+	targetting: N.Target,
+})
+
+N.Creation = N.Nod.extend({
+	isCreation: S.True,
+	type: N.NodType.and(S.Value("creation")),
 })

@@ -1,6 +1,8 @@
 import { shared } from "../main.js"
 import { State } from "./state.js"
 
+// Idle is only the default state when you load.
+// After the first frame, you'll be hovering the display.
 export const Idle = new State({
 	name: "Idle",
 	cursor: "default",
@@ -32,6 +34,27 @@ export const Hovering = new State({
 
 	onPointerDown() {
 		return Pointing
+	},
+
+	onKeyDown(event) {
+		if (event.key === "d") {
+			return Debugging
+		}
+	},
+})
+
+export const Debugging = new State({
+	name: "Debugging",
+	cursor: "help",
+
+	onKeyUp(event) {
+		if (event.key === "d") {
+			return Idle
+		}
+	},
+
+	onPointerDown(event) {
+		print(event.input.entity)
 	},
 })
 
