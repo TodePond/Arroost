@@ -46,8 +46,3 @@ N.Wire = N.Child.extend({
 	input: N.Child.nullable(),
 	output: N.Child.nullable(),
 })
-
-N.Recording = N.Nod.extend({
-	isRecording: S.True,
-	audioBuffer: N.Id,
-})
