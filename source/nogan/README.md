@@ -224,7 +224,7 @@ What's this got to do with Arroost?
 
 Arroost is essentially a nogan with extra functionality. The extra functionality is as follows:
 
--  Nogans can also have a position in space. And connections to point anonymously to a location. If there's a nogan at that location, it will be connected to it.
+-  Nogans can also have a position in space. And connections can point anonymously to a location. If there's a nogan at that location, it will be connected to it.
 -  Connections are also nogans themselves, and can be targeted in the same way.
 -  Connections can be one of three colours. Incoming firings will only trigger a connection if it's the same colour.
 -  The engine has side-effects that trigger when certain nogans are fired. For example, a 'recording' nogan plays a sound. And some nogans 'route' firings through multiple nogans. eg: The 'creation' nogan fires through its first nogan, and then fires somewhere else to clone the targeted nogan.
