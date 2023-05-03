@@ -31,7 +31,6 @@ export const freeId = (nogan, id) => {
 export const addChild = (nogan, child) => {
 	const id = createId(nogan)
 	child.id = id
-	child.parent = nogan.id
 	nogan.children[id] = child
 
 	//TODO: update connections (they might stick to the new child)
@@ -50,8 +49,8 @@ export const createChild = (schema, nogan = shared.nogan.current, options = {}) 
 	const child = schema.make()
 	Object.assign(child, options)
 
-	validate(child, schema)
 	addChild(nogan, child)
+	validate(child, schema)
 
 	return child
 }

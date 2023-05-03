@@ -28,7 +28,6 @@ N.Phantom = N.Parent.extend({
 
 N.Child = N.Parent.extend({
 	isChild: S.True,
-	parent: N.Id.withDefault(null),
 	id: N.Id.withDefault(null),
 	position: S.Vector2D,
 	outputs: S.ArrayOf(N.reference("Wire")),
