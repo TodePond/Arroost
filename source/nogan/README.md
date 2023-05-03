@@ -38,7 +38,7 @@ This might be easier to express as a multi-line list:
 
 ## Phantoms
 
-The top-level nogan is also inside a nogan, technically! It's inside the _phantom nogan_. But we don't need to write that out explicitly.
+Technically, The top-level nogan is also inside a nogan! It's inside the _phantom nogan_. But we don't need to write that out explicitly.
 
 ```
 👻🌳
@@ -191,7 +191,7 @@ After
 Here's a secret... This is how phantom nogans work! If you peak inside a phantom nogan, it becomes _real_ and you'll see that it's just this:
 
 ```
-🌳1➡.🌳1
+🌳1➡.1
 ```
 
 ## Time Travel
