@@ -6,10 +6,6 @@ const N = NoganSchema
 
 N.Id = S.SafePositiveInteger
 
-N.Colour = S.Enum(["blue", "green", "red"])
-N.Timing = S.Enum(["same", "before", "after"])
-N.Target = S.Enum(["none", "point", "vector"])
-
 N.Parent = S.Struct({
 	isParent: S.True,
 	nextId: N.Id,
@@ -18,23 +14,29 @@ N.Parent = S.Struct({
 		keysOf: N.Id,
 		valuesOf: N.reference("Child"),
 	}),
-	isFiring: S.Boolean,
+	isFiringRed: S.Boolean,
+	isFiringGreen: S.Boolean,
+	isFiringBlue: S.Boolean,
 })
 
 N.Phantom = N.Parent.extend({
 	isPhantom: S.True,
-	isFiring: S.True,
+	isFiringRed: S.True,
+	isFiringGreen: S.True,
+	isFiringBlue: S.True,
 })
 
 N.Child = N.Parent.extend({
 	isChild: S.True,
-	parent: N.Id,
-	id: N.Id,
+	parent: N.Id.withDefault(null),
+	id: N.Id.withDefault(null),
 	position: S.Vector2D,
 	outputs: S.ArrayOf(N.reference("Wire")),
 	inputs: S.ArrayOf(N.reference("Wire")),
 })
 
+N.Colour = S.Enum(["blue", "green", "red"])
+N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
 	isWire: S.True,
 	colour: N.Colour,
@@ -45,13 +47,18 @@ N.Wire = N.Child.extend({
 })
 
 N.NodType = S.Enum(["nod", "creation"])
+N.Targetting = S.Enum(["none", "point", "vector"])
+
 N.Nod = N.Child.extend({
 	isNod: S.True,
 	type: N.NodType,
-	targetting: N.Target,
+	pointTargetting: N.Targetting,
+	unitTargetting: N.Targetting,
 })
 
 N.Creation = N.Nod.extend({
 	isCreation: S.True,
 	type: N.NodType.and(S.Value("creation")),
+	pointTargetting: N.Targetting.and(S.Value("point")),
+	unitTargetting: N.Targetting.and(S.Value("vector")),
 })

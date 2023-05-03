@@ -37,7 +37,8 @@ export const Hovering = new State({
 	},
 
 	onKeyDown(event) {
-		if (event.key === "d") {
+		event.preventDefault()
+		if (event.key.toLowerCase() === "d") {
 			return Debugging
 		}
 	},
@@ -48,13 +49,19 @@ export const Debugging = new State({
 	cursor: "help",
 
 	onKeyUp(event) {
-		if (event.key === "d") {
+		if (event.key.toLowerCase() === "d") {
 			return Idle
 		}
 	},
 
 	onPointerDown(event) {
-		print(event.input.entity)
+		if (event.shiftKey) {
+			print(event.input)
+		} else if (event.ctrlKey) {
+			print(event.input?.entity?.nogan)
+		} else {
+			print(event.input?.entity)
+		}
 	},
 })
 

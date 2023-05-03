@@ -17,6 +17,8 @@ import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
 import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
+import * as Nogan from "./nogan/source/nogan.js"
+import { createPhantom } from "./nogan/source/nogan.js"
 import { NoganSchema } from "./nogan/source/schema.js"
 import { UNIT } from "./unit.js"
 
@@ -42,7 +44,7 @@ display.input = camera.input
 const machine = new Machine()
 const pointer = getPointer(camera)
 const hover = getHover(camera)
-const nogan = NoganSchema.Phantom.make()
+const nogan = createPhantom()
 
 export const shared = {
 	stage,
@@ -101,4 +103,5 @@ export const unlockTool = (source) => {
 //=================//
 // Setup Debugging //
 //=================//
+Object.assign(window, { Nogan, shared, NoganSchema })
 Object.assign(window, shared)

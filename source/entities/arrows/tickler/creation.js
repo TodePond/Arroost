@@ -1,7 +1,6 @@
 import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
 import { shared, unlockTool } from "../../../main.js"
-import { NoganSchema } from "../../../nogan/source/schema.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowOfRecording } from "../recording.js"
@@ -10,8 +9,6 @@ import { ArrowTickler } from "./tickler.js"
 let createdCount = 0
 
 export const ArrowOfCreation = class extends ArrowTickler {
-	nogan = NoganSchema.Creation.make()
-
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
