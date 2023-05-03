@@ -1,6 +1,3 @@
-import { Nod } from "./items/nod.js"
-import { Wire } from "./items/wire.js"
-
 export const Nogan = class {
 	//---------------------------------//
 	// STATE to be copied when cloning //
@@ -9,14 +6,6 @@ export const Nogan = class {
 	nextId = 0
 	freeIds = []
 	parent = null
-
-	//---------//
-	// METHODS //
-	//---------//
-	static types = {
-		nod: Nod,
-		wire: Wire,
-	}
 
 	createId() {
 		if (this.freeIds.length > 0) {

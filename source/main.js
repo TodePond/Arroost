@@ -17,7 +17,7 @@ import { getPointer } from "./input/pointer.js"
 import { registerPreventDefaults } from "./input/prevent.js"
 import { Idle } from "./input/states.js"
 import { registerWheel } from "./input/wheel.js"
-import { Nogan } from "./nogan/nogan.js"
+import { NoganSchema } from "./nogan/item.js"
 import { UNIT } from "./unit.js"
 
 //===============//
@@ -51,7 +51,7 @@ export const shared = {
 	hover,
 	display,
 	time: performance.now(),
-	nogan: new Nogan(),
+	nogan: NoganSchema.Nogan.make(),
 }
 
 // Set default zoom
