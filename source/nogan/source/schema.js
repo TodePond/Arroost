@@ -8,6 +8,7 @@ N.Id = S.SafePositiveInteger
 
 N.Colour = S.Enum(["blue", "green", "red"])
 N.Timing = S.Enum(["same", "before", "after"])
+N.Target = S.Enum(["none", "point", "vector"])
 
 N.Parent = S.Struct({
 	isParent: S.True,
@@ -36,13 +37,14 @@ N.Child = N.Parent.extend({
 
 N.Nod = N.Child.extend({
 	isNod: S.True,
+	target: N.Target,
 })
 
 N.Wire = N.Child.extend({
 	isWire: S.True,
 	colour: N.Colour,
 	timing: N.Timing,
-	target: S.Vector2D,
+	aim: S.Vector2D,
 	input: N.Child.nullable(),
 	output: N.Child.nullable(),
 })
