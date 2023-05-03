@@ -31,15 +31,15 @@ export const Nogan = class {
 		this.freeIds.push(id)
 	}
 
-	createItem(type) {
-		const Type = Nogan.types[type]
+	createItem(typeName) {
+		const Type = Nogan.types[typeName]
 		if (!Type) {
-			throw new Error(`Unknown item type: ${type}`)
+			throw new Error(`Unknown item type name: ${typeName}`)
 		}
 
 		const item = new Type()
 		item.id = this.createId()
-		item.type = type
+		item.typeName = typeName
 
 		this.items[item.id] = item
 		return item
