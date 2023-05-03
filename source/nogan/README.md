@@ -8,6 +8,12 @@ Here's a nogan:
 🌳
 ```
 
+Here are some more nogans:
+
+```
+🌳🌳🌳
+```
+
 ## Trees
 
 A nogan can have more nogans inside it!
