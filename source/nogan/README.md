@@ -47,13 +47,13 @@ This might be easier to express as a multi-line list:
 Technically, The top-level nogan is also inside a nogan! It's inside the _phantom nogan_. But we don't need to write that out explicitly.
 
 ```
-👻🌳
+👻:🌳
 ```
 
 I mean, technically, the phantom nogan is also within a phantom nogan! and so on... forever...
 
 ```
-👻👻👻🌳
+👻:👻:👻:🌳
 ```
 
 ## Fires
@@ -102,10 +102,10 @@ There's a reason the top-level nogan always fires. It's because the phantom noga
 
 ```
 Before
-👻🔥
+👻:🔥
 
 After
-👻🌳
+👻:🌳
 ```
 
 ## Numbers
