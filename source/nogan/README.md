@@ -16,13 +16,8 @@ Here are some more nogans:
 
 ## Trees
 
-A nogan can have more nogans inside it!
 
-```
-🌳(🌳🌳)
-```
-
-You can use brackets or a colon to express this:
+A nogan can have more nogans nested inside it:
 
 ```
 🌳:🌳🌳
