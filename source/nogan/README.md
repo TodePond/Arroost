@@ -31,7 +31,7 @@ You can use brackets or a colon to express this:
 By the way nogans can be nested as deep as you want:
 
 ```
-🌳(🌳:🌳🌳)(🌳:🌳)
+🌳:(🌳:🌳🌳)(🌳:🌳)
 ```
 
 This might be easier to express as a multi-line list:
