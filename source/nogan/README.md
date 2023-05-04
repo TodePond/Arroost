@@ -120,7 +120,7 @@ Every number within a 'nest' must be unique.
 You can re-use numbers in different nests though:
 
 ```
-🌳1 (🌳1 🌳2)
+🌳1:(🌳1 🌳2)
 ```
 
 ## Connections
