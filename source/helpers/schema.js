@@ -6,15 +6,14 @@ export const Schema = class {
 
 	validate(value) {
 		if (!this.check(value)) {
-			console.error(value)
-			throw new Error(`^ Invalid value`)
+			throw new Error(`Invalid value ${value}`)
 		}
 	}
 
 	and(other) {
 		return new Schema({
 			check: (value) => this.check(value) && other.check(value),
-			make: other.make,
+			make: other.make || this.make,
 		})
 	}
 
@@ -91,6 +90,26 @@ Schema.Array = new Schema({
 	make: () => [],
 })
 
+Schema.Tuple = (schemas) => {
+	const check = (value) => {
+		if (value.length !== schemas.length) {
+			return false
+		}
+		for (const i in schemas) {
+			if (!schemas[i].check(value[i])) {
+				return false
+			}
+		}
+		return true
+	}
+
+	const make = () => {
+		return schemas.map((schema) => schema.make())
+	}
+
+	return Schema.Array.andCheck(check).withMake(make)
+}
+
 Schema.Object = new Schema({
 	check: (value) => typeof value === "object" && !Schema.Array.check(value),
 	make: () => ({}),
@@ -99,11 +118,6 @@ Schema.Object = new Schema({
 Schema.Function = new Schema({
 	check: (value) => typeof value === "function",
 	make: () => () => {},
-})
-
-Schema.Null = new Schema({
-	check: (value) => value === null,
-	make: () => null,
 })
 
 Schema.Any = new Schema({
@@ -192,16 +206,8 @@ Schema.Positive = Schema.Number.andCheck((value) => value >= 0)
 Schema.PositiveInteger = Schema.Integer.and(Schema.Positive)
 Schema.SafePositiveInteger = Schema.SafeInteger.and(Schema.Positive)
 
-Schema.Vector2D = Schema.Struct({
-	[0]: Schema.Finite,
-	[1]: Schema.Finite,
-})
-
-Schema.Vector3D = Schema.Struct({
-	[0]: Schema.Finite,
-	[1]: Schema.Finite,
-	[2]: Schema.Finite,
-})
+Schema.Vector2D = Schema.Tuple([Schema.Finite, Schema.Finite])
+Schema.Vector3D = Schema.Tuple([Schema.Finite, Schema.Finite, Schema.Finite])
 
 Schema.Truthy = new Schema({
 	check: (value) => !!value,
@@ -227,9 +233,10 @@ Schema.Undefined = Schema.Value(undefined)
 Schema.Null = Schema.Value(null)
 
 Schema.ObjectWith = ({ keysOf = Schema.Any, valuesOf = Schema.Any } = {}) => {
+	const stringKeysOf = Schema.Stringified(keysOf)
 	const check = (value) => {
 		for (const key in value) {
-			if (!keysOf.check(key) || !valuesOf.check(value[key])) {
+			if (!stringKeysOf.check(key) || !valuesOf.check(value[key])) {
 				return false
 			}
 		}
@@ -237,4 +244,20 @@ Schema.ObjectWith = ({ keysOf = Schema.Any, valuesOf = Schema.Any } = {}) => {
 	}
 
 	return Schema.Object.andCheck(check)
+}
+
+Schema.Stringified = (schema) => {
+	const check = (value) => {
+		try {
+			return schema.check(JSON.parse(value))
+		} catch (error) {
+			return false
+		}
+	}
+
+	const make = () => {
+		return JSON.stringify(schema.make())
+	}
+
+	return new Schema({ check, make })
 }

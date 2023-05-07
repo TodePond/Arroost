@@ -1,5 +1,12 @@
 import { NoganSchema } from "./schema.js"
 
+export const validate = (nogan, schema) => {
+	if (window.shared && !window.shared.debug.validate) {
+		return
+	}
+	schema.validate(nogan)
+}
+
 //========//
 // Family //
 //========//
@@ -33,12 +40,13 @@ export const createPhantom = () => {
 	return NoganSchema.Phantom.make()
 }
 
-export const createChild = (schema, nogan = shared.nogan.current, options = {}) => {
+export const createChild = (schema, parent = shared.nogan.current, options = {}) => {
 	const child = schema.make()
 	Object.assign(child, options)
 
-	addChild(nogan, child)
+	addChild(parent, child)
 	validate(child, schema)
+	//validate(parent, NoganSchema.Parent)
 
 	return child
 }
@@ -54,8 +62,8 @@ export const createChild = (schema, nogan = shared.nogan.current, options = {}) 
 //==========//
 // Changing //
 //==========//
-export const setFiring = (nogan, isFiring) => {
-	nogan.isFiring = isFiring
+export const addPulse = (nogan, pulse) => {
+	nogan.pulses.push(pulse)
 
 	//TODO: update connections (they fire too)
 	//TODO: update children (they tick)

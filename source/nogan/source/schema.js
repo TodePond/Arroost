@@ -56,7 +56,7 @@ N.Wire = N.Child.extend({
 //======//
 // Nods //
 //======//
-N.NodType = S.Enum(["creation"])
+N.NodType = S.Enum(["recording", "creation"])
 N.Nod = N.Child.extend({
 	isNod: S.True,
 	type: N.NodType.withDefault(null), // Default to null so that we force an error if we forget to set it
