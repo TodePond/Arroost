@@ -6,16 +6,15 @@ export const getAudioWorklets = memo(async () => {
 	//await context.audioWorklet.addModule("source/audio/worklets/trim.js")
 })
 
-export const getInputStream = memo(
-	async () =>
-		await navigator.mediaDevices.getUserMedia({
-			audio: {
-				echoCancellation: false,
-				noiseSuppression: false,
-				autoGainControl: false,
-			},
-		}),
-)
+export const getInputStream = memo(async () => {
+	return await navigator?.mediaDevices?.getUserMedia({
+		audio: {
+			echoCancellation: false,
+			noiseSuppression: false,
+			autoGainControl: false,
+		},
+	})
+})
 
 // Warm it up!
 getInputStream()

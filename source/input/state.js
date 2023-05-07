@@ -1,4 +1,4 @@
-import { State as _State } from "../../../libraries/habitat-import.js"
+import { State as _State } from "../../libraries/habitat-import.js"
 import { setCursor } from "./cursor.js"
 
 export const State = class extends _State {

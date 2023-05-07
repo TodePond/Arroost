@@ -4,6 +4,8 @@
 // FROGASAURUS //
 //=============//
 const HabitatFrogasaurus = {}
+const document = window.document || {}
+const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout(v, 0))
 
 //========//
 // SOURCE //

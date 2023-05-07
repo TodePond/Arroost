@@ -4,6 +4,13 @@ export const Schema = class {
 		this.make = make
 	}
 
+	validate(value) {
+		if (!this.check(value)) {
+			console.error(value)
+			throw new Error(`^ Invalid value`)
+		}
+	}
+
 	and(other) {
 		return new Schema({
 			check: (value) => this.check(value) && other.check(value),
@@ -104,15 +111,10 @@ Schema.Any = new Schema({
 	make: () => undefined,
 })
 
-Schema.Struct = (struct) => {
+Schema.PartialStruct = (struct) => {
 	const check = (value) => {
 		for (const key in struct) {
 			if (!struct[key].check(value[key])) {
-				return false
-			}
-		}
-		for (const key in value) {
-			if (!struct[key]) {
 				return false
 			}
 		}
@@ -130,8 +132,27 @@ Schema.Struct = (struct) => {
 	const schema = Schema.Object.andCheck(check).withMake(make)
 	schema.struct = struct
 	schema.extend = (other) => {
-		const extended = { ...struct, ...other }
-		return Schema.Struct(extended)
+		const struct = { ...schema.struct, ...other }
+		return Schema.PartialStruct(struct)
+	}
+	return schema
+}
+
+Schema.Struct = (struct) => {
+	const partial = Schema.PartialStruct(struct)
+	const check = (value) => {
+		for (const key in value) {
+			if (!struct[key]) {
+				return false
+			}
+		}
+		return true
+	}
+	const schema = partial.andCheck(check)
+	schema.struct = struct
+	schema.extend = (other) => {
+		const struct = { ...schema.struct, ...other }
+		return Schema.Struct(struct)
 	}
 	return schema
 }

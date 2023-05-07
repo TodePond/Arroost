@@ -1,17 +1,5 @@
 import { NoganSchema } from "./schema.js"
 
-//============//
-// Validating //
-//============//
-export const validate = (nogan, schema) => {
-	if (!shared.debug.validate) return
-	const result = schema.check(nogan)
-	if (!result) {
-		console.error(nogan)
-		throw new Error(`^ Invalid nogan`)
-	}
-}
-
 //========//
 // Family //
 //========//

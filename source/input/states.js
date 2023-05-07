@@ -37,8 +37,8 @@ export const Hovering = new State({
 	},
 
 	onKeyDown(event) {
-		event.preventDefault()
 		if (event.key.toLowerCase() === "d") {
+			event.preventDefault()
 			return Debugging
 		}
 	},

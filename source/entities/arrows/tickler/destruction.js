@@ -1,4 +1,4 @@
-import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowTickler } from "./tickler.js"

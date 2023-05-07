@@ -1,4 +1,4 @@
-import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Pointing } from "../../../input/states.js"
 import { HALF_INNER_RATIO, INNER_RATIO } from "../../../unit.js"
 import { Ellipse } from "../../shapes/ellipse.js"

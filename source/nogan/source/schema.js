@@ -4,8 +4,10 @@ export const NoganSchema = class extends Schema {}
 const S = Schema
 const N = NoganSchema
 
+//========//
+// Family //
+//========//
 N.Id = S.SafePositiveInteger
-
 N.Parent = S.Struct({
 	isParent: S.True,
 	nextId: N.Id,
@@ -14,16 +16,12 @@ N.Parent = S.Struct({
 		keysOf: N.Id,
 		valuesOf: N.reference("Child"),
 	}),
-	isFiringRed: S.Boolean,
-	isFiringGreen: S.Boolean,
-	isFiringBlue: S.Boolean,
+	pulses: S.ArrayOf(N.reference("Pulse")),
 })
 
 N.Phantom = N.Parent.extend({
 	isPhantom: S.True,
-	isFiringRed: S.True,
-	isFiringGreen: S.True,
-	isFiringBlue: S.True,
+	pulses: S.ArrayOf(N.reference("Pulse")), //TODO: phantom pulses only
 })
 
 N.Child = N.Parent.extend({
@@ -34,30 +32,34 @@ N.Child = N.Parent.extend({
 	inputs: S.ArrayOf(N.reference("Wire")),
 })
 
+//=======//
+// Wires //
+//=======//
 N.Colour = S.Enum(["blue", "green", "red"])
+N.PulseType = S.Enum(["recording", "creation"])
+N.Pulse = S.Struct({
+	colour: N.Colour,
+	type: N.PulseType,
+	data: S.Object,
+})
+
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
 	isWire: S.True,
 	colour: N.Colour,
 	timing: N.Timing,
-	targetLocation: S.Vector2D,
-	input: N.Child.nullable(),
-	output: N.Child.nullable(),
+	targetPosition: S.Vector2D,
+	connectedInput: N.Child.nullable(),
+	connectedOutput: N.Child.nullable(),
 })
 
-N.NodType = S.Enum(["nod", "creation"])
-N.Targetting = S.Enum(["none", "point", "vector"])
-
+//======//
+// Nods //
+//======//
+N.NodType = S.Enum(["creation"])
 N.Nod = N.Child.extend({
 	isNod: S.True,
-	type: N.NodType,
+	type: N.NodType.withDefault(null), // Default to null so that we force an error if we forget to set it
 	pointTargetting: N.Targetting,
 	unitTargetting: N.Targetting,
-})
-
-N.Creation = N.Nod.extend({
-	isCreation: S.True,
-	type: N.NodType.and(S.Value("creation")),
-	pointTargetting: N.Targetting.and(S.Value("point")),
-	unitTargetting: N.Targetting.and(S.Value("vector")),
 })
