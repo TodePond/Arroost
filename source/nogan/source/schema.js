@@ -51,7 +51,7 @@ N.Child = N.Parent.extend({
 //=======//
 // Wires //
 //=======//
-N.Colour = S.Enum(["blue", "green", "red"])
+N.Colour = S.Enum(["all", "blue", "green", "red"])
 N.PulseType = S.Enum(["recording", "creation"])
 
 const pulseStruct = {}
@@ -93,5 +93,6 @@ N.Nod = N.Child.extend({
 	isNod: S.True,
 
 	// Firing
-	type: N.PulseType.withDefault("recording"),
+	type: N.PulseType,
+	colour: N.Colour,
 })

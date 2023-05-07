@@ -1,3 +1,4 @@
+import { fireEvent } from "../../../libraries/habitat-import.js"
 import { NoganSchema } from "./schema.js"
 
 export const validate = (nogan, schema) => {
@@ -48,6 +49,47 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 	validate(parent, NoganSchema[parent.schemaName])
 
 	return child
+}
+
+//=========//
+// Setting //
+//=========//
+export const pulse = (parent, nod, type, colour) => {
+	nod.pulse[type][colour] = true
+	fireEvent("nodpulse", { parent, nod, pulseType: type, colour })
+	for (const id of nod.outputs) {
+		const wire = parent.children[id]
+		if (wire.timing !== "same") {
+			continue
+		}
+		if (wire.colour !== colour) {
+			continue
+		}
+
+		const target = wire.connectedOutput
+		const nextType = type === "recording" ? nod.type : type
+		const nextColour = type === "all" ? wire.colour : colour
+		if (target === null) {
+			fireEvent("wirepulse", {
+				parent,
+				wire,
+				source: nod,
+				targetPosition: wire.targetPosition,
+				pulseType: nextType,
+				colour: nextColour,
+			})
+		} else {
+			pulse(parent, target, nextType, nextColour)
+		}
+	}
+}
+
+export const connectOutput = (nogan, wire) => {
+	//TODO: disconnect wire from previous input if we need to
+	nogan.outputs.push(wire)
+	wire.connectedInput = nogan
+	wire.position = nogan.position
+	//TODO: update firing of the wire, and any outputs
 }
 
 //=========//
