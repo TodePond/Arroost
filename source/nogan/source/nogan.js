@@ -45,7 +45,7 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 
 	addChild(parent, child)
 	validate(child, schema)
-	validate(parent, NoganSchema.Parent) //todo: this shouldn't match parent
+	validate(parent, NoganSchema[parent.schemaName])
 
 	return child
 }
