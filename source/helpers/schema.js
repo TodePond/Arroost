@@ -6,6 +6,7 @@ export const Schema = class {
 
 	validate(value) {
 		if (!this.check(value)) {
+			//console.log(value)
 			throw new Error(`Invalid value ${value}`)
 		}
 	}

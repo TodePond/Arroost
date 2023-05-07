@@ -45,7 +45,7 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 
 	addChild(parent, child)
 	validate(child, schema)
-	//validate(parent, NoganSchema.Parent)
+	validate(parent, NoganSchema.Parent) //todo: this shouldn't match parent
 
 	return child
 }
@@ -64,6 +64,7 @@ export const getTicked = (nogan) => {
 			ticked.children[id] = getTicked(ticked.children[id])
 		}
 	}
+	validate(ticked, NoganSchema.Parent)
 	return ticked
 }
 
