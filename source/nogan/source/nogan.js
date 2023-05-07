@@ -64,7 +64,8 @@ export const getTicked = (nogan) => {
 			ticked.children[id] = getTicked(ticked.children[id])
 		}
 	}
-	validate(ticked, NoganSchema.Parent)
+	const schema = NoganSchema[nogan.schemaName]
+	validate(ticked, schema)
 	return ticked
 }
 

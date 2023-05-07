@@ -9,6 +9,7 @@ const N = NoganSchema
 //========//
 N.Id = S.SafePositiveInteger
 N.Parent = S.Struct({
+	schemaName: S.Value("Parent"),
 	isParent: S.True,
 	nextId: N.Id,
 	freeIds: S.ArrayOf(N.Id),
@@ -20,11 +21,13 @@ N.Parent = S.Struct({
 })
 
 N.Phantom = N.Parent.extend({
+	schemaName: S.Value("Phantom"),
 	isPhantom: S.True,
 	pulse: N.reference("PhantomPulse"),
 })
 
 N.Child = N.Parent.extend({
+	schemaName: S.Value("Child"),
 	isChild: S.True,
 	id: N.Id.withDefault(null),
 	position: S.Vector2D,
@@ -56,6 +59,7 @@ N.PhantomPulse = S.Struct(phantomPulseStruct)
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
+	schemaName: S.Value("Wire"),
 	isWire: S.True,
 	colour: N.Colour,
 	timing: N.Timing,
@@ -68,6 +72,7 @@ N.Wire = N.Child.extend({
 // Nods //
 //======//
 N.Nod = N.Child.extend({
+	schemaName: S.Value("Nod"),
 	isNod: S.True,
 	type: N.PulseType.withDefault("recording"),
 })
