@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import { createChild, createId, freeId } from "../source/nogan.js"
 import { NoganSchema } from "../source/schema.js"
@@ -11,6 +11,7 @@ describe("schema", () => {
 
 	it("validates a child", () => {
 		const child = NoganSchema.Child.make()
+		assertThrows(() => NoganSchema.Child.validate(child))
 		child.id = 0
 		NoganSchema.Child.validate(child)
 	})
