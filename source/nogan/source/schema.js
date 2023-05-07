@@ -9,10 +9,15 @@ const N = NoganSchema
 //========//
 N.Id = S.SafePositiveInteger
 N.Parent = S.Struct({
+	// Meta
 	schemaName: S.Value("Parent"),
 	isParent: S.True,
+
+	// Family
 	nextId: N.Id,
 	freeIds: S.ArrayOf(N.Id),
+
+	// Firing
 	children: S.ObjectWith({
 		keysOf: N.Id,
 		valuesOf: N.reference("Child"),
@@ -21,15 +26,23 @@ N.Parent = S.Struct({
 })
 
 N.Phantom = N.Parent.extend({
+	// Meta
 	schemaName: S.Value("Phantom"),
 	isPhantom: S.True,
+
+	// Firing
 	pulse: N.reference("PhantomPulse"),
 })
 
 N.Child = N.Parent.extend({
+	// Meta
 	schemaName: S.Value("Child"),
 	isChild: S.True,
+
+	// Family
 	id: N.Id.withDefault(null),
+
+	// Firing
 	position: S.Vector2D,
 	outputs: S.ArrayOf(N.reference("Wire")),
 	inputs: S.ArrayOf(N.reference("Wire")),
@@ -59,8 +72,11 @@ N.PhantomPulse = S.Struct(phantomPulseStruct)
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
+	// Meta
 	schemaName: S.Value("Wire"),
 	isWire: S.True,
+
+	// Firing
 	colour: N.Colour,
 	timing: N.Timing,
 	targetPosition: S.Vector2D,
@@ -72,7 +88,10 @@ N.Wire = N.Child.extend({
 // Nods //
 //======//
 N.Nod = N.Child.extend({
+	// Meta
 	schemaName: S.Value("Nod"),
 	isNod: S.True,
+
+	// Firing
 	type: N.PulseType.withDefault("recording"),
 })

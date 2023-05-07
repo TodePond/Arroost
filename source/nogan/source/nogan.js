@@ -76,5 +76,6 @@ export const getTickedPulse = (pulse) => {
 			ticked[type][colour] = false
 		}
 	}
+	validate(ticked, NoganSchema.Pulse)
 	return ticked
 }
