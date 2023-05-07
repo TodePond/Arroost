@@ -194,7 +194,9 @@ Schema.Enum = (values) => {
 		return head
 	}
 
-	return new Schema({ check, make })
+	const schema = new Schema({ check, make })
+	schema.values = values
+	return schema
 }
 
 Schema.Finite = Schema.Number.withCheck((value) => Number.isFinite(value))

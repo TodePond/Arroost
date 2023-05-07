@@ -16,12 +16,12 @@ N.Parent = S.Struct({
 		keysOf: N.Id,
 		valuesOf: N.reference("Child"),
 	}),
-	pulses: S.ArrayOf(N.reference("Pulse")),
+	pulse: N.reference("Pulse"),
 })
 
 N.Phantom = N.Parent.extend({
 	isPhantom: S.True,
-	pulses: S.ArrayOf(N.reference("Pulse")), //TODO: phantom pulses only
+	pulse: N.reference("Pulse"), //TODO: phantom pulses only
 })
 
 N.Child = N.Parent.extend({
@@ -37,11 +37,17 @@ N.Child = N.Parent.extend({
 //=======//
 N.Colour = S.Enum(["blue", "green", "red"])
 N.PulseType = S.Enum(["recording", "creation"])
-N.Pulse = S.Struct({
-	colour: N.Colour,
-	type: N.PulseType,
-	data: S.Object,
-})
+
+const pulseStruct = {}
+for (const type of N.PulseType.values) {
+	const pulseTypeStruct = {}
+	for (const colour of N.Colour.values) {
+		pulseTypeStruct[colour] = S.Boolean
+	}
+	pulseStruct[type] = S.Struct(pulseTypeStruct)
+}
+
+N.Pulse = S.Struct(pulseStruct)
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
@@ -49,8 +55,8 @@ N.Wire = N.Child.extend({
 	colour: N.Colour,
 	timing: N.Timing,
 	targetPosition: S.Vector2D,
-	connectedInput: N.Child.nullable(),
-	connectedOutput: N.Child.nullable(),
+	connectedInput: N.Id.nullable(),
+	connectedOutput: N.Id.nullable(),
 })
 
 //======//
