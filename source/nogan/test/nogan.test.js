@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
-import { createChild, createId, freeId } from "../source/nogan.js"
+import { createChild, createId, freeId, getTicked } from "../source/nogan.js"
 import { NoganSchema } from "../source/schema.js"
 
 describe("schema", () => {
@@ -65,5 +65,26 @@ describe("family", () => {
 		const parent = NoganSchema.Parent.make()
 		const child = createChild(NoganSchema.Child, parent)
 		assertEquals(parent.children[child.id], child)
+	})
+})
+
+describe("tick", () => {
+	it("ticks pulse", () => {
+		const parent = NoganSchema.Parent.make()
+		assertEquals(parent.pulse.recording.blue, false)
+		parent.pulse.recording.blue = true
+		assertEquals(parent.pulse.recording.blue, true)
+		const ticked = getTicked(parent)
+		assertEquals(ticked.pulse.recording.blue, false)
+	})
+
+	it("ticks children", () => {
+		const parent = NoganSchema.Parent.make()
+		parent.pulse.recording.blue = true
+		const child = createChild(NoganSchema.Child, parent)
+		child.pulse.recording.blue = true
+		const ticked = getTicked(parent)
+		const tickedChild = ticked.children[child.id]
+		assertEquals(tickedChild.pulse.recording.blue, false)
 	})
 })

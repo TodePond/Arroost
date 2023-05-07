@@ -35,7 +35,6 @@ export const addChild = (nogan, child) => {
 // Creating //
 //==========//
 // Just creating a nogan within a nogan
-
 export const createPhantom = () => {
 	return NoganSchema.Phantom.make()
 }
@@ -51,31 +50,29 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 	return child
 }
 
-//==========//
-// Spawning //
-//==========//
-// Creating a nogan (as above) - and also making a UI element for it
-
-//TODO: create a nod
-//TODO: create a wire
-
-//==========//
-// Changing //
-//==========//
-export const addPulse = (nogan, pulse) => {
-	nogan.pulses.push(pulse)
-
-	//TODO: update connections (they fire too)
-	//TODO: update children (they tick)
-}
-
-export const setPosition = (nogan, position) => {
-	nogan.position = position
-
-	//TODO: update existing connections (they stay stuck to me)
-	//TODO: update any new connections (they might stick to me)
-}
-
 //=========//
 // Ticking //
 //=========//
+export const getTicked = (nogan) => {
+	const ticked = JSON.parse(JSON.stringify(nogan))
+	if (nogan.isParent) {
+		if (!nogan.isPhantom) {
+			ticked.pulse = getTickedPulse(ticked.pulse)
+		}
+
+		for (const id in ticked.children) {
+			ticked.children[id] = getTicked(ticked.children[id])
+		}
+	}
+	return ticked
+}
+
+export const getTickedPulse = (pulse) => {
+	const ticked = JSON.parse(JSON.stringify(pulse))
+	for (const type in pulse) {
+		for (const colour in pulse[type]) {
+			ticked[type][colour] = false
+		}
+	}
+	return ticked
+}
