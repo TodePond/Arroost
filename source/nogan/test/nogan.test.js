@@ -15,6 +15,25 @@ describe("schema", () => {
 		child.id = 0
 		NoganSchema.Child.validate(child)
 	})
+
+	it("validates a phantom", () => {
+		const phantom = NoganSchema.Phantom.make()
+		NoganSchema.Phantom.validate(phantom)
+	})
+
+	it("validates a wire", () => {
+		const wire = NoganSchema.Wire.make()
+		assertThrows(() => NoganSchema.Wire.validate(wire))
+		wire.id = 0
+		NoganSchema.Wire.validate(wire)
+	})
+
+	it("validates a nod", () => {
+		const nod = NoganSchema.Nod.make()
+		assertThrows(() => NoganSchema.Nod.validate(nod))
+		nod.id = 0
+		NoganSchema.Nod.validate(nod)
+	})
 })
 
 describe("id", () => {

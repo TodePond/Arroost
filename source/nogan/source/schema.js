@@ -21,7 +21,7 @@ N.Parent = S.Struct({
 
 N.Phantom = N.Parent.extend({
 	isPhantom: S.True,
-	pulse: N.reference("Pulse"), //TODO: phantom pulses only
+	pulse: N.reference("PhantomPulse"),
 })
 
 N.Child = N.Parent.extend({
@@ -39,15 +39,20 @@ N.Colour = S.Enum(["blue", "green", "red"])
 N.PulseType = S.Enum(["recording", "creation"])
 
 const pulseStruct = {}
+const phantomPulseStruct = {}
 for (const type of N.PulseType.values) {
 	const pulseTypeStruct = {}
+	const phantomPulseTypeStruct = {}
 	for (const colour of N.Colour.values) {
 		pulseTypeStruct[colour] = S.Boolean
+		phantomPulseTypeStruct[colour] = type === "recording" ? S.True : S.False
 	}
 	pulseStruct[type] = S.Struct(pulseTypeStruct)
+	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
 }
 
 N.Pulse = S.Struct(pulseStruct)
+N.PhantomPulse = S.Struct(phantomPulseStruct)
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
@@ -62,10 +67,7 @@ N.Wire = N.Child.extend({
 //======//
 // Nods //
 //======//
-N.NodType = S.Enum(["recording", "creation"])
 N.Nod = N.Child.extend({
 	isNod: S.True,
-	type: N.NodType.withDefault(null), // Default to null so that we force an error if we forget to set it
-	pointTargetting: N.Targetting,
-	unitTargetting: N.Targetting,
+	type: N.PulseType.withDefault("recording"),
 })
