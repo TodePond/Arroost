@@ -29,15 +29,19 @@ export const freeId = (nogan, id) => {
 	nogan.freeIds.push(id)
 }
 
-export const addChild = (nogan, child) => {
+// This function is dangerous, and should only be used by smarter helper functions.
+// All it does is add something to the nogan.
+// It doesn't trigger any behaviours that should happen.
+// This should be done by the helper functions themselves.
+export const addChild = (nogan, child, { validates = true } = {}) => {
 	const id = createId(nogan)
 	child.id = id
 	nogan.children[id] = child
 
-	validate(child)
-	validate(nogan)
-
-	//TODO: update stuff!
+	if (validates) {
+		validate(child)
+		validate(nogan)
+	}
 
 	return nogan
 }
@@ -50,17 +54,28 @@ export const createPhantom = () => {
 	return phantom
 }
 
-export const createNod = (parent, options = {}) => {
+export const createNod = (parent) => {
 	const nod = NoganSchema.Nod.make()
-	Object.assign(nod, options)
 	addChild(parent, nod)
 	return nod
 }
 
-export const createWire = (parent, options = {}) => {
+export const createWire = (parent, { source, target, colour = "all", timing = "same" } = {}) => {
 	const wire = NoganSchema.Wire.make()
-	Object.assign(wire, options)
+	wire.source = source
+	wire.target = target
+	wire.colour = colour
+	wire.timing = timing
 	addChild(parent, wire)
+
+	const sourceNogan = parent.children[source]
+	const targetNogan = parent.children[target]
+	sourceNogan.outputs.push(wire.id)
+	targetNogan.inputs.push(wire.id)
+
+	validate(sourceNogan)
+	validate(targetNogan)
+
 	return wire
 }
 
@@ -93,11 +108,10 @@ export const fire = (parent, { source, target, type = "any", colour = "all" } = 
 		if (colour !== "all" && wire.colour !== colour) continue
 
 		const nextTarget = wire.target
-		const nextType = type === "any" ? target.type : type
+		const nextType = type === "any" ? targetNogan.type : type
 		const nextColour = type === "all" ? wire.colour : colour
 
-		fire({
-			parent,
+		fire(parent, {
 			source: target,
 			target: nextTarget,
 			type: nextType,

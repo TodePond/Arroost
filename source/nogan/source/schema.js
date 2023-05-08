@@ -78,8 +78,8 @@ N.Nod = N.Parent.extend({
 	isNod: S.True,
 
 	// Wiring
-	outputs: S.ArrayOf(N.reference("Wire")),
-	inputs: S.ArrayOf(N.reference("Wire")),
+	outputs: S.ArrayOf(N.Id),
+	inputs: S.ArrayOf(N.Id),
 
 	// Pulse
 	pulse: N.reference("Pulse"),
