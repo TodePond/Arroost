@@ -1,7 +1,15 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals, assertNotEquals } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
-import { createId, freeId } from "../source/nogan.js"
-import { advance, createNod, createPhantom, createWire, pulse } from "../source/sugar.js"
+import {
+	advance,
+	createId,
+	createNod,
+	createPhantom,
+	createWire,
+	fire,
+	freeId,
+	project,
+} from "../source/nogan.js"
 
 describe("id", () => {
 	it("gets a new id", () => {
@@ -53,36 +61,56 @@ describe("wire", () => {
 })
 
 describe("tick", () => {
-	it("nod ticks", () => {
+	it("ends pulses", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		pulse(phantom, { target: nod.id })
+		fire(phantom, { target: nod.id })
 		assertEquals(nod.pulse.any.all, true)
-		const advanced = advance(nod)
-		assertEquals(advanced.pulse.any.all, false)
+		advance(phantom)
+		assertEquals(nod.pulse.any.all, false)
 	})
 
-	it("phantom ticks children", () => {
+	it("ticks children", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		pulse(phantom, { target: nod.id })
-		assertEquals(phantom.children[nod.id].pulse.any.all, true)
-		const advanced = advance(phantom)
-		assertEquals(advanced.children[nod.id].pulse.any.all, false)
+		fire(phantom, { target: nod.id })
+		assertEquals(nod.pulse.any.all, true)
+		advance(phantom)
+		assertEquals(nod.pulse.any.all, false)
+	})
+
+	it("ticks children recursively", () => {
+		// const phantom = createPhantom()
+		// const nod = createNod(phantom)
+		// const deepNode = createNod(nod)
+		// const pulsedNod = projectPulse(nod, { target: deepNode.id })
+	})
+})
+
+describe("project", () => {
+	it("clones", () => {
+		const phantom = createPhantom()
+		const projected = project(phantom)
+		assertEquals(projected, phantom)
+		createNod(phantom)
+		assertNotEquals(projected, phantom)
+	})
+
+	it("applies operations", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const projected = project(phantom, (v) => fire(v, { target: nod.id }))
+		assertEquals(phantom.children[nod.id].pulse.any.all, false)
+		assertEquals(projected.children[nod.id].pulse.any.all, true)
 	})
 })
 
 describe("pulse", () => {
-	it("fires a pulse event", () => {
+	it("pulses", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		let fired = false
-		const onPulse = () => {
-			fired = true
-		}
-		addEventListener("pulse", onPulse)
-		pulse(phantom, { target: nod.id })
-		assertEquals(fired, true)
-		removeEventListener("pulse", onPulse)
+		assertEquals(nod.pulse.any.all, false)
+		fire(phantom, { target: nod.id })
+		assertEquals(nod.pulse.any.all, true)
 	})
 })

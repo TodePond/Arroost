@@ -69,9 +69,9 @@ for (const type of N.PulseType.values) {
 N.Pulse = S.Struct(pulseStruct)
 N.PhantomPulse = S.Struct(phantomPulseStruct)
 
-//======//
-// Nods //
-//======//
+//=====//
+// Nod //
+//=====//
 N.Nod = N.Parent.extend({
 	// Meta
 	schemaName: S.Value("Nod"),
