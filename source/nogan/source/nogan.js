@@ -54,10 +54,13 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 //=========//
 // Setting //
 //=========//
-export const pulse = (parent, nod, pulseType, colour) => {
-	nod.pulse[pulseType][colour] = true
-	fireEvent("pulse", { parent, nod, pulseType, colour })
-	for (const id of nod.outputs) {
+export const pulse = ({ parent, source, target, type = "any", colour = "all" } = {}) => {
+	if (target.pulse[type][colour]) {
+		return
+	}
+	target.pulse[type][colour] = true
+	fireEvent("pulse", { detail: { parent, source, target, type, colour } })
+	for (const id of target.outputs) {
 		const wire = parent.children[id]
 		if (wire.timing !== "same") {
 			continue
@@ -66,11 +69,17 @@ export const pulse = (parent, nod, pulseType, colour) => {
 			continue
 		}
 
-		const target = wire.connectedOutput
-		const nextType = pulseType === "recording" ? nod.pulseType : pulseType
-		const nextColour = pulseType === "all" ? wire.colour : colour
+		const nextTarget = wire.connectedOutput
+		const nextType = type === "any" ? target.type : type
+		const nextColour = type === "all" ? wire.colour : colour
 
-		pulse(parent, target, nextType, nextColour)
+		pulse({
+			parent,
+			source: target,
+			target: nextTarget,
+			type: nextType,
+			colour: nextColour,
+		})
 	}
 }
 
@@ -86,7 +95,7 @@ export const connectOutput = (nogan, wire) => {
 // Ticking //
 //=========//
 export const getTicked = (nogan) => {
-	const ticked = JSON.parse(JSON.stringify(nogan))
+	const ticked = structuredClone(nogan)
 	if (nogan.isParent) {
 		if (!nogan.isPhantom) {
 			ticked.pulse = getTickedPulse(ticked.pulse)
@@ -102,7 +111,7 @@ export const getTicked = (nogan) => {
 }
 
 export const getTickedPulse = (pulse) => {
-	const ticked = JSON.parse(JSON.stringify(pulse))
+	const ticked = structuredClone(pulse)
 	for (const type in pulse) {
 		for (const colour in pulse[type]) {
 			ticked[type][colour] = false

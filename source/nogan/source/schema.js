@@ -52,7 +52,7 @@ N.Child = N.Parent.extend({
 // Wires //
 //=======//
 N.Colour = S.Enum(["all", "blue", "green", "red"])
-N.PulseType = S.Enum(["recording", "creation"])
+N.PulseType = S.Enum(["any", "creation"])
 
 const pulseStruct = {}
 const phantomPulseStruct = {}
@@ -61,7 +61,7 @@ for (const type of N.PulseType.values) {
 	const phantomPulseTypeStruct = {}
 	for (const colour of N.Colour.values) {
 		pulseTypeStruct[colour] = S.Boolean
-		phantomPulseTypeStruct[colour] = type === "recording" ? S.True : S.False
+		phantomPulseTypeStruct[colour] = type === "any" ? S.True : S.False
 	}
 	pulseStruct[type] = S.Struct(pulseTypeStruct)
 	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
@@ -92,6 +92,6 @@ N.Nod = N.Child.extend({
 	isNod: S.True,
 
 	// Firing
-	pulseType: N.PulseType,
+	type: N.PulseType,
 	colour: N.Colour,
 })

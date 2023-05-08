@@ -71,21 +71,21 @@ describe("family", () => {
 describe("tick", () => {
 	it("ticks pulse", () => {
 		const parent = NoganSchema.Parent.make()
-		assertEquals(parent.pulse.recording.blue, false)
-		parent.pulse.recording.blue = true
-		assertEquals(parent.pulse.recording.blue, true)
+		assertEquals(parent.pulse.any.blue, false)
+		parent.pulse.any.blue = true
+		assertEquals(parent.pulse.any.blue, true)
 		const ticked = getTicked(parent)
-		assertEquals(ticked.pulse.recording.blue, false)
+		assertEquals(ticked.pulse.any.blue, false)
 	})
 
 	it("ticks children", () => {
 		const parent = NoganSchema.Parent.make()
-		parent.pulse.recording.blue = true
+		parent.pulse.any.blue = true
 		const child = createChild(NoganSchema.Child, parent)
-		child.pulse.recording.blue = true
+		child.pulse.any.blue = true
 		const ticked = getTicked(parent)
 		const tickedChild = ticked.children[child.id]
-		assertEquals(tickedChild.pulse.recording.blue, false)
+		assertEquals(tickedChild.pulse.any.blue, false)
 	})
 })
 
@@ -97,14 +97,14 @@ describe("pulse", () => {
 		let clock = 0
 		const onPulse = (event) => {
 			clock++
-			assertEquals(event.pulseType, "recording")
-			assertEquals(event.colour, "all")
-			assertEquals(event.wire, undefined)
-			assertEquals(event.nod, nod)
-			assertEquals(event.parent, phantom)
+			const { detail } = event
+			assertEquals(detail.type, "any")
+			assertEquals(detail.colour, "all")
+			assertEquals(detail.target, nod)
+			assertEquals(detail.parent, phantom)
 		}
 		addEventListener("pulse", onPulse)
-		pulse(phantom, nod, "recording", "all")
+		pulse({ parent: phantom, target: nod })
 		assertEquals(clock, 1)
 		removeEventListener("pulse", onPulse)
 	})
