@@ -103,38 +103,9 @@ describe("pulse", () => {
 			assertEquals(event.nod, nod)
 			assertEquals(event.parent, phantom)
 		}
-		addEventListener("nodpulse", onPulse)
+		addEventListener("pulse", onPulse)
 		pulse(phantom, nod, "recording", "all")
 		assertEquals(clock, 1)
-		removeEventListener("nodpulse", onPulse)
-	})
-
-	it("fires disconnected pulse event", () => {
-		const phantom = NoganSchema.Phantom.make()
-
-		const nod = NoganSchema.Nod.make()
-		addChild(phantom, nod)
-
-		const wire = NoganSchema.Wire.make()
-		addChild(phantom, wire)
-
-		nod.outputs.push(wire.id)
-		wire.connectedInput = nod
-
-		let clock = 0
-		const onPulse = (event) => {
-			if (event.wire !== wire) return
-			clock++
-			assertEquals(event.pulseType, "recording")
-			assertEquals(event.colour, "all")
-			assertEquals(event.wire, wire)
-			assertEquals(event.source, nod)
-			assertEquals(event.targetPosition, [0, 0])
-			assertEquals(event.parent, phantom)
-		}
-		addEventListener("wirepulse", onPulse)
-		pulse(phantom, nod, "recording", "all")
-		assertEquals(clock, 1)
-		removeEventListener("wirepulse", onPulse)
+		removeEventListener("pulse", onPulse)
 	})
 })

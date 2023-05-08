@@ -54,9 +54,9 @@ export const createChild = (schema, parent = shared.nogan.current, options = {})
 //=========//
 // Setting //
 //=========//
-export const pulse = (parent, nod, type, colour) => {
-	nod.pulse[type][colour] = true
-	fireEvent("nodpulse", { parent, nod, pulseType: type, colour })
+export const pulse = (parent, nod, pulseType, colour) => {
+	nod.pulse[pulseType][colour] = true
+	fireEvent("pulse", { parent, nod, pulseType, colour })
 	for (const id of nod.outputs) {
 		const wire = parent.children[id]
 		if (wire.timing !== "same") {
@@ -67,20 +67,10 @@ export const pulse = (parent, nod, type, colour) => {
 		}
 
 		const target = wire.connectedOutput
-		const nextType = type === "recording" ? nod.type : type
-		const nextColour = type === "all" ? wire.colour : colour
-		if (target === null) {
-			fireEvent("wirepulse", {
-				parent,
-				wire,
-				source: nod,
-				targetPosition: wire.targetPosition,
-				pulseType: nextType,
-				colour: nextColour,
-			})
-		} else {
-			pulse(parent, target, nextType, nextColour)
-		}
+		const nextType = pulseType === "recording" ? nod.pulseType : pulseType
+		const nextColour = pulseType === "all" ? wire.colour : colour
+
+		pulse(parent, target, nextType, nextColour)
 	}
 }
 

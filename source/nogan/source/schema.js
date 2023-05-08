@@ -79,9 +79,8 @@ N.Wire = N.Child.extend({
 	// Firing
 	colour: N.Colour,
 	timing: N.Timing,
-	targetPosition: S.Vector2D,
-	connectedInput: N.Id.nullable(),
-	connectedOutput: N.Id.nullable(),
+	connectedInput: N.Id,
+	connectedOutput: N.Id,
 })
 
 //======//
@@ -93,6 +92,6 @@ N.Nod = N.Child.extend({
 	isNod: S.True,
 
 	// Firing
-	type: N.PulseType,
+	pulseType: N.PulseType,
 	colour: N.Colour,
 })
