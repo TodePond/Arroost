@@ -40,3 +40,7 @@ To run the tests, run:
 ```
 deno test --watch .
 ```
+
+## How does it all work?
+
+It's a secret.
