@@ -82,45 +82,106 @@ export const createWire = (parent, { source, target, colour = "all", timing = "n
 //========//
 // Firing //
 //========//
-export const fire = (parent, { source, target, type = "any", colour = "all" } = {}) => {
+export const fire = (parent, { source, child, type = "any", colour = "all" } = {}) => {
 	// If the target is already pulsed, then we don't need to do anything.
-	const targetNogan = parent.children[target]
-	if (targetNogan.pulse[type][colour]) {
+	const childNogan = parent.children[child]
+	if (childNogan.pulse[type][colour]) {
 		return parent
 	}
 
 	// Update the target and fire an event.
-	targetNogan.pulse[type][colour] = true
+	childNogan.pulse[type][colour] = true
 	fireEvent("pulse", {
 		detail: {
 			parent,
 			source,
-			target,
+			child,
 			type,
 			colour,
 		},
 	})
 
+	const transformedType = type === "any" && childNogan.type !== "any" ? childNogan.type : type
+
 	// Spread the pulse to connected nogans.
-	for (const id of targetNogan.outputs) {
-		const wire = parent.children[id]
-		if (wire.timing !== "now") continue
-		if (colour !== "all" && wire.colour !== colour) continue
+	for (const outputId of childNogan.outputs) {
+		const outputNogan = parent.children[outputId]
+		if (colour !== "all" && outputNogan.colour !== colour) continue
 
-		const nextTarget = wire.target
-		const nextType = type === "any" ? targetNogan.type : type
-		const nextColour = type === "all" ? wire.colour : colour
-
-		fire(parent, {
-			source: target,
-			target: nextTarget,
-			type: nextType,
-			colour: nextColour,
+		const { target } = outputNogan
+		const targetNogan = parent.children[target]
+		const shouldFire = evaluateFire(parent, {
+			child: targetNogan.id,
+			history: [],
+			type: transformedType,
+			colour,
 		})
+
+		if (shouldFire) {
+			fire(parent, {
+				source: childNogan.id,
+				child: targetNogan.id,
+				type: transformedType,
+				colour,
+			})
+		}
 	}
 
 	validate(parent)
 	return parent
+}
+
+export const evaluateFire = (
+	parent,
+	{ child, history = [], type = "any", colour = "all" } = {},
+) => {
+	const childNogan = parent.children[child]
+
+	// If the child is already firing, then we don't need to do anything.
+	if (childNogan.pulse[type][colour]) {
+		return true
+	}
+
+	// If the child is not firing, then we need to check if it should be
+	// Let's loop through all its inputs to find out!
+	for (const inputId of childNogan.inputs) {
+		const inputNogan = parent.children[inputId]
+		const source = inputNogan.source
+		const sourceNogan = parent.children[source]
+
+		// If the input is simultaneous, just check if it's firing right now.
+		if (inputNogan.timing === "now") {
+			const shouldFire = evaluateFire(parent, {
+				child: sourceNogan.id,
+				history,
+				type,
+				colour,
+			})
+			if (shouldFire) return true
+		}
+
+		// If the input is delayed, we need to check if it fired in the past.
+		// We do this by checking the history.
+		// Note: We might not have a long enough history to check. That's ok!
+		else if (inputNogan.timing === "after") {
+			const [parentBefore, ...rest] = history
+			if (parentBefore) {
+				const shouldFire = evaluateFire(parentBefore, {
+					child: sourceNogan.id,
+					history: rest,
+					type,
+					colour,
+				})
+				if (shouldFire) return true
+			}
+		}
+
+		// If the input is early, we need to check if it will fire in the future.
+		// We do this by checking the future.
+		else if (inputNogan.timing === "before") {
+			const parentAfter = project(parent, advance)
+		}
+	}
 }
 
 //=========//
@@ -142,23 +203,35 @@ export const advance = (parent) => {
 			for (const colour in pulseBefore[type]) {
 				// If a child is firing...
 				// - Put out the fire!
-				// - Advance it!
+				// - Advance its children too!
 				if (pulseBefore[type][colour]) {
 					pulseNow[type][colour] = false
 					advance(childNow)
 				}
+			}
+		}
+	}
 
-				// Should the child fire on the next tick?
-				// Let's look through its inputs
-				for (const inputId of childBefore.inputs) {
-					const inputBefore = parentBefore.children[inputId]
-					if (inputBefore.timing === "now") continue
-					if (inputBefore.timing === "after") {
-						const sourceBefore = parentBefore.children[inputBefore.source]
-						if (sourceBefore.pulse[type][colour]) {
-							pulseNow[type][colour] = true
-						}
-					}
+	// Now that we've put out all fires...
+	// Let's check if any children should be firing.
+	for (const childId in parentNow.children) {
+		const childNow = parentNow.children[childId]
+
+		for (const type in childNow.pulse) {
+			for (const colour in childNow.pulse[type]) {
+				const shouldFire = evaluateFire(parentNow, {
+					child: childNow.id,
+					history: [parentBefore],
+					type,
+					colour,
+				})
+				if (shouldFire) {
+					fire(parentNow, {
+						source: parentNow.id,
+						child: childNow.id,
+						type,
+						colour,
+					})
 				}
 			}
 		}
@@ -171,8 +244,8 @@ export const advance = (parent) => {
 //=========//
 // Project //
 //=========//
-export const project = (nogan, func = () => {}) => {
+export const project = (nogan, func = () => {}, args = []) => {
 	const projected = structuredClone(nogan)
-	func(projected)
+	func(projected, args)
 	return projected
 }
