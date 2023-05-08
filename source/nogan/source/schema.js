@@ -7,45 +7,30 @@ const N = NoganSchema
 //========//
 // Family //
 //========//
-N.Id = S.SafePositiveInteger
-N.Parent = S.Struct({
-	// Meta
-	schemaName: S.Value("Parent"),
-	isParent: S.True,
-
-	// Family
-	nextId: N.Id,
-	freeIds: S.ArrayOf(N.Id),
-
-	// Firing
-	children: S.ObjectWith({
-		keysOf: N.Id,
-		valuesOf: N.reference("Child"),
-	}),
-	pulse: N.reference("Pulse"),
-})
-
-N.Phantom = N.Parent.extend({
-	// Meta
-	schemaName: S.Value("Phantom"),
-	isPhantom: S.True,
-
-	// Firing
-	pulse: N.reference("PhantomPulse"),
-})
-
-N.Child = N.Parent.extend({
+N.Id = S.SafePositiveInteger.withDefault(null)
+N.Child = N.Struct({
 	// Meta
 	schemaName: S.Value("Child"),
 	isChild: S.True,
 
 	// Family
 	id: N.Id.withDefault(null),
+})
+
+N.Parent = N.Child.extend({
+	// Meta
+	schemaName: S.Value("Parent"),
+	isParent: S.True,
+
+	// Family
+	nextId: N.Id.withDefault(0),
+	freeIds: S.ArrayOf(N.Id),
 
 	// Firing
-	position: S.Vector2D,
-	outputs: S.ArrayOf(N.reference("Wire")),
-	inputs: S.ArrayOf(N.reference("Wire")),
+	children: S.ObjectWith({
+		keysOf: N.Id,
+		valuesOf: N.reference("Nod"),
+	}),
 })
 
 //=======//
@@ -67,8 +52,14 @@ for (const type of N.PulseType.values) {
 	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
 }
 
-N.Pulse = S.Struct(pulseStruct)
-N.PhantomPulse = S.Struct(phantomPulseStruct)
+N.Pulse = S.Struct({
+	schemaName: S.Value("Pulse"),
+	...pulseStruct,
+})
+N.PhantomPulse = S.Struct({
+	schemaName: S.Value("PhantomPulse"),
+	...phantomPulseStruct,
+})
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
@@ -76,22 +67,42 @@ N.Wire = N.Child.extend({
 	schemaName: S.Value("Wire"),
 	isWire: S.True,
 
-	// Firing
+	// Connection
 	colour: N.Colour,
 	timing: N.Timing,
-	connectedInput: N.Id,
-	connectedOutput: N.Id,
+	source: N.Id,
+	target: N.Id,
 })
 
 //======//
 // Nods //
 //======//
-N.Nod = N.Child.extend({
+N.Nod = N.Parent.extend({
 	// Meta
 	schemaName: S.Value("Nod"),
 	isNod: S.True,
 
-	// Firing
+	// Pulse
+	pulse: N.reference("Pulse"),
+
+	// Pulse Modifiers
 	type: N.PulseType,
 	colour: N.Colour,
+
+	// Connection
+	position: S.Vector2D,
+	outputs: S.ArrayOf(N.reference("Wire")),
+	inputs: S.ArrayOf(N.reference("Wire")),
+})
+
+N.Phantom = N.Nod.extend({
+	// Meta
+	schemaName: S.Value("Phantom"),
+	isPhantom: S.True,
+
+	// Family
+	id: S.Value(-1),
+
+	// Firing
+	pulse: N.reference("PhantomPulse"),
 })

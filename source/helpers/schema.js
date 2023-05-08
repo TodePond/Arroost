@@ -1,13 +1,13 @@
 export const Schema = class {
-	constructor({ check, make } = {}) {
+	constructor({ check, make, diagnose } = {}) {
 		this.check = check
 		this.make = make
+		this.diagnose = diagnose || ((value) => value)
 	}
 
 	validate(value) {
 		if (!this.check(value)) {
-			//console.log(value)
-			throw new Error(`Invalid value ${value}`)
+			throw new Error(`Invalid value ^`)
 		}
 	}
 
@@ -15,6 +15,12 @@ export const Schema = class {
 		return new Schema({
 			check: (value) => this.check(value) && other.check(value),
 			make: other.make || this.make,
+			diagnose: (value) => {
+				if (!this.check(value)) {
+					return this.diagnose(value)
+				}
+				return other.diagnose(value)
+			},
 		})
 	}
 
@@ -22,6 +28,12 @@ export const Schema = class {
 		return new Schema({
 			check: (value) => this.check(value) || other.check(value),
 			make: this.make,
+			diagnose: (value) => {
+				if (!this.check(value)) {
+					return this.diagnose(value)
+				}
+				return other.diagnose(value)
+			},
 		})
 	}
 
@@ -35,6 +47,7 @@ export const Schema = class {
 		return new Schema({
 			check: this.check,
 			make,
+			diagnose: this.diagnose,
 		})
 	}
 
@@ -42,6 +55,7 @@ export const Schema = class {
 		return new Schema({
 			check,
 			make: this.make,
+			diagnose: this.diagnose,
 		})
 	}
 
@@ -49,6 +63,7 @@ export const Schema = class {
 		return new Schema({
 			check: (value) => this.check(value) && check(value),
 			make: this.make,
+			diagnose: this.diagnose,
 		})
 	}
 
@@ -56,6 +71,15 @@ export const Schema = class {
 		return new Schema({
 			check: this.check,
 			make: () => defaultValue,
+			diagnose: this.diagnose,
+		})
+	}
+
+	withDiagnose(diagnose) {
+		return new Schema({
+			check: this.check,
+			make: this.make,
+			diagnose,
 		})
 	}
 
@@ -67,6 +91,7 @@ export const Schema = class {
 		return new Schema({
 			check: (value) => this[key].check(value),
 			make: () => this[key].make(),
+			diagnose: (value) => this[key].diagnose(value),
 		})
 	}
 }
@@ -144,7 +169,15 @@ Schema.PartialStruct = (struct) => {
 		return object
 	}
 
-	const schema = Schema.Object.andCheck(check).withMake(make)
+	const diagnose = (value) => {
+		for (const key in struct) {
+			if (!struct[key].check(value[key])) {
+				return [key, struct[key]?.diagnose?.(value[key])]
+			}
+		}
+	}
+
+	const schema = Schema.Object.andCheck(check).withMake(make).withDiagnose(diagnose)
 	schema.struct = struct
 	schema.extend = (other) => {
 		const struct = { ...schema.struct, ...other }
@@ -245,8 +278,18 @@ Schema.ObjectWith = ({ keysOf = Schema.Any, valuesOf = Schema.Any } = {}) => {
 		}
 		return true
 	}
+	const diagnose = (value) => {
+		for (const key in value) {
+			if (!stringKeysOf.check(key)) {
+				return stringKeysOf.diagnose(key)
+			}
+			if (!valuesOf.check(value[key])) {
+				return [key, valuesOf.diagnose(value[key])]
+			}
+		}
+	}
 
-	return Schema.Object.andCheck(check)
+	return Schema.Object.andCheck(check).withDiagnose(diagnose)
 }
 
 Schema.Stringified = (schema) => {

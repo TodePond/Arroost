@@ -1,11 +1,16 @@
 import { fireEvent } from "../../../libraries/habitat-import.js"
 import { NoganSchema } from "./schema.js"
 
-export const validate = (nogan, schema) => {
+export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
 	if (window.shared && !window.shared.debug.validate) {
 		return
 	}
-	schema.validate(nogan)
+	try {
+		schema.validate(nogan)
+	} catch (error) {
+		console.error(schema.diagnose(nogan))
+		throw error
+	}
 }
 
 //========//
@@ -29,27 +34,15 @@ export const addChild = (nogan, child) => {
 	child.id = id
 	nogan.children[id] = child
 
+	//validate(child)
+	//validate(nogan)
+
 	//TODO: update connections (they might stick to the new child)
 }
 
 //==========//
 // Creating //
 //==========//
-// Just creating a nogan within a nogan
-export const createPhantom = () => {
-	return NoganSchema.Phantom.make()
-}
-
-export const createChild = (schema, parent = shared.nogan.current, options = {}) => {
-	const child = schema.make()
-	Object.assign(child, options)
-
-	addChild(parent, child)
-	validate(child, schema)
-	validate(parent, NoganSchema[parent.schemaName])
-
-	return child
-}
 
 //=========//
 // Setting //
@@ -83,12 +76,22 @@ export const pulse = ({ parent, source, target, type = "any", colour = "all" } =
 	}
 }
 
-export const connectOutput = (nogan, wire) => {
+export const connectOutput = (nod, wire) => {
 	//TODO: disconnect wire from previous input if we need to
-	nogan.outputs.push(wire)
-	wire.connectedInput = nogan
-	wire.position = nogan.position
+	nod.outputs.push(wire)
+	wire.source = nod
 	//TODO: update firing of the wire, and any outputs
+}
+
+export const connectInput = (nod, wire) => {
+	//TODO: disconnect wire from previous output if we need to
+	nod.inputs.push(wire)
+	wire.target = nod
+	//TODO: update firing of the nod, and any outputs
+}
+
+export const connectSource = (wire, source) => {
+	return connectOutput(source, wire)
 }
 
 //=========//
@@ -105,18 +108,21 @@ export const getTicked = (nogan) => {
 			ticked.children[id] = getTicked(ticked.children[id])
 		}
 	}
-	const schema = NoganSchema[nogan.schemaName]
-	validate(ticked, schema)
+
+	validate(ticked)
 	return ticked
 }
 
 export const getTickedPulse = (pulse) => {
 	const ticked = structuredClone(pulse)
 	for (const type in pulse) {
+		if (type === "schemaName") {
+			continue
+		}
 		for (const colour in pulse[type]) {
 			ticked[type][colour] = false
 		}
 	}
-	validate(ticked, NoganSchema.Pulse)
+	validate(ticked)
 	return ticked
 }
