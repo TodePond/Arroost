@@ -4,22 +4,23 @@ import {
 	registerMethods,
 	repeatArray,
 	Stage,
-} from "../libraries/habitat-import.js"
-import { ArrowOfConnection } from "./entities/arrows/tickler/connection.js"
-import { ArrowOfCreation } from "./entities/arrows/tickler/creation.js"
-import { ArrowOfDestruction } from "./entities/arrows/tickler/destruction.js"
-import { Camera } from "./entities/camera.js"
-import { Display } from "./entities/display.js"
-import { registerDebugs } from "./input/debug.js"
-import { getHover } from "./input/hover.js"
-import { connectMachine } from "./input/machine.js"
-import { getPointer } from "./input/pointer.js"
-import { registerPreventDefaults } from "./input/prevent.js"
-import { Idle } from "./input/states.js"
-import { registerWheel } from "./input/wheel.js"
-import * as Nogan from "./nogan/source/nogan.js"
+} from "../../libraries/habitat-import.js"
+import { ArrowOfConnection } from "./arroost/entities/arrows/tickler/connection.js"
+import { ArrowOfCreation } from "./arroost/entities/arrows/tickler/creation.js"
+import { ArrowOfDestruction } from "./arroost/entities/arrows/tickler/destruction.js"
+import { Camera } from "./arroost/entities/camera.js"
+import { Display } from "./arroost/entities/display.js"
+import { registerDebugs } from "./arroost/input/debug.js"
+import { getHover } from "./arroost/input/hover.js"
+import { connectMachine } from "./arroost/input/machine.js"
+import { getPointer } from "./arroost/input/pointer.js"
+import { registerPreventDefaults } from "./arroost/input/prevent.js"
+import { Idle } from "./arroost/input/states.js"
+import { registerWheel } from "./arroost/input/wheel.js"
+import { UNIT } from "./arroost/unit.js"
 import { NoganSchema } from "./nogan/source/schema.js"
-import { UNIT } from "./unit.js"
+import * as Nogan from "./nogan/source/sugar.js"
+import { createPhantom } from "./nogan/source/sugar.js"
 
 //===============//
 // Setup Habitat //
@@ -43,7 +44,7 @@ display.input = camera.input
 const machine = new Machine()
 const pointer = getPointer(camera)
 const hover = getHover(camera)
-const nogan = NoganSchema.Phantom.make()
+const nogan = createPhantom()
 
 export const shared = {
 	stage,
