@@ -60,7 +60,7 @@ export const createNod = (parent) => {
 	return nod
 }
 
-export const createWire = (parent, { source, target, colour = "all", timing = "same" } = {}) => {
+export const createWire = (parent, { source, target, colour = "all", timing = "now" } = {}) => {
 	const wire = NoganSchema.Wire.make()
 	wire.source = source
 	wire.target = target
@@ -104,7 +104,7 @@ export const fire = (parent, { source, target, type = "any", colour = "all" } = 
 	// Spread the pulse to connected nogans.
 	for (const id of targetNogan.outputs) {
 		const wire = parent.children[id]
-		if (wire.timing !== "same") continue
+		if (wire.timing !== "now") continue
 		if (colour !== "all" && wire.colour !== colour) continue
 
 		const nextTarget = wire.target
@@ -126,25 +126,46 @@ export const fire = (parent, { source, target, type = "any", colour = "all" } = 
 //=========//
 // Ticking //
 //=========//
-export const advance = (nogan) => {
-	// Advance pulse
-	if (!nogan.isPhantom) {
-		const { pulse } = nogan
-		for (const type in pulse) {
-			for (const colour in pulse[type]) {
-				pulse[type][colour] = false
+// Only advances children, not the parent
+export const advance = (parent) => {
+	const parentNow = parent
+	const parentBefore = structuredClone(parent)
+
+	for (const childId in parentBefore.children) {
+		const childBefore = parentBefore.children[childId]
+		const childNow = parentNow.children[childId]
+
+		const pulseBefore = childBefore.pulse
+		const pulseNow = childNow.pulse
+
+		for (const type in pulseBefore) {
+			for (const colour in pulseBefore[type]) {
+				// If a child is firing...
+				// - Put out the fire!
+				// - Advance it!
+				if (pulseBefore[type][colour]) {
+					pulseNow[type][colour] = false
+					advance(childNow)
+				}
+
+				// Should the child fire on the next tick?
+				// Let's look through its inputs
+				for (const inputId of childBefore.inputs) {
+					const inputBefore = parentBefore.children[inputId]
+					if (inputBefore.timing === "now") continue
+					if (inputBefore.timing === "after") {
+						const sourceBefore = parentBefore.children[inputBefore.source]
+						if (sourceBefore.pulse[type][colour]) {
+							pulseNow[type][colour] = true
+						}
+					}
+				}
 			}
 		}
 	}
 
-	// Advance children
-	for (const id in nogan.children) {
-		const child = nogan.children[id]
-		advance(child)
-	}
-
-	validate(nogan)
-	return nogan
+	validate(parent)
+	return parent
 }
 
 //=========//

@@ -92,9 +92,22 @@ describe("tick", () => {
 		assertEquals(nod.pulse.any.all, false)
 		assertEquals(nodNod.pulse.any.all, false)
 	})
+
+	it("only advances children if they have pulses", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const nodNod = createNod(nod)
+		fire(nod, { target: nodNod.id })
+
+		assertEquals(nod.pulse.any.all, false)
+		assertEquals(nodNod.pulse.any.all, true)
+		advance(phantom)
+		assertEquals(nod.pulse.any.all, false)
+		assertEquals(nodNod.pulse.any.all, true)
+	})
 })
 
-describe("project", () => {
+describe("projection", () => {
 	it("clones", () => {
 		const phantom = createPhantom()
 		const projected = project(phantom)
@@ -162,6 +175,24 @@ describe("pulse", () => {
 		assertEquals(nod2.pulse.any.all, false)
 		fire(phantom, { target: nod1.id })
 		assertEquals(nod1.pulse.any.all, true)
+		assertEquals(nod2.pulse.any.all, true)
+	})
+})
+
+describe("time travel", () => {
+	it("fires a pulse in the future", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
+
+		assertEquals(nod1.pulse.any.all, false)
+		assertEquals(nod2.pulse.any.all, false)
+		fire(phantom, { target: nod1.id })
+		assertEquals(nod1.pulse.any.all, true)
+		assertEquals(nod2.pulse.any.all, false)
+		advance(phantom)
+		assertEquals(nod1.pulse.any.all, false)
 		assertEquals(nod2.pulse.any.all, true)
 	})
 })

@@ -35,7 +35,7 @@ N.Parent = N.Child.extend({
 // Wiring //
 //========//
 N.Colour = S.Enum(["all", "blue", "green", "red"])
-N.Timing = S.Enum(["same", "before", "after"])
+N.Timing = S.Enum(["now", "before", "after"])
 N.Wire = N.Child.extend({
 	// Meta
 	schemaName: S.Value("Wire"),
