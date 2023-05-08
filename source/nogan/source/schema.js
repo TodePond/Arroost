@@ -8,13 +8,14 @@ const N = NoganSchema
 // Family //
 //========//
 N.Id = S.SafePositiveInteger.withDefault(null)
+N.SchemaName = S.Enum(["Child", "Parent", "Phantom", "Wire", "Nod"])
 N.Child = N.Struct({
 	// Meta
 	schemaName: S.Value("Child"),
 	isChild: S.True,
 
 	// Family
-	id: N.Id.withDefault(null),
+	id: N.Id,
 })
 
 N.Parent = N.Child.extend({
@@ -29,7 +30,7 @@ N.Parent = N.Child.extend({
 	// Firing
 	children: S.ObjectWith({
 		keysOf: N.Id,
-		valuesOf: N.reference("Nod"),
+		valuesOf: N.reference("Nogan"),
 	}),
 })
 
@@ -52,14 +53,8 @@ for (const type of N.PulseType.values) {
 	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
 }
 
-N.Pulse = S.Struct({
-	schemaName: S.Value("Pulse"),
-	...pulseStruct,
-})
-N.PhantomPulse = S.Struct({
-	schemaName: S.Value("PhantomPulse"),
-	...phantomPulseStruct,
-})
+N.Pulse = S.Struct(pulseStruct)
+N.PhantomPulse = S.Struct(phantomPulseStruct)
 
 N.Timing = S.Enum(["same", "before", "after"])
 N.Wire = N.Child.extend({
@@ -106,3 +101,5 @@ N.Phantom = N.Nod.extend({
 	// Firing
 	pulse: N.reference("PhantomPulse"),
 })
+
+N.Nogan = N.Wire.or(N.Nod)

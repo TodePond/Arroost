@@ -1,130 +1,88 @@
-import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
-import { addChild, createId, freeId, validate } from "../source/nogan.js"
-import { NoganSchema } from "../source/schema.js"
-
-describe("schema", () => {
-	it("validates a parent", () => {
-		const parent = NoganSchema.Parent.make()
-		assertThrows(() => NoganSchema.Parent.validate(parent))
-		parent.id = 0
-		validate(parent)
-	})
-
-	it("validates a child", () => {
-		const child = NoganSchema.Child.make()
-		assertThrows(() => NoganSchema.Child.validate(child))
-		child.id = 0
-		NoganSchema.Child.validate(child)
-	})
-
-	it("validates a phantom", () => {
-		const phantom = NoganSchema.Phantom.make()
-		NoganSchema.Phantom.validate(phantom)
-	})
-
-	it("validates a wire", () => {
-		const wire = NoganSchema.Wire.make()
-		assertThrows(() => NoganSchema.Wire.validate(wire))
-		wire.id = 0
-		assertThrows(() => NoganSchema.Wire.validate(wire))
-		wire.source = 0
-		wire.target = 0
-		NoganSchema.Wire.validate(wire)
-	})
-
-	it("validates a nod", () => {
-		const nod = NoganSchema.Nod.make()
-		assertThrows(() => NoganSchema.Nod.validate(nod))
-		nod.id = 0
-		NoganSchema.Nod.validate(nod)
-	})
-})
+import { createId, freeId } from "../source/nogan.js"
+import { advance, createNod, createPhantom, createWire, pulse } from "../source/sugar.js"
 
 describe("id", () => {
 	it("gets a new id", () => {
-		const nogan = NoganSchema.Parent.make()
-		const id0 = createId(nogan)
+		const phantom = createPhantom()
+		const id0 = createId(phantom)
 		assertEquals(id0, 0)
-		const id1 = createId(nogan)
+		const id1 = createId(phantom)
 		assertEquals(id1, 1)
 	})
 
 	it("reuses ids", () => {
-		const nogan = NoganSchema.Parent.make()
-		const id0 = createId(nogan)
+		const phantom = createPhantom()
+		const id0 = createId(phantom)
 		assertEquals(id0, 0)
-		freeId(nogan, id0)
-		const id1 = createId(nogan)
+		freeId(phantom, id0)
+		const id1 = createId(phantom)
 		assertEquals(id1, 0)
-		const id2 = createId(nogan)
+		const id2 = createId(phantom)
 		assertEquals(id2, 1)
-		freeId(nogan, id1)
-		const id3 = createId(nogan)
+		freeId(phantom, id1)
+		const id3 = createId(phantom)
 		assertEquals(id3, 0)
 	})
 })
 
-describe("family", () => {
-	it("adds a child", () => {
-		const phantom = NoganSchema.Phantom.make()
-		const nod = NoganSchema.Nod.make()
-		addChild(phantom, nod)
-		validate(phantom)
-		//assertEquals(phantom.children[nod.id], nod)
+//=======================//
+// SUGAR below this line //
+//=======================//
+
+describe("phantom", () => {
+	it("creates a phantom", () => {
+		createPhantom()
 	})
 })
 
-describe("tick", () => {
-	it("ticks pulse", () => {
-		const phantom = NoganSchema.Phantom.make()
-		// const nod = createChild(NoganSchema.Nod, phantom)
-		// assertEquals(nod.pulse.any.blue, false)
-	})
-
-	it("ticks children", () => {
-		// const parent = NoganSchema.Nod.make()
-		// parent.pulse.any.blue = true
-		// const child = createChild(NoganSchema.Child, parent)
-		// child.pulse.any.blue = true
-		// const ticked = getTicked(parent)
-		// const tickedChild = ticked.children[child.id]
-		// assertEquals(tickedChild.pulse.any.blue, false)
+describe("nod", () => {
+	it("creates a nod", () => {
+		const phantom = createPhantom()
+		createNod(phantom)
 	})
 })
 
 describe("wire", () => {
-	it("connects a wire", () => {
-		// const phantom = NoganSchema.Phantom.make()
-		// const source = NoganSchema.Nod.make()
-		// const target = NoganSchema.Nod.make()
-		// addChild(phantom, source)
-		// addChild(phantom, target)
-		// validate(source)
-		// validate(target)
-		// const wire = NoganSchema.Wire.make()
-		//addChild(phantom, wire)
-		//validate(wire)
+	it("creates a wire", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		createWire(phantom, { source: nod.id, target: nod.id })
+	})
+})
+
+describe("tick", () => {
+	it("nod ticks", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		pulse(phantom, { target: nod.id })
+		assertEquals(nod.pulse.any.all, true)
+		const advanced = advance(nod)
+		assertEquals(advanced.pulse.any.all, false)
+	})
+
+	it("phantom ticks children", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		pulse(phantom, { target: nod.id })
+		assertEquals(phantom.children[nod.id].pulse.any.all, true)
+		const advanced = advance(phantom)
+		assertEquals(advanced.children[nod.id].pulse.any.all, false)
 	})
 })
 
 describe("pulse", () => {
 	it("fires a pulse event", () => {
-		// const phantom = NoganSchema.Phantom.make()
-		// const nod = NoganSchema.Nod.make()
-		// addChild(phantom, nod)
-		// let clock = 0
-		// const onPulse = (event) => {
-		// 	clock++
-		// 	const { detail } = event
-		// 	assertEquals(detail.type, "any")
-		// 	assertEquals(detail.colour, "all")
-		// 	assertEquals(detail.target, nod)
-		// 	assertEquals(detail.parent, phantom)
-		// }
-		// addEventListener("pulse", onPulse)
-		// pulse({ parent: phantom, target: nod })
-		// assertEquals(clock, 1)
-		// removeEventListener("pulse", onPulse)
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		let fired = false
+		const onPulse = () => {
+			fired = true
+		}
+		addEventListener("pulse", onPulse)
+		pulse(phantom, { target: nod.id })
+		assertEquals(fired, true)
+		removeEventListener("pulse", onPulse)
 	})
 })
