@@ -1,3 +1,5 @@
+<img align="right" height="100" src="https://user-images.githubusercontent.com/15892272/236786183-08c68c91-8988-45b3-8554-c80962a8d57c.png">
+
 # Arroost
 
 Arroost is a ridiculous music-making tool.
