@@ -8,7 +8,6 @@ const N = NoganSchema
 // Family //
 //========//
 N.Id = S.SafePositiveInteger.withDefault(null)
-N.SchemaName = S.Enum(["Child", "Parent", "Phantom", "Wire", "Nod"])
 N.Child = N.Struct({
 	// Meta
 	schemaName: S.Value("Child"),
@@ -26,18 +25,32 @@ N.Parent = N.Child.extend({
 	// Family
 	nextId: N.Id.withDefault(0),
 	freeIds: S.ArrayOf(N.Id),
-
-	// Firing
 	children: S.ObjectWith({
 		keysOf: N.Id,
 		valuesOf: N.reference("Nogan"),
 	}),
 })
 
-//=======//
-// Wires //
-//=======//
+//========//
+// Wiring //
+//========//
 N.Colour = S.Enum(["all", "blue", "green", "red"])
+N.Timing = S.Enum(["same", "before", "after"])
+N.Wire = N.Child.extend({
+	// Meta
+	schemaName: S.Value("Wire"),
+	isWire: S.True,
+
+	// Wiring
+	colour: N.Colour,
+	timing: N.Timing,
+	source: N.Id,
+	target: N.Id,
+})
+
+//=======//
+// Pulse //
+//=======//
 N.PulseType = S.Enum(["any", "creation"])
 
 const pulseStruct = {}
@@ -56,19 +69,6 @@ for (const type of N.PulseType.values) {
 N.Pulse = S.Struct(pulseStruct)
 N.PhantomPulse = S.Struct(phantomPulseStruct)
 
-N.Timing = S.Enum(["same", "before", "after"])
-N.Wire = N.Child.extend({
-	// Meta
-	schemaName: S.Value("Wire"),
-	isWire: S.True,
-
-	// Connection
-	colour: N.Colour,
-	timing: N.Timing,
-	source: N.Id,
-	target: N.Id,
-})
-
 //======//
 // Nods //
 //======//
@@ -77,17 +77,17 @@ N.Nod = N.Parent.extend({
 	schemaName: S.Value("Nod"),
 	isNod: S.True,
 
+	// Wiring
+	outputs: S.ArrayOf(N.reference("Wire")),
+	inputs: S.ArrayOf(N.reference("Wire")),
+
 	// Pulse
 	pulse: N.reference("Pulse"),
 
-	// Pulse Modifiers
+	// Nod
+	position: S.Vector2D,
 	type: N.PulseType,
 	colour: N.Colour,
-
-	// Connection
-	position: S.Vector2D,
-	outputs: S.ArrayOf(N.reference("Wire")),
-	inputs: S.ArrayOf(N.reference("Wire")),
 })
 
 N.Phantom = N.Nod.extend({
@@ -98,8 +98,8 @@ N.Phantom = N.Nod.extend({
 	// Family
 	id: S.Value(-1),
 
-	// Firing
+	// Pulse
 	pulse: N.reference("PhantomPulse"),
 })
 
-N.Nogan = N.Wire.or(N.Nod)
+N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
