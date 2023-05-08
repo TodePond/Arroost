@@ -1,7 +1,40 @@
 # Arroost
 
-CELLULAR AUTOMATA FRACTAL TIME TRAVEL MUSIC (with arrows)
+Arroost is a ridiculous music-making tool.
 
-this is something I'm making for my next youtube video called **Arrows in Arrows in Arrows**.<br>
+I'm making it for the next youtube video on [my channel](https://www.youtube.com/@TodePond) called 🎵 **Arrows in Arrows in Arrows**.
 
-It will be on [my youtube channel](https://www.youtube.com/@TodePond).
+## What's the big idea?
+
+Arroost is a mad all-star mix of big ideas from my previous projects:
+
+-  [visual programming language](https://github.com/TodePond/CellPond)
+-  [cellular automata](https://github.com/TodePond/SandPond)
+-  [time travel](https://github.com/TodePond/TimePond)
+-  [fractals](https://github.com/TodePond/ScreenPond)
+
+## How can I use it?
+
+It's not ready yet!<br>
+But when it is, it'll be up at [arroost.com](https://arroost.com).
+
+## How can I help develop it?
+
+To run it locally, clone this repo, then run a local file server.<br>
+I recommend installing [deno](https://deno.com/runtime)'s [file server](https://deno.com/manual@v1.13.2/examples/file_server):
+
+```
+deno install --allow-net --allow-read https://deno.land/std/http/file_server.ts
+```
+
+Then run it with:
+
+```
+file_server .
+```
+
+To run the tests, run:
+
+```
+deno test --watch .
+```
