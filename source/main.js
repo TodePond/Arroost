@@ -5,6 +5,7 @@ import {
 	repeatArray,
 	Stage,
 } from "../../libraries/habitat-import.js"
+import { Habitat } from "../libraries/habitat-import.js"
 import { ArrowOfConnection } from "./arroost/entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./arroost/entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./arroost/entities/arrows/tickler/destruction.js"
@@ -18,9 +19,9 @@ import { registerPreventDefaults } from "./arroost/input/prevent.js"
 import { Idle } from "./arroost/input/states.js"
 import { registerWheel } from "./arroost/input/wheel.js"
 import { UNIT } from "./arroost/unit.js"
+import * as Nogan from "./nogan/source/nogan.js"
+import { createPhantom } from "./nogan/source/nogan.js"
 import { NoganSchema } from "./nogan/source/schema.js"
-import * as Nogan from "./nogan/source/sugar.js"
-import { createPhantom } from "./nogan/source/sugar.js"
 
 //===============//
 // Setup Habitat //
@@ -105,3 +106,4 @@ export const unlockTool = (source) => {
 //=================//
 Object.assign(window, { Nogan, shared, NoganSchema })
 Object.assign(window, shared)
+Object.assign(window, Habitat)

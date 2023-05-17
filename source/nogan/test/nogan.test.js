@@ -256,9 +256,11 @@ describe("time travel", () => {
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
 		const nod4 = createNod(phantom)
+
 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
 		createWire(phantom, { source: nod2.id, target: nod3.id, timing: "after" })
 		createWire(phantom, { source: nod3.id, target: nod4.id, timing: "before" })
+
 		assertEquals(nod1.pulse.any.all, false)
 		assertEquals(nod2.pulse.any.all, false)
 		assertEquals(nod3.pulse.any.all, false)

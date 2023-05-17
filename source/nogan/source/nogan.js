@@ -1,4 +1,4 @@
-import { fireEvent } from "../../../libraries/habitat-import.js"
+import { memo } from "../../../libraries/habitat-import.js"
 import { NoganSchema } from "./schema.js"
 
 export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
@@ -82,29 +82,22 @@ export const createWire = (parent, { source, target, colour = "all", timing = "n
 //========//
 // Firing //
 //========//
-export const fire = (parent, { source, child, type = "any", colour = "all" } = {}) => {
-	// If the target is already pulsed, then we don't need to do anything.
+export const fire = (parent, { child, type = "any", colour = "all" } = {}) => {
+	// If the target is already pulsed, then we don't need to do anything
 	const childNogan = parent.children[child]
 	if (childNogan.pulse[type][colour]) {
-		return parent
+		return
 	}
 
-	// Update the target and fire an event.
+	// Update the target
 	childNogan.pulse[type][colour] = true
-	fireEvent("pulse", {
-		detail: {
-			parent,
-			source,
-			child,
-			type,
-			colour,
-		},
-	})
 
+	// Carry out the operation of this nogan!
 	const transformedType = type === "any" && childNogan.type !== "any" ? childNogan.type : type
 
-	// Spread the pulse to connected nogans.
+	// Spread the pulse to connected nogans
 	for (const outputId of childNogan.outputs) {
+		// Don't fire if the output wire is a different colour
 		const outputNogan = parent.children[outputId]
 		if (colour !== "all" && outputNogan.colour !== colour) continue
 
@@ -119,7 +112,6 @@ export const fire = (parent, { source, child, type = "any", colour = "all" } = {
 
 		if (shouldFire) {
 			fire(parent, {
-				source: childNogan.id,
 				child: targetNogan.id,
 				type: transformedType,
 				colour,
@@ -128,7 +120,7 @@ export const fire = (parent, { source, child, type = "any", colour = "all" } = {
 	}
 
 	validate(parent)
-	return parent
+	return
 }
 
 export const evaluateFire = (
@@ -179,7 +171,7 @@ export const evaluateFire = (
 		// If the input is early, we need to check if it will fire in the future.
 		// We do this by checking the future.
 		else if (inputNogan.timing === "before") {
-			const parentAfter = project(parent, advance)
+			//const parentAfter = project(parent, advance)
 		}
 	}
 }
@@ -244,8 +236,13 @@ export const advance = (parent) => {
 //=========//
 // Project //
 //=========//
-export const project = (nogan, func = () => {}, args = []) => {
-	const projected = structuredClone(nogan)
-	func(projected, args)
-	return projected
-}
+export const project = memo(
+	(nogan, func = () => {}, args = []) => {
+		const projected = structuredClone(nogan)
+		func(projected, args)
+		return projected
+	},
+	(nogan, func = () => {}, args = []) => {
+		return JSON.stringify(nogan) + func.name + JSON.stringify(args)
+	},
+)
