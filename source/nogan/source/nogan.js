@@ -307,6 +307,7 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 		}
 	}
 
+	// No, we're fine!
 	return getPeak(projectedBefore, {
 		id,
 		timing: 0,
@@ -332,6 +333,20 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 
 	// Otherwise, let's try to imagine it...
 	const projectedAfter = project(parent)
+
+	// But wait!
+	// Are we repeating ourselves?
+	const before = history.at(-1)
+	if (before) {
+		const beforeStamp = JSON.stringify(before)
+		const parentStamp = JSON.stringify(parent)
+		if (beforeStamp === parentStamp) {
+			// Recursion detected!
+			return N.Peak.make({ result: false })
+		}
+	}
+
+	// No, we're fine!
 	return getPeak(projectedAfter, {
 		id,
 		timing: 0,
