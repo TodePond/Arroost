@@ -407,4 +407,17 @@ describe("peaking", () => {
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, true)
 	})
+
+	it("finds a pulse caused by a recursive past", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id })
+
+		//const peak = getPeak(phantom, { id: nod2.id })
+		// TODO: check the history stack for duplicate entries!
+	})
 })
