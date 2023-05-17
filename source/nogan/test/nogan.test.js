@@ -408,7 +408,7 @@ describe("peaking", () => {
 		assertEquals(peak.result, true)
 	})
 
-	it("finds a pulse caused by a recursive past", () => {
+	it("peaks in a recursive past without crashing", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
@@ -417,7 +417,86 @@ describe("peaking", () => {
 
 		addPulse(phantom, { target: nod1.id })
 
-		//const peak = getPeak(phantom, { id: nod2.id })
-		// TODO: check the history stack for duplicate entries!
+		const peak = getPeak(phantom, { id: nod2.id })
+		assertEquals(peak.result, false)
+	})
+
+	it("peaks in a deep recursive past without crashing", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id })
+
+		const peak = getPeak(phantom, { id: nod3.id })
+		assertEquals(peak.result, false)
+	})
+
+	it("finds a pulse in a recursive past", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
+
+		addPulse(phantom, { target: nod3.id })
+
+		const peak3 = getPeak(phantom, { id: nod3.id })
+		const peak2 = getPeak(phantom, { id: nod2.id })
+		const peak1 = getPeak(phantom, { id: nod1.id })
+
+		assertEquals(peak3.result, true)
+		assertEquals(peak2.result, true)
+		assertEquals(peak1.result, false)
+	})
+
+	it("finds a pulse in a deep recursive past", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		const nod4 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod2.id }, { timing: -1 })
+		createWire(phantom, { source: nod4.id, target: nod3.id }, { timing: -1 })
+
+		addPulse(phantom, { target: nod4.id })
+
+		const peak4 = getPeak(phantom, { id: nod4.id })
+		const peak3 = getPeak(phantom, { id: nod3.id })
+		const peak2 = getPeak(phantom, { id: nod2.id })
+		const peak1 = getPeak(phantom, { id: nod1.id })
+
+		assertEquals(peak4.result, true)
+		assertEquals(peak3.result, false)
+		assertEquals(peak2.result, true)
+		assertEquals(peak1.result, false)
+
+		const peak4before = getPeak(phantom, { id: nod4.id, timing: -1 })
+		const peak3before = getPeak(phantom, { id: nod3.id, timing: -1 })
+		const peak2before = getPeak(phantom, { id: nod2.id, timing: -1 })
+		const peak1before = getPeak(phantom, { id: nod1.id, timing: -1 })
+
+		assertEquals(peak4before.result, false)
+		assertEquals(peak3before.result, true)
+		assertEquals(peak2before.result, false)
+		assertEquals(peak1before.result, true)
+
+		const peak4after = getPeak(phantom, { id: nod4.id, timing: 1 })
+		const peak3after = getPeak(phantom, { id: nod3.id, timing: 1 })
+		const peak2after = getPeak(phantom, { id: nod2.id, timing: 1 })
+		const peak1after = getPeak(phantom, { id: nod1.id, timing: 1 })
+
+		assertEquals(peak4after.result, false)
+		assertEquals(peak3after.result, false)
+		assertEquals(peak2after.result, false)
+		assertEquals(peak1after.result, true)
 	})
 })
