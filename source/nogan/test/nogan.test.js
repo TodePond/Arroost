@@ -1,17 +1,23 @@
-import { assertEquals, assertNotEquals } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
-	advance,
+	addChild,
 	createId,
 	createNod,
 	createPhantom,
 	createWire,
-	fire,
+	deleteChild,
+	destroyWire,
 	freeId,
-	project,
+	reconnectWire,
+	replaceNod,
+	validate,
 } from "../source/nogan.js"
+import { NoganSchema } from "../source/schema.js"
 
-describe("id", () => {
+const N = NoganSchema
+
+describe("family", () => {
 	it("gets a new id", () => {
 		const phantom = createPhantom()
 		const id0 = createId(phantom)
@@ -33,257 +39,168 @@ describe("id", () => {
 		const id3 = createId(phantom)
 		assertEquals(id3, 0)
 	})
-})
 
-//=======================//
-// SUGAR below this line //
-//=======================//
+	it("adds a child", () => {
+		const phantom = N.Phantom.make()
+		const nod = N.Nod.make()
+		addChild(phantom, nod)
+		validate(phantom)
+		validate(nod)
+	})
 
-describe("phantom", () => {
-	it("creates a phantom", () => {
-		createPhantom()
+	it("deletes a child", () => {
+		const phantom = N.Phantom.make()
+		const nod = N.Nod.make()
+		addChild(phantom, nod)
+		deleteChild(phantom, nod.id)
+		validate(phantom)
 	})
 })
 
-describe("nod", () => {
+describe("creating", () => {
+	it("creates a phantom", () => {
+		const phantom = createPhantom()
+		validate(phantom, N.Phantom)
+	})
+
 	it("creates a nod", () => {
 		const phantom = createPhantom()
-		createNod(phantom)
+		const nod = createNod(phantom)
+		validate(nod, N.Nod)
 	})
-})
-
-describe("wire", () => {
 	it("creates a wire", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		createWire(phantom, { source: nod.id, target: nod.id })
+		const wire = createWire(phantom, { source: nod.id, target: nod.id })
+		assertEquals(nod.outputs, [wire.id])
+		assertEquals(nod.inputs, [wire.id])
+		assertEquals(wire.source, nod.id)
+		assertEquals(wire.target, nod.id)
+		validate(wire, N.Wire)
 	})
 })
 
-describe("tick", () => {
-	it("ends pulses", () => {
+describe("destroying", () => {
+	it("destroys a wire", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		fire(phantom, { child: nod.id })
-		assertEquals(nod.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod.pulse.any.all, false)
-	})
+		const wire = createWire(phantom, { source: nod.id, target: nod.id })
 
-	it("ticks children", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		fire(phantom, { child: nod.id })
-		assertEquals(nod.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod.pulse.any.all, false)
-	})
+		assertEquals(nod.outputs, [wire.id])
+		assertEquals(nod.inputs, [wire.id])
 
-	it("ticks children recursively", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		const nodNod = createNod(nod)
-		fire(phantom, { child: nod.id })
-		fire(nod, { child: nodNod.id })
+		destroyWire(phantom, wire.id)
+		validate(phantom)
 
-		assertEquals(nod.pulse.any.all, true)
-		assertEquals(nodNod.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod.pulse.any.all, false)
-		assertEquals(nodNod.pulse.any.all, false)
-	})
-
-	it("only advances children if they have pulses", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		const nodNod = createNod(nod)
-		fire(nod, { child: nodNod.id })
-
-		assertEquals(nod.pulse.any.all, false)
-		assertEquals(nodNod.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod.pulse.any.all, false)
-		assertEquals(nodNod.pulse.any.all, true)
+		assertEquals(nod.outputs, [])
+		assertEquals(nod.inputs, [])
 	})
 })
 
-describe("projection", () => {
-	it("clones", () => {
+describe("connecting", () => {
+	it("replaces a nod", () => {
 		const phantom = createPhantom()
-		const projected = project(phantom)
-		assertEquals(projected, phantom)
-		createNod(phantom)
-		assertNotEquals(projected, phantom)
+		const original = createNod(phantom)
+		const replacement = createNod(phantom)
+		const wire = createWire(phantom, { source: original.id, target: original.id })
+
+		assertEquals(wire.source, original.id)
+		assertEquals(wire.target, original.id)
+
+		assertEquals(original.outputs, [wire.id])
+		assertEquals(original.inputs, [wire.id])
+		assertEquals(replacement.outputs, [])
+		assertEquals(replacement.inputs, [])
+
+		replaceNod(phantom, { original: original.id, replacement: replacement.id })
+
+		assertEquals(wire.source, replacement.id)
+		assertEquals(wire.target, replacement.id)
+
+		assertEquals(original.outputs, [])
+		assertEquals(original.inputs, [])
+		assertEquals(replacement.outputs, [wire.id])
+		assertEquals(replacement.inputs, [wire.id])
 	})
 
-	it("applies operations", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		const projected = project(phantom, fire, { child: nod.id })
-		assertEquals(phantom.children[nod.id].pulse.any.all, false)
-		assertEquals(projected.children[nod.id].pulse.any.all, true)
-		assertNotEquals(projected, phantom)
-	})
-})
-
-describe("pulse", () => {
-	it("fires", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		assertEquals(nod.pulse.any.all, false)
-		fire(phantom, { child: nod.id })
-		assertEquals(nod.pulse.any.all, true)
-	})
-
-	it("fires connections", () => {
+	it("reconnects a wire target", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id })
+		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
 
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, true)
+		assertEquals(wire.source, nod1.id)
+		assertEquals(wire.target, nod1.id)
+
+		assertEquals(nod1.outputs, [wire.id])
+		assertEquals(nod1.inputs, [wire.id])
+		assertEquals(nod2.outputs, [])
+		assertEquals(nod2.inputs, [])
+
+		reconnectWire(phantom, { wire: wire.id, target: nod2.id })
+
+		assertEquals(wire.source, nod1.id)
+		assertEquals(wire.target, nod2.id)
+
+		assertEquals(nod1.outputs, [wire.id])
+		assertEquals(nod1.inputs, [])
+		assertEquals(nod2.outputs, [])
+		assertEquals(nod2.inputs, [wire.id])
+
+		validate(phantom)
 	})
 
-	it("fires connections recursively", () => {
+	it("reconnects a wire source", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id })
-		createWire(phantom, { source: nod2.id, target: nod3.id })
+		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
 
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, true)
-		assertEquals(nod3.pulse.any.all, true)
+		assertEquals(wire.source, nod1.id)
+		assertEquals(wire.target, nod1.id)
+
+		assertEquals(nod1.outputs, [wire.id])
+		assertEquals(nod1.inputs, [wire.id])
+		assertEquals(nod2.outputs, [])
+		assertEquals(nod2.inputs, [])
+
+		reconnectWire(phantom, { wire: wire.id, source: nod2.id })
+
+		assertEquals(wire.source, nod2.id)
+		assertEquals(wire.target, nod1.id)
+
+		assertEquals(nod1.outputs, [])
+		assertEquals(nod1.inputs, [wire.id])
+		assertEquals(nod2.outputs, [wire.id])
+		assertEquals(nod2.inputs, [])
+
+		validate(phantom)
 	})
 
-	it("fires looping connections", () => {
+	it("reconnects a wire source and target", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id })
-		createWire(phantom, { source: nod2.id, target: nod1.id })
+		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
 
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, true)
-	})
-})
+		assertEquals(wire.source, nod1.id)
+		assertEquals(wire.target, nod1.id)
 
-describe("time travel", () => {
-	it("fires a pulse in the future", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom)
-		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
+		assertEquals(nod1.outputs, [wire.id])
+		assertEquals(nod1.inputs, [wire.id])
+		assertEquals(nod2.outputs, [])
+		assertEquals(nod2.inputs, [])
 
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-	})
+		reconnectWire(phantom, { wire: wire.id, source: nod2.id, target: nod2.id })
 
-	it("fires a pulse in the future recursively", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom)
-		const nod2 = createNod(phantom)
-		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
-		createWire(phantom, { source: nod2.id, target: nod3.id, timing: "after" })
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, true)
-		assertEquals(nod3.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-	})
+		assertEquals(wire.source, nod2.id)
+		assertEquals(wire.target, nod2.id)
 
-	it("fires a looping pulse in the future", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom)
-		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
-		createWire(phantom, { source: nod2.id, target: nod1.id, timing: "after" })
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, true)
-	})
+		assertEquals(nod1.outputs, [])
+		assertEquals(nod1.inputs, [])
+		assertEquals(nod2.outputs, [wire.id])
+		assertEquals(nod2.inputs, [wire.id])
 
-	it("fires a pulse in the past", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom)
-		const nod2 = createNod(phantom)
-		const nod3 = createNod(phantom)
-		const nod4 = createNod(phantom)
-
-		createWire(phantom, { source: nod1.id, target: nod2.id, timing: "after" })
-		createWire(phantom, { source: nod2.id, target: nod3.id, timing: "after" })
-		createWire(phantom, { source: nod3.id, target: nod4.id, timing: "before" })
-
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		assertEquals(nod4.pulse.any.all, false)
-		fire(phantom, { child: nod1.id })
-		assertEquals(nod1.pulse.any.all, true)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		assertEquals(nod4.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, true)
-		assertEquals(nod3.pulse.any.all, false)
-		// assertEquals(nod4.pulse.any.all, true)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, true)
-		assertEquals(nod4.pulse.any.all, false)
-		advance(phantom)
-		assertEquals(nod1.pulse.any.all, false)
-		assertEquals(nod2.pulse.any.all, false)
-		assertEquals(nod3.pulse.any.all, false)
-		assertEquals(nod4.pulse.any.all, false)
+		validate(phantom)
 	})
 })

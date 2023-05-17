@@ -1,6 +1,10 @@
-import { memo } from "../../../libraries/habitat-import.js"
 import { NoganSchema } from "./schema.js"
 
+const N = NoganSchema
+
+//============//
+// Validating //
+//============//
 export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
 	if (window.shared && !window.shared.debug.validate) {
 		return
@@ -29,43 +33,43 @@ export const freeId = (nogan, id) => {
 	nogan.freeIds.push(id)
 }
 
-// This function is dangerous, and should only be used by smarter helper functions.
-// All it does is add something to the nogan.
-// It doesn't trigger any behaviours that should happen.
-// This should be done by the helper functions themselves.
-export const addChild = (nogan, child, { validates = true } = {}) => {
+export const addChild = (nogan, child) => {
 	const id = createId(nogan)
 	child.id = id
 	nogan.children[id] = child
 
-	if (validates) {
-		validate(child)
-		validate(nogan)
-	}
+	validate(child)
+	validate(nogan)
+}
 
-	return nogan
+export const deleteChild = (nogan, id) => {
+	const child = nogan.children[id]
+	child.id = null
+	nogan.children[id] = null
+	freeId(nogan, id)
+
+	validate(nogan)
 }
 
 //==========//
 // Creating //
 //==========//
 export const createPhantom = () => {
-	const phantom = NoganSchema.Phantom.make()
+	const phantom = N.Phantom.make()
+	validate(phantom)
 	return phantom
 }
 
 export const createNod = (parent) => {
-	const nod = NoganSchema.Nod.make()
+	const nod = N.Nod.make()
 	addChild(parent, nod)
 	return nod
 }
 
-export const createWire = (parent, { source, target, colour = "all", timing = "now" } = {}) => {
-	const wire = NoganSchema.Wire.make()
+export const createWire = (parent, { source, target } = {}) => {
+	const wire = N.Wire.make()
 	wire.source = source
 	wire.target = target
-	wire.colour = colour
-	wire.timing = timing
 	addChild(parent, wire)
 
 	const sourceNogan = parent.children[source]
@@ -73,176 +77,85 @@ export const createWire = (parent, { source, target, colour = "all", timing = "n
 	sourceNogan.outputs.push(wire.id)
 	targetNogan.inputs.push(wire.id)
 
+	validate(parent)
 	validate(sourceNogan)
 	validate(targetNogan)
+	validate(wire)
 
 	return wire
 }
 
-//========//
-// Firing //
-//========//
-export const fire = (parent, { child, type = "any", colour = "all" } = {}) => {
-	// If the target is already pulsed, then we don't need to do anything
-	const childNogan = parent.children[child]
-	if (childNogan.pulse[type][colour]) {
-		return
+//===========//
+// Destroying //
+//===========//
+export const destroyWire = (parent, id) => {
+	const wire = parent.children[id]
+	const sourceNogan = parent.children[wire.source]
+	const targetNogan = parent.children[wire.target]
+
+	const sourceIndex = sourceNogan.outputs.indexOf(wire.id)
+	const targetIndex = targetNogan.inputs.indexOf(wire.id)
+
+	sourceNogan.outputs.splice(sourceIndex, 1)
+	targetNogan.inputs.splice(targetIndex, 1)
+	deleteChild(parent, id)
+
+	validate(parent)
+	validate(sourceNogan)
+	validate(targetNogan)
+}
+
+//============//
+// Connecting //
+//============//
+export const replaceNod = (parent, { original, replacement } = {}) => {
+	const originalNod = parent.children[original]
+	const replacementNod = parent.children[replacement]
+
+	replacementNod.inputs = [...originalNod.inputs]
+	replacementNod.outputs = [...originalNod.outputs]
+	originalNod.inputs = []
+	originalNod.outputs = []
+
+	for (const input of replacementNod.inputs) {
+		const wire = parent.children[input]
+		wire.target = replacement
 	}
 
-	// Update the target
-	childNogan.pulse[type][colour] = true
-
-	// Carry out the operation of this nogan!
-	const transformedType = type === "any" && childNogan.type !== "any" ? childNogan.type : type
-
-	// Spread the pulse to connected nogans
-	for (const outputId of childNogan.outputs) {
-		// Don't fire if the output wire is a different colour
-		const outputNogan = parent.children[outputId]
-		if (colour !== "all" && outputNogan.colour !== colour) continue
-
-		const { target } = outputNogan
-		const targetNogan = parent.children[target]
-		const shouldFire = evaluateFire(parent, {
-			child: targetNogan.id,
-			history: [],
-			type: transformedType,
-			colour,
-		})
-
-		if (shouldFire) {
-			fire(parent, {
-				child: targetNogan.id,
-				type: transformedType,
-				colour,
-			})
-		}
+	for (const output of replacementNod.outputs) {
+		const wire = parent.children[output]
+		wire.source = replacement
 	}
 
 	validate(parent)
-	return
+	validate(originalNod)
+	validate(replacementNod)
 }
 
-export const evaluateFire = (
-	parent,
-	{ child, history = [], type = "any", colour = "all" } = {},
-) => {
-	const childNogan = parent.children[child]
+export const reconnectWire = (parent, { wire, source, target } = {}) => {
+	const wireNogan = parent.children[wire]
+	const originalSource = parent.children[wireNogan.source]
+	const originalTarget = parent.children[wireNogan.target]
+	const replacementSource = parent.children[source] ?? originalSource
+	const replacementTarget = parent.children[target] ?? originalTarget
 
-	// If the child is already firing, then we don't need to do anything.
-	if (childNogan.pulse[type][colour]) {
-		return true
+	if (originalSource !== replacementSource) {
+		const sourceIndex = originalSource.outputs.indexOf(wire)
+		originalSource.outputs.splice(sourceIndex, 1)
+		replacementSource.outputs.push(wire)
+		wireNogan.source = source
 	}
 
-	// If the child is not firing, then we need to check if it should be
-	// Let's loop through all its inputs to find out!
-	for (const inputId of childNogan.inputs) {
-		const inputNogan = parent.children[inputId]
-		const source = inputNogan.source
-		const sourceNogan = parent.children[source]
-
-		// If the input is simultaneous, just check if it's firing right now.
-		if (inputNogan.timing === "now") {
-			const shouldFire = evaluateFire(parent, {
-				child: sourceNogan.id,
-				history,
-				type,
-				colour,
-			})
-			if (shouldFire) return true
-		}
-
-		// If the input is delayed, we need to check if it fired in the past.
-		// We do this by checking the history.
-		// Note: We might not have a long enough history to check. That's ok!
-		else if (inputNogan.timing === "after") {
-			const [parentBefore, ...rest] = history
-			if (parentBefore) {
-				const shouldFire = evaluateFire(parentBefore, {
-					child: sourceNogan.id,
-					history: rest,
-					type,
-					colour,
-				})
-				if (shouldFire) return true
-			}
-		}
-
-		// If the input is early, we need to check if it will fire in the future.
-		// We do this by checking the future.
-		else if (inputNogan.timing === "before") {
-			//const parentAfter = project(parent, advance)
-		}
-	}
-}
-
-//=========//
-// Ticking //
-//=========//
-// Only advances children, not the parent
-export const advance = (parent) => {
-	const parentNow = parent
-	const parentBefore = structuredClone(parent)
-
-	for (const childId in parentBefore.children) {
-		const childBefore = parentBefore.children[childId]
-		const childNow = parentNow.children[childId]
-
-		const pulseBefore = childBefore.pulse
-		const pulseNow = childNow.pulse
-
-		for (const type in pulseBefore) {
-			for (const colour in pulseBefore[type]) {
-				// If a child is firing...
-				// - Put out the fire!
-				// - Advance its children too!
-				if (pulseBefore[type][colour]) {
-					pulseNow[type][colour] = false
-					advance(childNow)
-				}
-			}
-		}
-	}
-
-	// Now that we've put out all fires...
-	// Let's check if any children should be firing.
-	for (const childId in parentNow.children) {
-		const childNow = parentNow.children[childId]
-
-		for (const type in childNow.pulse) {
-			for (const colour in childNow.pulse[type]) {
-				const shouldFire = evaluateFire(parentNow, {
-					child: childNow.id,
-					history: [parentBefore],
-					type,
-					colour,
-				})
-				if (shouldFire) {
-					fire(parentNow, {
-						source: parentNow.id,
-						child: childNow.id,
-						type,
-						colour,
-					})
-				}
-			}
-		}
+	if (originalTarget !== replacementTarget) {
+		const targetIndex = originalTarget.inputs.indexOf(wire)
+		originalTarget.inputs.splice(targetIndex, 1)
+		replacementTarget.inputs.push(wire)
+		wireNogan.target = target
 	}
 
 	validate(parent)
-	return parent
+	validate(originalSource)
+	validate(originalTarget)
+	validate(replacementSource)
+	validate(replacementTarget)
 }
-
-//=========//
-// Project //
-//=========//
-export const project = memo(
-	(nogan, func = () => {}, args = []) => {
-		const projected = structuredClone(nogan)
-		func(projected, args)
-		return projected
-	},
-	(nogan, func = () => {}, args = []) => {
-		return JSON.stringify(nogan) + func.name + JSON.stringify(args)
-	},
-)

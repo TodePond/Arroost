@@ -27,7 +27,7 @@ N.Parent = N.Child.extend({
 	freeIds: S.ArrayOf(N.Id),
 	children: S.ObjectWith({
 		keysOf: N.Id,
-		valuesOf: N.reference("Nogan"),
+		valuesOf: N.reference("Nogan").nullable(),
 	}),
 })
 
