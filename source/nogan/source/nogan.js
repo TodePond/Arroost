@@ -54,20 +54,20 @@ export const deleteChild = (nogan, id) => {
 //==========//
 // Creating //
 //==========//
-export const createPhantom = () => {
-	const phantom = N.Phantom.make()
+export const createPhantom = (properties = {}) => {
+	const phantom = N.Phantom.make(properties)
 	validate(phantom)
 	return phantom
 }
 
-export const createNod = (parent) => {
-	const nod = N.Nod.make()
+export const createNod = (parent, properties = {}) => {
+	const nod = N.Nod.make(properties)
 	addChild(parent, nod)
 	return nod
 }
 
-export const createWire = (parent, { source, target } = {}) => {
-	const wire = N.Wire.make()
+export const createWire = (parent, { source, target } = {}, properties = {}) => {
+	const wire = N.Wire.make(properties)
 	wire.source = source
 	wire.target = target
 	addChild(parent, wire)
@@ -175,18 +175,16 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 //=========//
 export const addPulse = (parent, { source, target, colour = "blue", type = "any" }) => {
 	const nodNod = parent.children[target]
-	const { pulse } = nodNod
-
-	// Transform an agnostic pulse into a specific pulse
-	const transformedType = type === "any" ? nodNod.type : type
+	const { pulses } = nodNod
+	const pulse = pulses[colour]
 
 	// Don't do anything if we're already pulsing
-	if (pulse[transformedType][colour]) {
+	if (pulse?.type === type) {
 		return
 	}
 
 	// Update our pulse
-	pulse[transformedType][colour] = true
+	pulses[colour] = N.Pulse.make({ type })
 
 	// TODO: propagate side-effects somehow
 	// eg: in current layer
@@ -215,4 +213,132 @@ export const modifyWire = (parent, { id, colour, timing } = {}) => {
 
 	validate(parent)
 	validate(wire)
+}
+
+//=========//
+// Peaking //
+//=========//
+export const getPeak = (
+	parent,
+	{ id, colour = "blue", timing = 0, history = [], future = [] },
+) => {
+	const peak = _getPeak(parent, { id, colour, timing, history, future })
+	validate(peak)
+	validate(parent)
+	return peak
+}
+
+const _getPeak = (parent, { id, colour, timing, history, future }) => {
+	switch (timing) {
+		case 0:
+			return getPeakNow(parent, { id, colour, history, future })
+		case -1:
+			return getPeakBefore(parent, { id, colour, history, future })
+		case 1:
+			return getPeakAfter(parent, { id, colour, history, future })
+	}
+
+	return N.Never.make({ id, colour, timing, history })
+}
+
+const getPeakNow = (parent, { id, colour, history, future }) => {
+	// First, let's try to find a real pulse
+	const nod = parent.children[id]
+	if (nod) {
+		const pulse = nod.pulses[colour]
+		if (pulse) {
+			return N.Peak.make({ result: true, type: pulse.type })
+		}
+	}
+
+	// Next, let's look through our inputs
+	// to see if we can find a pulse
+	for (const input of nod.inputs) {
+		const wire = parent.children[input]
+		const source = parent.children[wire.source]
+
+		if (wire.colour !== colour) {
+			continue
+		}
+
+		const peak = getPeak(parent, {
+			id: source.id,
+			timing: -wire.timing,
+			colour,
+			history,
+			future,
+		})
+
+		if (peak.result) {
+			return peak
+		}
+	}
+
+	// Too bad, we couldn't find a pulse
+	return N.Peak.make({ result: false })
+}
+
+const getPeakBefore = (parent, { id, colour, history, future }) => {
+	// If we have a recorded history
+	// ... let's just travel back in time!
+	const before = history.at(-1)
+	if (before) {
+		return getPeak(before, {
+			id,
+			timing: 0,
+			colour,
+			history: history.slice(0, -1),
+			future: [parent, ...future],
+		})
+	}
+
+	// Otherwise, let's try to imagine it...
+	const projectedBefore = project(parent)
+	return getPeak(projectedBefore, {
+		id,
+		timing: 0,
+		colour,
+		history: [],
+		future: [parent, ...future],
+	})
+}
+
+const getPeakAfter = (parent, { id, colour, history, future }) => {
+	// If we have a recorded future
+	// ... let's just travel forward in time!
+	const after = future.at(0)
+	if (after) {
+		return getPeak(after, {
+			id,
+			timing: 0,
+			colour,
+			history: [...history, parent],
+			future: future.slice(1),
+		})
+	}
+
+	// Otherwise, let's try to imagine it...
+	const projectedAfter = project(parent)
+	return getPeak(projectedAfter, {
+		id,
+		timing: 0,
+		colour,
+		history: [...history, parent],
+		future: [],
+	})
+}
+
+//============//
+// Projecting //
+//============//
+export const project = (parent) => {
+	const projection = structuredClone(parent)
+	for (const id in projection.children) {
+		const child = projection.children[id]
+		if (!child.isNod) continue
+		child.pulses.red = null
+		child.pulses.green = null
+		child.pulses.blue = null
+	}
+	return projection
 }

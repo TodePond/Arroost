@@ -4,6 +4,15 @@ export const NoganSchema = class extends Schema {}
 const S = Schema
 const N = NoganSchema
 
+N.Never = S.PartialStruct({
+	schemaName: S.Value("Never"),
+})
+	.withCheck(() => false)
+	.withDiagnose((value) => {
+		const { schemaName, ...values } = value
+		return values
+	})
+
 //========//
 // Family //
 //========//
@@ -35,7 +44,7 @@ N.Parent = N.Child.extend({
 // Wiring //
 //========//
 N.Colour = S.Enum(["blue", "green", "red"])
-N.Timing = S.Enum(["now", "before", "after"])
+N.Timing = S.Enum([0, -1, 1])
 N.Wire = N.Child.extend({
 	// Meta
 	schemaName: S.Value("Wire"),
@@ -60,24 +69,27 @@ N.PulseType = S.Enum([
 	"control",
 	"teleportation",
 	"movement",
-	"infinity",
 ])
 
-const pulseStruct = {}
-const phantomPulseStruct = {}
-for (const type of N.PulseType.values) {
-	const pulseTypeStruct = {}
-	const phantomPulseTypeStruct = {}
-	for (const colour of N.Colour.values) {
-		pulseTypeStruct[colour] = S.Boolean
-		phantomPulseTypeStruct[colour] = S.True
-	}
-	pulseStruct[type] = S.Struct(pulseTypeStruct)
-	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
-}
+N.Pulse = S.Struct({
+	type: N.PulseType,
+})
 
-N.Pulse = S.Struct(pulseStruct)
-N.PhantomPulse = S.Struct(phantomPulseStruct)
+N.PhantomPulse = N.Pulse.extend({
+	type: N.Value("any"),
+})
+
+N.Pulses = S.Struct({
+	red: N.Pulse.nullable(),
+	green: N.Pulse.nullable(),
+	blue: N.Pulse.nullable(),
+})
+
+N.PhantomPulses = S.Struct({
+	red: N.PhantomPulse,
+	green: N.PhantomPulse,
+	blue: N.PhantomPulse,
+})
 
 //=====//
 // Nod //
@@ -92,7 +104,7 @@ N.Nod = N.Parent.extend({
 	inputs: S.ArrayOf(N.Id),
 
 	// Pulse
-	pulse: N.reference("Pulse"),
+	pulses: N.reference("Pulses"),
 
 	// Nod
 	position: S.Vector2D,
@@ -108,7 +120,16 @@ N.Phantom = N.Nod.extend({
 	id: S.Value(-1),
 
 	// Pulse
-	pulse: N.reference("PhantomPulse"),
+	pulses: N.reference("PhantomPulses"),
 })
 
 N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
+
+//======//
+// Peak //
+//======//
+N.Peak = S.Struct({
+	schemaName: S.Value("Peak"),
+	result: S.Boolean,
+	type: N.PulseType,
+})

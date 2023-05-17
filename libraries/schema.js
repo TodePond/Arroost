@@ -70,7 +70,7 @@ export const Schema = class {
 	withDefault(defaultValue) {
 		return new Schema({
 			check: this.check,
-			make: () => defaultValue,
+			make: (value) => (value === undefined ? defaultValue : value),
 			diagnose: this.diagnose,
 		})
 	}
@@ -90,30 +90,19 @@ export const Schema = class {
 	static reference(key) {
 		return new Schema({
 			check: (value) => this[key].check(value),
-			make: () => this[key].make(),
+			make: (arg) => this[key].make(arg),
 			diagnose: (value) => this[key].diagnose(value),
 		})
 	}
 }
 
-Schema.Number = new Schema({
-	check: (value) => typeof value === "number",
-	make: () => 0,
-})
-
-Schema.String = new Schema({
-	check: (value) => typeof value === "string",
-	make: () => "",
-})
-
-Schema.Boolean = new Schema({
-	check: (value) => typeof value === "boolean",
-	make: () => false,
-})
+Schema.Number = new Schema().withDefault(0).withCheck((value) => typeof value === "number")
+Schema.String = new Schema().withDefault("").withCheck((value) => typeof value === "string")
+Schema.Boolean = new Schema().withDefault(false).withCheck((value) => typeof value === "boolean")
 
 Schema.Array = new Schema({
 	check: (value) => Array.isArray(value),
-	make: () => [],
+	make: (value) => value ?? [],
 })
 
 Schema.Tuple = (schemas) => {
@@ -129,8 +118,12 @@ Schema.Tuple = (schemas) => {
 		return true
 	}
 
-	const make = () => {
-		return schemas.map((schema) => schema.make())
+	const make = (args = []) => {
+		const values = []
+		for (let i = 0; i < schemas.length; i++) {
+			values[i] = schemas[i].make(args[i])
+		}
+		return values
 	}
 
 	return Schema.Array.andCheck(check).withMake(make)
@@ -138,18 +131,15 @@ Schema.Tuple = (schemas) => {
 
 Schema.Object = new Schema({
 	check: (value) => typeof value === "object" && !Schema.Array.check(value),
-	make: () => ({}),
+	make: (value) => value ?? {},
 })
 
 Schema.Function = new Schema({
 	check: (value) => typeof value === "function",
-	make: () => () => {},
+	make: (value) => value ?? (() => {}),
 })
 
-Schema.Any = new Schema({
-	check: () => true,
-	make: () => undefined,
-})
+Schema.Any = new Schema().withCheck(() => true).withDefault(undefined)
 
 Schema.PartialStruct = (struct) => {
 	const check = (value) => {
@@ -161,10 +151,16 @@ Schema.PartialStruct = (struct) => {
 		return true
 	}
 
-	const make = () => {
+	const make = (options = {}) => {
 		const object = {}
 		for (const key in struct) {
-			object[key] = struct[key].make()
+			const value = options[key]
+			object[key] = struct[key].make(value)
+		}
+		for (const key in options) {
+			if (struct[key] === undefined) {
+				object[key] = options[key]
+			}
 		}
 		return object
 	}
@@ -224,11 +220,7 @@ Schema.Enum = (values) => {
 	}
 
 	const [head] = values
-	const make = () => {
-		return head
-	}
-
-	const schema = new Schema({ check, make })
+	const schema = new Schema().withCheck(check).withDefault(head)
 	schema.values = values
 	return schema
 }
@@ -245,22 +237,10 @@ Schema.SafePositiveInteger = Schema.SafeInteger.and(Schema.Positive)
 Schema.Vector2D = Schema.Tuple([Schema.Finite, Schema.Finite])
 Schema.Vector3D = Schema.Tuple([Schema.Finite, Schema.Finite, Schema.Finite])
 
-Schema.Truthy = new Schema({
-	check: (value) => !!value,
-	make: () => true,
-})
+Schema.Truthy = new Schema().withCheck((value) => !!value).withDefault(true)
+Schema.Falsy = new Schema().withCheck((value) => !value).withDefault(false)
 
-Schema.Falsy = new Schema({
-	check: (value) => !value,
-	make: () => false,
-})
-
-Schema.Value = (schema) => {
-	return new Schema({
-		check: (value) => value === schema,
-		make: () => schema,
-	})
-}
+Schema.Value = (value) => new Schema().withCheck((v) => v === value).withDefault(value)
 
 Schema.True = Schema.Value(true)
 Schema.False = Schema.Value(false)
