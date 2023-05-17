@@ -105,6 +105,16 @@ export const destroyWire = (parent, id) => {
 	validate(targetNogan)
 }
 
+export const destroyNod = (parent, id) => {
+	const nod = parent.children[id]
+	if (nod.inputs.length > 0 || nod.outputs.length > 0) {
+		throw new Error("Cannot destroy nod with wires")
+	}
+
+	deleteChild(parent, id)
+	validate(parent)
+}
+
 //============//
 // Connecting //
 //============//

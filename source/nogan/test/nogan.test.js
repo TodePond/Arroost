@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
 	addChild,
@@ -7,6 +7,7 @@ import {
 	createPhantom,
 	createWire,
 	deleteChild,
+	destroyNod,
 	destroyWire,
 	freeId,
 	reconnectWire,
@@ -94,6 +95,23 @@ describe("destroying", () => {
 
 		assertEquals(nod.outputs, [])
 		assertEquals(nod.inputs, [])
+	})
+
+	it("destroys a nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+
+		destroyNod(phantom, nod.id)
+		validate(phantom)
+	})
+
+	it("can't destroy a nod with wires", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		createWire(phantom, { source: nod.id, target: nod.id })
+
+		assertThrows(() => destroyNod(phantom, nod.id), "Cannot destroy nod with wires")
+		validate(phantom)
 	})
 })
 
