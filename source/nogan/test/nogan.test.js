@@ -2,6 +2,7 @@ import { assertEquals, assertThrows } from "https://deno.land/std/testing/assert
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
 	addChild,
+	addPulse,
 	createId,
 	createNod,
 	createPhantom,
@@ -10,9 +11,10 @@ import {
 	destroyNod,
 	destroyWire,
 	freeId,
+	modifyNod,
+	modifyWire,
 	reconnectWire,
 	replaceNod,
-	validate,
 } from "../source/nogan.js"
 import { NoganSchema } from "../source/schema.js"
 
@@ -45,8 +47,6 @@ describe("family", () => {
 		const phantom = N.Phantom.make()
 		const nod = N.Nod.make()
 		addChild(phantom, nod)
-		validate(phantom)
-		validate(nod)
 	})
 
 	it("deletes a child", () => {
@@ -54,20 +54,17 @@ describe("family", () => {
 		const nod = N.Nod.make()
 		addChild(phantom, nod)
 		deleteChild(phantom, nod.id)
-		validate(phantom)
 	})
 })
 
 describe("creating", () => {
 	it("creates a phantom", () => {
-		const phantom = createPhantom()
-		validate(phantom, N.Phantom)
+		createPhantom()
 	})
 
 	it("creates a nod", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		validate(nod, N.Nod)
 	})
 	it("creates a wire", () => {
 		const phantom = createPhantom()
@@ -77,7 +74,6 @@ describe("creating", () => {
 		assertEquals(nod.inputs, [wire.id])
 		assertEquals(wire.source, nod.id)
 		assertEquals(wire.target, nod.id)
-		validate(wire, N.Wire)
 	})
 })
 
@@ -91,7 +87,6 @@ describe("destroying", () => {
 		assertEquals(nod.inputs, [wire.id])
 
 		destroyWire(phantom, wire.id)
-		validate(phantom)
 
 		assertEquals(nod.outputs, [])
 		assertEquals(nod.inputs, [])
@@ -102,7 +97,6 @@ describe("destroying", () => {
 		const nod = createNod(phantom)
 
 		destroyNod(phantom, nod.id)
-		validate(phantom)
 	})
 
 	it("can't destroy a nod with wires", () => {
@@ -111,7 +105,6 @@ describe("destroying", () => {
 		createWire(phantom, { source: nod.id, target: nod.id })
 
 		assertThrows(() => destroyNod(phantom, nod.id), "Cannot destroy nod with wires")
-		validate(phantom)
 	})
 })
 
@@ -155,7 +148,7 @@ describe("connecting", () => {
 		assertEquals(nod2.outputs, [])
 		assertEquals(nod2.inputs, [])
 
-		reconnectWire(phantom, { wire: wire.id, target: nod2.id })
+		reconnectWire(phantom, { id: wire.id, target: nod2.id })
 
 		assertEquals(wire.source, nod1.id)
 		assertEquals(wire.target, nod2.id)
@@ -164,8 +157,6 @@ describe("connecting", () => {
 		assertEquals(nod1.inputs, [])
 		assertEquals(nod2.outputs, [])
 		assertEquals(nod2.inputs, [wire.id])
-
-		validate(phantom)
 	})
 
 	it("reconnects a wire source", () => {
@@ -182,7 +173,7 @@ describe("connecting", () => {
 		assertEquals(nod2.outputs, [])
 		assertEquals(nod2.inputs, [])
 
-		reconnectWire(phantom, { wire: wire.id, source: nod2.id })
+		reconnectWire(phantom, { id: wire.id, source: nod2.id })
 
 		assertEquals(wire.source, nod2.id)
 		assertEquals(wire.target, nod1.id)
@@ -191,8 +182,6 @@ describe("connecting", () => {
 		assertEquals(nod1.inputs, [wire.id])
 		assertEquals(nod2.outputs, [wire.id])
 		assertEquals(nod2.inputs, [])
-
-		validate(phantom)
 	})
 
 	it("reconnects a wire source and target", () => {
@@ -209,7 +198,7 @@ describe("connecting", () => {
 		assertEquals(nod2.outputs, [])
 		assertEquals(nod2.inputs, [])
 
-		reconnectWire(phantom, { wire: wire.id, source: nod2.id, target: nod2.id })
+		reconnectWire(phantom, { id: wire.id, source: nod2.id, target: nod2.id })
 
 		assertEquals(wire.source, nod2.id)
 		assertEquals(wire.target, nod2.id)
@@ -218,7 +207,96 @@ describe("connecting", () => {
 		assertEquals(nod1.inputs, [])
 		assertEquals(nod2.outputs, [wire.id])
 		assertEquals(nod2.inputs, [wire.id])
+	})
+})
 
-		validate(phantom)
+describe("pulsing", () => {
+	it("pulses a nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+
+		assertEquals(nod.pulse.any.blue, false)
+		addPulse(phantom, { target: nod.id })
+		assertEquals(nod.pulse.any.blue, true)
+	})
+
+	it("transforms a pulse", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		nod.type = "creation"
+
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, false)
+		addPulse(phantom, { target: nod.id })
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, true)
+	})
+
+	it("adds a specific pulse", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, false)
+		addPulse(phantom, { target: nod.id, type: "creation" })
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, true)
+	})
+
+	it("doesn't transform a specific pulse", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		nod.type = "destruction"
+
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, false)
+		assertEquals(nod.pulse.destruction.blue, false)
+		addPulse(phantom, { target: nod.id, type: "creation" })
+		assertEquals(nod.pulse.any.blue, false)
+		assertEquals(nod.pulse.creation.blue, true)
+		assertEquals(nod.pulse.destruction.blue, false)
+	})
+})
+
+describe("modifying", () => {
+	it("modifies a nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+
+		assertEquals(nod.position, [0, 0])
+		assertEquals(nod.type, "any")
+		modifyNod(phantom, { id: nod.id, position: [10, 20], type: "creation" })
+		assertEquals(nod.position, [10, 20])
+		assertEquals(nod.type, "creation")
+	})
+
+	it("modifies a wire", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const wire = createWire(phantom, { source: nod.id, target: nod.id })
+
+		assertEquals(wire.timing, "now")
+		assertEquals(wire.colour, "blue")
+		modifyWire(phantom, { id: wire.id, timing: "after", colour: "red" })
+		assertEquals(wire.timing, "after")
+		assertEquals(wire.colour, "red")
+	})
+
+	it("sticks with current values", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const wire = createWire(phantom, { source: nod.id, target: nod.id })
+
+		assertEquals(wire.timing, "now")
+		assertEquals(wire.colour, "blue")
+		modifyWire(phantom, { id: wire.id })
+		assertEquals(wire.timing, "now")
+		assertEquals(wire.colour, "blue")
+
+		assertEquals(nod.position, [0, 0])
+		assertEquals(nod.type, "any")
+		modifyNod(phantom, { id: nod.id })
+		assertEquals(nod.position, [0, 0])
+		assertEquals(nod.type, "any")
 	})
 })

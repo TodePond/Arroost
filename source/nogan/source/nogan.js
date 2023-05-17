@@ -142,24 +142,24 @@ export const replaceNod = (parent, { original, replacement } = {}) => {
 	validate(replacementNod)
 }
 
-export const reconnectWire = (parent, { wire, source, target } = {}) => {
-	const wireNogan = parent.children[wire]
+export const reconnectWire = (parent, { id, source, target } = {}) => {
+	const wireNogan = parent.children[id]
 	const originalSource = parent.children[wireNogan.source]
 	const originalTarget = parent.children[wireNogan.target]
 	const replacementSource = parent.children[source] ?? originalSource
 	const replacementTarget = parent.children[target] ?? originalTarget
 
 	if (originalSource !== replacementSource) {
-		const sourceIndex = originalSource.outputs.indexOf(wire)
+		const sourceIndex = originalSource.outputs.indexOf(id)
 		originalSource.outputs.splice(sourceIndex, 1)
-		replacementSource.outputs.push(wire)
+		replacementSource.outputs.push(id)
 		wireNogan.source = source
 	}
 
 	if (originalTarget !== replacementTarget) {
-		const targetIndex = originalTarget.inputs.indexOf(wire)
+		const targetIndex = originalTarget.inputs.indexOf(id)
 		originalTarget.inputs.splice(targetIndex, 1)
-		replacementTarget.inputs.push(wire)
+		replacementTarget.inputs.push(id)
 		wireNogan.target = target
 	}
 
@@ -168,4 +168,51 @@ export const reconnectWire = (parent, { wire, source, target } = {}) => {
 	validate(originalTarget)
 	validate(replacementSource)
 	validate(replacementTarget)
+}
+
+//=========//
+// Pulsing //
+//=========//
+export const addPulse = (parent, { source, target, colour = "blue", type = "any" }) => {
+	const nodNod = parent.children[target]
+	const { pulse } = nodNod
+
+	// Transform an agnostic pulse into a specific pulse
+	const transformedType = type === "any" ? nodNod.type : type
+
+	// Don't do anything if we're already pulsing
+	if (pulse[transformedType][colour]) {
+		return
+	}
+
+	// Update our pulse
+	pulse[transformedType][colour] = true
+
+	// TODO: propagate side-effects somehow
+	// eg: in current layer
+	// eg: in UI
+
+	validate(parent)
+	validate(nodNod)
+}
+
+//===========//
+// Modifying //
+//===========//
+export const modifyNod = (parent, { id, type, position } = {}) => {
+	const nod = parent.children[id]
+	nod.type = type ?? nod.type
+	nod.position = position ?? nod.position
+
+	validate(parent)
+	validate(nod)
+}
+
+export const modifyWire = (parent, { id, colour, timing } = {}) => {
+	const wire = parent.children[id]
+	wire.colour = colour ?? wire.colour
+	wire.timing = timing ?? wire.timing
+
+	validate(parent)
+	validate(wire)
 }

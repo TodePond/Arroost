@@ -34,7 +34,7 @@ N.Parent = N.Child.extend({
 //========//
 // Wiring //
 //========//
-N.Colour = S.Enum(["all", "blue", "green", "red"])
+N.Colour = S.Enum(["blue", "green", "red"])
 N.Timing = S.Enum(["now", "before", "after"])
 N.Wire = N.Child.extend({
 	// Meta
@@ -51,7 +51,17 @@ N.Wire = N.Child.extend({
 //=======//
 // Pulse //
 //=======//
-N.PulseType = S.Enum(["any", "creation"])
+N.PulseType = S.Enum([
+	"any",
+	"creation",
+	"connection",
+	"destruction",
+	"modification",
+	"control",
+	"teleportation",
+	"movement",
+	"infinity",
+])
 
 const pulseStruct = {}
 const phantomPulseStruct = {}
@@ -60,7 +70,7 @@ for (const type of N.PulseType.values) {
 	const phantomPulseTypeStruct = {}
 	for (const colour of N.Colour.values) {
 		pulseTypeStruct[colour] = S.Boolean
-		phantomPulseTypeStruct[colour] = type === "any" ? S.True : S.False
+		phantomPulseTypeStruct[colour] = S.True
 	}
 	pulseStruct[type] = S.Struct(pulseTypeStruct)
 	phantomPulseStruct[type] = S.Struct(phantomPulseTypeStruct)
@@ -87,7 +97,6 @@ N.Nod = N.Parent.extend({
 	// Nod
 	position: S.Vector2D,
 	type: N.PulseType,
-	colour: N.Colour,
 })
 
 N.Phantom = N.Nod.extend({
