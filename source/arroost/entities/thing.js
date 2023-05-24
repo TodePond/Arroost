@@ -29,13 +29,13 @@ export const Thing = class extends Entity {
 
 	add(child) {
 		super.add(child)
-		if (child.ghost) return
+		if (child.ghost && !child.debug) return
 		this.svg.element.append(child.svg.element)
 	}
 
 	delete(child) {
 		super.delete(child)
-		if (child.ghost) return
+		if (child.ghost && !child.debug) return
 		this.svg.element.removeChild(child.svg.element)
 	}
 

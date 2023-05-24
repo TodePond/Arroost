@@ -1,4 +1,4 @@
-import { Component } from "../../../libraries/habitat-import.js"
+import { Component, SVG } from "../../../libraries/habitat-import.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { Style } from "../components/style.js"
@@ -6,7 +6,7 @@ import { Svg } from "../components/svg.js"
 import { Thing } from "./thing.js"
 
 export const Ghost = class extends Thing {
-	constructor(components = []) {
+	constructor(debug = false) {
 		super([
 			new Component.Transform(),
 			new Component.Stage(),
@@ -15,11 +15,20 @@ export const Ghost = class extends Thing {
 			new Movement(),
 			new Svg(),
 			new Input(),
-			...components,
 		])
 
 		this.ghost = true
+		this.debug = debug
+		if (debug) {
+			this.style.pointerEvents = "none"
+			this.render = () => {
+				const dot = SVG("circle")
+				dot.setAttribute("cx", 0)
+				dot.setAttribute("cy", 0)
+				dot.setAttribute("r", 1)
+				dot.setAttribute("fill", "red")
+				return dot
+			}
+		}
 	}
-
-	bringToFront() {}
 }

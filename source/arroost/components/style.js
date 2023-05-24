@@ -8,6 +8,7 @@ export const Style = class extends Component {
 	strokeWidth = use(1)
 	pointerEvents = use("all")
 	visibility = use("visible")
+	zIndex = use(0)
 
 	constructor() {
 		super()
@@ -21,6 +22,7 @@ export const Style = class extends Component {
 		this.use(() => element.setAttribute("stroke-width", this.strokeWidth))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents))
 		this.use(() => element.setAttribute("visibility", this.visibility))
+		this.use(() => (element.style["z-index"] = this.zIndex))
 	}
 
 	onParent() {

@@ -335,6 +335,17 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				]
 			}
 
+			getRelativePosition(absolutePosition) {
+				const positionedDisplacement = subtract(absolutePosition, this.absolutePosition)
+				const rotatedDisplacement = rotate(positionedDisplacement, -this.absoluteRotation)
+				const scaledDisplacement = [
+					rotatedDisplacement.x / this.absoluteScale.x,
+					rotatedDisplacement.y / this.absoluteScale.y,
+				]
+
+				return scaledDisplacement
+			}
+
 			absoluteScale = snuse(() => {
 				const { entity } = this
 				const { parent } = entity

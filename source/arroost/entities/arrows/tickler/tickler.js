@@ -2,7 +2,7 @@ import { WHITE, subtract } from "../../../../../libraries/habitat-import.js"
 import { shared } from "../../../../main.js"
 import { State } from "../../../input/state.js"
 import { Idle } from "../../../input/states.js"
-import { INNER_ATOM_UNIT } from "../../../unit.js"
+import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../unit.js"
 import { Curve } from "../../shapes/curve.js"
 import { Flaps } from "../../shapes/flaps.js"
 import { Carryable } from "../carryable.js"
@@ -43,6 +43,26 @@ export const ArrowTickler = class extends Carryable {
 			flaps.transform.rotation = angle
 
 			tickle.target.transform.setAbsolutePosition(pointer.position)
+
+			const relativeDisplacement = this.transform.getRelativePosition(pointer.position)
+			const relativeDistance = Math.hypot(relativeDisplacement.x, relativeDisplacement.y)
+			const relativeAngle = Math.atan2(relativeDisplacement.y, relativeDisplacement.x)
+
+			const curveEndDistance = Math.max(0, relativeDistance - MAGNET_UNIT)
+			const curveEnd = [
+				Math.cos(relativeAngle) * curveEndDistance,
+				Math.sin(relativeAngle) * curveEndDistance,
+			]
+
+			const curveStartDistance = Math.min(MAGNET_UNIT - INNER_ATOM_UNIT, curveEndDistance)
+			const curveStart = [
+				Math.cos(relativeAngle) * curveStartDistance,
+				Math.sin(relativeAngle) * curveStartDistance,
+			]
+
+			tickle.curveEndTarget.transform.position = curveEnd
+			tickle.curveStartTarget.transform.position = curveStart
+
 			flaps.transform.setAbsolutePosition(pointer.position)
 		})
 
