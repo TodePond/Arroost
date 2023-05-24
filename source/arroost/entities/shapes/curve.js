@@ -4,24 +4,30 @@ import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 
 export const Curve = class extends Thing {
-	target = new Ghost(true)
+	target = new Ghost()
 
-	// Start and end of the curve
-	// Not necessarily the start and end of the line
-	curveStartTarget = new Ghost(true)
-	curveEndTarget = new Ghost(true)
+	startAngle = this.use(null)
+	endAngle = this.use(null)
 
 	// How far to extend or contract the line.
 	extra = this.use(0)
 
-	constructor(end = [0, 0]) {
+	constructor(end = [0, 0], debug = false) {
 		super()
 		this.add(this.target)
-		this.add(this.curveStartTarget)
-		this.add(this.curveEndTarget)
 		this.target.transform.position = end
 		this.style.strokeWidth = INNER_ATOM_UNIT
 		this.style.stroke = WHITE
+		this.style.fill = "none"
+
+		if (debug) {
+			this.startDebug = new Ghost(true)
+			this.endDebug = new Ghost(true)
+			this.add(this.startDebug)
+			this.add(this.endDebug)
+			this.debug = true
+		}
+
 		glue(this)
 	}
 
@@ -31,19 +37,25 @@ export const Curve = class extends Thing {
 
 		const path = SVG("path")
 		const end = target.transform.position
-		const curveStart = this.curveStartTarget.transform.position
-		const curveEnd = this.curveEndTarget.transform.position
 
 		this.use(() => {
 			const angle = angleBetween([0, 0], end)
-			const actualEnd = [
-				end.x + Math.cos(angle) * this.extra,
-				end.y + Math.sin(angle) * this.extra,
-			]
-			path.setAttribute(
-				"d",
-				`M 0 0 L ${curveStart.x} ${curveStart.y} ${curveEnd.x} ${curveEnd.y} ${actualEnd.x} ${actualEnd.y}`,
-			)
+			const extra = Math.max(this.extra, 0)
+
+			const actualEnd = [end.x + Math.cos(angle) * extra, end.y + Math.sin(angle) * extra]
+			const actualDistance = Math.hypot(actualEnd.x, actualEnd.y)
+
+			let ds = ["M 0 0"]
+
+			if (this.startAngle !== null) {
+				ds.push(
+					`Q ${(Math.cos(this.startAngle) * -actualDistance) / 2} ${
+						(Math.sin(this.startAngle) * -actualDistance) / 2
+					} ${actualEnd.x} ${actualEnd.y}`,
+				)
+			}
+
+			path.setAttribute("d", ds.join(" "))
 		})
 
 		return path
