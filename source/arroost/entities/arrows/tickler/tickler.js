@@ -3,12 +3,12 @@ import { shared } from "../../../../main.js"
 import { State } from "../../../input/state.js"
 import { Idle } from "../../../input/states.js"
 import { INNER_ATOM_UNIT } from "../../../unit.js"
+import { Curve } from "../../shapes/curve.js"
 import { Flaps } from "../../shapes/flaps.js"
-import { Line } from "../../shapes/line.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Line()
+	tickle = new Curve()
 	flaps = new Flaps()
 
 	render() {
