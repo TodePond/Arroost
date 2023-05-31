@@ -7,7 +7,7 @@ import { Curve } from "../../shapes/curve.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Curve({ flaps: true, debug: true })
+	tickle = new Curve({ flaps: true, debug: false })
 	isStartAngleDecided = this.use(false)
 
 	constructor(...args) {
@@ -77,6 +77,7 @@ export const ArrowTickler = class extends Carryable {
 	onTicklingEnter() {
 		this.bringToFront()
 		this.isStartAngleDecided = false
+		this.tickle.decided = false
 	}
 
 	onTicklingPointerDown(event, state) {

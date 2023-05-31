@@ -9,7 +9,7 @@ import {
 	rotate,
 	wrap,
 } from "../../../../libraries/habitat-import.js"
-import { INNER_ATOM_RATIO } from "../../unit.js"
+import { INNER_ATOM_RATIO, INNER_ATOM_UNIT } from "../../unit.js"
 import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 import { Flaps } from "./flaps.js"
@@ -18,9 +18,7 @@ export const Curve = class extends Thing {
 	target = new Ghost()
 
 	startAngle = this.use(null)
-	sweep = 1
-	angle = 0
-	full = 0
+	decided = this.use(false)
 
 	constructor({ end = [0, 0], debug = false, flaps = false } = {}) {
 		super()
@@ -66,11 +64,31 @@ export const Curve = class extends Thing {
 			const start = [0, 0]
 			const middle = [end.x / 2, end.y / 2]
 
+			// Flaps
+			const { flaps } = this
+			flaps.style.visibility = this.style.visibility
+			//flaps.transform.rotation = startAngle
+
+			flaps.style.strokeWidth = this.style.strokeWidth
+			flaps.style.stroke = this.style.stroke
+			flaps.style.fill = this.style.fill
+			flaps.transform.position = end
+
 			// Angle
 			const endAngle = angleBetween(end, start)
 			const startAngle = this.startAngle ?? endAngle
-			const angle = wrap(endAngle - startAngle, -Math.PI, Math.PI)
+			let angle = wrap(endAngle - startAngle, -Math.PI, Math.PI)
 			const middleAngle = endAngle - Math.PI / 2
+
+			// Bail out if the angle isn't decided!
+			if (!this.decided) {
+				const distance = distanceBetween(start, end)
+				const recededDistance = Math.max(distance - INNER_ATOM_UNIT, 0)
+				const recededEnd = rotate([recededDistance, 0], endAngle)
+				path.setAttribute("d", `M ${start} L ${recededEnd}`)
+				flaps.transform.rotation = angleBetween(end, start) * (180 / Math.PI) - 45
+				return
+			}
 
 			// Slope
 			const slope = startAngle
@@ -97,35 +115,33 @@ export const Curve = class extends Thing {
 			}
 
 			// Sweep
-			this.sweep = angle > 0 ? 1 : 0
-			this.full = Math.abs(angle) > Math.PI / 2 ? 1 : 0
-			this.angle = angle
+			const sweep = angle > 0 ? 1 : 0
 
-			const sweep = this.sweep
-			const full = this.full
+			// A tiny bit back along the circumference from the end
+			let recedeAngle = ((sweep ? -1 : 1) * INNER_ATOM_UNIT) / radius
+			if (!Number.isFinite(recedeAngle)) {
+				recedeAngle = 0
+			}
+			const recededEnd = rotate(end, recedeAngle, center)
 
-			const arc = `M ${start} A ${radius} ${radius} 0 ${full} ${sweep ? 1 : 0} ${end}`
+			const recededEndAngle = angleBetween(recededEnd, start)
+			const recededAngle = wrap(recededEndAngle - startAngle, -Math.PI, Math.PI)
+
+			const recededFull = Math.abs(recededAngle) > Math.PI / 2 ? 1 : 0
+			const full = Math.abs(angle) > Math.PI / 2 ? 1 : 0
+
+			const arc = `M ${start} A ${radius} ${radius} 0 ${recededFull} ${
+				sweep ? 1 : 0
+			} ${recededEnd}`
 			const data = [arc].join(" ")
 			path.setAttribute("d", data)
 
-			// Flaps
-			const { flaps } = this
-			flaps.style.visibility = this.style.visibility
-			//flaps.transform.rotation = startAngle
+			const circleEndAngle = angleBetween(recededEnd, center)
 
-			flaps.style.strokeWidth = this.style.strokeWidth
-			flaps.style.stroke = this.style.stroke
-			flaps.style.fill = this.style.fill
-			flaps.transform.position = end
-
-			const circleEndAngle = this.decided
-				? angleBetween(end, center)
-				: angleBetween(end, [0, 0]) - Math.PI / 2
-			flaps.transform.rotation =
-				circleEndAngle * (180 / Math.PI) + 45 + (this.decided ? (sweep ? 0 : 180) : 0)
+			flaps.transform.rotation = circleEndAngle * (180 / Math.PI) + 45 + (sweep ? 0 : 180)
 
 			// -- Debug --
-			if (!this.debug || !this.decided) return
+			if (!this.debug) return
 			const startProjection = rotate([1000, 0], startAngle)
 			const normalProjection = rotate([1000, 0], normalAngle)
 			const antiNormalProjection = rotate([1000, 0], normalAngle + Math.PI)
