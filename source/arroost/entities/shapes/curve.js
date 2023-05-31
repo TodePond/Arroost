@@ -1,12 +1,13 @@
 import {
+	BLUE,
+	GREEN,
 	SVG,
 	WHITE,
-	add,
 	angleBetween,
-	clamp,
 	distanceBetween,
 	glue,
 	rotate,
+	wrap,
 } from "../../../../libraries/habitat-import.js"
 import { INNER_ATOM_RATIO } from "../../unit.js"
 import { Ghost } from "../ghost.js"
@@ -16,6 +17,8 @@ export const Curve = class extends Thing {
 	target = new Ghost()
 
 	startAngle = this.use(null)
+	sweep = 1
+	angle = 0
 
 	constructor(end = [0, 0]) {
 		super()
@@ -32,100 +35,92 @@ export const Curve = class extends Thing {
 		const { parent, target } = this
 		if (parent === undefined) return
 
+		const group = SVG("g")
 		const path = SVG("path")
+		const debugPath = SVG("path")
+		const debugArc = SVG("path")
+
+		group.append(path)
+		group.append(debugPath)
+		group.append(debugArc)
+
+		debugPath.style.strokeWidth = 0.5
+		debugArc.style.strokeWidth = 0.5
+		debugPath.style.stroke = GREEN
+		debugArc.style.stroke = BLUE
+		path.style.stroke = WHITE
 
 		this.use(() => {
-			const start = [0, 0]
 			const end = target.transform.position
+			const start = [0, 0]
 
-			const startAngle = this.startAngle ?? angleBetween(end, start)
-			const startAngleLine = [rotate([-1000, 0], startAngle), rotate([1000, 0], startAngle)]
+			const endAngle = angleBetween(end, start)
+			const startAngle = this.startAngle ?? endAngle
+			const angle = wrap(endAngle - startAngle, -Math.PI, Math.PI)
 
-			const endAngle = angleBetween(start, end)
+			const angleSize = Math.abs(angle)
 
-			const midpoint = [end.x / 2, end.y / 2]
-			const midpointAngle = angleBetween(midpoint, start)
-			const midpointLine = [rotate([-1000, 0], midpointAngle), rotate([1000, 0], midpointAngle)]
+			let radius = distanceBetween(end, start) / (2 * Math.sin(angleSize / 2))
 
-			const midpointLineNormal = [
-				rotate(midpointLine[0], -Math.PI / 2, midpoint),
-				rotate(midpointLine[1], -Math.PI / 2, midpoint),
-			]
+			if (radius === Infinity) radius = 0
 
-			// Point of intersection between the midpointLineNormal and the startAngleLine
-			const intersection = getIntersection(
-				{ position: midpoint, direction: midpointAngle - Math.PI / 2 },
-				{ position: start, direction: startAngle },
-			)
+			if (true || (this.angle >= 0 && angle <= 0) || (this.angle <= 0 && angle >= 0)) {
+				if (true || (angle < Math.PI / 2 && angle > -Math.PI / 2)) {
+					this.sweep = angle >= 0 ? 1 : 0
+				}
+			}
 
-			const intersectionAngle = angleBetween(intersection, end)
-			const intersectionLine = add(intersection, [
-				Math.cos(intersectionAngle) * -1000,
-				Math.sin(intersectionAngle) * -1000,
-			])
+			this.angle = angle
+			const sweep = this.sweep
 
-			const intersectionDistance = distanceBetween(intersection, start)
-			const endDistance = distanceBetween(end, start)
+			const arc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
 
-			const maxIntersectionDistance = endDistance
-			const minIntersectionDistance = 0
-			const limitedIntersectionDistance = clamp(
-				intersectionDistance,
-				minIntersectionDistance,
-				maxIntersectionDistance,
-			)
+			const transform = `` //`rotate(${(-angle / Math.PI / 2) * 180} ${start})`
 
-			const limitedIntersection = [
-				start.x + limitedIntersectionDistance * Math.cos(startAngle),
-				start.y + limitedIntersectionDistance * Math.sin(startAngle),
-			]
-			const reflectionLine = add(limitedIntersection, [
-				Math.cos(endAngle) * -1000,
-				Math.sin(endAngle) * -1000,
-			])
+			// -- Debug --
+			const startProjection = rotate([1000, 0], startAngle)
+			const startLine = `M ${start} L ${startProjection}`
+			const directLine = `M ${start} L ${end}`
+			const fullArc = `M ${start} A ${radius} ${radius} 0 1 ${sweep ? 0 : 1} ${end}`
+			const debugArcArc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
+			// -----------
 
-			const reflectedIntersection = getIntersection(
-				{ position: limitedIntersection, direction: endAngle },
-				{ position: end, direction: angleBetween(end, intersection) },
-			)
+			const data = [arc].join(" ")
+			const debugData = [directLine, startLine].join(" ")
+			const debugArcData = [fullArc, debugArcArc].join(" ")
 
-			const controlReflectedAngle = angleBetween(reflectedIntersection, end)
-			const controlDistance = limitedIntersectionDistance / 2
-
-			const limitedControl = [
-				add(start, [
-					Math.cos(startAngle) * controlDistance,
-					Math.sin(startAngle) * controlDistance,
-				]),
-				add(end, [
-					Math.cos(controlReflectedAngle) * controlDistance,
-					Math.sin(controlReflectedAngle) * controlDistance,
-				]),
-			]
-
-			const data = [
-				`M ${start} L ${startAngleLine[1]}`,
-				`M ${start} L ${end}`,
-				`M ${midpointLineNormal[0]} L ${midpointLineNormal[1]}`,
-				// `M ${end} L ${intersection}`,
-				`M ${end} L ${intersectionLine}`,
-				// `M ${end} L ${reflectedIntersection}`,
-				// // `M ${start} S ${intersection} ${end}`,
-				// `M ${start} L ${limitedIntersection} ${end}`,
-				// // `M ${start} S ${limitedIntersection} ${end}`,
-				// `M ${limitedIntersection} L ${reflectionLine}`,
-				// `M ${start} L ${reflectedIntersection}`,
-				// `M ${limitedControl[0]} L ${limitedControl[1]}`,
-				`M ${start} C ${limitedControl[0]} ${limitedControl[1]} ${end}`,
-			].join(" ")
 			path.setAttribute("d", data)
+			path.setAttribute("transform", transform)
+			debugArc.setAttribute("d", debugArcData)
+			debugArc.setAttribute("transform", transform)
+			debugPath.setAttribute("d", debugData)
 		})
 
-		return path
+		return group
 	}
 }
 
-const getIntersection = (a, b = { position: [0, 0], direction: 0 }) => {
+const getIntersection = (a, b = { start: [0, 0], end: [10, 0] }) => {
+	const x1 = a.start[0]
+	const y1 = a.start[1]
+	const x2 = a.end[0]
+	const y2 = a.end[1]
+	const x3 = b.start[0]
+	const y3 = b.start[1]
+	const x4 = b.end[0]
+	const y4 = b.end[1]
+
+	const x =
+		((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) /
+		((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+	const y =
+		((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) /
+		((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+
+	return [x, y]
+}
+
+const getIntersectionPolar = (a, b = { position: [0, 0], direction: 0 }) => {
 	const a1 = Math.tan(a.direction)
 	const b1 = a.position.y - a1 * a.position.x
 	const a2 = Math.tan(b.direction)

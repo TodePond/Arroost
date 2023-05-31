@@ -30,7 +30,7 @@ export const ArrowTickler = class extends Carryable {
 
 		// Indicator
 		tickle.style.stroke = WHITE
-		tickle.style.strokeWidth = 0.5 //INNER_ATOM_UNIT
+		tickle.style.strokeWidth = INNER_ATOM_UNIT
 		tickle.extra = INNER_ATOM_UNIT
 		flaps.style.stroke = WHITE
 		flaps.style.fill = "none"
