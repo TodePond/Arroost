@@ -1,4 +1,4 @@
-import { WHITE, angleBetween, subtract } from "../../../../../libraries/habitat-import.js"
+import { WHITE, angleBetween, glue, subtract } from "../../../../../libraries/habitat-import.js"
 import { shared } from "../../../../main.js"
 import { State } from "../../../input/state.js"
 import { Idle } from "../../../input/states.js"
@@ -8,8 +8,14 @@ import { Flaps } from "../../shapes/flaps.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Curve(undefined, false)
+	tickle = new Curve(undefined)
+	isStartAngleDecided = this.use(false)
 	flaps = new Flaps()
+
+	constructor(...args) {
+		super(...args)
+		glue(this)
+	}
 
 	render() {
 		const { pointer } = shared
@@ -24,7 +30,7 @@ export const ArrowTickler = class extends Carryable {
 
 		// Indicator
 		tickle.style.stroke = WHITE
-		tickle.style.strokeWidth = INNER_ATOM_UNIT
+		tickle.style.strokeWidth = 0.5 //INNER_ATOM_UNIT
 		tickle.extra = INNER_ATOM_UNIT
 		flaps.style.stroke = WHITE
 		flaps.style.fill = "none"
@@ -32,7 +38,7 @@ export const ArrowTickler = class extends Carryable {
 		this.use(() => {
 			const visibility = this.isTickling() ? "visible" : "hidden"
 			tickle.style.visibility = visibility
-			flaps.style.visibility = visibility
+			flaps.style.visibility = "hidden"
 		})
 
 		this.use((v) => {
@@ -50,8 +56,12 @@ export const ArrowTickler = class extends Carryable {
 
 			//tickle.endAngle = angleBetween([0, 0], displacement)
 
-			if (relativeDistance < MAGNET_UNIT * 2) {
-				tickle.startAngle = angleBetween([0, 0], displacement)
+			if (!this.isStartAngleDecided) {
+				tickle.startAngle = angleBetween(displacement, [0, 0])
+
+				if (relativeDistance >= MAGNET_UNIT * 2) {
+					this.isStartAngleDecided = true
+				}
 			}
 		})
 
@@ -75,6 +85,7 @@ export const ArrowTickler = class extends Carryable {
 
 	onTicklingEnter() {
 		this.bringToFront()
+		this.isStartAngleDecided = false
 	}
 
 	onTicklingPointerDown(event, state) {
@@ -96,7 +107,7 @@ export const ArrowTickler = class extends Carryable {
 
 export const Tickling = new State({
 	name: "Tickling",
-	cursor: "none",
+	cursor: "crosshair",
 })
 
 export const Prodding = new State({

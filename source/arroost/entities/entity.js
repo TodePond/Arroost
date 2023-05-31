@@ -7,6 +7,10 @@ import { Entity as _Entity, use } from "../../../libraries/habitat-import.js"
 export const Entity = class extends _Entity {
 	signals = new Set()
 
+	constructor(components = []) {
+		super(components)
+	}
+
 	use(template, options) {
 		const signal = use(template, options)
 		this.signals.add(signal)

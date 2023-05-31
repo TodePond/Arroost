@@ -8,6 +8,10 @@ export const State = class extends _State {
 		input: () => undefined,
 	}
 
+	constructor(head, tail = {}) {
+		super(head, tail)
+	}
+
 	fire(name, args) {
 		if (name === "enter") {
 			setCursor(this.cursor)

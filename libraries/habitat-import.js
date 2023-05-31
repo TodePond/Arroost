@@ -1716,7 +1716,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				name: () => "state",
 			}
 
-			constructor(head, tail) {
+			constructor(head, tail = {}) {
 				const options = new Options(this.constructor.options)(head, tail)
 				Object.assign(this, options)
 			}

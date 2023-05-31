@@ -1,0 +1,8 @@
+{
+	"compilerOptions": {
+		//"checkJs": true,
+		"lib": ["ES2017", "DOM"],
+		"target": "ES2017",
+		"moduleResolution": "nodenext"
+	}
+}
