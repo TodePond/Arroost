@@ -7,7 +7,7 @@ import { Curve } from "../../shapes/curve.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Curve({ flaps: true, debug: false })
+	tickle = new Curve({ flaps: true, debug: true })
 	isStartAngleDecided = this.use(false)
 
 	constructor(...args) {
@@ -37,7 +37,7 @@ export const ArrowTickler = class extends Carryable {
 			if (!this.isTickling()) return
 
 			const displacement = subtract(pointer.position, this.transform.absolutePosition)
-			const angle = Math.atan2(displacement.y, displacement.x) * (180 / Math.PI) - 45
+			//const angle = Math.atan2(displacement.y, displacement.x) * (180 / Math.PI) - 45
 
 			tickle.target.transform.setAbsolutePosition(pointer.position)
 
@@ -51,7 +51,7 @@ export const ArrowTickler = class extends Carryable {
 
 				if (relativeDistance >= MAGNET_UNIT * 2) {
 					this.isStartAngleDecided = true
-					this.tickle.decided = true
+					tickle.decided = true
 				}
 			}
 		})

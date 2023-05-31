@@ -19,6 +19,7 @@ export const Curve = class extends Thing {
 
 	startAngle = this.use(null)
 	decided = this.use(false)
+	justDecided = true
 
 	constructor({ end = [0, 0], debug = false, flaps = false } = {}) {
 		super()
@@ -81,7 +82,7 @@ export const Curve = class extends Thing {
 			const middleAngle = endAngle - Math.PI / 2
 
 			// Bail out if the angle isn't decided!
-			if (!this.decided) {
+			if (!this.decided || Math.abs(angle) < Number.EPSILON) {
 				const distance = distanceBetween(start, end)
 				const recededDistance = Math.max(distance - INNER_ATOM_UNIT, 0)
 				const recededEnd = rotate([recededDistance, 0], endAngle)
