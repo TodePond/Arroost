@@ -8,7 +8,7 @@ import { Flaps } from "../../shapes/flaps.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Curve(undefined)
+	tickle = new Curve()
 	isStartAngleDecided = this.use(false)
 	flaps = new Flaps()
 
@@ -61,6 +61,7 @@ export const ArrowTickler = class extends Carryable {
 
 				if (relativeDistance >= MAGNET_UNIT * 2) {
 					this.isStartAngleDecided = true
+					this.tickle.debug = true
 				}
 			}
 		})

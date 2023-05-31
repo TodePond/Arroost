@@ -1,6 +1,6 @@
 import {
 	BLUE,
-	GREEN,
+	RED,
 	SVG,
 	WHITE,
 	angleBetween,
@@ -20,13 +20,14 @@ export const Curve = class extends Thing {
 	sweep = 1
 	angle = 0
 
-	constructor(end = [0, 0]) {
+	constructor(end = [0, 0], debug = false) {
 		super()
 		this.add(this.target)
 		this.target.transform.position = end
 		this.style.strokeWidth = INNER_ATOM_RATIO
 		this.style.stroke = WHITE
 		this.style.fill = "none"
+		this.debug = debug
 
 		glue(this)
 	}
@@ -46,81 +47,89 @@ export const Curve = class extends Thing {
 
 		debugPath.style.strokeWidth = 0.5
 		debugArc.style.strokeWidth = 0.5
-		debugPath.style.stroke = GREEN
+		debugPath.style.stroke = RED
 		debugArc.style.stroke = BLUE
 		path.style.stroke = WHITE
 
 		this.use(() => {
+			// Positioning
 			const end = target.transform.position
 			const start = [0, 0]
+			const middle = [end.x / 2, end.y / 2]
 
+			// Angle
 			const endAngle = angleBetween(end, start)
 			const startAngle = this.startAngle ?? endAngle
 			const angle = wrap(endAngle - startAngle, -Math.PI, Math.PI)
+			const middleAngle = endAngle - Math.PI / 2
 
-			const angleSize = Math.abs(angle)
+			// Slope
+			const slope = startAngle
+			const normal = rotate([0, -1], slope)
+			const normalAngle = angleBetween(normal, [0, 0])
 
-			let radius = distanceBetween(end, start) / (2 * Math.sin(angleSize / 2))
+			// Radius of circle
+			const center = getIntersection(
+				{ position: start, direction: normalAngle },
+				{ position: middle, direction: middleAngle },
+			)
 
-			if (radius === Infinity) radius = 0
+			if (!Number.isFinite(center.x)) {
+				center.x = 0
+			}
 
+			if (!Number.isFinite(center.y)) {
+				center.y = 0
+			}
+
+			let radius = distanceBetween(start, center)
+			if (!Number.isFinite(radius)) {
+				radius = 0
+			}
+
+			// Sweep
 			if (true || (this.angle >= 0 && angle <= 0) || (this.angle <= 0 && angle >= 0)) {
 				if (true || (angle < Math.PI / 2 && angle > -Math.PI / 2)) {
 					this.sweep = angle >= 0 ? 1 : 0
 				}
 			}
-
 			this.angle = angle
 			const sweep = this.sweep
 
 			const arc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
-
-			const transform = `` //`rotate(${(-angle / Math.PI / 2) * 180} ${start})`
+			const data = [arc].join(" ")
+			path.setAttribute("d", data)
 
 			// -- Debug --
+			if (!this.debug) return
 			const startProjection = rotate([1000, 0], startAngle)
+			const normalProjection = rotate([1000, 0], normalAngle)
+			const antiNormalProjection = rotate([1000, 0], normalAngle + Math.PI)
+
 			const startLine = `M ${start} L ${startProjection}`
 			const directLine = `M ${start} L ${end}`
+			const normalLine = `M ${start} L ${normalProjection}`
+			const antiNormalLine = `M ${start} L ${antiNormalProjection}`
+			const middleLine = `M ${middle} L ${center}`
+
 			const fullArc = `M ${start} A ${radius} ${radius} 0 1 ${sweep ? 0 : 1} ${end}`
 			const debugArcArc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
-			// -----------
 
-			const data = [arc].join(" ")
-			const debugData = [directLine, startLine].join(" ")
+			const debugData = [directLine, startLine, normalLine, middleLine, antiNormalLine].join(
+				" ",
+			)
 			const debugArcData = [fullArc, debugArcArc].join(" ")
 
-			path.setAttribute("d", data)
-			path.setAttribute("transform", transform)
 			debugArc.setAttribute("d", debugArcData)
-			debugArc.setAttribute("transform", transform)
 			debugPath.setAttribute("d", debugData)
+			// -----------
 		})
 
 		return group
 	}
 }
 
-const getIntersection = (a, b = { start: [0, 0], end: [10, 0] }) => {
-	const x1 = a.start[0]
-	const y1 = a.start[1]
-	const x2 = a.end[0]
-	const y2 = a.end[1]
-	const x3 = b.start[0]
-	const y3 = b.start[1]
-	const x4 = b.end[0]
-	const y4 = b.end[1]
-
-	const x =
-		((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) /
-		((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
-	const y =
-		((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) /
-		((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
-
-	return [x, y]
-}
-
-const getIntersectionPolar = (a, b = { position: [0, 0], direction: 0 }) => {
+const getIntersection = (a, b = { position: [0, 0], direction: 0 }) => {
 	const a1 = Math.tan(a.direction)
 	const b1 = a.position.y - a1 * a.position.x
 	const a2 = Math.tan(b.direction)
