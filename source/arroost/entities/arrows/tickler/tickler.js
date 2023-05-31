@@ -7,7 +7,7 @@ import { Curve } from "../../shapes/curve.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
-	tickle = new Curve()
+	tickle = new Curve({ flaps: true, debug: true })
 	isStartAngleDecided = this.use(false)
 
 	constructor(...args) {
@@ -17,26 +17,20 @@ export const ArrowTickler = class extends Carryable {
 
 	render() {
 		const { pointer } = shared
-		const { tickle, flaps } = this
+		const { tickle } = this
 		this.add(tickle)
-		this.add(flaps)
 
 		this.style.stroke = "none"
 
 		tickle.style.pointerEvents = "none"
-		flaps.style.pointerEvents = "none"
 
 		// Indicator
 		tickle.style.stroke = WHITE
 		tickle.style.strokeWidth = INNER_ATOM_UNIT
 		tickle.extra = INNER_ATOM_UNIT
-		flaps.style.stroke = WHITE
-		flaps.style.fill = "none"
-		flaps.style.strokeWidth = INNER_ATOM_UNIT
 		this.use(() => {
 			const visibility = this.isTickling() ? "visible" : "hidden"
 			tickle.style.visibility = visibility
-			flaps.style.visibility = "hidden"
 		})
 
 		this.use((v) => {
@@ -44,10 +38,8 @@ export const ArrowTickler = class extends Carryable {
 
 			const displacement = subtract(pointer.position, this.transform.absolutePosition)
 			const angle = Math.atan2(displacement.y, displacement.x) * (180 / Math.PI) - 45
-			flaps.transform.rotation = angle
 
 			tickle.target.transform.setAbsolutePosition(pointer.position)
-			flaps.transform.setAbsolutePosition(pointer.position)
 
 			const relativePointerPosition = this.transform.getRelativePosition(pointer.position)
 			const relativeDistance = Math.hypot(relativePointerPosition.x, relativePointerPosition.y)
@@ -59,7 +51,7 @@ export const ArrowTickler = class extends Carryable {
 
 				if (relativeDistance >= MAGNET_UNIT * 2) {
 					this.isStartAngleDecided = true
-					//this.tickle.debug = true
+					this.tickle.decided = true
 				}
 			}
 		})

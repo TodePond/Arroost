@@ -12,6 +12,7 @@ import {
 import { INNER_ATOM_RATIO } from "../../unit.js"
 import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
+import { Flaps } from "./flaps.js"
 
 export const Curve = class extends Thing {
 	target = new Ghost()
@@ -21,7 +22,7 @@ export const Curve = class extends Thing {
 	angle = 0
 	full = 0
 
-	constructor(end = [0, 0], debug = false) {
+	constructor({ end = [0, 0], debug = false, flaps = false } = {}) {
 		super()
 		this.add(this.target)
 		this.target.transform.position = end
@@ -29,6 +30,11 @@ export const Curve = class extends Thing {
 		this.style.stroke = WHITE
 		this.style.fill = "none"
 		this.debug = debug
+
+		if (flaps) {
+			this.flaps = new Flaps()
+			this.add(this.flaps)
+		}
 
 		glue(this)
 	}
@@ -51,6 +57,8 @@ export const Curve = class extends Thing {
 		debugPath.style.stroke = RED
 		debugArc.style.stroke = BLUE
 		path.style.stroke = WHITE
+
+		this.flaps.style.pointerEvents = "none"
 
 		this.use(() => {
 			// Positioning
@@ -100,8 +108,24 @@ export const Curve = class extends Thing {
 			const data = [arc].join(" ")
 			path.setAttribute("d", data)
 
+			// Flaps
+			const { flaps } = this
+			flaps.style.visibility = this.style.visibility
+			//flaps.transform.rotation = startAngle
+
+			flaps.style.strokeWidth = this.style.strokeWidth
+			flaps.style.stroke = this.style.stroke
+			flaps.style.fill = this.style.fill
+			flaps.transform.position = end
+
+			const circleEndAngle = this.decided
+				? angleBetween(end, center)
+				: angleBetween(end, [0, 0]) - Math.PI / 2
+			flaps.transform.rotation =
+				circleEndAngle * (180 / Math.PI) + 45 + (this.decided ? (sweep ? 0 : 180) : 0)
+
 			// -- Debug --
-			if (!this.debug) return
+			if (!this.debug || !this.decided) return
 			const startProjection = rotate([1000, 0], startAngle)
 			const normalProjection = rotate([1000, 0], normalAngle)
 			const antiNormalProjection = rotate([1000, 0], normalAngle + Math.PI)
