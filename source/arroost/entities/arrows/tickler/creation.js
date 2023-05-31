@@ -1,6 +1,6 @@
 import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
-import { Pointing } from "../../../input/states.js"
+import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
 import { ArrowOfRecording } from "../recording.js"
@@ -52,5 +52,9 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		shared.camera.add(recording)
 		recording.transform.setAbsolutePosition(shared.pointer.position)
 		recording.movement.setAbsoluteVelocity(shared.pointer.velocity)
+		state.input.state = Idle
+		state.input = recording.input
+		state.entity = recording
+		return Dragging
 	}
 }
