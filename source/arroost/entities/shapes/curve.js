@@ -19,6 +19,7 @@ export const Curve = class extends Thing {
 	startAngle = this.use(null)
 	sweep = 1
 	angle = 0
+	full = 0
 
 	constructor(end = [0, 0], debug = false) {
 		super()
@@ -88,15 +89,14 @@ export const Curve = class extends Thing {
 			}
 
 			// Sweep
-			if (true || (this.angle >= 0 && angle <= 0) || (this.angle <= 0 && angle >= 0)) {
-				if (true || (angle < Math.PI / 2 && angle > -Math.PI / 2)) {
-					this.sweep = angle >= 0 ? 1 : 0
-				}
-			}
+			this.sweep = angle > 0 ? 1 : 0
+			this.full = Math.abs(angle) > Math.PI / 2 ? 1 : 0
 			this.angle = angle
-			const sweep = this.sweep
 
-			const arc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
+			const sweep = this.sweep
+			const full = this.full
+
+			const arc = `M ${start} A ${radius} ${radius} 0 ${full} ${sweep ? 1 : 0} ${end}`
 			const data = [arc].join(" ")
 			path.setAttribute("d", data)
 
@@ -112,8 +112,10 @@ export const Curve = class extends Thing {
 			const antiNormalLine = `M ${start} L ${antiNormalProjection}`
 			const middleLine = `M ${middle} L ${center}`
 
-			const fullArc = `M ${start} A ${radius} ${radius} 0 1 ${sweep ? 0 : 1} ${end}`
-			const debugArcArc = `M ${start} A ${radius} ${radius} 0 0 ${sweep ? 1 : 0} ${end}`
+			const fullArc = `M ${start} A ${radius} ${radius} 0 ${full ? 0 : 1} ${
+				sweep ? 0 : 1
+			} ${end}`
+			const debugArcArc = `M ${start} A ${radius} ${radius} 0 ${full} ${sweep ? 1 : 0} ${end}`
 
 			const debugData = [directLine, startLine, normalLine, middleLine, antiNormalLine].join(
 				" ",

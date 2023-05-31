@@ -957,7 +957,13 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		}
 
 		const wrap = (number, min, max) => {
-			return min + ((number - min) % (max - min))
+			while (number < min) {
+				number += max - min
+			}
+			while (number >= max) {
+				number -= max - min
+			}
+			return number
 		}
 
 		const getDigits = (number) => {

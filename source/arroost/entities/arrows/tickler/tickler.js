@@ -4,13 +4,11 @@ import { State } from "../../../input/state.js"
 import { Idle } from "../../../input/states.js"
 import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../unit.js"
 import { Curve } from "../../shapes/curve.js"
-import { Flaps } from "../../shapes/flaps.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
 	tickle = new Curve()
 	isStartAngleDecided = this.use(false)
-	flaps = new Flaps()
 
 	constructor(...args) {
 		super(...args)
@@ -61,7 +59,7 @@ export const ArrowTickler = class extends Carryable {
 
 				if (relativeDistance >= MAGNET_UNIT * 2) {
 					this.isStartAngleDecided = true
-					this.tickle.debug = true
+					//this.tickle.debug = true
 				}
 			}
 		})
