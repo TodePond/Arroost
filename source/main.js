@@ -19,6 +19,7 @@ import { registerPreventDefaults } from "./arroost/input/prevent.js"
 import { Idle } from "./arroost/input/states.js"
 import { registerWheel } from "./arroost/input/wheel.js"
 import { UNIT } from "./arroost/unit.js"
+import { frame } from "./link.js"
 import * as Nogan from "./nogan/source/nogan.js"
 import { createPhantom } from "./nogan/source/nogan.js"
 import { NoganSchema } from "./nogan/source/schema.js"
@@ -110,6 +111,8 @@ export const unlockTool = (source, target, angle) => {
 		}
 	}
 }
+
+frame()
 
 //=================//
 // Setup Debugging //
