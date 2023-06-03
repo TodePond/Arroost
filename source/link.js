@@ -1,7 +1,8 @@
 import { shared } from "./main.js"
 import { getPeak } from "./nogan/source/nogan.js"
+import { NoganSchema as N, PULSE_COLOURS } from "./nogan/source/schema.js"
 
-const BPM = 122
+const BPM = 120 //240
 
 let lastBeats = 0
 
@@ -19,10 +20,29 @@ export const frame = (time = 0) => {
 const beat = () => {
 	const now = shared.nogan.root
 
-	for (const [id] of now.children) {
-		const afterChild = getPeak(now, {
-			id,
-			// ??? Todo: Figure out. getPeak requires very specific arguments. I guess I just do all of them? Or can I group stuff together? Maybe just do indivudally first!
-		})
-	}
+	// for (const id in now.children) {
+	// 	const peak = getFullPeak(now, {
+	// 		id,
+	// 		timing: 1,
+	// 		history: [now],
+	// 	})
+	// }
 }
+
+//=============//
+// Nogan Sugar //
+//=============//
+export const advance = (parent) => {
+	// Kinda like project, but also not?
+}
+
+export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
+	const fullPeak = N.Peak.make()
+	for (const colour of PULSE_COLOURS) {
+		const peak = getPeak(parent, { id, colour, timing, history })
+		fullPeak[colour] = peak
+	}
+	return fullPeak
+}
+
+export const addFullPulse = (parent, { source, target } = {}) => {}

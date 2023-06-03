@@ -43,7 +43,9 @@ N.Parent = N.Child.extend({
 //========//
 // Wiring //
 //========//
-N.Colour = S.Enum(["blue", "green", "red"])
+export const PULSE_COLOURS = ["blue", "green", "red"]
+
+N.Colour = S.Enum(PULSE_COLOURS)
 N.Timing = S.Enum([0, -1, 1])
 N.Wire = N.Child.extend({
 	// Meta
@@ -60,7 +62,7 @@ N.Wire = N.Child.extend({
 //=======//
 // Pulse //
 //=======//
-N.PulseType = S.Enum([
+export const PULSE_TYPES = [
 	"any",
 	"creation",
 	"connection",
@@ -69,7 +71,9 @@ N.PulseType = S.Enum([
 	"control",
 	"teleportation",
 	"movement",
-])
+]
+
+N.PulseType = S.Enum(PULSE_TYPES)
 
 N.Pulse = S.Struct({
 	type: N.PulseType,
