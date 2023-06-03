@@ -1,4 +1,10 @@
-import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
+import {
+	GREY,
+	SILVER,
+	WHITE,
+	angleBetween,
+	subtract,
+} from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
@@ -44,10 +50,23 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	}
 
 	onTickle(event, state) {
-		if (createdCount < 2) {
-			unlockTool(this)
-		}
 		createdCount++
+		if (createdCount >= 2) {
+			const reverseDirection = subtract(
+				this.transform.absolutePosition,
+				shared.pointer.position,
+			)
+			const angle = angleBetween(reverseDirection, [1, 0])
+			unlockTool(this, "connection", angle)
+		}
+		if (createdCount >= 3) {
+			const reverseDirection = subtract(
+				this.transform.absolutePosition,
+				shared.pointer.position,
+			)
+			const angle = angleBetween(reverseDirection, [1, 0])
+			unlockTool(this, "destruction", angle)
+		}
 		const recording = new ArrowOfRecording()
 		shared.camera.add(recording)
 		recording.transform.setAbsolutePosition(shared.pointer.position)

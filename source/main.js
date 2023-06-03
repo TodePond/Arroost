@@ -5,7 +5,7 @@ import {
 	repeatArray,
 	Stage,
 } from "../../libraries/habitat-import.js"
-import { Habitat } from "../libraries/habitat-import.js"
+import { Habitat, rotate } from "../libraries/habitat-import.js"
 import { ArrowOfConnection } from "./arroost/entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./arroost/entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./arroost/entities/arrows/tickler/destruction.js"
@@ -85,19 +85,27 @@ camera.transform.position = [innerWidth / 2, innerHeight / 2]
 
 let arrowOfConnection
 let arrowOfDestruction
-export const unlockTool = (source) => {
-	if (arrowOfDestruction === undefined) {
-		arrowOfDestruction = new ArrowOfDestruction()
-		camera.add(arrowOfDestruction)
-		arrowOfDestruction.movement.velocity = [-2, 0]
-		arrowOfDestruction.unlocked = false
-		source.bringToFront()
-	} else if (arrowOfConnection === undefined) {
-		arrowOfConnection = new ArrowOfConnection()
-		camera.add(arrowOfConnection)
-		arrowOfConnection.movement.velocity = [2, 0]
-		arrowOfConnection.unlocked = false
-		source.bringToFront()
+export const unlockTool = (source, target, angle) => {
+	switch (target) {
+		case "connection": {
+			if (arrowOfConnection) return
+			arrowOfConnection = new ArrowOfConnection()
+			camera.add(arrowOfConnection)
+			arrowOfConnection.transform.position = source.transform.position
+			arrowOfConnection.movement.velocity = rotate([2, 0], angle)
+			source.bringToFront()
+			return
+		}
+
+		case "destruction": {
+			if (arrowOfDestruction) return
+			arrowOfDestruction = new ArrowOfDestruction()
+			camera.add(arrowOfDestruction)
+			arrowOfDestruction.transform.position = source.transform.position
+			arrowOfDestruction.movement.velocity = rotate([2, 0], angle)
+			source.bringToFront()
+			return
+		}
 	}
 }
 
