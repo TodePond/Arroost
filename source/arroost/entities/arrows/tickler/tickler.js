@@ -10,8 +10,8 @@ export const ArrowTickler = class extends Carryable {
 	tickle = new Curve({ flaps: true, debug: false })
 	isStartAngleDecided = this.use(false)
 
-	constructor(...args) {
-		super(...args)
+	constructor() {
+		super()
 		glue(this)
 	}
 

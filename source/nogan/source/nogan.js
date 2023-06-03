@@ -17,6 +17,20 @@ export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
 	}
 }
 
+// Check that the parent has the child as a child.
+export const validateFamily = (parent, child) => {
+	if (window.shared && !window.shared.debug.validate) {
+		return
+	}
+	if (parent.children[child.id] !== child) {
+		console.error(parent, child)
+		throw new Error("Mummy does not have the provided child")
+	}
+
+	validate(parent)
+	validate(child)
+}
+
 //========//
 // Family //
 //========//

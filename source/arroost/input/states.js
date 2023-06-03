@@ -58,7 +58,7 @@ export const Debugging = new State({
 		if (event.shiftKey) {
 			print(event.input)
 		} else if (event.ctrlKey) {
-			print(event.input?.entity?.nogan)
+			print(event.input?.entity?.nod)
 		} else {
 			print(event.input?.entity)
 		}

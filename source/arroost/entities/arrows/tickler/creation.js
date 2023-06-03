@@ -6,6 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
+import { addPulse, createNod, validateFamily } from "../../../../nogan/source/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
@@ -17,6 +18,18 @@ let createdCount = 0
 export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
+
+	constructor(mummy = shared.nogan.current, nod) {
+		super()
+		if (nod === undefined) {
+			nod = createNod(mummy)
+		}
+
+		validateFamily(mummy, nod)
+
+		this.nod = nod
+		this.mummy = mummy
+	}
 
 	render() {
 		const { style, rectangle, horizontal, vertical } = this
@@ -74,6 +87,16 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		state.input.state = Idle
 		state.input = recording.input
 		state.entity = recording
+
+		for (const colour of ["red", "green", "blue"]) {
+			addPulse(this.mummy, {
+				target: this.nod.id,
+				colour,
+			})
+		}
+
+		this.style.fill = WHITE
+
 		return Dragging
 	}
 }

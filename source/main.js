@@ -88,6 +88,7 @@ let arrowOfDestruction
 export const unlockTool = (source, target, angle) => {
 	switch (target) {
 		case "connection": {
+			return
 			if (arrowOfConnection) return
 			arrowOfConnection = new ArrowOfConnection()
 			camera.add(arrowOfConnection)
@@ -98,6 +99,7 @@ export const unlockTool = (source, target, angle) => {
 		}
 
 		case "destruction": {
+			return
 			if (arrowOfDestruction) return
 			arrowOfDestruction = new ArrowOfDestruction()
 			camera.add(arrowOfDestruction)
