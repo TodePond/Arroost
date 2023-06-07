@@ -1,5 +1,5 @@
 import { shared } from "./main.js"
-import { getPeak } from "./nogan/source/nogan.js"
+import { addPulse, getPeak } from "./nogan/source/nogan.js"
 import { NoganSchema as N, PULSE_COLOURS } from "./nogan/source/schema.js"
 
 const BPM = 120 //240
@@ -45,4 +45,8 @@ export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
 	return fullPeak
 }
 
-export const addFullPulse = (parent, { source, target } = {}) => {}
+export const addFullPulse = (parent, { source, target } = {}) => {
+	for (const colour of PULSE_COLOURS) {
+		addPulse(parent, { source, target, colour })
+	}
+}

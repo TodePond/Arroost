@@ -1,12 +1,13 @@
 import {
-	GREY,
+	BLACK,
 	SILVER,
 	WHITE,
 	angleBetween,
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
+import { addFullPulse } from "../../../../link.js"
 import { shared, unlockTool } from "../../../../main.js"
-import { addPulse, createNod, validateFamily } from "../../../../nogan/source/nogan.js"
+import { createNod, validateFamily } from "../../../../nogan/source/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
@@ -45,9 +46,13 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		vertical.style.pointerEvents = "none"
 
 		// Colour
-		style.fill = GREY
 		this.use(() => {
-			const colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
+			let colour
+			if (this.isPulsing) {
+				colour = BLACK
+			} else {
+				colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
+			}
 			horizontal.style.fill = colour
 			vertical.style.fill = colour
 		})
@@ -88,14 +93,8 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		state.input = recording.input
 		state.entity = recording
 
-		for (const colour of ["red", "green", "blue"]) {
-			addPulse(this.mummy, {
-				target: this.nod.id,
-				colour,
-			})
-		}
-
-		this.style.fill = WHITE
+		addFullPulse(this.mummy, { target: this.nod.id })
+		this.isPulsing = true
 
 		return Dragging
 	}

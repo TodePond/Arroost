@@ -1,7 +1,13 @@
-import { WHITE, angleBetween, glue, subtract } from "../../../../../libraries/habitat-import.js"
+import {
+	GREY,
+	WHITE,
+	angleBetween,
+	glue,
+	subtract,
+} from "../../../../../libraries/habitat-import.js"
 import { shared } from "../../../../main.js"
 import { State } from "../../../input/state.js"
-import { Idle } from "../../../input/states.js"
+import { Dragging, Idle } from "../../../input/states.js"
 import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../unit.js"
 import { Curve } from "../../shapes/curve.js"
 import { Carryable } from "../carryable.js"
@@ -9,6 +15,7 @@ import { Carryable } from "../carryable.js"
 export const ArrowTickler = class extends Carryable {
 	tickle = new Curve({ flaps: true, debug: false })
 	isStartAngleDecided = this.use(false)
+	isPulsing = this.use(false)
 
 	constructor() {
 		super()
@@ -31,6 +38,14 @@ export const ArrowTickler = class extends Carryable {
 		this.use(() => {
 			const visibility = this.isTickling() ? "visible" : "hidden"
 			tickle.style.visibility = visibility
+		})
+
+		this.use(() => {
+			if (this.isPulsing) {
+				this.style.fill = WHITE
+			} else {
+				this.style.fill = GREY
+			}
 		})
 
 		this.use((v) => {
@@ -70,6 +85,10 @@ export const ArrowTickler = class extends Carryable {
 		return this.input.state === Tickling || this.input.state === Prodding
 	}
 
+	onPointingPointerDown() {
+		if (this.isPulsing) return Dragging
+	}
+
 	onPointingPointerUp() {
 		return Tickling
 	}
@@ -90,11 +109,11 @@ export const ArrowTickler = class extends Carryable {
 	}
 
 	onProddingPointerUp(event, state) {
-		const result = this.onTickle(event, state)
-		if (result === undefined) {
-			return Idle
-		}
-		return result
+		// const result = this.onTickle(event, state)
+		// if (result === undefined) {
+		// 	return Idle
+		// }
+		// return result
 	}
 
 	onTickle(event, state) {
