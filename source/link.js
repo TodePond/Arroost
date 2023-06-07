@@ -32,9 +32,6 @@ const beat = () => {
 //=============//
 // Nogan Sugar //
 //=============//
-export const advance = (parent) => {
-	// Kinda like project, but also not?
-}
 
 export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
 	const fullPeak = N.Peak.make()

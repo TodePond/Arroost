@@ -384,3 +384,18 @@ export const project = (parent) => {
 	}
 	return projection
 }
+
+export const deepProject = (parent, { clone = true } = {}) => {
+	const projection = clone ? structuredClone(parent) : parent
+	for (const id in projection.children) {
+		const child = projection.children[id]
+		if (!child.isNod) continue
+		const isFiring = child.pulses.red || child.pulses.green || child.pulses.blue
+		child.pulses.red = null
+		child.pulses.green = null
+		child.pulses.blue = null
+		if (!isFiring) continue
+		deepProject(child, { clone: false })
+	}
+	return projection
+}

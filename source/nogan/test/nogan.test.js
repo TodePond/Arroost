@@ -7,6 +7,7 @@ import {
 	createNod,
 	createPhantom,
 	createWire,
+	deepProject,
 	deleteChild,
 	destroyNod,
 	destroyWire,
@@ -294,6 +295,75 @@ describe("projecting", () => {
 
 		const projectedNod = projection.children[nod.id]
 		assertEquals(projectedNod.pulses.blue, null)
+	})
+})
+
+describe("deep projecting", () => {
+	it("clones a nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const projection = deepProject(nod)
+		assertEquals(projection, nod)
+	})
+
+	it("removes pulses", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		assertEquals(nod.pulses.blue, null)
+		addPulse(phantom, { target: nod.id })
+		assert(nod.pulses.blue)
+		const projection = deepProject(phantom)
+		assert(nod.pulses.blue)
+
+		const projectedNod = projection.children[nod.id]
+		assertEquals(projectedNod.pulses.blue, null)
+	})
+
+	it("removes pulses recursively", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(nod1)
+		const nod3 = createNod(nod2)
+		addPulse(phantom, { target: nod1.id })
+		addPulse(nod1, { target: nod2.id })
+		addPulse(nod2, { target: nod3.id })
+
+		assertEquals(nod1.pulses.blue, { type: "any" })
+		assertEquals(nod2.pulses.blue, { type: "any" })
+		assertEquals(nod3.pulses.blue, { type: "any" })
+
+		const projection = deepProject(phantom)
+
+		const projectedNod1 = projection.children[nod1.id]
+		const projectedNod2 = projectedNod1.children[nod2.id]
+		const projectedNod3 = projectedNod2.children[nod3.id]
+
+		assertEquals(projectedNod1.pulses.blue, null)
+		assertEquals(projectedNod2.pulses.blue, null)
+		assertEquals(projectedNod3.pulses.blue, null)
+	})
+
+	it("only deep projects children that are firing", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(nod1)
+		const nod3 = createNod(nod2)
+		addPulse(phantom, { target: nod1.id })
+		addPulse(nod2, { target: nod3.id })
+
+		assertEquals(nod1.pulses.blue, { type: "any" })
+		assertEquals(nod2.pulses.blue, null)
+		assertEquals(nod3.pulses.blue, { type: "any" })
+
+		const projection = deepProject(phantom)
+
+		const projectedNod1 = projection.children[nod1.id]
+		const projectedNod2 = projectedNod1.children[nod2.id]
+		const projectedNod3 = projectedNod2.children[nod3.id]
+
+		assertEquals(projectedNod1.pulses.blue, null)
+		assertEquals(projectedNod2.pulses.blue, null)
+		assertEquals(projectedNod3.pulses.blue, { type: "any" })
 	})
 })
 
