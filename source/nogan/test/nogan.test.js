@@ -2,6 +2,7 @@ import { assert, assertEquals, assertThrows } from "https://deno.land/std/testin
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
 	addChild,
+	addFullPulse,
 	addPulse,
 	createId,
 	createNod,
@@ -12,6 +13,7 @@ import {
 	destroyNod,
 	destroyWire,
 	freeId,
+	getFullPeak,
 	getPeak,
 	modifyNod,
 	modifyWire,
@@ -640,5 +642,33 @@ describe("peaking", () => {
 		assertEquals(peak3after.result, true)
 		assertEquals(peak2after.result, false)
 		assertEquals(peak1after.result, false)
+	})
+})
+
+describe("linking nogan to arroost", () => {
+	it("adds a full pulse", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		assert(!nod.pulses.blue)
+		assert(!nod.pulses.red)
+		assert(!nod.pulses.green)
+		addFullPulse(phantom, { target: nod.id })
+		assert(nod.pulses.blue)
+		assert(nod.pulses.red)
+		assert(nod.pulses.green)
+	})
+
+	it("gets a full peak", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const fullPeak = getFullPeak(phantom, { id: nod.id })
+		assertEquals(fullPeak.blue.result, false)
+		assertEquals(fullPeak.red.result, false)
+		assertEquals(fullPeak.green.result, false)
+		addFullPulse(phantom, { target: nod.id })
+		const fullPeak2 = getFullPeak(phantom, { id: nod.id })
+		assertEquals(fullPeak2.blue.result, true)
+		assertEquals(fullPeak2.red.result, true)
+		assertEquals(fullPeak2.green.result, true)
 	})
 })

@@ -1,4 +1,4 @@
-import { NoganSchema } from "./schema.js"
+import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
 
@@ -208,6 +208,12 @@ export const addPulse = (parent, { source, target, colour = "blue", type = "any"
 	validate(nodNod)
 }
 
+export const addFullPulse = (parent, { source, target } = {}) => {
+	for (const colour of PULSE_COLOURS) {
+		addPulse(parent, { source, target, colour })
+	}
+}
+
 //===========//
 // Modifying //
 //===========//
@@ -368,6 +374,15 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 		history: [...history, parent],
 		future: [],
 	})
+}
+
+export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
+	const fullPeak = N.Peak.make()
+	for (const colour of PULSE_COLOURS) {
+		const peak = getPeak(parent, { id, colour, timing, history })
+		fullPeak[colour] = peak
+	}
+	return fullPeak
 }
 
 //============//
