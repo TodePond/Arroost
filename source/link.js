@@ -14,12 +14,7 @@ export const frame = (time = 0) => {
 }
 
 const beat = () => {
-	// const now = shared.nogan.root
-	// for (const id in now.children) {
-	// 	const peak = getFullPeak(now, {
-	// 		id,
-	// 		timing: 1,
-	// 		history: [now],
-	// 	})
-	// }
+	// this should be done by something like...
+	// travel()
+	// which takes a timing parameter, and gets the status of all children (and grandchildren) at that point in time
 }
