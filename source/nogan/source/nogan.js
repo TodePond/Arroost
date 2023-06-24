@@ -377,11 +377,12 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 }
 
 export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
-	const fullPeak = N.Peak.make()
+	const fullPeak = N.FullPeak.make()
 	for (const colour of PULSE_COLOURS) {
 		const peak = getPeak(parent, { id, colour, timing, history })
 		fullPeak[colour] = peak
 	}
+	validate(fullPeak)
 	return fullPeak
 }
 
@@ -411,6 +412,29 @@ export const deepProject = (parent, { clone = true } = {}) => {
 		child.pulses.blue = null
 		if (!isFiring) continue
 		deepProject(child, { clone: false })
+	}
+	return projection
+}
+
+//===========//
+// Advancing //
+//===========//
+// There's no particular reason why the API only provides for stepping forwards
+// It's just... That's what Arroost needs right now
+
+// Why do we have a shallow advance as well as a deep advance?
+// That's because I'm first figuring out how to do this with a shallow advance
+// And then I'll figure out how to do it with a deep advance
+
+export const advance = (nogan) => {
+	const projection = project(nogan)
+	for (const id in nogan.children) {
+		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history: [nogan] })
+		for (const colour of PULSE_COLOURS) {
+			const peak = fullPeakAfter[colour]
+			if (!peak.result) continue
+			addPulse(projection, { source: id, colour })
+		}
 	}
 	return projection
 }

@@ -4,6 +4,7 @@ import {
 	addChild,
 	addFullPulse,
 	addPulse,
+	advance,
 	createId,
 	createNod,
 	createPhantom,
@@ -645,7 +646,7 @@ describe("peaking", () => {
 	})
 })
 
-describe("linking nogan to arroost", () => {
+describe("sugar API functions", () => {
 	it("adds a full pulse", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
@@ -670,5 +671,18 @@ describe("linking nogan to arroost", () => {
 		assertEquals(fullPeak2.blue.result, true)
 		assertEquals(fullPeak2.red.result, true)
 		assertEquals(fullPeak2.green.result, true)
+	})
+})
+
+describe("advancing time", () => {
+	it("unfires pulses", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		addPulse(phantom, { target: nod.id })
+		assert(nod.pulses.blue)
+		const advanced = advance(phantom)
+
+		const nodAfter = advanced.children[nod.id]
+		assert(!nodAfter.pulses.blue)
 	})
 })
