@@ -138,10 +138,12 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.PulseType,
+	source: N.Id,
 })
 
-N.FullPeak = N.Peak.extend({
+N.FullPeak = S.Struct({
 	schemaName: S.Value("FullPeak"),
+	result: S.Boolean,
 	red: N.Peak,
 	green: N.Peak,
 	blue: N.Peak,

@@ -263,7 +263,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
-			return N.Peak.make({ result: true, type: pulse.type })
+			return N.Peak.make({ result: true, type: pulse.type, source: pulse.source })
 		}
 	}
 
@@ -291,7 +291,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	}
 
 	// Too bad, we couldn't find a pulse
-	return N.Peak.make({ result: false })
+	return N.Peak.make({ result: false, source: id })
 }
 
 const getPeakBefore = (parent, { id, colour, history, future }) => {
@@ -319,7 +319,7 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (afterStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false })
+			return N.Peak.make({ result: false, source: id })
 		}
 	}
 
@@ -358,7 +358,7 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (beforeStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false })
+			return N.Peak.make({ result: false, source: id })
 		}
 	}
 
@@ -424,14 +424,15 @@ export const deepProject = (parent, { clone = true } = {}) => {
 
 export const advance = (nogan) => {
 	const projection = project(nogan)
-	for (const id in nogan.children) {
+	for (const _id in nogan.children) {
+		const id = +_id
 		const child = nogan.children[id]
 		if (!child.isNod) continue
 		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history: [] })
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { target: +id, colour })
+			addPulse(projection, { target: id, colour })
 		}
 	}
 	validate(projection)

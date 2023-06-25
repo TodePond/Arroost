@@ -674,6 +674,34 @@ describe("sugar API functions", () => {
 	})
 })
 
+describe("pulse source", () => {
+	it("uses the target as source by default", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		addPulse(phantom, { target: nod.id })
+		assertEquals(nod.pulses.blue.source, nod.id)
+	})
+
+	it("uses the source as source if specified", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		addPulse(phantom, { target: nod1.id, source: nod2.id })
+		assertEquals(nod1.pulses.blue.source, nod2.id)
+	})
+
+	it("peaks the correct source in the present", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id })
+		addPulse(phantom, { target: nod1.id })
+		const peak = getPeak(phantom, { id: nod2.id })
+		assertEquals(peak.result, true)
+		// assertEquals(peak.source, nod1.id)
+	})
+})
+
 describe("advancing time", () => {
 	it("unfires pulses", () => {
 		const phantom = createPhantom()
