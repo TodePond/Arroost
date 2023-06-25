@@ -77,10 +77,12 @@ N.PulseType = S.Enum(PULSE_TYPES)
 
 N.Pulse = S.Struct({
 	type: N.PulseType,
+	source: N.Id,
 })
 
 N.PhantomPulse = N.Pulse.extend({
 	type: N.Value("any"),
+	source: N.Value(-1),
 })
 
 N.Pulses = S.Struct({

@@ -187,7 +187,7 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 //=========//
 // Pulsing //
 //=========//
-export const addPulse = (parent, { source, target, colour = "blue", type = "any" }) => {
+export const addPulse = (parent, { target, source = target, colour = "blue", type = "any" }) => {
 	const nodNod = parent.children[target]
 	const { pulses } = nodNod
 	const pulse = pulses[colour]
@@ -198,11 +198,7 @@ export const addPulse = (parent, { source, target, colour = "blue", type = "any"
 	}
 
 	// Update our pulse
-	pulses[colour] = N.Pulse.make({ type })
-
-	// TODO: propagate side-effects somehow
-	// eg: in current layer
-	// eg: in UI
+	pulses[colour] = N.Pulse.make({ type, source })
 
 	validate(parent)
 	validate(nodNod)
@@ -435,7 +431,7 @@ export const advance = (nogan) => {
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { target: id, colour })
+			addPulse(projection, { target: +id, colour })
 		}
 	}
 	validate(projection)

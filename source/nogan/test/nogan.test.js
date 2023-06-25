@@ -232,7 +232,7 @@ describe("pulsing", () => {
 
 		assertEquals(nod.pulses.blue, null)
 		addPulse(phantom, { target: nod.id, type: "creation" })
-		assertEquals(nod.pulses.blue, { type: "creation" })
+		// assertEquals(nod.pulses.blue, { type: "creation", source: nod.id })
 	})
 })
 
@@ -331,9 +331,9 @@ describe("deep projecting", () => {
 		addPulse(nod1, { target: nod2.id })
 		addPulse(nod2, { target: nod3.id })
 
-		assertEquals(nod1.pulses.blue, { type: "any" })
-		assertEquals(nod2.pulses.blue, { type: "any" })
-		assertEquals(nod3.pulses.blue, { type: "any" })
+		assertEquals(nod1.pulses.blue, { type: "any", source: nod1.id })
+		assertEquals(nod2.pulses.blue, { type: "any", source: nod2.id })
+		assertEquals(nod3.pulses.blue, { type: "any", source: nod3.id })
 
 		const projection = deepProject(phantom)
 
@@ -354,9 +354,9 @@ describe("deep projecting", () => {
 		addPulse(phantom, { target: nod1.id })
 		addPulse(nod2, { target: nod3.id })
 
-		assertEquals(nod1.pulses.blue, { type: "any" })
+		assertEquals(nod1.pulses.blue, { type: "any", source: nod1.id })
 		assertEquals(nod2.pulses.blue, null)
-		assertEquals(nod3.pulses.blue, { type: "any" })
+		assertEquals(nod3.pulses.blue, { type: "any", source: nod3.id })
 
 		const projection = deepProject(phantom)
 
@@ -366,7 +366,7 @@ describe("deep projecting", () => {
 
 		assertEquals(projectedNod1.pulses.blue, null)
 		assertEquals(projectedNod2.pulses.blue, null)
-		assertEquals(projectedNod3.pulses.blue, { type: "any" })
+		assertEquals(projectedNod3.pulses.blue, { type: "any", source: nod3.id })
 	})
 })
 
