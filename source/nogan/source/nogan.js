@@ -429,12 +429,15 @@ export const deepProject = (parent, { clone = true } = {}) => {
 export const advance = (nogan) => {
 	const projection = project(nogan)
 	for (const id in nogan.children) {
-		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history: [nogan] })
+		const child = nogan.children[id]
+		if (!child.isNod) continue
+		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history: [] })
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { source: id, colour })
+			addPulse(projection, { target: id, colour })
 		}
 	}
+	validate(projection)
 	return projection
 }

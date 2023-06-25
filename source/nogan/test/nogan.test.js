@@ -685,4 +685,22 @@ describe("advancing time", () => {
 		const nodAfter = advanced.children[nod.id]
 		assert(!nodAfter.pulses.blue)
 	})
+
+	it("fires nods that would have a pulse on the next tick", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id })
+		assert(nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+
+		const advanced = advance(phantom)
+		const nod1After = advanced.children[nod1.id]
+		const nod2After = advanced.children[nod2.id]
+
+		assert(!nod1After.pulses.blue)
+		assert(nod2After.pulses.blue)
+	})
 })
