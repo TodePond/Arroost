@@ -698,7 +698,7 @@ describe("pulse source", () => {
 		addPulse(phantom, { target: nod1.id })
 		const peak = getPeak(phantom, { id: nod2.id })
 		assertEquals(peak.result, true)
-		// assertEquals(peak.source, nod1.id)
+		assertEquals(peak.source, nod1.id)
 	})
 })
 
