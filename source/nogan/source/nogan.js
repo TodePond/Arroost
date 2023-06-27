@@ -12,6 +12,7 @@ export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
 	try {
 		schema.validate(nogan)
 	} catch (error) {
+		console.log(nogan)
 		console.error(schema.diagnose(nogan))
 		throw error
 	}
@@ -422,13 +423,13 @@ export const deepProject = (parent, { clone = true } = {}) => {
 // That's because I'm first figuring out how to do this with a shallow advance
 // And then I'll figure out how to do it with a deep advance
 
-export const advance = (nogan) => {
+export const advance = (nogan, { history = [] } = {}) => {
 	const projection = project(nogan)
 	for (const _id in nogan.children) {
 		const id = +_id
 		const child = nogan.children[id]
 		if (!child.isNod) continue
-		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history: [] })
+		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history })
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue

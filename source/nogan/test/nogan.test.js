@@ -714,7 +714,7 @@ describe("advancing time", () => {
 		assert(!nodAfter.pulses.blue)
 	})
 
-	it("fires nods that would have a pulse on the next tick", () => {
+	it("fires nods that would have get fired from the present", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
@@ -730,5 +730,76 @@ describe("advancing time", () => {
 
 		assert(!nod1After.pulses.blue)
 		assert(nod2After.pulses.blue)
+	})
+
+	it("fires nods that get fired from the future", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		const nod4 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod4.id }, { timing: -1 })
+
+		addPulse(phantom, { target: nod1.id })
+		assert(nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+		assert(!nod3.pulses.blue)
+		assert(!nod4.pulses.blue)
+
+		const advanced = advance(phantom)
+		const nod1After = advanced.children[nod1.id]
+		const nod2After = advanced.children[nod2.id]
+		const nod3After = advanced.children[nod3.id]
+		const nod4After = advanced.children[nod4.id]
+
+		assert(!nod1After.pulses.blue)
+		assert(nod2After.pulses.blue)
+		assert(!nod3After.pulses.blue)
+		assert(nod4After.pulses.blue)
+
+		const advanced2 = advance(advanced, { history: [phantom] })
+		const nod1After2 = advanced2.children[nod1.id]
+		const nod2After2 = advanced2.children[nod2.id]
+		const nod3After2 = advanced2.children[nod3.id]
+		const nod4After2 = advanced2.children[nod4.id]
+
+		assert(!nod1After2.pulses.blue)
+		assert(!nod2After2.pulses.blue)
+		assert(nod3After2.pulses.blue)
+		assert(!nod4After2.pulses.blue)
+	})
+
+	it("fires nods that get fired from the real past", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
+
+		const past = project(phantom)
+		addPulse(past, { target: nod1.id })
+
+		const nod1Before = past.children[nod1.id]
+		const nod2Before = past.children[nod2.id]
+		const nod3Before = past.children[nod3.id]
+		assert(nod1Before.pulses.blue)
+		assert(!nod2Before.pulses.blue)
+		assert(!nod3Before.pulses.blue)
+
+		assert(!nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+		assert(!nod3.pulses.blue)
+
+		const advanced = advance(phantom, { history: [past] })
+		const nod1After = advanced.children[nod1.id]
+		const nod2After = advanced.children[nod2.id]
+		const nod3After = advanced.children[nod3.id]
+
+		assert(!nod1After.pulses.blue)
+		assert(!nod2After.pulses.blue)
+		assert(nod3After.pulses.blue)
 	})
 })
