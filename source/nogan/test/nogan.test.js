@@ -232,7 +232,7 @@ describe("pulsing", () => {
 
 		assertEquals(nod.pulses.blue, null)
 		addPulse(phantom, { target: nod.id, type: "creation" })
-		// assertEquals(nod.pulses.blue, { type: "creation", source: nod.id })
+		assertEquals(nod.pulses.blue, { type: "creation", source: nod.id })
 	})
 })
 
