@@ -17,6 +17,8 @@ N.Never = S.PartialStruct({
 // Family //
 //========//
 N.Id = S.SafePositiveInteger.withDefault(null)
+N.PhantomId = S.Value(-1)
+
 N.Child = N.Struct({
 	// Meta
 	schemaName: S.Value("Child"),
@@ -77,12 +79,12 @@ N.PulseType = S.Enum(PULSE_TYPES)
 
 N.Pulse = S.Struct({
 	type: N.PulseType,
-	source: N.Id,
+	source: N.Id.or(N.PhantomId),
 })
 
 N.PhantomPulse = N.Pulse.extend({
 	type: N.Value("any"),
-	source: N.Value(-1),
+	source: N.PhantomId,
 })
 
 N.Pulses = S.Struct({
@@ -123,7 +125,7 @@ N.Phantom = N.Nod.extend({
 	isPhantom: S.True,
 
 	// Family
-	id: S.Value(-1),
+	id: N.PhantomId,
 
 	// Pulse
 	pulses: N.reference("PhantomPulses"),
@@ -138,7 +140,7 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.PulseType,
-	source: N.Id,
+	source: N.Id.or(N.PhantomId),
 })
 
 N.FullPeak = S.Struct({

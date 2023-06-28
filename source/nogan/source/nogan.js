@@ -188,7 +188,10 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 //=========//
 // Pulsing //
 //=========//
-export const addPulse = (parent, { target, source = target, colour = "blue", type = "any" }) => {
+export const addPulse = (
+	parent,
+	{ target, source = N.PhantomId.make(), colour = "blue", type = "any" },
+) => {
 	const nodNod = parent.children[target]
 	const { pulses } = nodNod
 	const pulse = pulses[colour]
@@ -264,7 +267,9 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
-			return N.Peak.make({ result: true, type: pulse.type, source: pulse.source })
+			let type = pulse.type
+			// todo: transform type from any to other
+			return N.Peak.make({ result: true, type, source: pulse.source })
 		}
 	}
 

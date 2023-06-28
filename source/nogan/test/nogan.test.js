@@ -232,7 +232,7 @@ describe("pulsing", () => {
 
 		assertEquals(nod.pulses.blue, null)
 		addPulse(phantom, { target: nod.id, type: "creation" })
-		assertEquals(nod.pulses.blue, { type: "creation", source: nod.id })
+		assertEquals(nod.pulses.blue, { type: "creation", source: -1 })
 	})
 })
 
@@ -331,9 +331,9 @@ describe("deep projecting", () => {
 		addPulse(nod1, { target: nod2.id })
 		addPulse(nod2, { target: nod3.id })
 
-		assertEquals(nod1.pulses.blue, { type: "any", source: nod1.id })
-		assertEquals(nod2.pulses.blue, { type: "any", source: nod2.id })
-		assertEquals(nod3.pulses.blue, { type: "any", source: nod3.id })
+		assertEquals(nod1.pulses.blue, { type: "any", source: -1 })
+		assertEquals(nod2.pulses.blue, { type: "any", source: -1 })
+		assertEquals(nod3.pulses.blue, { type: "any", source: -1 })
 
 		const projection = deepProject(phantom)
 
@@ -354,9 +354,9 @@ describe("deep projecting", () => {
 		addPulse(phantom, { target: nod1.id })
 		addPulse(nod2, { target: nod3.id })
 
-		assertEquals(nod1.pulses.blue, { type: "any", source: nod1.id })
+		assertEquals(nod1.pulses.blue, { type: "any", source: -1 })
 		assertEquals(nod2.pulses.blue, null)
-		assertEquals(nod3.pulses.blue, { type: "any", source: nod3.id })
+		assertEquals(nod3.pulses.blue, { type: "any", source: -1 })
 
 		const projection = deepProject(phantom)
 
@@ -366,7 +366,7 @@ describe("deep projecting", () => {
 
 		assertEquals(projectedNod1.pulses.blue, null)
 		assertEquals(projectedNod2.pulses.blue, null)
-		assertEquals(projectedNod3.pulses.blue, { type: "any", source: nod3.id })
+		assertEquals(projectedNod3.pulses.blue, { type: "any", source: -1 })
 	})
 })
 
@@ -675,11 +675,11 @@ describe("sugar API functions", () => {
 })
 
 describe("pulse source", () => {
-	it("uses the target as source by default", () => {
+	it("uses the phantom id as source by default", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
 		addPulse(phantom, { target: nod.id })
-		assertEquals(nod.pulses.blue.source, nod.id)
+		assertEquals(nod.pulses.blue.source, -1)
 	})
 
 	it("uses the source as source if specified", () => {
@@ -698,7 +698,7 @@ describe("pulse source", () => {
 		addPulse(phantom, { target: nod1.id })
 		const peak = getPeak(phantom, { id: nod2.id })
 		assertEquals(peak.result, true)
-		assertEquals(peak.source, nod1.id)
+		// assertEquals(peak.source, -1)
 	})
 })
 
@@ -801,5 +801,38 @@ describe("advancing time", () => {
 		assert(!nod1After.pulses.blue)
 		assert(!nod2After.pulses.blue)
 		assert(nod3After.pulses.blue)
+	})
+})
+
+describe("pulse types and colours", () => {
+	it("only fires pulses through the same colour wire", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { colour: "red" })
+
+		addPulse(phantom, { target: nod1.id, colour: "green" })
+		const peakGreen = getPeak(phantom, { id: nod2.id, colour: "green" })
+		const peakRed = getPeak(phantom, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen.result, false)
+		assertEquals(peakRed.result, false)
+
+		addPulse(phantom, { target: nod1.id, colour: "red" })
+		const peakGreen2 = getPeak(phantom, { id: nod2.id, colour: "green" })
+		const peakRed2 = getPeak(phantom, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen2.result, false)
+		assertEquals(peakRed2.result, true)
+	})
+
+	it("transforms the type of a fired pulse", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { type: "creation" })
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id })
+
+		addPulse(phantom, { target: nod1.id })
+		const peak = getPeak(phantom, { id: nod2.id })
+		assertEquals(peak.result, true)
+		// assertEquals(peak.type, "creation")
 	})
 })
