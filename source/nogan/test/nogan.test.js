@@ -451,6 +451,7 @@ describe("peaking", () => {
 
 		const peak = getPeak(future, { id: nod2.id, history: [now] })
 		assertEquals(peak.result, true)
+		assertEquals(peak.source, nod1.id)
 	})
 
 	it("finds a pulse caused by an imagined past", () => {
@@ -465,6 +466,7 @@ describe("peaking", () => {
 
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, true)
+		assertEquals(peak.source, nod2.id)
 	})
 
 	it("finds a pulse caused by an imagined future", () => {
@@ -690,7 +692,7 @@ describe("pulse source", () => {
 		assertEquals(nod1.pulses.blue.source, nod2.id)
 	})
 
-	it("peaks the correct source", () => {
+	it("peaks the correct source in the present", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
@@ -856,5 +858,96 @@ describe("advancing time", () => {
 		assert(!nod1After.pulses.blue)
 		assert(!nod2After.pulses.blue)
 		assert(nod3After.pulses.blue)
+	})
+
+	it("transforms pulse source over time", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id })
+		const peakSource = getPeak(phantom, { id: nod1.id })
+		assertEquals(peakSource.result, true)
+		assertEquals(peakSource.source, -1)
+
+		const advanced = advance(phantom)
+		const peakSourceAfter = getPeak(advanced, { id: nod1.id })
+		assertEquals(peakSourceAfter.result, false)
+		assertEquals(peakSourceAfter.source, -1)
+
+		const peakTargetAfter = getPeak(advanced, { id: nod2.id })
+		assertEquals(peakTargetAfter.result, true)
+		assertEquals(peakTargetAfter.source, nod1.id)
+	})
+
+	it("transforms pulse type over time", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { type: "creation" })
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id })
+		const peakSource = getPeak(phantom, { id: nod1.id })
+		assertEquals(peakSource.result, true)
+		assertEquals(peakSource.type, "any")
+
+		const advanced = advance(phantom)
+		const peakSourceAfter = getPeak(advanced, { id: nod1.id })
+		assertEquals(peakSourceAfter.result, false)
+
+		const peakTargetAfter = getPeak(advanced, { id: nod2.id })
+		assertEquals(peakTargetAfter.result, true)
+		assertEquals(peakTargetAfter.type, "creation")
+	})
+
+	it("doesn't transform typed pulses over time", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { type: "creation" })
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+
+		addPulse(phantom, { target: nod1.id, type: "destruction" })
+		const peakSource = getPeak(phantom, { id: nod1.id })
+		assertEquals(peakSource.result, true)
+		assertEquals(peakSource.type, "destruction")
+
+		const advanced = advance(phantom)
+		const peakSourceAfter = getPeak(advanced, { id: nod1.id })
+		assertEquals(peakSourceAfter.result, false)
+
+		const peakTargetAfter = getPeak(advanced, { id: nod2.id })
+		assertEquals(peakTargetAfter.result, true)
+		assertEquals(peakTargetAfter.type, "destruction")
+	})
+
+	it("doesn't fire pulses through the wrong colour wire over time", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
+
+		addPulse(phantom, { target: nod1.id, colour: "green" })
+
+		const advanced = advance(phantom)
+		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
+		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen.result, false)
+		assertEquals(peakRed.result, false)
+	})
+
+	it("fires pulses through the right colour wire over time", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
+
+		addPulse(phantom, { target: nod1.id, colour: "red" })
+
+		const advanced = advance(phantom)
+		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
+		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen.result, false)
+		assertEquals(peakRed.result, true)
 	})
 })

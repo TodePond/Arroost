@@ -303,7 +303,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	}
 
 	// Too bad, we couldn't find a pulse
-	return N.Peak.make({ result: false, source: id })
+	return N.Peak.make({ result: false, source: N.PhantomId.make() })
 }
 
 const getPeakBefore = (parent, { id, colour, history, future }) => {
@@ -331,7 +331,7 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (afterStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false, source: id })
+			return N.Peak.make({ result: false, source: N.PhantomId.make() })
 		}
 	}
 
@@ -370,7 +370,7 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (beforeStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false, source: id })
+			return N.Peak.make({ result: false, source: N.PhantomId.make() })
 		}
 	}
 
@@ -444,7 +444,7 @@ export const advance = (nogan, { history = [] } = {}) => {
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { target: id, colour })
+			addPulse(projection, { target: id, colour, type: peak.type, source: peak.source })
 		}
 	}
 	validate(projection)
