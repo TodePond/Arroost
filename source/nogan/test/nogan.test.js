@@ -702,6 +702,61 @@ describe("pulse source", () => {
 	})
 })
 
+describe("pulse types and colours", () => {
+	it("only fires pulses through the same colour wire", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id }, { colour: "red" })
+
+		addPulse(phantom, { target: nod1.id, colour: "green" })
+		const peakGreen = getPeak(phantom, { id: nod2.id, colour: "green" })
+		const peakRed = getPeak(phantom, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen.result, false)
+		assertEquals(peakRed.result, false)
+
+		addPulse(phantom, { target: nod1.id, colour: "red" })
+		const peakGreen2 = getPeak(phantom, { id: nod2.id, colour: "green" })
+		const peakRed2 = getPeak(phantom, { id: nod2.id, colour: "red" })
+		assertEquals(peakGreen2.result, false)
+		assertEquals(peakRed2.result, true)
+	})
+
+	it("transforms the type of an untyped pulse", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { type: "creation" })
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id })
+
+		addPulse(phantom, { target: nod1.id })
+		assertEquals(nod1.pulses.blue.type, "any")
+		const peakSource = getPeak(phantom, { id: nod1.id })
+		assertEquals(peakSource.result, true)
+		assertEquals(peakSource.type, "any")
+
+		const peakTarget = getPeak(phantom, { id: nod2.id })
+		assertEquals(peakTarget.result, true)
+		assertEquals(peakTarget.type, "creation")
+	})
+
+	it("doesn't transform the type of a typed pulse", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { type: "creation" })
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id })
+
+		addPulse(phantom, { target: nod1.id, type: "destruction" })
+		assertEquals(nod1.pulses.blue.type, "destruction")
+		const peakSource = getPeak(phantom, { id: nod1.id })
+		assertEquals(peakSource.result, true)
+		assertEquals(peakSource.type, "destruction")
+
+		const peakTarget = getPeak(phantom, { id: nod2.id })
+		assertEquals(peakTarget.result, true)
+		assertEquals(peakTarget.type, "destruction")
+	})
+})
+
 describe("advancing time", () => {
 	it("unfires pulses", () => {
 		const phantom = createPhantom()
@@ -801,60 +856,5 @@ describe("advancing time", () => {
 		assert(!nod1After.pulses.blue)
 		assert(!nod2After.pulses.blue)
 		assert(nod3After.pulses.blue)
-	})
-})
-
-describe("pulse types and colours", () => {
-	it("only fires pulses through the same colour wire", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom)
-		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { colour: "red" })
-
-		addPulse(phantom, { target: nod1.id, colour: "green" })
-		const peakGreen = getPeak(phantom, { id: nod2.id, colour: "green" })
-		const peakRed = getPeak(phantom, { id: nod2.id, colour: "red" })
-		assertEquals(peakGreen.result, false)
-		assertEquals(peakRed.result, false)
-
-		addPulse(phantom, { target: nod1.id, colour: "red" })
-		const peakGreen2 = getPeak(phantom, { id: nod2.id, colour: "green" })
-		const peakRed2 = getPeak(phantom, { id: nod2.id, colour: "red" })
-		assertEquals(peakGreen2.result, false)
-		assertEquals(peakRed2.result, true)
-	})
-
-	it("transforms the type of an untyped pulse", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom, { type: "creation" })
-		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id })
-
-		addPulse(phantom, { target: nod1.id })
-		assertEquals(nod1.pulses.blue.type, "any")
-		const peakSource = getPeak(phantom, { id: nod1.id })
-		assertEquals(peakSource.result, true)
-		assertEquals(peakSource.type, "any")
-
-		const peakTarget = getPeak(phantom, { id: nod2.id })
-		assertEquals(peakTarget.result, true)
-		assertEquals(peakTarget.type, "creation")
-	})
-
-	it("doesn't transform the type of a typed pulse", () => {
-		const phantom = createPhantom()
-		const nod1 = createNod(phantom, { type: "creation" })
-		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id })
-
-		addPulse(phantom, { target: nod1.id, type: "destruction" })
-		assertEquals(nod1.pulses.blue.type, "destruction")
-		const peakSource = getPeak(phantom, { id: nod1.id })
-		assertEquals(peakSource.result, true)
-		assertEquals(peakSource.type, "destruction")
-
-		const peakTarget = getPeak(phantom, { id: nod2.id })
-		assertEquals(peakTarget.result, true)
-		assertEquals(peakTarget.type, "destruction")
 	})
 })
