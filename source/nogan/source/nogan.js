@@ -292,13 +292,13 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		})
 
 		if (peak.result) {
-			const sourcedPeak = N.Peak.make({
+			const transformedPeak = N.Peak.make({
 				result: true,
-				type: peak.type,
+				type: peak.type === "any" ? source.type : peak.type,
 				source: source.id,
 			})
-			validate(sourcedPeak)
-			return sourcedPeak
+			validate(transformedPeak)
+			return transformedPeak
 		}
 	}
 
