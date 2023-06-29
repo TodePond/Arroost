@@ -690,7 +690,7 @@ describe("pulse source", () => {
 		assertEquals(nod1.pulses.blue.source, nod2.id)
 	})
 
-	it("peaks the correct source in the present", () => {
+	it("peaks the correct source", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
