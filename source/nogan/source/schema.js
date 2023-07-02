@@ -87,6 +87,9 @@ export const SOURCE_TYPES = [
 N.SourceType = S.Enum(SOURCE_TYPES)
 
 N.Pulse = S.Struct({
+	// Technically, we don't need to store the type
+	// ... because we can infer it from the source.
+	// But let's store it anyway to make things easier!
 	type: N.SourceType,
 	source: N.Id.or(N.PhantomId),
 })
