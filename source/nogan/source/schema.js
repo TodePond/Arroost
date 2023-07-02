@@ -64,21 +64,30 @@ N.Wire = N.Child.extend({
 //=======//
 // Pulse //
 //=======//
-export const PULSE_TYPES = [
+
+// The pulse type refers to where the pulse is coming from.
+export const SOURCE_TYPES = [
 	"any",
-	"creation",
-	"connection",
-	"destruction",
-	"modification",
-	"control",
-	"teleportation",
-	"movement",
+
+	// Single Target
+	"creation", //todo
+	"destruction", //todo
+	"modification", //todo
+
+	"teleportation", //todo
+	"movement", //todo
+
+	// Vector Target
+	"connection", //todo
+
+	// Continuous
+	"control", //todo
 ]
 
-N.PulseType = S.Enum(PULSE_TYPES)
+N.SourceType = S.Enum(SOURCE_TYPES)
 
 N.Pulse = S.Struct({
-	type: N.PulseType,
+	type: N.SourceType,
 	source: N.Id.or(N.PhantomId),
 })
 
@@ -116,7 +125,7 @@ N.Nod = N.Parent.extend({
 
 	// Nod
 	position: S.Vector2D,
-	type: N.PulseType,
+	type: N.SourceType,
 })
 
 N.Phantom = N.Nod.extend({
@@ -139,7 +148,7 @@ N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
-	type: N.PulseType,
+	type: N.SourceType,
 	source: N.Id.or(N.PhantomId),
 })
 
