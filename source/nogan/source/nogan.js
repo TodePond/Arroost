@@ -204,8 +204,8 @@ export const addPulse = (
 	// Update our pulse
 	pulses[colour] = N.Pulse.make({ type, source })
 
-	validate(parent)
 	validate(nodNod)
+	validate(parent)
 }
 
 export const addFullPulse = (parent, { source, target } = {}) => {

@@ -66,31 +66,13 @@ N.Wire = N.Child.extend({
 //=======//
 
 // The pulse type refers to where the pulse is coming from.
-export const SOURCE_TYPES = [
-	"any",
-
-	// Single Target
-	"creation", //todo
-	"destruction", //todo
-	"modification", //todo
-
-	"teleportation", //todo
-	"movement", //todo
-
-	// Vector Target
-	"connection", //todo
-
-	// Continuous
-	"control", //todo
-]
+export const SOURCE_TYPES = ["any", "creation", "destruction"]
 
 N.SourceType = S.Enum(SOURCE_TYPES)
 
 N.Pulse = S.Struct({
-	// Technically, we don't need to store the type
-	// ... because we can infer it from the source.
-	// But let's store it anyway to make things easier!
 	type: N.SourceType,
+	data: N.reference("NodTemplate").nullable(),
 	source: N.Id.or(N.PhantomId),
 })
 
@@ -114,7 +96,13 @@ N.PhantomPulses = S.Struct({
 //=====//
 // Nod //
 //=====//
-N.Nod = N.Parent.extend({
+N.NodTemplate = N.Parent.extend({
+	schemaName: S.Value("NodTemplate"),
+	position: S.Vector2D,
+	type: N.SourceType,
+})
+
+N.Nod = N.NodTemplate.extend({
 	// Meta
 	schemaName: S.Value("Nod"),
 	isNod: S.True,
@@ -125,10 +113,6 @@ N.Nod = N.Parent.extend({
 
 	// Pulse
 	pulses: N.reference("Pulses"),
-
-	// Nod
-	position: S.Vector2D,
-	type: N.SourceType,
 })
 
 N.Phantom = N.Nod.extend({
