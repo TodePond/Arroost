@@ -8,6 +8,7 @@ import {
 	createId,
 	createNod,
 	createPhantom,
+	createTemplate,
 	createWire,
 	deepProject,
 	deleteChild,
@@ -72,6 +73,7 @@ describe("creating", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
 	})
+
 	it("creates a wire", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
@@ -80,6 +82,14 @@ describe("creating", () => {
 		assertEquals(nod.inputs, [wire.id])
 		assertEquals(wire.source, nod.id)
 		assertEquals(wire.target, nod.id)
+	})
+
+	it("creates a template from a nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom, { type: "creation", position: [10, 20] })
+		const template = createTemplate(nod)
+		assertEquals(template.type, "creation")
+		assertEquals(template.position, [10, 20])
 	})
 })
 
@@ -643,6 +653,30 @@ describe("peaking", () => {
 		assertEquals(peak3after.result, true)
 		assertEquals(peak2after.result, false)
 		assertEquals(peak1after.result, false)
+	})
+})
+
+describe("untransformed peak info", () => {
+	it("peaks any type for unpulsed nods", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const peak = getPeak(phantom, { id: nod.id })
+		assertEquals(peak.type, "any")
+	})
+
+	it("peaks the pulse type for pulsed nods", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		addPulse(phantom, { target: nod.id, type: "creation" })
+		const peak = getPeak(phantom, { id: nod.id })
+		assertEquals(peak.type, "creation")
+	})
+
+	it("peaks nod template", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		const peak = getPeak(phantom, { id: nod.id })
+		assertEquals(peak.template, createTemplate(nod))
 	})
 })
 

@@ -100,6 +100,15 @@ export const createWire = (parent, { source, target } = {}, properties = {}) => 
 	return wire
 }
 
+export const createTemplate = (nod) => {
+	const template = N.NodTemplate.make({
+		position: nod.position,
+		type: nod.type,
+	})
+	validate(template)
+	return template
+}
+
 //===========//
 // Destroying //
 //===========//
@@ -264,7 +273,11 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
-			return N.Peak.make({ result: true, type: pulse.type })
+			return N.Peak.make({
+				result: true,
+				type: pulse.type,
+				template: createTemplate(nod),
+			})
 		}
 	}
 
@@ -272,14 +285,13 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	// to see if we can find a pulse
 	for (const input of nod.inputs) {
 		const wire = parent.children[input]
-		const source = parent.children[wire.source]
 
 		if (wire.colour !== colour) {
 			continue
 		}
 
 		const peak = getPeak(parent, {
-			id: source.id,
+			id: wire.source,
 			timing: -wire.timing,
 			colour,
 			history,
@@ -289,8 +301,8 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		if (peak.result) {
 			const transformedPeak = behave(parent, {
 				peak: peak,
-				source: wire.source,
-				target: id,
+				sourceTemplate: peak.template,
+				targetTemplate: nod,
 			})
 
 			validate(transformedPeak)
@@ -305,8 +317,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 // Return a peak!
 // The peak can get transformed
 // (depending on what the source and target nods are)
-export const behave = (parent, { peak, source, target }) => {
-	const sourceNod = parent.children[source]
+export const behave = (parent, { peak, sourceTemplate, targetTemplate }) => {
 	return N.Peak.make({
 		result: true,
 		type: peak.type,

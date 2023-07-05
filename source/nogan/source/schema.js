@@ -70,12 +70,8 @@ export const SOURCE_TYPES = ["any", "creation", "destruction"]
 
 N.SourceType = S.Enum(SOURCE_TYPES)
 
-// todo: add more possibilities here if needed
-N.PulseData = N.reference("NodTemplate").nullable()
-
 N.Pulse = S.Struct({
 	type: N.SourceType,
-	data: N.PulseData,
 })
 
 N.PhantomPulse = N.Pulse.extend({
@@ -97,13 +93,13 @@ N.PhantomPulses = S.Struct({
 //=====//
 // Nod //
 //=====//
-N.NodTemplate = N.Parent.extend({
+N.NodTemplate = N.Struct({
 	schemaName: S.Value("NodTemplate"),
 	position: S.Vector2D,
 	type: N.SourceType,
 })
 
-N.Nod = N.NodTemplate.extend({
+N.Nod = N.Parent.extend({
 	// Meta
 	schemaName: S.Value("Nod"),
 	isNod: S.True,
@@ -114,6 +110,10 @@ N.Nod = N.NodTemplate.extend({
 
 	// Pulse
 	pulses: N.reference("Pulses"),
+
+	// Template
+	position: S.Vector2D,
+	type: N.SourceType,
 })
 
 N.Phantom = N.Nod.extend({
@@ -137,6 +137,7 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.SourceType,
+	template: N.NodTemplate,
 })
 
 N.FullPeak = S.Struct({
