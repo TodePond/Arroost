@@ -22,8 +22,8 @@ import {
 	project,
 	reconnectWire,
 	replaceNod,
-} from "../source/nogan.js"
-import { NoganSchema } from "../source/schema.js"
+} from "./nogan.js"
+import { NoganSchema } from "./schema.js"
 
 const N = NoganSchema
 

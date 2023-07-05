@@ -1,4 +1,4 @@
-import { Schema } from "../../../libraries/schema.js"
+import { Schema } from "../../libraries/schema.js"
 
 export const NoganSchema = class extends Schema {}
 const S = Schema
