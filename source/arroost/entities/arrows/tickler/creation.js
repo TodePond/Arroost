@@ -6,7 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
-import { addFullPulse, createNod, validateFamily } from "../../../../nogan/source/nogan.js"
+import { addFullPulse, createNod, validateFamily } from "../../../../nogan/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"

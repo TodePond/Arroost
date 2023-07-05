@@ -20,9 +20,9 @@ import { Idle } from "./arroost/input/states.js"
 import { registerWheel } from "./arroost/input/wheel.js"
 import { UNIT } from "./arroost/unit.js"
 import { frame } from "./link.js"
-import * as Nogan from "./nogan/source/nogan.js"
-import { createPhantom } from "./nogan/source/nogan.js"
-import { NoganSchema } from "./nogan/source/schema.js"
+import * as Nogan from "./nogan/nogan.js"
+import { createPhantom } from "./nogan/nogan.js"
+import { NoganSchema } from "./nogan/schema.js"
 
 //===============//
 // Setup Habitat //
