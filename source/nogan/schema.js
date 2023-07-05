@@ -70,13 +70,14 @@ export const SOURCE_TYPES = [
 	// done
 	"any",
 	"slot",
+	"creation",
 
 	// in progress
-	"creation",
 
 	// todo
 	"destruction",
 	"recording",
+	// ... more!
 ]
 
 N.SourceType = S.Enum(SOURCE_TYPES)
