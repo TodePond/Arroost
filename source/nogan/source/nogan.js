@@ -264,9 +264,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
-			let type = pulse.type
-			// todo: transform type from any to other
-			return N.Peak.make({ result: true, type })
+			return N.Peak.make({ result: true, type: pulse.type })
 		}
 	}
 
@@ -289,10 +287,12 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		})
 
 		if (peak.result) {
-			const transformedPeak = N.Peak.make({
-				result: true,
-				type: peak.type === "any" ? source.type : peak.type,
+			const transformedPeak = behave(parent, {
+				peak: peak,
+				source: wire.source,
+				target: id,
 			})
+
 			validate(transformedPeak)
 			return transformedPeak
 		}
@@ -300,6 +300,14 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 	// Too bad, we couldn't find a pulse
 	return N.Peak.make({ result: false })
+}
+
+export const behave = (parent, { peak, source, target }) => {
+	const sourceNod = parent.children[source]
+	return N.Peak.make({
+		result: true,
+		type: peak.type === "any" ? sourceNod.type : peak.type,
+	})
 }
 
 const getPeakBefore = (parent, { id, colour, history, future }) => {
