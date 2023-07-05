@@ -835,6 +835,12 @@ describe("advancing time", () => {
 		assertEquals(peakGreen.result, false)
 		assertEquals(peakRed.result, true)
 	})
+
+	it("peaks after advancing time", () => {
+		const phantom = createPhantom()
+		const source = createNod(phantom)
+		const target = createNod(phantom)
+	})
 })
 
 describe("peak template", () => {
@@ -888,5 +894,23 @@ describe("creation nod", () => {
 		const peak = getPeak(phantom, { id: slot.id })
 		assertEquals(peak.result, false)
 		assertEquals(peak.operations, [{ type: "replace", data: { type: "recording" } }])
+	})
+
+	it("works when advancing too", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const any = createNod(phantom, { type: "any", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: any.id }, { timing: 1 })
+		createWire(phantom, { source: any.id, target: slot.id }, { timing: 1 })
+		addPulse(phantom, { id: creation.id })
+		const advanced = advance(phantom)
+		const peak = getPeak(advanced, { id: any.id, history: [phantom] })
+		assertEquals(peak.result, true)
+		assertEquals(peak.type, "creation")
+		const advanced2 = advance(advanced, { history: [phantom] })
+		const peak2 = getPeak(advanced2, { id: slot.id, history: [phantom, advanced] })
+		assertEquals(peak2.result, false)
+		assertEquals(peak2.operations, [{ type: "replace", data: { type: "recording" } }])
 	})
 })
