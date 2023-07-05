@@ -70,6 +70,7 @@ export const SOURCE_TYPES = ["any", "creation", "destruction"]
 
 N.SourceType = S.Enum(SOURCE_TYPES)
 
+// todo: add more possibilities here if needed
 N.PulseData = N.reference("NodTemplate").nullable()
 
 N.Pulse = S.Struct({
