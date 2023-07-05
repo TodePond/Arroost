@@ -244,6 +244,42 @@ describe("pulsing", () => {
 		addPulse(phantom, { id: nod.id, type: "creation" })
 		assertEquals(nod.pulses.blue.type, "creation")
 	})
+
+	it("propogates through the present", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id })
+		addPulse(phantom, { id: nod1.id })
+		assert(nod1.pulses.blue)
+		assert(nod2.pulses.blue)
+	})
+
+	it("propogates through the past", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
+		addPulse(phantom, { id: nod1.id })
+		assert(nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+		assert(nod3.pulses.blue)
+	})
+
+	it("propogates through the future", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		const nod3 = createNod(phantom)
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: -1 })
+		addPulse(phantom, { id: nod1.id })
+		assert(nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+		assert(nod3.pulses.blue)
+	})
 })
 
 describe("modifying", () => {
@@ -929,6 +965,54 @@ describe("creation nod", () => {
 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
 		createWire(phantom, { source: creation.id, target: destruction.id })
 		createWire(phantom, { source: destruction.id, target: slot.id })
+		addPulse(phantom, { id: creation.id })
+		const clone = phantom.children[slot.id]
+		assertEquals(clone.type, "destruction")
+	})
+
+	it("creates immediately through the past", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const any = createNod(phantom, { type: "any", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: any.id, timing: -1 })
+		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
+		addPulse(phantom, { id: creation.id })
+		const recording = phantom.children[slot.id]
+		assertEquals(recording.type, "recording")
+	})
+
+	it("creates immediately through the future", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const any = createNod(phantom, { type: "any", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: any.id, timing: 1 })
+		createWire(phantom, { source: any.id, target: slot.id, timing: -1 })
+		addPulse(phantom, { id: creation.id })
+		const recording = phantom.children[slot.id]
+		assertEquals(recording.type, "recording")
+	})
+
+	it("clones immediately through the past", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: destruction.id, timing: -1 })
+		createWire(phantom, { source: destruction.id, target: slot.id, timing: 1 })
+		addPulse(phantom, { id: creation.id })
+		const clone = phantom.children[slot.id]
+		assertEquals(clone.type, "destruction")
+	})
+
+	it("clones immediately through the future", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
+		createWire(phantom, { source: destruction.id, target: slot.id, timing: -1 })
 		addPulse(phantom, { id: creation.id })
 		const clone = phantom.children[slot.id]
 		assertEquals(clone.type, "destruction")
