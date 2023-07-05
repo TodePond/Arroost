@@ -1,19 +1,24 @@
-const anyBehave = ({ peak, target }) => {
-	return
-}
-
-const CAN_CREATE_AT = new Set(["slot"])
 const creationBehave = ({ peak, target }) => {
-	if (!CAN_CREATE_AT.has(target)) {
-		return {
-			peak: { ...peak, type: "creation" },
-		}
+	// If there's already a command, don't override it
+	if (peak.type !== "any" && peak.type !== "creation") {
+		return
 	}
 
-	const operations = []
+	// If we can't create here, pass through
+	if (target.type !== "slot") {
+		return { peak: { ...peak, type: "creation" } }
+	}
+
+	// If we can create here
+	// ... create an arrow of recording!
+	const operation = {
+		type: "replace",
+		data: { ...target, type: "recording" },
+	}
+
+	return { peak: { ...peak, result: false }, operations: [operation] }
 }
 
 export const NOD_BEHAVES = {
-	any: anyBehave,
 	creation: creationBehave,
 }

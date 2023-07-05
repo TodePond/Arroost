@@ -66,7 +66,18 @@ N.Wire = N.Child.extend({
 //=======//
 
 // The pulse type refers to where the pulse is coming from.
-export const SOURCE_TYPES = ["any", "creation", "destruction"]
+export const SOURCE_TYPES = [
+	// done
+	"any",
+	"slot",
+
+	// in progress
+	"creation",
+
+	// todo
+	"destruction",
+	"recording",
+]
 
 N.SourceType = S.Enum(SOURCE_TYPES)
 

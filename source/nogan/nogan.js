@@ -301,7 +301,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 		if (peak.result) {
 			const transformedPeak = behave(parent, {
-				peak: peak,
+				peak,
 				target: createTemplate(nod),
 			})
 
@@ -315,7 +315,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 }
 
 export const behave = (parent, { peak, target }) => {
-	const nodBehave = NOD_BEHAVES[target.type]
+	const nodBehave = NOD_BEHAVES[peak.template.type]
 	if (!nodBehave) {
 		return peak
 	}
@@ -325,7 +325,7 @@ export const behave = (parent, { peak, target }) => {
 
 	validate(transformedPeak)
 	for (const operation of operations) {
-		validate(operation)
+		validate(N.Operation.make(operation))
 	}
 
 	return transformedPeak
