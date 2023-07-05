@@ -1,3 +1,4 @@
+import { memo } from "../../libraries/habitat-import.js"
 import { NOD_BEHAVES } from "./behave.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
@@ -6,8 +7,13 @@ const N = NoganSchema
 //============//
 // Validating //
 //============//
+export const shouldValidate = memo(
+	() => window.shared && window.shared.debug.validate,
+	() => "",
+)
+
 export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
-	if (window.shared && !window.shared.debug.validate) {
+	if (shouldValidate()) {
 		return
 	}
 	try {
@@ -253,7 +259,7 @@ export const getPeak = (
 	{ id, colour = "blue", timing = 0, history = [], future = [] },
 ) => {
 	const peak = _getPeak(parent, { id, colour, timing, history, future })
-	validate(peak)
+	validate(peak, N.Peak)
 	validate(parent)
 	return peak
 }
@@ -271,15 +277,21 @@ const _getPeak = (parent, { id, colour, timing, history, future }) => {
 	return N.Never.make({ id, colour, timing, history })
 }
 
+const createPeak = ({ result = false, type, template } = {}) => {
+	if (!result) return N.FailPeak.make()
+	return N.SuccessPeak.make({ result, type, template })
+}
+
 const getPeakNow = (parent, { id, colour, history, future }) => {
 	// First, let's try to find a real pulse
 	const nod = parent.children[id]
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
-			return N.Peak.make({
+			return createPeak({
 				result: true,
 				type: pulse.type,
+				template: createTemplate(nod),
 			})
 		}
 	}
@@ -302,34 +314,30 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		})
 
 		if (peak.result) {
-			const transformedPeak = behave(parent, {
-				peak,
-				target: createTemplate(nod),
-			})
-
+			const transformedPeak = behave(parent, { peak, id })
 			validate(transformedPeak)
 			return transformedPeak
 		}
 	}
 
 	// Too bad, we couldn't find a pulse
-	return N.Peak.make({ result: false })
+	return createPeak()
 }
 
-export const behave = (parent, { peak, target }) => {
-	// console.log(peak, target)
-	return peak
+// Peak refers to the input that is causing this nod to fire
+export const behave = (parent, { peak, id }) => {
 	const nodBehave = NOD_BEHAVES[peak.template.type]
 	if (!nodBehave) {
 		return peak
 	}
 
-	const behaviour = nodBehave({ peak, target })
-	const { peak: transformedPeak = peak, operations = [] } = behaviour ?? {}
+	const transformedPeak = nodBehave(parent, { peak, id }) ?? peak
 
-	validate(transformedPeak)
-	for (const operation of operations) {
-		validate(N.Operation.make(operation))
+	if (shouldValidate()) {
+		validate(transformedPeak)
+		for (const operation of peak.operations) {
+			validate(N.Operation.make(operation))
+		}
 	}
 
 	return transformedPeak
@@ -360,7 +368,7 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (afterStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false })
+			return createPeak()
 		}
 	}
 
@@ -399,7 +407,7 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (beforeStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false })
+			return createPeak()
 		}
 	}
 

@@ -656,23 +656,6 @@ describe("peaking", () => {
 	})
 })
 
-describe("untransformed peak info", () => {
-	it("peaks any type for unpulsed nods", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		const peak = getPeak(phantom, { id: nod.id })
-		assertEquals(peak.type, "any")
-	})
-
-	it("peaks the pulse type for pulsed nods", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		addPulse(phantom, { id: nod.id, type: "creation" })
-		const peak = getPeak(phantom, { id: nod.id })
-		assertEquals(peak.type, "creation")
-	})
-})
-
 describe("sugar API functions", () => {
 	it("adds a full pulse", () => {
 		const phantom = createPhantom()
@@ -854,31 +837,24 @@ describe("advancing time", () => {
 	})
 })
 
-describe("peak", () => {
-	it("gets info for unfiring nod", () => {
+describe("peak template", () => {
+	it("gets the template of a peak's nod", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom, { position: [1, 0] })
+		addPulse(phantom, { id: nod.id })
 		const peak = getPeak(phantom, { id: nod.id })
-		assertEquals(peak, {
-			schemaName: "Peak",
-			result: false,
-			type: "any",
-			data: undefined,
-			operations: [],
-		})
+		assertEquals(peak.template, createTemplate(nod))
 	})
+})
 
-	it("gets info for firing nod", () => {
+describe("creation behave", () => {
+	it("transforms an any pulse into a creation pulse", () => {
 		const phantom = createPhantom()
-		const nod = createNod(phantom, { position: [1, 0] })
-		addPulse(phantom, { id: nod.id, type: "any" })
-		const peak = getPeak(phantom, { id: nod.id })
-		// assertEquals(peak, {
-		// 	schemaName: "Peak",
-		// 	result: true,
-		// 	type: "any",
-		// 	data: undefined,
-		// 	operations: [],
-		// })
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const any = createNod(phantom, { type: "any", position: [2, 0] })
+		createWire(phantom, { source: creation.id, target: any.id })
+		addPulse(phantom, { id: creation.id })
+		const peak = getPeak(phantom, { id: any.id })
+		console.log(peak)
 	})
 })

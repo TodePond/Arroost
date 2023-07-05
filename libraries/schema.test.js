@@ -63,7 +63,7 @@ describe("schema types", () => {
 	})
 
 	it("does anys", () => {
-		const schema = S.Any(S.Number, S.String)
+		const schema = S.Any([S.Number, S.String])
 		const any = schema.make()
 		assertEquals(any, 0)
 		schema.validate(any)

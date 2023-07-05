@@ -1,4 +1,6 @@
-const creationBehave = ({ peak, target }) => {
+const creationBehave = (parent, { peak, id }) => {
+	const target = parent.children[id]
+
 	// If there's already a command, don't override it
 	if (peak.type !== "any" && peak.type !== "creation") {
 		return
@@ -11,11 +13,6 @@ const creationBehave = ({ peak, target }) => {
 
 	// If we can create here
 	// ... create an arrow of recording!
-	const operation = {
-		type: "replace",
-		data: { ...target, type: "recording" },
-	}
-
 	return {
 		...peak,
 		result: false,

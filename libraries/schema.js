@@ -140,7 +140,7 @@ Schema.Function = new Schema({
 })
 
 Schema.Anything = new Schema().withCheck(() => true).withDefault(undefined)
-Schema.Any = (...schemas) => {
+Schema.Any = (schemas) => {
 	const check = (value) => {
 		for (const schema of schemas) {
 			if (schema.check(value)) {

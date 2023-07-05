@@ -161,13 +161,20 @@ N.Operation = S.Any([N.ReplaceOperation])
 //======//
 // Peak //
 //======//
-N.Peak = S.Struct({
-	schemaName: S.Value("Peak"),
-	result: S.Boolean,
+N.FailPeak = S.Struct({
+	schemaName: S.Value("FailPeak"),
+	result: S.Value(false),
+})
+
+N.SuccessPeak = S.Struct({
+	schemaName: S.Value("SuccessPeak"),
+	result: S.Value(true),
 	type: N.SourceType,
-	data: S.Anything, //dangerous? just somewhere to chuck stuff
+	template: N.NodTemplate,
 	operations: S.ArrayOf(N.Operation),
 })
+
+N.Peak = S.Any([N.FailPeak, N.SuccessPeak])
 
 N.FullPeak = S.Struct({
 	schemaName: S.Value("FullPeak"),
