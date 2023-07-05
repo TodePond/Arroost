@@ -201,6 +201,23 @@ Schema.Struct = (struct) => {
 		const struct = { ...schema.struct, ...other }
 		return Schema.Struct(struct)
 	}
+	schema.combine = (other) => {
+		const implementation = {}
+		for (const key in struct) {
+			if (other[key] === undefined) {
+				implementation[key] = struct[key]
+			} else {
+				implementation[key] = struct[key].and(other[key])
+			}
+		}
+		for (const key in other) {
+			if (struct[key] === undefined) {
+				implementation[key] = other[key]
+			}
+		}
+		return Schema.Struct(implementation)
+	}
+
 	return schema
 }
 

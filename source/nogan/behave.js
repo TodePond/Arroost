@@ -6,7 +6,7 @@ const creationBehave = ({ peak, target }) => {
 
 	// If we can't create here, pass through
 	if (target.type !== "slot") {
-		return { peak: { ...peak, type: "creation" } }
+		return { ...peak, type: "creation" }
 	}
 
 	// If we can create here
@@ -16,7 +16,16 @@ const creationBehave = ({ peak, target }) => {
 		data: { ...target, type: "recording" },
 	}
 
-	return { peak: { ...peak, result: false }, operations: [operation] }
+	return {
+		...peak,
+		result: false,
+		operations: [
+			{
+				type: "replace",
+				data: { ...target, type: "recording" },
+			},
+		],
+	}
 }
 
 export const NOD_BEHAVES = {

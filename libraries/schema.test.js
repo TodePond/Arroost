@@ -84,6 +84,26 @@ describe("schema types", () => {
 		assertThrows(() => schema.validate({ name: "Luke", age: 29, score: 10 }))
 	})
 
+	it("extends structs", () => {
+		const schema = S.Struct({ name: S.String })
+		const extended = schema.extend({ age: S.Number })
+		const struct = extended.make()
+		assertEquals(struct, { name: "", age: 0 })
+		extended.validate(struct)
+		assertThrows(() => extended.validate({ name: "Luke", age: 29, score: 10 }))
+		assertThrows(() => extended.validate({ name: "Luke" }))
+	})
+
+	it("combines structs", () => {
+		const schema = S.Struct({ name: S.String, score: S.Integer })
+		const implemented = schema.combine({ score: S.Positive, age: S.Number })
+		const struct = implemented.make()
+		assertEquals(struct, { name: "", score: 0, age: 0 })
+		implemented.validate(struct)
+		assertThrows(() => implemented.validate({ name: "Luke", score: -29, age: 10 }))
+		assertThrows(() => implemented.validate({ name: "Luke", score: 29 }))
+	})
+
 	it("does arrays of", () => {
 		const schema = S.ArrayOf(S.Number)
 		const array = schema.make()

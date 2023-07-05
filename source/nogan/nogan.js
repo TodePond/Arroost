@@ -277,7 +277,6 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 			return N.Peak.make({
 				result: true,
 				type: pulse.type,
-				template: createTemplate(nod),
 			})
 		}
 	}
@@ -315,6 +314,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 }
 
 export const behave = (parent, { peak, target }) => {
+	return peak
 	const nodBehave = NOD_BEHAVES[peak.template.type]
 	if (!nodBehave) {
 		return peak

@@ -141,24 +141,6 @@ N.Phantom = N.Nod.extend({
 
 N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 
-//======//
-// Peak //
-//======//
-N.Peak = S.Struct({
-	schemaName: S.Value("Peak"),
-	result: S.Boolean,
-	type: N.SourceType,
-	template: N.NodTemplate,
-})
-
-N.FullPeak = S.Struct({
-	schemaName: S.Value("FullPeak"),
-	result: S.Boolean,
-	red: N.Peak,
-	green: N.Peak,
-	blue: N.Peak,
-})
-
 //============//
 // Operations //
 //============//
@@ -168,7 +150,7 @@ N.BaseOperation = S.Struct({
 	data: S.Any,
 })
 
-N.ReplaceOperation = N.BaseOperation.extend({
+N.ReplaceOperation = N.BaseOperation.combine({
 	schemaName: S.Value("ReplaceOperation"),
 	type: N.Value("replace"),
 	data: N.NodTemplate.partial(),
@@ -176,11 +158,21 @@ N.ReplaceOperation = N.BaseOperation.extend({
 
 N.Operation = N.ReplaceOperation
 
-//===========//
-// Behaviour //
-//===========//
-N.Behaviour = S.Struct({
-	schemaName: S.Value("Behaviour"),
-	peak: N.Peak,
+//======//
+// Peak //
+//======//
+N.Peak = S.Struct({
+	schemaName: S.Value("Peak"),
+	result: S.Boolean,
+	type: N.SourceType,
+	data: S.Any,
 	operations: S.ArrayOf(N.Operation),
+})
+
+N.FullPeak = S.Struct({
+	schemaName: S.Value("FullPeak"),
+	result: S.Boolean,
+	red: N.Peak,
+	green: N.Peak,
+	blue: N.Peak,
 })
