@@ -1,3 +1,4 @@
+import { NOD_BEHAVES } from "./behave.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
@@ -301,8 +302,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		if (peak.result) {
 			const transformedPeak = behave(parent, {
 				peak: peak,
-				sourceTemplate: peak.template,
-				targetTemplate: nod,
+				target: createTemplate(nod),
 			})
 
 			validate(transformedPeak)
@@ -314,14 +314,17 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	return N.Peak.make({ result: false })
 }
 
-// Return a peak!
-// The peak can get transformed
-// (depending on what the source and target nods are)
-export const behave = (parent, { peak, sourceTemplate, targetTemplate }) => {
-	return N.Peak.make({
-		result: true,
-		type: peak.type,
-	})
+export const behave = (parent, { peak, target }) => {
+	const nodBehave = NOD_BEHAVES[target.type]
+	if (!nodBehave) {
+		return peak
+	}
+
+	// todo: We could actually return some kind of "behaviour" object
+	// 	     that contains the peak and the behaviour
+	const transformedPeak = nodBehave({ peak, target })
+	validate(transformedPeak)
+	return transformedPeak
 }
 
 const getPeakBefore = (parent, { id, colour, history, future }) => {
