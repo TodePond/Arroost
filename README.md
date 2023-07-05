@@ -44,3 +44,5 @@ deno test --watch .
 ## How does it all work?
 
 It's a secret.
+
+Some notes: https://www.tldraw.com/s/v2_c_Fwgb7y8vOnqdfUzbq7IAM?viewport=-792%2C-311%2C3789%2C2168&page=page%3AmI5zm1vGz1AydqlM0jyaB
