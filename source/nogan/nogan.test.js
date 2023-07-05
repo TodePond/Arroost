@@ -847,7 +847,15 @@ describe("peak template", () => {
 	})
 })
 
-describe("creation behave", () => {
+describe("creation nod", () => {
+	it("doesn't transform an any pulse while on itself", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		addPulse(phantom, { id: creation.id })
+		const peak = getPeak(phantom, { id: creation.id })
+		assertEquals(peak.type, "any")
+	})
+
 	it("transforms an any pulse into a creation pulse", () => {
 		const phantom = createPhantom()
 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })

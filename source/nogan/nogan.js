@@ -212,13 +212,24 @@ export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
 	const { pulses } = nodNod
 	const pulse = pulses[colour]
 
+	const phantomPeak = N.SuccessPeak.make({
+		result: true,
+		type,
+		template: {},
+	})
+
+	const transformedPeak = behave(parent, { peak: phantomPeak, id })
+	if (!transformedPeak.result) {
+		return
+	}
+
 	// Don't do anything if we're already pulsing
-	if (pulse?.type === type) {
+	if (pulse?.type === transformedPeak.type) {
 		return
 	}
 
 	// Update our pulse
-	pulses[colour] = N.Pulse.make({ type })
+	pulses[colour] = N.Pulse.make({ type: transformedPeak.type })
 
 	validate(nodNod)
 	validate(parent)
@@ -314,15 +325,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		})
 
 		if (peak.result) {
-			const transformedPeak = behave(parent, { peak, id })
-			if (shouldValidate()) {
-				for (const operation of transformedPeak.operations) {
-					validate(operation)
-				}
-				validate(transformedPeak)
-			}
-
-			return transformedPeak
+			return behave(parent, { peak, id })
 		}
 	}
 
@@ -332,12 +335,15 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 // Peak refers to the input that is causing this nod to fire
 export const behave = (parent, { peak, id }) => {
-	const nodBehave = NOD_BEHAVES[peak.template.type]
+	const nodBehave = NOD_BEHAVES[peak.type]
 	if (!nodBehave) {
 		return peak
 	}
 
-	const transformedPeak = nodBehave(parent, { peak, id }) ?? peak
+	const transformedPeak = nodBehave(parent, { peak, id })
+	if (!transformedPeak) {
+		throw new Error("Nod behave must return a peak")
+	}
 
 	if (shouldValidate()) {
 		validate(transformedPeak)
