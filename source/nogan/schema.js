@@ -165,7 +165,7 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.SourceType,
-	data: S.Anything,
+	data: S.Anything, //dangerous? just somewhere to chuck stuff
 	operations: S.ArrayOf(N.Operation),
 })
 

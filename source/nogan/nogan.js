@@ -198,8 +198,11 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 //=========//
 // Pulsing //
 //=========//
-export const addPulse = (parent, { target, colour = "blue", type = "any" }) => {
-	const nodNod = parent.children[target]
+export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
+	const nodNod = parent.children[id]
+	if (!nodNod) {
+		throw new Error(`Can't find nod with id '${id}'`)
+	}
 	const { pulses } = nodNod
 	const pulse = pulses[colour]
 
@@ -215,9 +218,9 @@ export const addPulse = (parent, { target, colour = "blue", type = "any" }) => {
 	validate(parent)
 }
 
-export const addFullPulse = (parent, { target } = {}) => {
+export const addFullPulse = (parent, { id } = {}) => {
 	for (const colour of PULSE_COLOURS) {
-		addPulse(parent, { target, colour })
+		addPulse(parent, { id, colour })
 	}
 }
 
@@ -314,6 +317,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 }
 
 export const behave = (parent, { peak, target }) => {
+	// console.log(peak, target)
 	return peak
 	const nodBehave = NOD_BEHAVES[peak.template.type]
 	if (!nodBehave) {
@@ -469,7 +473,7 @@ export const advance = (nogan, { history = [] } = {}) => {
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { target: id, colour, type: peak.type })
+			addPulse(projection, { id, colour, type: peak.type })
 		}
 	}
 	validate(projection)

@@ -1,16 +1,32 @@
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
-import { createNod, createPhantom, createWire } from "./nogan.js"
+import { createNod, createPhantom, getPeak } from "./nogan.js"
 
-describe("any behave", () => {
-	it("just passes through", () => {
+describe("peak", () => {
+	it("gets info for unfiring nod", () => {
 		const phantom = createPhantom()
-		const any1 = createNod(phantom, { position: [1, 0] })
-		const any2 = createNod(phantom, { position: [2, 0] })
-		createWire(phantom, { source: any1.id, target: any2.id })
-		// addPulse(phantom, { target: any1.id })
-		// const peak = getPeak(phantom, { id: any2.id })
-		// assertEquals(peak.result, true)
-		// assertEquals(peak.type, "any")
-		// assertEquals(peak.template, createTemplate(any1))
+		const nod = createNod(phantom, { position: [1, 0] })
+		const peak = getPeak(phantom, { id: nod.id })
+		assertEquals(peak, {
+			schemaName: "Peak",
+			result: false,
+			type: "any",
+			data: undefined,
+			operations: [],
+		})
 	})
+
+	// it("gets info for firing nod", () => {
+	// 	const phantom = createPhantom()
+	// 	const nod = createNod(phantom, { position: [1, 0] })
+	// 	addPulse(phantom, { id: nod.id, type: "any" })
+	// 	const peak = getPeak(phantom, { id: nod.id })
+	// 	assertEquals(peak, {
+	// 		schemaName: "Peak",
+	// 		result: true,
+	// 		type: "any",
+	// 		data: undefined,
+	// 		operations: [],
+	// 	})
+	// })
 })

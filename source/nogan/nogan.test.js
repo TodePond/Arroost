@@ -232,7 +232,7 @@ describe("pulsing", () => {
 		const nod = createNod(phantom)
 
 		assert(!nod.pulses.blue)
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
 	})
 
@@ -241,7 +241,7 @@ describe("pulsing", () => {
 		const nod = createNod(phantom)
 
 		assertEquals(nod.pulses.blue, null)
-		addPulse(phantom, { target: nod.id, type: "creation" })
+		addPulse(phantom, { id: nod.id, type: "creation" })
 		assertEquals(nod.pulses.blue.type, "creation")
 	})
 })
@@ -301,7 +301,7 @@ describe("projecting", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
 		assertEquals(nod.pulses.blue, null)
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
 		const projection = project(phantom)
 		assert(nod.pulses.blue)
@@ -323,7 +323,7 @@ describe("deep projecting", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
 		assertEquals(nod.pulses.blue, null)
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
 		const projection = deepProject(phantom)
 		assert(nod.pulses.blue)
@@ -337,9 +337,9 @@ describe("deep projecting", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(nod1)
 		const nod3 = createNod(nod2)
-		addPulse(phantom, { target: nod1.id })
-		addPulse(nod1, { target: nod2.id })
-		addPulse(nod2, { target: nod3.id })
+		addPulse(phantom, { id: nod1.id })
+		addPulse(nod1, { id: nod2.id })
+		addPulse(nod2, { id: nod3.id })
 
 		assert(nod1.pulses.blue)
 		assert(nod2.pulses.blue)
@@ -361,8 +361,8 @@ describe("deep projecting", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(nod1)
 		const nod3 = createNod(nod2)
-		addPulse(phantom, { target: nod1.id })
-		addPulse(nod2, { target: nod3.id })
+		addPulse(phantom, { id: nod1.id })
+		addPulse(nod2, { id: nod3.id })
 
 		assert(nod1.pulses.blue)
 		assertEquals(nod2.pulses.blue, null)
@@ -386,7 +386,7 @@ describe("peaking", () => {
 		const nod = createNod(phantom)
 		const peak1 = getPeak(phantom, { id: nod.id })
 		assertEquals(peak1.result, false)
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		const peak2 = getPeak(phantom, { id: nod.id })
 		// assertEquals(peak2.result, true)
 	})
@@ -395,7 +395,7 @@ describe("peaking", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
 
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		const before = structuredClone(phantom)
 		const peak2 = getPeak(before, { id: nod.id })
 		const peak1 = getPeak(before, {
@@ -427,7 +427,7 @@ describe("peaking", () => {
 		const peakBefore = getPeak(phantom, { id: nod2.id })
 		assertEquals(peakBefore.result, false)
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peakAfter = getPeak(phantom, { id: nod2.id })
 		assertEquals(peakAfter.result, true)
@@ -442,7 +442,7 @@ describe("peaking", () => {
 		const past = project(phantom)
 		const now = project(phantom)
 
-		addPulse(past, { target: nod1.id })
+		addPulse(past, { id: nod1.id })
 
 		const peak = getPeak(now, { id: nod2.id, history: [past] })
 		assertEquals(peak.result, true)
@@ -457,7 +457,7 @@ describe("peaking", () => {
 		const now = project(phantom)
 		const future = project(phantom)
 
-		addPulse(now, { target: nod1.id })
+		addPulse(now, { id: nod1.id })
 
 		const peak = getPeak(future, { id: nod2.id, history: [now] })
 		assertEquals(peak.result, true)
@@ -471,7 +471,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, true)
@@ -485,7 +485,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, true)
@@ -498,7 +498,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
 		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod2.id })
 		assertEquals(peak.result, false)
@@ -513,7 +513,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
 		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: 1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, false)
@@ -528,7 +528,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
 		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod3.id })
+		addPulse(phantom, { id: nod3.id })
 
 		const peak3 = getPeak(phantom, { id: nod3.id })
 		const peak2 = getPeak(phantom, { id: nod2.id })
@@ -550,7 +550,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod3.id, target: nod2.id }, { timing: -1 })
 		createWire(phantom, { source: nod4.id, target: nod3.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod4.id })
+		addPulse(phantom, { id: nod4.id })
 
 		const peak4 = getPeak(phantom, { id: nod4.id })
 		const peak3 = getPeak(phantom, { id: nod3.id })
@@ -590,7 +590,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
 		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod2.id })
 		assertEquals(peak.result, false)
@@ -605,7 +605,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: -1 })
 		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 
 		const peak = getPeak(phantom, { id: nod3.id })
 		assertEquals(peak.result, false)
@@ -622,7 +622,7 @@ describe("peaking", () => {
 		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
 		createWire(phantom, { source: nod4.id, target: nod3.id }, { timing: 1 })
 
-		addPulse(phantom, { target: nod4.id })
+		addPulse(phantom, { id: nod4.id })
 
 		const peak4 = getPeak(phantom, { id: nod4.id })
 		const peak3 = getPeak(phantom, { id: nod3.id })
@@ -667,16 +667,9 @@ describe("untransformed peak info", () => {
 	it("peaks the pulse type for pulsed nods", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		addPulse(phantom, { target: nod.id, type: "creation" })
+		addPulse(phantom, { id: nod.id, type: "creation" })
 		const peak = getPeak(phantom, { id: nod.id })
 		assertEquals(peak.type, "creation")
-	})
-
-	it("peaks nod template", () => {
-		const phantom = createPhantom()
-		const nod = createNod(phantom)
-		const peak = getPeak(phantom, { id: nod.id })
-		// todo
 	})
 })
 
@@ -687,7 +680,7 @@ describe("sugar API functions", () => {
 		assert(!nod.pulses.blue)
 		assert(!nod.pulses.red)
 		assert(!nod.pulses.green)
-		addFullPulse(phantom, { target: nod.id })
+		addFullPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
 		assert(nod.pulses.red)
 		assert(nod.pulses.green)
@@ -700,7 +693,7 @@ describe("sugar API functions", () => {
 		assertEquals(fullPeak.blue.result, false)
 		assertEquals(fullPeak.red.result, false)
 		assertEquals(fullPeak.green.result, false)
-		addFullPulse(phantom, { target: nod.id })
+		addFullPulse(phantom, { id: nod.id })
 		const fullPeak2 = getFullPeak(phantom, { id: nod.id })
 		assertEquals(fullPeak2.blue.result, true)
 		assertEquals(fullPeak2.red.result, true)
@@ -715,13 +708,13 @@ describe("pulse colour", () => {
 		const nod2 = createNod(phantom)
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { colour: "red" })
 
-		addPulse(phantom, { target: nod1.id, colour: "green" })
+		addPulse(phantom, { id: nod1.id, colour: "green" })
 		const peakGreen = getPeak(phantom, { id: nod2.id, colour: "green" })
 		const peakRed = getPeak(phantom, { id: nod2.id, colour: "red" })
 		assertEquals(peakGreen.result, false)
 		assertEquals(peakRed.result, false)
 
-		addPulse(phantom, { target: nod1.id, colour: "red" })
+		addPulse(phantom, { id: nod1.id, colour: "red" })
 		const peakGreen2 = getPeak(phantom, { id: nod2.id, colour: "green" })
 		const peakRed2 = getPeak(phantom, { id: nod2.id, colour: "red" })
 		assertEquals(peakGreen2.result, false)
@@ -733,7 +726,7 @@ describe("advancing time", () => {
 	it("unfires pulses", () => {
 		const phantom = createPhantom()
 		const nod = createNod(phantom)
-		addPulse(phantom, { target: nod.id })
+		addPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
 		const advanced = advance(phantom)
 
@@ -747,7 +740,7 @@ describe("advancing time", () => {
 		const nod2 = createNod(phantom)
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 		assert(nod1.pulses.blue)
 		assert(!nod2.pulses.blue)
 
@@ -769,7 +762,7 @@ describe("advancing time", () => {
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
 		createWire(phantom, { source: nod3.id, target: nod4.id }, { timing: -1 })
 
-		addPulse(phantom, { target: nod1.id })
+		addPulse(phantom, { id: nod1.id })
 		assert(nod1.pulses.blue)
 		assert(!nod2.pulses.blue)
 		assert(!nod3.pulses.blue)
@@ -807,7 +800,7 @@ describe("advancing time", () => {
 		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
 
 		const past = project(phantom)
-		addPulse(past, { target: nod1.id })
+		addPulse(past, { id: nod1.id })
 
 		const nod1Before = past.children[nod1.id]
 		const nod2Before = past.children[nod2.id]
@@ -836,7 +829,7 @@ describe("advancing time", () => {
 		const nod2 = createNod(phantom)
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
 
-		addPulse(phantom, { target: nod1.id, colour: "green" })
+		addPulse(phantom, { id: nod1.id, colour: "green" })
 
 		const advanced = advance(phantom)
 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
@@ -851,12 +844,41 @@ describe("advancing time", () => {
 		const nod2 = createNod(phantom)
 		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
 
-		addPulse(phantom, { target: nod1.id, colour: "red" })
+		addPulse(phantom, { id: nod1.id, colour: "red" })
 
 		const advanced = advance(phantom)
 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
 		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
 		assertEquals(peakGreen.result, false)
 		assertEquals(peakRed.result, true)
+	})
+})
+
+describe("peak", () => {
+	it("gets info for unfiring nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom, { position: [1, 0] })
+		const peak = getPeak(phantom, { id: nod.id })
+		assertEquals(peak, {
+			schemaName: "Peak",
+			result: false,
+			type: "any",
+			data: undefined,
+			operations: [],
+		})
+	})
+
+	it("gets info for firing nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom, { position: [1, 0] })
+		addPulse(phantom, { id: nod.id, type: "any" })
+		const peak = getPeak(phantom, { id: nod.id })
+		// assertEquals(peak, {
+		// 	schemaName: "Peak",
+		// 	result: true,
+		// 	type: "any",
+		// 	data: undefined,
+		// 	operations: [],
+		// })
 	})
 })
