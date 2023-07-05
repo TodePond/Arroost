@@ -855,6 +855,17 @@ describe("creation behave", () => {
 		createWire(phantom, { source: creation.id, target: any.id })
 		addPulse(phantom, { id: creation.id })
 		const peak = getPeak(phantom, { id: any.id })
-		console.log(peak)
+		assertEquals(peak.type, "creation")
+	})
+
+	it("decides to replace a slot nod with a recording nod", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [2, 0] })
+		createWire(phantom, { source: creation.id, target: slot.id })
+		addPulse(phantom, { id: creation.id })
+		const peak = getPeak(phantom, { id: slot.id })
+		assertEquals(peak.result, false)
+		assertEquals(peak.operations, [{ type: "replace", data: { type: "recording" } }])
 	})
 })

@@ -71,6 +71,17 @@ describe("schema types", () => {
 		assertThrows(() => schema.validate(false))
 	})
 
+	it("does base structs", () => {
+		const schema = S.BaseStruct({
+			name: S.String,
+			age: S.Number,
+		})
+		const partial = schema.make()
+		assertEquals(partial, { name: "", age: 0 })
+		schema.validate(partial)
+		schema.validate({ name: "Luke", age: 29, score: 10 })
+	})
+
 	it("does partial structs", () => {
 		const schema = S.PartialStruct({
 			name: S.String,
@@ -79,7 +90,8 @@ describe("schema types", () => {
 		const partial = schema.make()
 		assertEquals(partial, { name: "", age: 0 })
 		schema.validate(partial)
-		schema.validate({ name: "Luke", age: 29, score: 10 })
+		schema.validate({ name: "Luke" })
+		assertThrows(() => schema.validate({ name: "Luke", age: 29, score: 10 }))
 	})
 
 	it("does structs", () => {

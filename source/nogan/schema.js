@@ -4,7 +4,7 @@ export const NoganSchema = class extends Schema {}
 const S = Schema
 const N = NoganSchema
 
-N.Never = S.PartialStruct({
+N.Never = S.BaseStruct({
 	schemaName: S.Value("Never"),
 })
 	.withCheck(() => false)
@@ -105,7 +105,6 @@ N.PhantomPulses = S.Struct({
 // Nod //
 //=====//
 N.NodTemplate = N.Struct({
-	schemaName: S.Value("NodTemplate"),
 	position: S.Vector2D,
 	type: N.SourceType,
 })
@@ -145,13 +144,11 @@ N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 // Operations //
 //============//
 N.BaseOperation = S.Struct({
-	schemaName: S.Value("BaseOperation"),
 	type: N.String,
 	data: S.Anything,
 })
 
 N.ReplaceOperation = N.BaseOperation.combine({
-	schemaName: S.Value("ReplaceOperation"),
 	type: N.Value("replace"),
 	data: N.NodTemplate.partial(),
 })
@@ -164,6 +161,7 @@ N.Operation = S.Any([N.ReplaceOperation])
 N.FailPeak = S.Struct({
 	schemaName: S.Value("FailPeak"),
 	result: S.Value(false),
+	operations: S.ArrayOf(N.Operation),
 })
 
 N.SuccessPeak = S.Struct({

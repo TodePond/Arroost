@@ -1,3 +1,5 @@
+import { createPeak } from "./nogan.js"
+
 const creationBehave = (parent, { peak, id }) => {
 	const target = parent.children[id]
 
@@ -13,16 +15,15 @@ const creationBehave = (parent, { peak, id }) => {
 
 	// If we can create here
 	// ... create an arrow of recording!
-	return {
-		...peak,
-		result: false,
-		operations: [
-			{
-				type: "replace",
-				data: { ...target, type: "recording" },
-			},
-		],
+	const operation = {
+		type: "replace",
+		data: { type: "recording" },
 	}
+
+	return createPeak({
+		result: false,
+		operations: [operation],
+	})
 }
 
 export const NOD_BEHAVES = {

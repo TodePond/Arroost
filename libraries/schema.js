@@ -160,6 +160,47 @@ Schema.Any = (schemas) => {
 
 Schema.PartialStruct = (struct) => {
 	const check = (value) => {
+		for (const key in value) {
+			if (!struct[key].check(value[key])) {
+				return false
+			}
+		}
+		return true
+	}
+
+	const make = (options = {}) => {
+		const object = {}
+		for (const key in struct) {
+			const value = options[key]
+			object[key] = struct[key].make(value)
+		}
+		for (const key in options) {
+			if (struct[key] === undefined) {
+				object[key] = options[key]
+			}
+		}
+		return object
+	}
+
+	const diagnose = (value) => {
+		for (const key in struct) {
+			if (!struct[key].check(value[key])) {
+				return [key, struct[key]?.diagnose?.(value[key])]
+			}
+		}
+	}
+
+	const schema = Schema.Object.andCheck(check).withMake(make).withDiagnose(diagnose)
+	schema.struct = struct
+	schema.extend = (other) => {
+		const struct = { ...schema.struct, ...other }
+		return Schema.BaseStruct(struct)
+	}
+	return schema
+}
+
+Schema.BaseStruct = (struct) => {
+	const check = (value) => {
 		for (const key in struct) {
 			if (!struct[key].check(value[key])) {
 				return false
@@ -194,13 +235,13 @@ Schema.PartialStruct = (struct) => {
 	schema.struct = struct
 	schema.extend = (other) => {
 		const struct = { ...schema.struct, ...other }
-		return Schema.PartialStruct(struct)
+		return Schema.BaseStruct(struct)
 	}
 	return schema
 }
 
 Schema.Struct = (struct) => {
-	const partial = Schema.PartialStruct(struct)
+	const partial = Schema.BaseStruct(struct)
 	const check = (value) => {
 		for (const key in value) {
 			if (!struct[key]) {
@@ -211,9 +252,8 @@ Schema.Struct = (struct) => {
 	}
 	const schema = partial.andCheck(check)
 	schema.struct = struct
-	schema.partial = () => {
-		return Schema.PartialStruct(struct)
-	}
+	schema.base = () => Schema.BaseStruct(struct)
+	schema.partial = () => Schema.PartialStruct(struct)
 	schema.extend = (other) => {
 		const struct = { ...schema.struct, ...other }
 		return Schema.Struct(struct)

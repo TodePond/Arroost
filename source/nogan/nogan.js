@@ -112,7 +112,7 @@ export const createTemplate = (nod) => {
 		position: nod.position,
 		type: nod.type,
 	})
-	validate(template)
+	validate(template, N.NodTemplate)
 	return template
 }
 
@@ -259,7 +259,7 @@ export const getPeak = (
 	{ id, colour = "blue", timing = 0, history = [], future = [] },
 ) => {
 	const peak = _getPeak(parent, { id, colour, timing, history, future })
-	validate(peak, N.Peak)
+	validate(peak)
 	validate(parent)
 	return peak
 }
@@ -277,8 +277,8 @@ const _getPeak = (parent, { id, colour, timing, history, future }) => {
 	return N.Never.make({ id, colour, timing, history })
 }
 
-const createPeak = ({ result = false, type, template } = {}) => {
-	if (!result) return N.FailPeak.make()
+export const createPeak = ({ result = false, type, template, operations = [] } = {}) => {
+	if (!result) return N.FailPeak.make({ operations })
 	return N.SuccessPeak.make({ result, type, template })
 }
 
@@ -315,7 +315,13 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 		if (peak.result) {
 			const transformedPeak = behave(parent, { peak, id })
-			validate(transformedPeak)
+			if (shouldValidate()) {
+				for (const operation of transformedPeak.operations) {
+					validate(operation)
+				}
+				validate(transformedPeak)
+			}
+
 			return transformedPeak
 		}
 	}
@@ -336,7 +342,7 @@ export const behave = (parent, { peak, id }) => {
 	if (shouldValidate()) {
 		validate(transformedPeak)
 		for (const operation of peak.operations) {
-			validate(N.Operation.make(operation))
+			validate(operation, N.Operation)
 		}
 	}
 
