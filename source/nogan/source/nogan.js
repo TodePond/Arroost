@@ -302,11 +302,14 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	return N.Peak.make({ result: false })
 }
 
+// Return a peak!
+// The peak can get transformed
+// (depending on what the source and target nods are)
 export const behave = (parent, { peak, source, target }) => {
 	const sourceNod = parent.children[source]
 	return N.Peak.make({
 		result: true,
-		type: peak.type === "any" ? sourceNod.type : peak.type,
+		type: peak.type,
 	})
 }
 
