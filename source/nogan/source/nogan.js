@@ -320,10 +320,14 @@ export const behave = (parent, { peak, target }) => {
 		return peak
 	}
 
-	// todo: We could actually return some kind of "behaviour" object
-	// 	     that contains the peak and the behaviour
-	const transformedPeak = nodBehave({ peak, target })
+	const behaviour = nodBehave({ peak, target })
+	const { peak: transformedPeak = peak, operations = [] } = behaviour ?? {}
+
 	validate(transformedPeak)
+	for (const operation of operations) {
+		validate(operation)
+	}
+
 	return transformedPeak
 }
 

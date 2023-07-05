@@ -147,3 +147,29 @@ N.FullPeak = S.Struct({
 	green: N.Peak,
 	blue: N.Peak,
 })
+
+//============//
+// Operations //
+//============//
+N.BaseOperation = S.Struct({
+	schemaName: S.Value("BaseOperation"),
+	type: N.String,
+	data: S.Any,
+})
+
+N.ReplaceOperation = N.BaseOperation.extend({
+	schemaName: S.Value("ReplaceOperation"),
+	type: N.Value("replace"),
+	data: N.NodTemplate.partial(),
+})
+
+N.Operation = N.ReplaceOperation
+
+//===========//
+// Behaviour //
+//===========//
+N.Behaviour = S.Struct({
+	schemaName: S.Value("Behaviour"),
+	peak: N.Peak,
+	operations: S.ArrayOf(N.Operation),
+})

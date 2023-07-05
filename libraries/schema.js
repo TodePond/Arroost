@@ -194,6 +194,9 @@ Schema.Struct = (struct) => {
 	}
 	const schema = partial.andCheck(check)
 	schema.struct = struct
+	schema.partial = () => {
+		return Schema.PartialStruct(struct)
+	}
 	schema.extend = (other) => {
 		const struct = { ...schema.struct, ...other }
 		return Schema.Struct(struct)
