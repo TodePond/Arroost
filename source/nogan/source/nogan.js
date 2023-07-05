@@ -188,10 +188,7 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 //=========//
 // Pulsing //
 //=========//
-export const addPulse = (
-	parent,
-	{ target, source = N.PhantomId.make(), colour = "blue", type = "any" },
-) => {
+export const addPulse = (parent, { target, colour = "blue", type = "any" }) => {
 	const nodNod = parent.children[target]
 	const { pulses } = nodNod
 	const pulse = pulses[colour]
@@ -202,15 +199,15 @@ export const addPulse = (
 	}
 
 	// Update our pulse
-	pulses[colour] = N.Pulse.make({ type, source })
+	pulses[colour] = N.Pulse.make({ type })
 
 	validate(nodNod)
 	validate(parent)
 }
 
-export const addFullPulse = (parent, { source, target } = {}) => {
+export const addFullPulse = (parent, { target } = {}) => {
 	for (const colour of PULSE_COLOURS) {
-		addPulse(parent, { source, target, colour })
+		addPulse(parent, { target, colour })
 	}
 }
 
@@ -269,7 +266,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 		if (pulse) {
 			let type = pulse.type
 			// todo: transform type from any to other
-			return N.Peak.make({ result: true, type, source: pulse.source })
+			return N.Peak.make({ result: true, type })
 		}
 	}
 
@@ -295,7 +292,6 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 			const transformedPeak = N.Peak.make({
 				result: true,
 				type: peak.type === "any" ? source.type : peak.type,
-				source: source.id,
 			})
 			validate(transformedPeak)
 			return transformedPeak
@@ -303,7 +299,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	}
 
 	// Too bad, we couldn't find a pulse
-	return N.Peak.make({ result: false, source: N.PhantomId.make() })
+	return N.Peak.make({ result: false })
 }
 
 const getPeakBefore = (parent, { id, colour, history, future }) => {
@@ -331,7 +327,7 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (afterStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false, source: N.PhantomId.make() })
+			return N.Peak.make({ result: false })
 		}
 	}
 
@@ -370,7 +366,7 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 		const parentStamp = JSON.stringify(parent)
 		if (beforeStamp === parentStamp) {
 			// Recursion detected!
-			return N.Peak.make({ result: false, source: N.PhantomId.make() })
+			return N.Peak.make({ result: false })
 		}
 	}
 
@@ -444,7 +440,7 @@ export const advance = (nogan, { history = [] } = {}) => {
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			if (!peak.result) continue
-			addPulse(projection, { target: id, colour, type: peak.type, source: peak.source })
+			addPulse(projection, { target: id, colour, type: peak.type })
 		}
 	}
 	validate(projection)

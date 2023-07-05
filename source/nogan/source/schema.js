@@ -73,12 +73,10 @@ N.SourceType = S.Enum(SOURCE_TYPES)
 N.Pulse = S.Struct({
 	type: N.SourceType,
 	data: N.reference("NodTemplate").nullable(),
-	source: N.Id.or(N.PhantomId),
 })
 
 N.PhantomPulse = N.Pulse.extend({
 	type: N.Value("any"),
-	source: N.PhantomId,
 })
 
 N.Pulses = S.Struct({
@@ -136,7 +134,6 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.SourceType,
-	source: N.Id.or(N.PhantomId),
 })
 
 N.FullPeak = S.Struct({
