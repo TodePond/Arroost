@@ -57,9 +57,9 @@ describe("schema types", () => {
 	})
 
 	it("does anys", () => {
-		const any = S.Any.make()
+		const any = S.Anything.make()
 		assertEquals(any, undefined)
-		S.Any.validate(any)
+		S.Anything.validate(any)
 	})
 
 	it("does partial structs", () => {

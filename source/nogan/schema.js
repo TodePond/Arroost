@@ -147,7 +147,7 @@ N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 N.BaseOperation = S.Struct({
 	schemaName: S.Value("BaseOperation"),
 	type: N.String,
-	data: S.Any,
+	data: S.Anything,
 })
 
 N.ReplaceOperation = N.BaseOperation.combine({
@@ -156,7 +156,7 @@ N.ReplaceOperation = N.BaseOperation.combine({
 	data: N.NodTemplate.partial(),
 })
 
-N.Operation = N.ReplaceOperation
+N.Operation = S.Any([N.ReplaceOperation])
 
 //======//
 // Peak //
@@ -165,7 +165,7 @@ N.Peak = S.Struct({
 	schemaName: S.Value("Peak"),
 	result: S.Boolean,
 	type: N.SourceType,
-	data: S.Any,
+	data: S.Anything,
 	operations: S.ArrayOf(N.Operation),
 })
 

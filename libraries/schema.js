@@ -139,7 +139,24 @@ Schema.Function = new Schema({
 	make: (value) => value ?? (() => {}),
 })
 
-Schema.Any = new Schema().withCheck(() => true).withDefault(undefined)
+Schema.Anything = new Schema().withCheck(() => true).withDefault(undefined)
+Schema.Any = (...schemas) => {
+	const check = (value) => {
+		for (const schema of schemas) {
+			if (schema.check(value)) {
+				return true
+			}
+		}
+		return false
+	}
+
+	const make = (value) => {
+		const [head] = schemas
+		return head.make(value)
+	}
+
+	return new Schema({ check, make })
+}
 
 Schema.PartialStruct = (struct) => {
 	const check = (value) => {
@@ -268,7 +285,7 @@ Schema.False = Schema.Value(false)
 Schema.Undefined = Schema.Value(undefined)
 Schema.Null = Schema.Value(null)
 
-Schema.ObjectWith = ({ keysOf = Schema.Any, valuesOf = Schema.Any } = {}) => {
+Schema.ObjectWith = ({ keysOf = Schema.Anything, valuesOf = Schema.Anything } = {}) => {
 	const stringKeysOf = Schema.Stringified(keysOf)
 	const check = (value) => {
 		for (const key in value) {
