@@ -437,7 +437,7 @@ describe("peaking", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
 
 		const past = project(phantom)
 		const now = project(phantom)
@@ -452,7 +452,7 @@ describe("peaking", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
 
 		const now = project(phantom)
 		const future = project(phantom)
@@ -468,8 +468,8 @@ describe("peaking", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -482,8 +482,8 @@ describe("peaking", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: -1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -495,8 +495,8 @@ describe("peaking", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id, timing: 1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -509,9 +509,9 @@ describe("peaking", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
-		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id, timing: 1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -524,9 +524,9 @@ describe("peaking", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
-		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id, timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id, timing: -1 })
 
 		addPulse(phantom, { id: nod3.id })
 
@@ -545,10 +545,10 @@ describe("peaking", () => {
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
 		const nod4 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: 1 })
-		createWire(phantom, { source: nod3.id, target: nod2.id }, { timing: -1 })
-		createWire(phantom, { source: nod4.id, target: nod3.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id, timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod4.id, target: nod3.id, timing: -1 })
 
 		addPulse(phantom, { id: nod4.id })
 
@@ -587,8 +587,8 @@ describe("peaking", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
-		createWire(phantom, { source: nod2.id, target: nod1.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod2.id, target: nod1.id, timing: -1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -601,9 +601,9 @@ describe("peaking", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: -1 })
-		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: -1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id, timing: -1 })
 
 		addPulse(phantom, { id: nod1.id })
 
@@ -617,10 +617,10 @@ describe("peaking", () => {
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
 		const nod4 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: -1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
-		createWire(phantom, { source: nod3.id, target: nod1.id }, { timing: -1 })
-		createWire(phantom, { source: nod4.id, target: nod3.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod1.id, timing: -1 })
+		createWire(phantom, { source: nod4.id, target: nod3.id, timing: 1 })
 
 		addPulse(phantom, { id: nod4.id })
 
@@ -689,7 +689,7 @@ describe("pulse colour", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { colour: "red" })
+		createWire(phantom, { source: nod1.id, target: nod2.id, colour: "red" })
 
 		addPulse(phantom, { id: nod1.id, colour: "green" })
 		const peakGreen = getPeak(phantom, { id: nod2.id, colour: "green" })
@@ -721,7 +721,7 @@ describe("advancing time", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
 
 		addPulse(phantom, { id: nod1.id })
 		assert(nod1.pulses.blue)
@@ -741,9 +741,9 @@ describe("advancing time", () => {
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
 		const nod4 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
-		createWire(phantom, { source: nod3.id, target: nod4.id }, { timing: -1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
+		createWire(phantom, { source: nod3.id, target: nod4.id, timing: -1 })
 
 		addPulse(phantom, { id: nod1.id })
 		assert(nod1.pulses.blue)
@@ -779,8 +779,8 @@ describe("advancing time", () => {
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
 		const nod3 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1 })
-		createWire(phantom, { source: nod2.id, target: nod3.id }, { timing: 1 })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
 
 		const past = project(phantom)
 		addPulse(past, { id: nod1.id })
@@ -810,7 +810,7 @@ describe("advancing time", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1, colour: "red" })
 
 		addPulse(phantom, { id: nod1.id, colour: "green" })
 
@@ -825,7 +825,7 @@ describe("advancing time", () => {
 		const phantom = createPhantom()
 		const nod1 = createNod(phantom)
 		const nod2 = createNod(phantom)
-		createWire(phantom, { source: nod1.id, target: nod2.id }, { timing: 1, colour: "red" })
+		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1, colour: "red" })
 
 		addPulse(phantom, { id: nod1.id, colour: "red" })
 
@@ -901,8 +901,8 @@ describe("creation nod", () => {
 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
 		const any = createNod(phantom, { type: "any", position: [2, 0] })
 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-		createWire(phantom, { source: creation.id, target: any.id }, { timing: 1 })
-		createWire(phantom, { source: any.id, target: slot.id }, { timing: 1 })
+		createWire(phantom, { source: creation.id, target: any.id, timing: 1 })
+		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
 		addPulse(phantom, { id: creation.id })
 		const advanced = advance(phantom)
 		const peak = getPeak(advanced, { id: any.id, history: [phantom] })
