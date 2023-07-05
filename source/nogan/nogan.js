@@ -1,5 +1,6 @@
 import { memo } from "../../libraries/habitat-import.js"
-import { NOD_BEHAVES } from "./behave.js"
+import { BEHAVES } from "./behave.js"
+import { OPERATES } from "./operate.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
@@ -335,12 +336,12 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 // Peak refers to the input that is causing this nod to fire
 export const behave = (parent, { peak, id }) => {
-	const nodBehave = NOD_BEHAVES[peak.type]
-	if (!nodBehave) {
+	const _behave = BEHAVES[peak.type]
+	if (!_behave) {
 		return peak
 	}
 
-	const transformedPeak = nodBehave(parent, { peak, id })
+	const transformedPeak = _behave(parent, { peak, id })
 	if (!transformedPeak) {
 		throw new Error("Nod behave must return a peak")
 	}
@@ -492,10 +493,22 @@ export const advance = (nogan, { history = [] } = {}) => {
 		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history })
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
+			for (const operation of peak.operations) {
+				operate(projection, { id, operation })
+			}
 			if (!peak.result) continue
 			addPulse(projection, { id, colour, type: peak.type })
 		}
 	}
 	validate(projection)
 	return projection
+}
+
+export const operate = (parent, { id, operation }) => {
+	const _operate = OPERATES[operation.type]
+	if (!_operate) {
+		throw new Error(`Unknown operation type '${operation.type}'`)
+	}
+
+	return _operate(parent, { id, data: operation.data })
 }

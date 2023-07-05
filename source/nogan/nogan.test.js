@@ -880,7 +880,7 @@ describe("creation nod", () => {
 		addPulse(phantom, { id: creation.id })
 		const peak = getPeak(phantom, { id: slot.id })
 		assertEquals(peak.result, false)
-		assertEquals(peak.operations, [{ type: "replace", data: { type: "recording" } }])
+		assertEquals(peak.operations, [{ type: "modify", data: { type: "recording" } }])
 	})
 
 	it("passes through multiple nods to a slot nod", () => {
@@ -893,10 +893,21 @@ describe("creation nod", () => {
 		addPulse(phantom, { id: creation.id })
 		const peak = getPeak(phantom, { id: slot.id })
 		assertEquals(peak.result, false)
-		assertEquals(peak.operations, [{ type: "replace", data: { type: "recording" } }])
+		assertEquals(peak.operations, [{ type: "modify", data: { type: "recording" } }])
 	})
 
-	it("works when advancing too", () => {
+	it("modifies when advancing", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [2, 0] })
+		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
+		addPulse(phantom, { id: creation.id })
+		const advanced = advance(phantom)
+		const recording = advanced.children[slot.id]
+		assertEquals(recording.type, "recording")
+	})
+
+	it("modifies when advancing, with gaps", () => {
 		const phantom = createPhantom()
 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
 		const any = createNod(phantom, { type: "any", position: [2, 0] })
@@ -909,8 +920,25 @@ describe("creation nod", () => {
 		assertEquals(peak.result, true)
 		assertEquals(peak.type, "creation")
 		const advanced2 = advance(advanced, { history: [phantom] })
-		const peak2 = getPeak(advanced2, { id: slot.id, history: [phantom, advanced] })
-		assertEquals(peak2.result, false)
-		assertEquals(peak2.operations, [{ type: "replace", data: { type: "recording" } }])
+		const recording = advanced2.children[slot.id]
+		assertEquals(recording.type, "recording")
+	})
+
+	it("modifies in the present", () => {
+		const phantom = createPhantom()
+		// todo
+	})
+
+	it("decides to clone cloneable nods", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+		createWire(phantom, { source: creation.id, target: destruction.id })
+		createWire(phantom, { source: destruction.id, target: slot.id })
+		addPulse(phantom, { id: creation.id })
+		const peak = getPeak(phantom, { id: slot.id })
+		assertEquals(peak.result, false)
+		// assertEquals(peak.operations, [{ type: "modify", data: { type: "clone" } }])
 	})
 })

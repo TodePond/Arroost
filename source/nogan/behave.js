@@ -10,20 +10,24 @@ const anyBehave = (parent, { peak, id }) => {
 	return peak
 }
 
+const CLONEABLE = new Set(["recording", "destruction"])
 const creationBehave = (parent, { peak, id }) => {
 	const target = parent.children[id]
 
-	// If we can't create here, just carry on
+	if (CLONEABLE.has(target.type)) {
+		return { ...peak, data: { type: target.type } }
+	}
+
 	if (target.type !== "slot") {
+		// If we can't create here, just carry on
 		return peak
 	}
 
-	// If we can create here
-	// ... create an arrow of recording!
-	// TODO: Make a different type if there's some data on the pulse
+	// If we can create here, create here!
+	const toCreate = target.data ?? { type: "recording" }
 	const operation = {
-		type: "replace",
-		data: { type: "recording" },
+		type: "modify",
+		data: toCreate,
 	}
 
 	return createPeak({
@@ -32,7 +36,7 @@ const creationBehave = (parent, { peak, id }) => {
 	})
 }
 
-export const NOD_BEHAVES = {
+export const BEHAVES = {
 	any: anyBehave,
 	creation: creationBehave,
 }

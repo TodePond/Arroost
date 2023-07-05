@@ -83,6 +83,7 @@ N.SourceType = S.Enum(SOURCE_TYPES)
 
 N.Pulse = S.Struct({
 	type: N.SourceType,
+	data: S.Anything, //yolo
 })
 
 N.PhantomPulse = N.Pulse.extend({
@@ -148,12 +149,12 @@ N.BaseOperation = S.Struct({
 	data: S.Anything,
 })
 
-N.ReplaceOperation = N.BaseOperation.combine({
-	type: N.Value("replace"),
+N.ModifyOperation = N.BaseOperation.combine({
+	type: N.Value("modify"),
 	data: N.NodTemplate.partial(),
 })
 
-N.Operation = S.Any([N.ReplaceOperation])
+N.Operation = S.Any([N.ModifyOperation])
 
 //======//
 // Peak //
@@ -169,6 +170,7 @@ N.SuccessPeak = S.Struct({
 	result: S.Value(true),
 	type: N.SourceType,
 	template: N.NodTemplate,
+	data: S.Anything, //yolo
 	operations: S.ArrayOf(N.Operation),
 })
 
