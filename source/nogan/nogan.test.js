@@ -930,7 +930,7 @@ describe("creation nod", () => {
 		createWire(phantom, { source: creation.id, target: destruction.id })
 		createWire(phantom, { source: destruction.id, target: slot.id })
 		addPulse(phantom, { id: creation.id })
-		const peak = getPeak(phantom, { id: slot.id })
-		// console.log(peak)
+		const clone = phantom.children[slot.id]
+		assertEquals(clone.type, "destruction")
 	})
 })

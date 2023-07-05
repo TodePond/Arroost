@@ -24,7 +24,7 @@ const creationBehave = (parent, { peak, id }) => {
 	}
 
 	// If we can create here, create here!
-	const toCreate = target.data ?? { type: "recording" }
+	const toCreate = peak.data ?? { type: "recording" }
 	const operation = {
 		type: "modify",
 		data: toCreate,
