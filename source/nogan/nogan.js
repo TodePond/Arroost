@@ -206,11 +206,11 @@ export const reconnectWire = (parent, { id, source, target } = {}) => {
 // Pulsing //
 //=========//
 export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
-	const nodNod = parent.children[id]
-	if (!nodNod) {
+	const nod = parent.children[id]
+	if (!nod) {
 		throw new Error(`Can't find nod with id '${id}'`)
 	}
-	const { pulses } = nodNod
+	const { pulses } = nod
 	const pulse = pulses[colour]
 
 	const phantomPeak = N.SuccessPeak.make({
@@ -232,7 +232,12 @@ export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
 	// Update our pulse
 	pulses[colour] = N.Pulse.make({ type: transformedPeak.type })
 
-	validate(nodNod)
+	// These operations could be collated together for a perf boost
+	// --- Apply any operations ---
+	propogate(parent)
+	// --- End of operations ---
+
+	validate(nod)
 	validate(parent)
 }
 
@@ -484,13 +489,13 @@ export const deepProject = (parent, { clone = true } = {}) => {
 // That's because I'm first figuring out how to do this with a shallow advance
 // And then I'll figure out how to do it with a deep advance
 
-export const advance = (nogan, { history = [] } = {}) => {
-	const projection = project(nogan)
-	for (const _id in nogan.children) {
+export const advance = (parent, { history = [] } = {}) => {
+	const projection = project(parent)
+	for (const _id in parent.children) {
 		const id = +_id
-		const child = nogan.children[id]
+		const child = parent.children[id]
 		if (!child.isNod) continue
-		const fullPeakAfter = getFullPeak(nogan, { id, timing: 1, history })
+		const fullPeakAfter = getFullPeak(parent, { id, timing: 1, history })
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeakAfter[colour]
 			for (const operation of peak.operations) {
@@ -502,6 +507,26 @@ export const advance = (nogan, { history = [] } = {}) => {
 	}
 	validate(projection)
 	return projection
+}
+
+export const propogate = (parent, { history = [], future = [] } = {}) => {
+	const clone = structuredClone(parent)
+	for (const _id in clone.children) {
+		const id = +_id
+		const child = clone.children[id]
+		if (!child.isNod) continue
+		const fullPeakAfter = getFullPeak(clone, { id, history })
+		for (const colour of PULSE_COLOURS) {
+			const peak = fullPeakAfter[colour]
+			for (const operation of peak.operations) {
+				operate(parent, { id, operation })
+			}
+			if (!peak.result) continue
+			addPulse(parent, { id, colour, type: peak.type })
+		}
+	}
+	validate(parent)
+	return parent
 }
 
 export const operate = (parent, { id, operation }) => {
