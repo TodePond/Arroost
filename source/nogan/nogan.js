@@ -482,42 +482,23 @@ export const deepProject = (parent, { clone = true } = {}) => {
 //===========//
 // Advancing //
 //===========//
-// There's no particular reason why the API only provides for stepping forwards
-// It's just... That's what Arroost needs right now
-
-// Why do we have a shallow advance as well as a deep advance?
-// That's because I'm first figuring out how to do this with a shallow advance
-// And then I'll figure out how to do it with a deep advance
-
-export const advance = (parent, { history = [] } = {}) => {
-	const projection = project(parent)
-	for (const _id in parent.children) {
-		const id = +_id
-		const child = parent.children[id]
-		if (!child.isNod) continue
-		const fullPeakAfter = getFullPeak(parent, { id, timing: 1, history })
-		for (const colour of PULSE_COLOURS) {
-			const peak = fullPeakAfter[colour]
-			for (const operation of peak.operations) {
-				operate(projection, { id, operation })
-			}
-			if (!peak.result) continue
-			addPulse(projection, { id, colour, type: peak.type })
-		}
-	}
-	validate(projection)
-	return projection
-}
-
-export const propogate = (parent, { history = [], future = [] } = {}) => {
-	const clone = structuredClone(parent)
+// Propogate iterates through all nods
+// ... and makes them fire if they should be firing.
+//
+// It's quite a heavy function to be calling so often.
+// We could cut down its use, and also optimise it a lot.
+// But so far it's been fine!
+export const propogate = (
+	parent,
+	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
+) => {
 	for (const _id in clone.children) {
 		const id = +_id
 		const child = clone.children[id]
 		if (!child.isNod) continue
-		const fullPeakAfter = getFullPeak(clone, { id, history })
+		const fullPeak = getFullPeak(clone, { id, history, future, timing })
 		for (const colour of PULSE_COLOURS) {
-			const peak = fullPeakAfter[colour]
+			const peak = fullPeak[colour]
 			for (const operation of peak.operations) {
 				operate(parent, { id, operation })
 			}
@@ -527,6 +508,16 @@ export const propogate = (parent, { history = [], future = [] } = {}) => {
 	}
 	validate(parent)
 	return parent
+}
+
+// Advance is sugar for propogating what the next beat will be.
+export const advance = (parent, { history = [] } = {}) => {
+	const projection = project(parent)
+	return propogate(projection, {
+		clone: parent,
+		history,
+		timing: 1,
+	})
 }
 
 export const operate = (parent, { id, operation }) => {
