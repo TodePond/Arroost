@@ -510,10 +510,41 @@ export const propogate = (
 	return parent
 }
 
-// Advance is sugar for propogating what the next beat will be.
+// Deep propogate does the same as propogate
+// ... but also propogates all firing children.
+export const deepPropogate = (
+	parent,
+	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
+) => {
+	for (const _id in clone.children) {
+		const id = +_id
+		const child = clone.children[id]
+		if (!child.isNod) continue
+		const fullPeak = getFullPeak(clone, { id, history, future, timing })
+		for (const colour of PULSE_COLOURS) {
+			const peak = fullPeak[colour]
+			for (const operation of peak.operations) {
+				operate(parent, { id, operation })
+			}
+			if (!peak.result) continue
+			addPulse(parent, { id, colour, type: peak.type })
+		}
+		// TODO: this is wrong.
+		// it shouldn't be checking if it's firing on the timing'd peak.
+		// it should be checking if it's firing *now*, which might be a different timing, but might not.
+		const isFiring = fullPeak.red.result || fullPeak.green.result || fullPeak.blue.result
+		if (!isFiring) continue
+		const childHistory = history.map((v) => v.children[id])
+		deepPropogate(parent.children[id], { clone: child, history: childHistory, future, timing })
+	}
+	validate(parent)
+	return parent
+}
+
+// Advance is sugar for deep-propogating what the next beat will be.
 export const advance = (parent, { history = [] } = {}) => {
-	const projection = project(parent)
-	return propogate(projection, {
+	const projection = deepProject(parent)
+	return deepPropogate(projection, {
 		clone: parent,
 		history,
 		timing: 1,

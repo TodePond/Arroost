@@ -1076,3 +1076,49 @@ describe("creation nod", () => {
 		assertEquals(otherAfter.pulses.blue, null)
 	})
 })
+
+describe("deep propogating", () => {
+	it("doesn't propogate non-firing children", () => {
+		const phantom = createPhantom()
+		const child = createNod(phantom)
+		const grandChild = createNod(child)
+		addPulse(child, { id: grandChild.id })
+		const advanced = advance(phantom)
+		const childAfter = advanced.children[child.id]
+		const grandChildAfter = childAfter.children[grandChild.id]
+		assert(grandChildAfter.pulses.blue)
+	})
+
+	it("propogates firing children", () => {
+		const phantom = createPhantom()
+		const child = createNod(phantom)
+		const grandChild = createNod(child)
+		addPulse(phantom, { id: child.id })
+		addPulse(child, { id: grandChild.id })
+		const advanced = advance(phantom)
+		const childAfter = advanced.children[child.id]
+		const grandChildAfter = childAfter.children[grandChild.id]
+		assert(!grandChildAfter.pulses.blue)
+	})
+
+	it("propogates firing children, depending on the past", () => {
+		const phantom = createPhantom()
+		const child = createNod(phantom)
+		const source = createNod(child)
+		const target = createNod(child)
+		createWire(child, { source: source.id, target: target.id, timing: 1 })
+		addPulse(child, { id: source.id })
+		addPulse(phantom, { id: child.id })
+		const advanced = advance(phantom, { history: [phantom] })
+		const childAfter = advanced.children[child.id]
+		const targetAfter = childAfter.children[target.id]
+		const sourceAfter = childAfter.children[source.id]
+		assert(child.pulses.blue)
+		assert(source.pulses.blue)
+		assert(!childAfter.pulses.blue)
+		assert(!sourceAfter.pulses.blue)
+		assert(!target.pulses.blue)
+
+		assert(targetAfter.pulses.blue)
+	})
+})
