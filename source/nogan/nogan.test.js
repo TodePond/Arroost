@@ -1017,4 +1017,62 @@ describe("creation nod", () => {
 		const clone = phantom.children[slot.id]
 		assertEquals(clone.type, "destruction")
 	})
+
+	it("handles simultanous creations in order of creation", () => {
+		{
+			const phantom = createPhantom()
+			const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+			const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+			const destruction = createNod(phantom, { type: "destruction", position: [4, 0] })
+			createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
+			createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
+			createWire(phantom, { source: destruction.id, target: slot.id })
+			addPulse(phantom, { id: creation.id })
+			const advanced = advance(phantom)
+			const created = advanced.children[slot.id]
+			assertEquals(created.type, "recording")
+		}
+		{
+			const phantom = createPhantom()
+			const creation = createNod(phantom, { type: "creation", position: [1, 0] })
+			const slot = createNod(phantom, { type: "slot", position: [3, 0] })
+			const destruction = createNod(phantom, { type: "destruction", position: [4, 0] })
+			createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
+			createWire(phantom, { source: destruction.id, target: slot.id })
+			createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
+			addPulse(phantom, { id: creation.id })
+			const advanced = advance(phantom)
+			const created = advanced.children[slot.id]
+			assertEquals(created.type, "destruction")
+		}
+	})
+
+	it("ends instant pulse at slot", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [0, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [1, 0] })
+		const other = createNod(phantom, { position: [2, 0] })
+		createWire(phantom, { source: creation.id, target: slot.id })
+		createWire(phantom, { source: slot.id, target: other.id })
+		addPulse(phantom, { id: creation.id })
+		assertEquals(slot.type, "recording")
+		assertEquals(slot.pulses.blue, null)
+		assertEquals(other.pulses.blue, null)
+	})
+
+	it("ends delayed pulse at slot", () => {
+		const phantom = createPhantom()
+		const creation = createNod(phantom, { type: "creation", position: [0, 0] })
+		const slot = createNod(phantom, { type: "slot", position: [1, 0] })
+		const other = createNod(phantom, { position: [2, 0] })
+		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
+		createWire(phantom, { source: slot.id, target: other.id })
+		addPulse(phantom, { id: creation.id })
+		const advanced = advance(phantom)
+		const created = advanced.children[slot.id]
+		const otherAfter = advanced.children[other.id]
+		assertEquals(created.type, "recording")
+		assertEquals(created.pulses.blue, null)
+		assertEquals(otherAfter.pulses.blue, null)
+	})
 })
