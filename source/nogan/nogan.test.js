@@ -1122,4 +1122,33 @@ describe("deep advancing and propogating", () => {
 		assert(!sourceAfter.pulses.blue)
 		assert(targetAfter.pulses.blue)
 	})
+
+	it("propogates firing children, depending on the future", () => {
+		const phantom = createPhantom()
+		const child = createNod(phantom)
+		const nod1 = createNod(child)
+		const nod2 = createNod(child)
+		const nod3 = createNod(child)
+		const nod4 = createNod(child)
+		createWire(child, { source: nod1.id, target: nod2.id, timing: 1 })
+		createWire(child, { source: nod2.id, target: nod3.id, timing: 1 })
+		createWire(child, { source: nod3.id, target: nod4.id, timing: -1 })
+		addPulse(phantom, { id: child.id })
+		addPulse(child, { id: nod1.id })
+		const advanced = deepAdvance(phantom)
+		const childAfter = advanced.children[child.id]
+		const nod1After = childAfter.children[nod1.id]
+		const nod2After = childAfter.children[nod2.id]
+		const nod3After = childAfter.children[nod3.id]
+		const nod4After = childAfter.children[nod4.id]
+		assert(nod1.pulses.blue)
+		assert(!nod2.pulses.blue)
+		assert(!nod3.pulses.blue)
+		assert(!nod4.pulses.blue)
+
+		assert(!nod1After.pulses.blue)
+		assert(nod2After.pulses.blue)
+		assert(!nod3After.pulses.blue)
+		assert(nod4After.pulses.blue)
+	})
 })
