@@ -10,6 +10,7 @@ import {
 	createPhantom,
 	createTemplate,
 	createWire,
+	deepAdvance,
 	deepProject,
 	deleteChild,
 	destroyNod,
@@ -1077,25 +1078,25 @@ describe("creation nod", () => {
 	})
 })
 
-describe("deep propogating", () => {
-	it("doesn't propogate non-firing children", () => {
+describe("deep advancing and propogating", () => {
+	it("doesn't project non-firing children", () => {
 		const phantom = createPhantom()
 		const child = createNod(phantom)
 		const grandChild = createNod(child)
 		addPulse(child, { id: grandChild.id })
-		const advanced = advance(phantom)
+		const advanced = deepAdvance(phantom)
 		const childAfter = advanced.children[child.id]
 		const grandChildAfter = childAfter.children[grandChild.id]
 		assert(grandChildAfter.pulses.blue)
 	})
 
-	it("propogates firing children", () => {
+	it("projects firing children", () => {
 		const phantom = createPhantom()
 		const child = createNod(phantom)
 		const grandChild = createNod(child)
 		addPulse(phantom, { id: child.id })
 		addPulse(child, { id: grandChild.id })
-		const advanced = advance(phantom)
+		const advanced = deepAdvance(phantom)
 		const childAfter = advanced.children[child.id]
 		const grandChildAfter = childAfter.children[grandChild.id]
 		assert(!grandChildAfter.pulses.blue)
@@ -1109,16 +1110,16 @@ describe("deep propogating", () => {
 		createWire(child, { source: source.id, target: target.id, timing: 1 })
 		addPulse(child, { id: source.id })
 		addPulse(phantom, { id: child.id })
-		const advanced = advance(phantom, { history: [phantom] })
+		const advanced = deepAdvance(phantom, { history: [phantom] })
 		const childAfter = advanced.children[child.id]
 		const targetAfter = childAfter.children[target.id]
 		const sourceAfter = childAfter.children[source.id]
 		assert(child.pulses.blue)
 		assert(source.pulses.blue)
-		assert(!childAfter.pulses.blue)
-		assert(!sourceAfter.pulses.blue)
 		assert(!target.pulses.blue)
 
+		assert(!childAfter.pulses.blue)
+		assert(!sourceAfter.pulses.blue)
 		assert(targetAfter.pulses.blue)
 	})
 })
