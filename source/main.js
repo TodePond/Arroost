@@ -1,11 +1,12 @@
 import {
+	Habitat,
 	Machine,
 	print,
 	registerMethods,
 	repeatArray,
+	rotate,
 	Stage,
-} from "../../libraries/habitat-import.js"
-import { Habitat, rotate } from "../libraries/habitat-import.js"
+} from "../libraries/habitat-import.js"
 import { ArrowOfConnection } from "./arroost/entities/arrows/tickler/connection.js"
 import { ArrowOfCreation } from "./arroost/entities/arrows/tickler/creation.js"
 import { ArrowOfDestruction } from "./arroost/entities/arrows/tickler/destruction.js"

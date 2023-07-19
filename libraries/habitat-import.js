@@ -333,6 +333,8 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 					(position.y - parent.transform.absolutePosition.y) /
 						parent.transform.absoluteScale.y,
 				]
+
+				this.absolutePosition
 			}
 
 			getRelativePosition(absolutePosition) {

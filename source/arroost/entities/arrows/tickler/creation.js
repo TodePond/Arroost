@@ -6,7 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
-import { addFullPulse, createNod, validateFamily } from "../../../../nogan/nogan.js"
+import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
@@ -19,21 +19,24 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
-	constructor(mummy = shared.nogan.current, nod) {
+	/**
+	 *
+	 * @param {Parent} layer
+	 * @param {Nod?} nod
+	 */
+	constructor(layer = shared.nogan.current, nod = createNod(layer, { type: "creation" })) {
 		super()
-		if (nod === undefined) {
-			nod = createNod(mummy)
-		}
 
-		validateFamily(mummy, nod)
+		validateFamily(layer, nod)
 
 		this.nod = nod
-		this.mummy = mummy
+		this.layer = layer
 	}
 
 	render() {
-		const { style, rectangle, horizontal, vertical } = this
+		const { style, rectangle, horizontal, vertical, transform } = this
 		const { dimensions } = rectangle
+		const { absolutePosition } = transform
 
 		this.add(horizontal)
 		this.add(vertical)
@@ -59,8 +62,15 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Size
 		this.use(() => {
 			const [width, height] = dimensions
+			console.log("foo")
 			horizontal.rectangle.dimensions = [width, height / 3]
 			vertical.rectangle.dimensions = [width / 3, height]
+		})
+
+		// Position
+		this.use(() => {
+			const [x, y] = transform.absolutePosition
+			modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
 		})
 
 		return super.render()
@@ -91,9 +101,6 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		state.input.state = Idle
 		state.input = recording.input
 		state.entity = recording
-
-		addFullPulse(this.mummy, { target: this.nod.id })
-		this.isPulsing = true
 
 		return Dragging
 	}

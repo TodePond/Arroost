@@ -1,4 +1,4 @@
-import { add, distanceBetween, glue, scale } from "../../../libraries/habitat-import.js"
+import { add, distanceBetween, equals, glue, scale } from "../../../libraries/habitat-import.js"
 import { Component } from "./component.js"
 
 export const Movement = class extends Component {
@@ -57,7 +57,10 @@ export const Movement = class extends Component {
 
 		const { transform } = this.entity
 		if (transform === undefined) return
-		transform.position = add(transform.position, this.velocity)
+		if (!equals(this.velocity, [0, 0])) {
+			transform.position = add(transform.position, this.velocity)
+			transform.absolutePosition //trigger update
+		}
 
 		transform.rotation += this.rotationalVelocity
 		transform.scale = [
