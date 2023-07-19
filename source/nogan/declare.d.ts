@@ -81,17 +81,10 @@ declare type Nogan = Nod | Wire | Phantom
 declare type Parent = Nod | Phantom
 declare type Child = Nod | Wire
 
-declare type BaseOperation = {
+declare type Operation = {
 	type: string
 	data: any
 }
-
-declare type ModifyOperation = {
-	type: "modify"
-	data: Partial<NodTemplate>
-}
-
-declare type Operation = ModifyOperation
 
 declare type BasePeak = {
 	schemaName: string
@@ -122,6 +115,8 @@ declare type FullPeak = {
 	green: Peak
 	blue: Peak
 }
+
+declare type Behave = (parent: Parent, { peak, id }: { peak: SuccessPeak; id: Id }) => Peak
 
 // todo: return an Update for the UI to deal with
 declare type Operate = (parent: Parent, { id, data }: { id: Id; data: any }) => any

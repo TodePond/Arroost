@@ -25,11 +25,14 @@ import * as Nogan from "./nogan/nogan.js"
 import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
+/** @type {any} */
+export const _window = window
+
 //===============//
 // Setup Habitat //
 //===============//
-window.print = print
-window.dir = console.dir.bind(console)
+_window.print = print
+_window.dir = console.dir.bind(console)
 registerMethods()
 
 //==============//
@@ -46,7 +49,7 @@ display.input = camera.input
 
 const machine = new Machine()
 const pointer = getPointer(camera)
-const hover = getHover(camera)
+const hover = getHover()
 const nogan = createPhantom()
 
 export const shared = {

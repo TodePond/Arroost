@@ -1,18 +1,23 @@
-import { createPeak } from "./nogan.js"
+import { createPeak, getNod } from "./nogan.js"
+import { PULSE_TYPE } from "./schema.js"
 
+/** @type {Behave} */
 const anyBehave = (parent, { peak, id }) => {
 	// Change to creation when coming out of creation nod
 	if (peak.template.type === "creation") {
-		const transformedPeak = { ...peak, type: "creation" }
+		const transformedPeak = { ...peak, type: PULSE_TYPE.creation }
 		return creationBehave(parent, { peak: transformedPeak, id })
 	}
 
 	return peak
 }
 
+/** @type {Set<NodType>} */
 const CLONEABLE = new Set(["recording", "destruction"])
+
+/** @type {Behave} */
 const creationBehave = (parent, { peak, id }) => {
-	const target = parent.children[id]
+	const target = getNod(parent, id)
 
 	if (CLONEABLE.has(target.type)) {
 		return { ...peak, data: { type: target.type } }

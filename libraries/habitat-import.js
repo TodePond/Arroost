@@ -123,7 +123,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 			toString() {
 				const [red, green, blue, alpha] = this.map((v) => v.toString(16).padStart(2, "0"))
-				if (this.alpha === 255) {
+				if (this[3] === 255) {
 					return `#${red}${green}${blue}`
 				}
 
@@ -134,7 +134,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		const Splash = class extends Colour {
 			constructor(number) {
 				const wrappedNumber = wrapSplashNumber(number)
-				const [hundreds, tens, ones] = getThreeDigits(wrappedNumber, 3)
+				const [hundreds, tens, ones] = getThreeDigits(wrappedNumber)
 				const red = RED_SPLASH_VALUES[hundreds]
 				const green = GREEN_SPLASH_VALUES[tens]
 				const blue = BLUE_SPLASH_VALUES[ones]
@@ -726,9 +726,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			const [dx, dy] = displacement
 			const la = lerp([a, b], dx)
 			const lb = lerp([d, c], dx)
-
-			const line = [la, lb]
-			return lerp(line, dy)
+			return lerp([la, lb], dy)
 		}
 
 		// based on https://iquilezles.org/articles/ibilinear
@@ -1031,17 +1029,20 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 			match(head, tail) {
 				// If we don't have a default option, just use the first as an object
+				// @ts-ignore
 				if (this.default === undefined || this.isDefault === undefined) {
 					return this.call(head)
 				}
 
 				// If the first argument doesn't match the default, use it as an object
+				// @ts-ignore
 				if (!this.isDefault(head)) {
 					return this.call(head)
 				}
 
 				// Otherwise, use the first argument as the default option, and the second as an object
 				return this.call({
+					// @ts-ignore
 					[this.default]: head,
 					...tail,
 				})
@@ -1049,13 +1050,16 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 			call(options = {}) {
 				const result = {}
+				// @ts-ignore
 				for (const key in this.options) {
 					const arg = options[key]
+					// @ts-ignore
 					const value = arg === undefined ? this.options[key]() : arg
 					result[key] = value
 				}
 
 				for (const key in options) {
+					// @ts-ignore
 					if (this.options[key] === undefined) {
 						result[key] = options[key]
 					}
@@ -1725,6 +1729,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			constructor(head, tail = {}) {
+				// @ts-ignore
 				const options = new Options(this.constructor.options)(head, tail)
 				Object.assign(this, options)
 			}
@@ -2007,23 +2012,22 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		}
 
 		const distanceBetween = (a, b) => {
-			if (typeof a === "number") {
-				return Math.abs(a - b)
-			}
-
 			const displacement = subtract(a, b)
+			if (typeof displacement === "number") {
+				return Math.abs(displacement)
+			}
 			const [dx, dy, dz = 0] = displacement
 			const distance = Math.hypot(dx, dy, dz)
 			return distance
 		}
 
 		const angleBetween = (a, b) => {
-			if (a.length !== 2) {
+			const displacement = subtract(a, b)
+			if (typeof displacement === "number" || displacement.length !== 2) {
 				throw new Error(
 					"[Habitat] Sorry, only 2D vectors are supported at the moment. Please bug @todepond to support other lengths :)",
 				)
 			}
-			const displacement = subtract(a, b)
 			const [dx, dy] = displacement
 			const angle = Math.atan2(dy, dx)
 			return angle
@@ -2031,6 +2035,11 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 		const rotate = (vector, angle, origin = [0, 0]) => {
 			const displacement = subtract(vector, origin)
+			if (typeof displacement === "number" || displacement.length !== 2) {
+				throw new Error(
+					"[Habitat] Sorry, only 2D vectors are supported at the moment. Please bug @todepond to support other lengths :)",
+				)
+			}
 			const [dx, dy] = displacement
 			const cos = Math.cos(angle)
 			const sin = Math.sin(angle)

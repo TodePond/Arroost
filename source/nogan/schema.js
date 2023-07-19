@@ -85,6 +85,15 @@ export const PULSE_TYPES = [
 	// ... more!
 ]
 
+/**
+ * @type {Record<string, PulseType>}
+ */
+export const PULSE_TYPE = {
+	any: "any",
+	creation: "creation",
+	destruction: "destruction",
+}
+
 N.PulseColour = S.Enum(PULSE_COLOURS)
 N.PulseType = S.Enum(PULSE_TYPES)
 
