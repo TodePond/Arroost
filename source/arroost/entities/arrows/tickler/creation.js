@@ -19,11 +19,6 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
-	/**
-	 *
-	 * @param {Parent} layer
-	 * @param {Nod?} nod
-	 */
 	constructor(layer = shared.nogan.current, nod = createNod(layer, { type: "creation" })) {
 		super()
 
@@ -62,7 +57,6 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Size
 		this.use(() => {
 			const [width, height] = dimensions
-			console.log("foo")
 			horizontal.rectangle.dimensions = [width, height / 3]
 			vertical.rectangle.dimensions = [width / 3, height]
 		})
@@ -70,7 +64,6 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Position
 		this.use(() => {
 			const [x, y] = transform.absolutePosition
-			print(x, y)
 			modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
 		})
 

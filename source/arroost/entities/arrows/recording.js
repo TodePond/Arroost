@@ -1,5 +1,13 @@
-import { GREY, SILVER, WHITE, glue, repeatArray } from "../../../../libraries/habitat-import.js"
+import {
+	BLACK,
+	GREY,
+	SILVER,
+	WHITE,
+	glue,
+	repeatArray,
+} from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
+import { addPulse, createNod, modifyNod } from "../../../nogan/nogan.js"
 import { getAudioContext, makeBufferSource, record } from "../../audio/audio.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -15,25 +23,35 @@ export const ArrowOfRecording = class extends Carryable {
 	noise = this.use(null, { store: false })
 
 	isRecording = this.use(false)
+	isPulsing = this.use(false)
 
-	colour = this.use(
-		() => {
-			if (this.input.Pointing) return WHITE
-			return SILVER
-		},
-		{ store: false },
-	)
-
-	constructor() {
+	constructor(layer = shared.nogan.current, nod = createNod(layer, { type: "recording" })) {
 		super()
 		const { style } = this
 		glue(this)
+		this.layer = layer
+		this.nod = nod
 		this.add(this.noiseHolder)
 		this.add(this.inner)
 
 		this.inner.transform.scale = repeatArray([INNER_RATIO], 2)
 		this.inner.input = this.input
-		this.use(() => (this.inner.style.fill = this.colour))
+
+		const colour = this.use(
+			() => {
+				if (this.isPulsing) return BLACK
+				if (this.input.Pointing) return WHITE
+				return SILVER
+			},
+			{ store: false },
+		)
+
+		this.use(() => {
+			this.inner.style.fill = colour.value
+		})
+		this.use(() => {
+			modifyNod(this.layer, { id: this.nod.id, position: this.transform.absolutePosition })
+		})
 
 		style.stroke = "none"
 		style.fill = GREY
@@ -74,6 +92,8 @@ export const ArrowOfRecording = class extends Carryable {
 	}
 
 	async onPlayStart() {
+		this.isPulsing = true
+		addPulse(this.layer, { id: this.nod.id })
 		const context = getAudioContext()
 		const source = makeBufferSource(this.recording)
 		const semitones = 0

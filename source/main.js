@@ -62,6 +62,7 @@ export const shared = {
 	time: performance.now(),
 	nogan: {
 		root: nogan,
+		/** @type {Parent} */
 		current: nogan,
 	},
 	debug: {
