@@ -65,11 +65,9 @@ N.Wire = N.Child.extend({
 // Pulse //
 //=======//
 
-// The pulse type refers to where the pulse is coming from.
-export const SOURCE_TYPES = [
+export const PULSE_TYPES = [
 	// done
 	"any",
-	"slot",
 	"creation",
 
 	// in progress
@@ -80,10 +78,10 @@ export const SOURCE_TYPES = [
 	// ... more!
 ]
 
-N.SourceType = S.Enum(SOURCE_TYPES)
+N.PulseType = S.Enum(PULSE_TYPES)
 
 N.Pulse = S.Struct({
-	type: N.SourceType,
+	type: N.PulseType,
 	data: S.Anything, //yolo
 })
 
@@ -106,9 +104,20 @@ N.PhantomPulses = S.Struct({
 //=====//
 // Nod //
 //=====//
+export const NOD_TYPES = [
+	"any",
+	"slot",
+	"creation",
+	"destruction",
+	"recording",
+	// ... more!
+]
+
+N.NodType = S.Enum(NOD_TYPES)
+
 N.NodTemplate = N.Struct({
 	position: S.Vector2D,
-	type: N.SourceType,
+	type: N.NodType,
 })
 
 N.Nod = N.Parent.extend({
@@ -125,7 +134,7 @@ N.Nod = N.Parent.extend({
 
 	// Template
 	position: S.Vector2D,
-	type: N.SourceType,
+	type: N.NodType,
 })
 
 N.Phantom = N.Nod.extend({
@@ -169,7 +178,7 @@ N.FailPeak = S.Struct({
 N.SuccessPeak = S.Struct({
 	schemaName: S.Value("SuccessPeak"),
 	result: S.Value(true),
-	type: N.SourceType,
+	type: N.PulseType,
 	template: N.NodTemplate,
 	data: S.Anything, //yolo
 	operations: S.ArrayOf(N.Operation),
