@@ -92,7 +92,7 @@ export const createNod = (parent, properties = {}) => {
 	return nod
 }
 
-export const createWire = (parent, { source, target, colour, timing = 0 }) => {
+export const createWire = (parent, { source, target, colour = "any", timing = 0 }) => {
 	const wire = N.Wire.make({ colour, timing })
 	wire.source = source
 	wire.target = target
