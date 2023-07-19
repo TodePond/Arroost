@@ -839,18 +839,19 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 
 	const operations = []
 
-	const { parent: advancedParent, operations: advancedParentUpdates } = advance(parent, {
+	const { parent: advancedParent, operations: advancedChildOperations } = advance(parent, {
 		history,
 	})
-	operations.push(...advancedParentUpdates)
+
+	operations.push(...advancedChildOperations)
 
 	for (const id of firingChildrenIds) {
 		const child = getNod(advancedParent, id)
 		const childHistory = history.map((parent) => getNod(parent, id))
-		const { parent: advancedChild, operations: advancedChildUpdates } = deepAdvance(child, {
+		const { parent: advancedChild, operations: advancedChildOperations } = deepAdvance(child, {
 			history: childHistory,
 		})
-		operations.push(...advancedChildUpdates)
+		operations.push(...advancedChildOperations)
 		advancedParent.children[id] = advancedChild
 	}
 	return { parent: advancedParent, operations }
