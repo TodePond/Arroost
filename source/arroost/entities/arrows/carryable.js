@@ -34,6 +34,7 @@ export const Carryable = class extends Ellipse {
 		const { pointerStartPosition, inputStartPosition } = state
 		const displacement = subtract(shared.pointer.position, pointerStartPosition)
 		this.transform.setAbsolutePosition(add(inputStartPosition, displacement))
+		this.transform.absolutePosition
 	}
 
 	onDraggingPointerUp() {

@@ -334,7 +334,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 						parent.transform.absoluteScale.y,
 				]
 
-				this.absolutePosition
+				// this.absolutePosition
 			}
 
 			getRelativePosition(absolutePosition) {

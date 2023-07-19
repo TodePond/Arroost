@@ -70,6 +70,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Position
 		this.use(() => {
 			const [x, y] = transform.absolutePosition
+			print(x, y)
 			modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
 		})
 
