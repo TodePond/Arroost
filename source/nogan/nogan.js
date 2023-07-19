@@ -5,11 +5,14 @@ import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
 
+/** @type any */
+const _window = window
+
 //============//
 // Validating //
 //============//
 export const shouldValidate = memo(
-	() => window.shared && window.shared.debug.validate,
+	() => _window.shared && _window.shared.debug.validate,
 	() => "",
 )
 
@@ -28,7 +31,7 @@ export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
 
 // Check that the parent has the child as a child.
 export const validateFamily = (parent, child) => {
-	if (window.shared && !window.shared.debug.validate) {
+	if (_window.shared && !_window.shared.debug.validate) {
 		return
 	}
 	if (parent.children[child.id] !== child) {
@@ -89,7 +92,7 @@ export const createNod = (parent, properties = {}) => {
 	return nod
 }
 
-export const createWire = (parent, { source, target, colour, timing }) => {
+export const createWire = (parent, { source, target, colour, timing = 0 }) => {
 	const wire = N.Wire.make({ colour, timing })
 	wire.source = source
 	wire.target = target
@@ -150,7 +153,9 @@ export const destroyNod = (parent, id) => {
 //============//
 // Connecting //
 //============//
-export const replaceNod = (parent, { original, replacement } = {}) => {
+export const replaceNod = (parent, { original = null, replacement = null } = {}) => {
+	if (original === replacement) return
+
 	const originalNod = parent.children[original]
 	const replacementNod = parent.children[replacement]
 
@@ -174,7 +179,10 @@ export const replaceNod = (parent, { original, replacement } = {}) => {
 	validate(replacementNod)
 }
 
-export const reconnectWire = (parent, { id, source, target } = {}) => {
+export const reconnectWire = (
+	parent,
+	{ id = null, source = undefined, target = undefined } = {},
+) => {
 	const wireNogan = parent.children[id]
 	const originalSource = parent.children[wireNogan.source]
 	const originalTarget = parent.children[wireNogan.target]
@@ -241,7 +249,7 @@ export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
 	validate(parent)
 }
 
-export const addFullPulse = (parent, { id } = {}) => {
+export const addFullPulse = (parent, { id = null } = {}) => {
 	for (const colour of PULSE_COLOURS) {
 		addPulse(parent, { id, colour })
 	}
@@ -250,7 +258,7 @@ export const addFullPulse = (parent, { id } = {}) => {
 //===========//
 // Modifying //
 //===========//
-export const modifyNod = (parent, { id, type, position } = {}) => {
+export const modifyNod = (parent, { id = null, type = undefined, position = undefined } = {}) => {
 	const nod = parent.children[id]
 	nod.type = type ?? nod.type
 	nod.position = position ?? nod.position
@@ -259,7 +267,7 @@ export const modifyNod = (parent, { id, type, position } = {}) => {
 	validate(nod)
 }
 
-export const modifyWire = (parent, { id, colour, timing } = {}) => {
+export const modifyWire = (parent, { id = null, colour = undefined, timing = undefined } = {}) => {
 	const wire = parent.children[id]
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
@@ -294,7 +302,12 @@ const _getPeak = (parent, { id, colour, timing, history, future }) => {
 	return N.Never.make({ id, colour, timing, history })
 }
 
-export const createPeak = ({ result = false, type, template, operations = [] } = {}) => {
+export const createPeak = ({
+	result = false,
+	type = undefined,
+	template = undefined,
+	operations = [],
+} = {}) => {
 	if (!result) return N.FailPeak.make({ operations })
 	return N.SuccessPeak.make({ result, type, template })
 }
@@ -439,10 +452,10 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 	})
 }
 
-export const getFullPeak = (parent, { id, timing = 0, history = [] } = {}) => {
+export const getFullPeak = (parent, { id = null, timing = 0, history = [], future = [] } = {}) => {
 	const fullPeak = N.FullPeak.make()
 	for (const colour of PULSE_COLOURS) {
-		const peak = getPeak(parent, { id, colour, timing, history })
+		const peak = getPeak(parent, { id, colour, timing, history, future })
 		fullPeak[colour] = peak
 	}
 	validate(fullPeak)

@@ -1,4 +1,6 @@
+// @ts-expect-error
 import { assert, assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
+// @ts-expect-error
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
 	addChild,

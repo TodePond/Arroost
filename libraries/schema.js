@@ -1,20 +1,30 @@
+/** @param {any} value */
+const Check = (value) => false
+/** @param {any} value */
+const Make = (value) => undefined
+/** @param {any} value */
+const Diagnose = (value) => value
+
 export const Schema = class {
-	constructor({ check, make, diagnose } = {}) {
+	/** @param {{check?: Check, make?: Make, diagnose?: Diagnose}} param0 */
+	constructor({ check = Check, make = Make, diagnose = (v) => v } = {}) {
 		this.check = check
 		this.make = make
-		this.diagnose = diagnose || ((value) => value)
+		this.diagnose = diagnose
 	}
 
+	/** @param {any} value */
 	validate(value) {
 		if (!this.check(value)) {
 			throw new Error(`Invalid value ^`)
 		}
 	}
 
+	/** @param {Schema} other */
 	and(other) {
 		return new Schema({
 			check: (value) => this.check(value) && other.check(value),
-			make: other.make || this.make,
+			make: this.make,
 			diagnose: (value) => {
 				if (!this.check(value)) {
 					return this.diagnose(value)
@@ -24,6 +34,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {Schema} other */
 	or(other) {
 		return new Schema({
 			check: (value) => this.check(value) || other.check(value),
@@ -43,6 +54,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {Make} make */
 	withMake(make) {
 		return new Schema({
 			check: this.check,
@@ -51,6 +63,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {Check} check */
 	withCheck(check) {
 		return new Schema({
 			check,
@@ -59,6 +72,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {Check} check */
 	andCheck(check) {
 		return new Schema({
 			check: (value) => this.check(value) && check(value),
@@ -67,6 +81,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {any} defaultValue */
 	withDefault(defaultValue) {
 		return new Schema({
 			check: this.check,
@@ -75,6 +90,7 @@ export const Schema = class {
 		})
 	}
 
+	/** @param {Diagnose} diagnose */
 	withDiagnose(diagnose) {
 		return new Schema({
 			check: this.check,
@@ -87,6 +103,7 @@ export const Schema = class {
 		return Schema.Null.or(this)
 	}
 
+	/** @param {string} key */
 	static reference(key) {
 		return new Schema({
 			check: (value) => this[key].check(value),
@@ -105,7 +122,9 @@ Schema.Array = new Schema({
 	make: (value) => value ?? [],
 })
 
+/** @param {Schema[]} schemas */
 Schema.Tuple = (schemas) => {
+	/** @type {Check} */
 	const check = (value) => {
 		if (value.length !== schemas.length) {
 			return false
@@ -118,6 +137,7 @@ Schema.Tuple = (schemas) => {
 		return true
 	}
 
+	/** @type {Make} */
 	const make = (args = []) => {
 		const values = []
 		for (let i = 0; i < schemas.length; i++) {
@@ -140,6 +160,8 @@ Schema.Function = new Schema({
 })
 
 Schema.Anything = new Schema().withCheck(() => true).withDefault(undefined)
+
+/** @param {Schema[]} schemas */
 Schema.Any = (schemas) => {
 	const check = (value) => {
 		for (const schema of schemas) {
@@ -158,7 +180,25 @@ Schema.Any = (schemas) => {
 	return new Schema({ check, make })
 }
 
-Schema.PartialStruct = (struct) => {
+export const StructSchema = class extends Schema {
+	struct = {}
+	/** @param {{}} other */
+	extend(other) {
+		return new StructSchema()
+	}
+	base() {
+		return new StructSchema()
+	}
+	partial() {
+		return new StructSchema()
+	}
+	/** @param {{}} other */
+	combine(other) {
+		return new StructSchema()
+	}
+}
+
+Schema.PartialStruct = (struct = {}) => {
 	const check = (value) => {
 		for (const key in value) {
 			if (!struct[key].check(value[key])) {
@@ -190,16 +230,18 @@ Schema.PartialStruct = (struct) => {
 		}
 	}
 
+	/** @type {StructSchema} */ //@ts-expect-error
 	const schema = Schema.Object.andCheck(check).withMake(make).withDiagnose(diagnose)
 	schema.struct = struct
 	schema.extend = (other) => {
 		const struct = { ...schema.struct, ...other }
-		return Schema.BaseStruct(struct)
+		return Schema.PartialStruct(struct)
 	}
+
 	return schema
 }
 
-Schema.BaseStruct = (struct) => {
+Schema.BaseStruct = (struct = {}) => {
 	const check = (value) => {
 		for (const key in struct) {
 			if (!struct[key].check(value[key])) {
@@ -231,6 +273,7 @@ Schema.BaseStruct = (struct) => {
 		}
 	}
 
+	/** @type {StructSchema} */ //@ts-expect-error
 	const schema = Schema.Object.andCheck(check).withMake(make).withDiagnose(diagnose)
 	schema.struct = struct
 	schema.extend = (other) => {
@@ -240,7 +283,7 @@ Schema.BaseStruct = (struct) => {
 	return schema
 }
 
-Schema.Struct = (struct) => {
+Schema.Struct = (struct = {}) => {
 	const partial = Schema.BaseStruct(struct)
 	const check = (value) => {
 		for (const key in value) {
@@ -250,6 +293,8 @@ Schema.Struct = (struct) => {
 		}
 		return true
 	}
+
+	/** @type {StructSchema} */ //@ts-expect-error
 	const schema = partial.andCheck(check)
 	schema.struct = struct
 	schema.base = () => Schema.BaseStruct(struct)
@@ -278,6 +323,7 @@ Schema.Struct = (struct) => {
 	return schema
 }
 
+/** @param {Schema} schema */
 Schema.ArrayOf = (schema) => {
 	const check = (value) => {
 		for (const item of value) {
@@ -290,6 +336,11 @@ Schema.ArrayOf = (schema) => {
 	return Schema.Array.andCheck(check)
 }
 
+export const EnumSchema = class extends Schema {
+	/** @type {any[]} */
+	values = []
+}
+
 Schema.Enum = (values) => {
 	const set = new Set(values)
 	const check = (value) => {
@@ -297,6 +348,7 @@ Schema.Enum = (values) => {
 	}
 
 	const [head] = values
+	/** @type {EnumSchema} */ //@ts-expect-error
 	const schema = new Schema().withCheck(check).withDefault(head)
 	schema.values = values
 	return schema

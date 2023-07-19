@@ -1,6 +1,8 @@
 import { Schema } from "../../libraries/schema.js"
 
+/** @type any */
 export const NoganSchema = class extends Schema {}
+
 const S = Schema
 const N = NoganSchema
 

@@ -1,4 +1,6 @@
+// @ts-expect-error
 import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
+// @ts-expect-error
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import { Schema } from "./schema.js"
 
@@ -352,7 +354,7 @@ describe("schema operations", () => {
 
 	it("does not", () => {
 		const schema = S.Integer.not()
-		assertThrows(() => schema.make())
+		assertEquals(schema.make(), undefined)
 		schema.validate(1.5)
 		assertThrows(() => schema.validate(1))
 	})
