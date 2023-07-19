@@ -752,7 +752,7 @@ describe("advancing time", () => {
 		const nod = createNod(phantom)
 		addPulse(phantom, { id: nod.id })
 		assert(nod.pulses.blue)
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 
 		const nodAfter = getNod(advanced, nod.id)
 		assert(!nodAfter.pulses.blue)
@@ -768,7 +768,7 @@ describe("advancing time", () => {
 		assert(nod1.pulses.blue)
 		assert(!nod2.pulses.blue)
 
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const nod1After = getNod(advanced, nod1.id)
 		const nod2After = getNod(advanced, nod2.id)
 
@@ -792,7 +792,7 @@ describe("advancing time", () => {
 		assert(!nod3.pulses.blue)
 		assert(!nod4.pulses.blue)
 
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const nod1After = getNod(advanced, nod1.id)
 		const nod2After = getNod(advanced, nod2.id)
 		const nod3After = getNod(advanced, nod3.id)
@@ -803,7 +803,7 @@ describe("advancing time", () => {
 		assert(!nod3After.pulses.blue)
 		assert(nod4After.pulses.blue)
 
-		const advanced2 = advance(advanced, { history: [phantom] })
+		const advanced2 = advance(advanced, { history: [phantom] }).parent
 		const nod1After2 = getNod(advanced2, nod1.id)
 		const nod3After2 = getNod(advanced2, nod3.id)
 		const nod2After2 = getNod(advanced2, nod2.id)
@@ -837,7 +837,7 @@ describe("advancing time", () => {
 		assert(!nod2.pulses.blue)
 		assert(!nod3.pulses.blue)
 
-		const advanced = advance(phantom, { history: [past] })
+		const advanced = advance(phantom, { history: [past] }).parent
 		const nod1After = getNod(advanced, nod1.id)
 		const nod2After = getNod(advanced, nod2.id)
 		const nod3After = getNod(advanced, nod3.id)
@@ -855,7 +855,7 @@ describe("advancing time", () => {
 
 		addPulse(phantom, { id: nod1.id, colour: "green" })
 
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
 		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
 		assertEquals(peakGreen.result, false)
@@ -870,7 +870,7 @@ describe("advancing time", () => {
 
 		addPulse(phantom, { id: nod1.id, colour: "red" })
 
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
 		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
 		assertEquals(peakGreen.result, false)
@@ -928,7 +928,7 @@ describe("creation nod", () => {
 		const slot = createNod(phantom, { type: "slot", position: [2, 0] })
 		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
 		addPulse(phantom, { id: creation.id })
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const recording = getNod(advanced, slot.id)
 		assertEquals(recording.type, "recording")
 	})
@@ -941,13 +941,13 @@ describe("creation nod", () => {
 		createWire(phantom, { source: creation.id, target: any.id, timing: 1 })
 		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
 		addPulse(phantom, { id: creation.id })
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const peak = getPeak(advanced, { id: any.id, history: [phantom] })
 		if (!peak.result) {
 			throw new Error("Peak should have fired")
 		}
 		assertEquals(peak.type, "creation")
-		const advanced2 = advance(advanced, { history: [phantom] })
+		const advanced2 = advance(advanced, { history: [phantom] }).parent
 		const recording = getNod(advanced2, slot.id)
 		assertEquals(recording.type, "recording")
 	})
@@ -1044,7 +1044,7 @@ describe("creation nod", () => {
 			createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
 			createWire(phantom, { source: destruction.id, target: slot.id })
 			addPulse(phantom, { id: creation.id })
-			const advanced = advance(phantom)
+			const advanced = advance(phantom).parent
 			const created = getNod(advanced, slot.id)
 			assertEquals(created.type, "recording")
 		}
@@ -1057,7 +1057,7 @@ describe("creation nod", () => {
 			createWire(phantom, { source: destruction.id, target: slot.id })
 			createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
 			addPulse(phantom, { id: creation.id })
-			const advanced = advance(phantom)
+			const advanced = advance(phantom).parent
 			const created = getNod(advanced, slot.id)
 			assertEquals(created.type, "destruction")
 		}
@@ -1084,7 +1084,7 @@ describe("creation nod", () => {
 		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
 		createWire(phantom, { source: slot.id, target: other.id })
 		addPulse(phantom, { id: creation.id })
-		const advanced = advance(phantom)
+		const advanced = advance(phantom).parent
 		const created = getNod(advanced, slot.id)
 		const otherAfter = getNod(advanced, other.id)
 		assertEquals(created.type, "recording")
@@ -1099,7 +1099,7 @@ describe("deep advancing and propogating", () => {
 		const child = createNod(phantom)
 		const grandChild = createNod(child)
 		addPulse(child, { id: grandChild.id })
-		const advanced = deepAdvance(phantom)
+		const advanced = deepAdvance(phantom).parent
 		const childAfter = getNod(advanced, child.id)
 		const grandChildAfter = getNod(childAfter, grandChild.id)
 		assert(grandChildAfter.pulses.blue)
@@ -1111,7 +1111,7 @@ describe("deep advancing and propogating", () => {
 		const grandChild = createNod(child)
 		addPulse(phantom, { id: child.id })
 		addPulse(child, { id: grandChild.id })
-		const advanced = deepAdvance(phantom)
+		const advanced = deepAdvance(phantom).parent
 		const childAfter = getNod(advanced, child.id)
 		const grandChildAfter = getNod(childAfter, grandChild.id)
 		assert(!grandChildAfter.pulses.blue)
@@ -1125,7 +1125,7 @@ describe("deep advancing and propogating", () => {
 		createWire(child, { source: source.id, target: target.id, timing: 1 })
 		addPulse(child, { id: source.id })
 		addPulse(phantom, { id: child.id })
-		const advanced = deepAdvance(phantom, { history: [phantom] })
+		const advanced = deepAdvance(phantom, { history: [phantom] }).parent
 		const childAfter = getNod(advanced, child.id)
 		const targetAfter = getNod(childAfter, target.id)
 		const sourceAfter = getNod(childAfter, source.id)
@@ -1150,7 +1150,7 @@ describe("deep advancing and propogating", () => {
 		createWire(child, { source: nod3.id, target: nod4.id, timing: -1 })
 		addPulse(phantom, { id: child.id })
 		addPulse(child, { id: nod1.id })
-		const advanced = deepAdvance(phantom)
+		const advanced = deepAdvance(phantom).parent
 		const childAfter = getNod(advanced, child.id)
 		const nod1After = getNod(childAfter, nod1.id)
 		const nod2After = getNod(childAfter, nod2.id)

@@ -82,7 +82,7 @@ declare type Parent = Nod | Phantom
 declare type Child = Nod | Wire
 
 declare type Operation = {
-	type: string
+	type: OperationType
 	data: any
 }
 
@@ -118,5 +118,7 @@ declare type FullPeak = {
 
 declare type Behave = (parent: Parent, { peak, id }: { peak: SuccessPeak; id: Id }) => Peak
 
-// todo: return an Update for the UI to deal with
-declare type Operate = (parent: Parent, { id, data }: { id: Id; data: any }) => any
+declare type OperationType = "modify"
+declare type Operate = (parent: Parent, { id, data }: { id: Id; data: any }) => Update | null
+
+declare type Update = any

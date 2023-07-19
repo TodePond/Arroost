@@ -758,13 +758,6 @@ export const deepProject = (parent, { clone = true } = {}) => {
 //===========//
 // Advancing //
 //===========//
-// Propogate iterates through all nods
-// ... and makes them fire if they should be firing.
-//
-// It's quite a heavy function to be calling so often.
-// We could cut down its use, and also optimise it a lot.
-// But so far it's been fine!
-
 /**
  * Propogate iterates through all nods
  * ... and makes them fire if they should be firing.
@@ -780,12 +773,14 @@ export const deepProject = (parent, { clone = true } = {}) => {
  * 	future?: Parent[],
  * 	timing?: Timing,
  * }?} options
- * @returns {Parent}
+ * @returns {Update[]}
  */
 export const propogate = (
 	parent,
 	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
 ) => {
+	/** @type {Update[]} */
+	const updates = []
 	for (const _id in clone.children) {
 		const id = +_id
 		const child = clone.children[id]
@@ -794,14 +789,15 @@ export const propogate = (
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeak[colour]
 			for (const operation of peak.operations) {
-				operate(parent, { id, operation })
+				const update = operate(parent, { id, operation })
+				if (update) updates.push(update)
 			}
 			if (!peak.result) continue
 			addPulse(parent, { id, colour, type: peak.type })
 		}
 	}
 	validate(parent)
-	return parent
+	return updates
 }
 
 /**
@@ -810,15 +806,16 @@ export const propogate = (
  * @param {{
  * 	history?: Parent[],
  * }?} options
- * @returns {Parent}
+ * @returns {{ parent: Parent, updates: Update[] }}
  */
 export const advance = (parent, { history = [] } = {}) => {
 	const projection = project(parent)
-	return propogate(projection, {
+	const updates = propogate(projection, {
 		clone: parent,
 		history,
 		timing: 1,
 	})
+	return { parent: projection, updates }
 }
 
 /**
@@ -827,7 +824,7 @@ export const advance = (parent, { history = [] } = {}) => {
  * @param {{
  * 	history?: Parent[],
  * }?} options
- * @returns {Parent}
+ * @returns {{parent: Parent, updates: Update[]}}
  */
 export const deepAdvance = (parent, { history = [] } = {}) => {
 	const firingChildrenIds = []
@@ -840,14 +837,21 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 		firingChildrenIds.push(id)
 	}
 
-	const advancedParent = advance(parent, { history })
+	const updates = []
+
+	const { parent: advancedParent, updates: advancedParentUpdates } = advance(parent, { history })
+	updates.push(...advancedParentUpdates)
+
 	for (const id of firingChildrenIds) {
 		const child = getNod(advancedParent, id)
 		const childHistory = history.map((parent) => getNod(parent, id))
-		const advancedChild = deepAdvance(child, { history: childHistory })
+		const { parent: advancedChild, updates: advancedChildUpdates } = deepAdvance(child, {
+			history: childHistory,
+		})
+		updates.push(...advancedChildUpdates)
 		advancedParent.children[id] = advancedChild
 	}
-	return advancedParent
+	return { parent: advancedParent, updates }
 }
 
 /**
@@ -857,7 +861,7 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
  * 	id: Id,
  * 	operation: Operation,
  * }} options
- * @returns {any}
+ * @returns {Update | void}
  */
 export const operate = (parent, { id, operation }) => {
 	const _operate = OPERATES[operation.type]

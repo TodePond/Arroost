@@ -1,5 +1,5 @@
 import { createPeak, getNod } from "./nogan.js"
-import { PULSE_TYPE } from "./schema.js"
+import { OPERATION_TYPE, PULSE_TYPE } from "./schema.js"
 
 /** @type {Behave} */
 const anyBehave = (parent, { peak, id }) => {
@@ -31,7 +31,7 @@ const creationBehave = (parent, { peak, id }) => {
 	// If we can create here, create here!
 	const toCreate = peak.data ?? { type: "recording" }
 	const operation = {
-		type: "modify",
+		type: OPERATION_TYPE.modify,
 		data: toCreate,
 	}
 

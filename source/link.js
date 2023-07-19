@@ -1,3 +1,6 @@
+import { shared } from "./main.js"
+import { deepAdvance } from "./nogan/nogan.js"
+
 const BPM = 120 //240
 
 let lastBeats = 0
@@ -14,7 +17,6 @@ export const frame = (time = 0) => {
 }
 
 const beat = () => {
-	// this should be done by something like...
-	// travel()
-	// which takes a timing parameter, and gets the status of all children (and grandchildren) at that point in time
+	const { root } = shared.nogan
+	const advanced = deepAdvance(root)
 }

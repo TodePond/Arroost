@@ -86,7 +86,7 @@ export const PULSE_TYPES = [
 ]
 
 /**
- * @type {Record<string, PulseType>}
+ * @type {Record<PulseType, PulseType>}
  */
 export const PULSE_TYPE = {
 	any: "any",
@@ -171,6 +171,18 @@ N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 //============//
 // Operations //
 //============//
+/** @type {OperationType[]} */
+export const OPERATION_TYPES = ["modify"]
+
+/**
+ * @type {Record<OperationType, OperationType>}
+ */
+export const OPERATION_TYPE = {
+	modify: "modify",
+}
+
+N.OperateType = S.Enum(OPERATION_TYPES)
+
 N.BaseOperation = S.Struct({
 	type: N.String,
 	data: S.Anything,
