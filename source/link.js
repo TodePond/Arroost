@@ -18,5 +18,6 @@ export const frame = (time = 0) => {
 
 const beat = () => {
 	const { root } = shared.nogan
-	const advanced = deepAdvance(root)
+	const { parent: advanced, operations } = deepAdvance(root)
+	print(operations)
 }

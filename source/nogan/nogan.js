@@ -773,14 +773,14 @@ export const deepProject = (parent, { clone = true } = {}) => {
  * 	future?: Parent[],
  * 	timing?: Timing,
  * }?} options
- * @returns {Update[]}
+ * @returns {Operation[]}
  */
 export const propogate = (
 	parent,
 	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
 ) => {
-	/** @type {Update[]} */
-	const updates = []
+	/** @type {Operation[]} */
+	const operations = []
 	for (const _id in clone.children) {
 		const id = +_id
 		const child = clone.children[id]
@@ -789,15 +789,15 @@ export const propogate = (
 		for (const colour of PULSE_COLOURS) {
 			const peak = fullPeak[colour]
 			for (const operation of peak.operations) {
-				const update = operate(parent, { id, operation })
-				if (update) updates.push(update)
+				operate(parent, { id, operation })
+				operations.push(operation)
 			}
 			if (!peak.result) continue
 			addPulse(parent, { id, colour, type: peak.type })
 		}
 	}
 	validate(parent)
-	return updates
+	return operations
 }
 
 /**
@@ -806,16 +806,16 @@ export const propogate = (
  * @param {{
  * 	history?: Parent[],
  * }?} options
- * @returns {{ parent: Parent, updates: Update[] }}
+ * @returns {{ parent: Parent, operations: Operation[] }}
  */
 export const advance = (parent, { history = [] } = {}) => {
 	const projection = project(parent)
-	const updates = propogate(projection, {
+	const operations = propogate(projection, {
 		clone: parent,
 		history,
 		timing: 1,
 	})
-	return { parent: projection, updates }
+	return { parent: projection, operations }
 }
 
 /**
@@ -824,7 +824,7 @@ export const advance = (parent, { history = [] } = {}) => {
  * @param {{
  * 	history?: Parent[],
  * }?} options
- * @returns {{parent: Parent, updates: Update[]}}
+ * @returns {{parent: Parent, operations: Operation[]}}
  */
 export const deepAdvance = (parent, { history = [] } = {}) => {
 	const firingChildrenIds = []
@@ -837,21 +837,23 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 		firingChildrenIds.push(id)
 	}
 
-	const updates = []
+	const operations = []
 
-	const { parent: advancedParent, updates: advancedParentUpdates } = advance(parent, { history })
-	updates.push(...advancedParentUpdates)
+	const { parent: advancedParent, operations: advancedParentUpdates } = advance(parent, {
+		history,
+	})
+	operations.push(...advancedParentUpdates)
 
 	for (const id of firingChildrenIds) {
 		const child = getNod(advancedParent, id)
 		const childHistory = history.map((parent) => getNod(parent, id))
-		const { parent: advancedChild, updates: advancedChildUpdates } = deepAdvance(child, {
+		const { parent: advancedChild, operations: advancedChildUpdates } = deepAdvance(child, {
 			history: childHistory,
 		})
-		updates.push(...advancedChildUpdates)
+		operations.push(...advancedChildUpdates)
 		advancedParent.children[id] = advancedChild
 	}
-	return { parent: advancedParent, updates }
+	return { parent: advancedParent, operations }
 }
 
 /**
@@ -861,7 +863,6 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
  * 	id: Id,
  * 	operation: Operation,
  * }} options
- * @returns {Update | void}
  */
 export const operate = (parent, { id, operation }) => {
 	const _operate = OPERATES[operation.type]
@@ -869,5 +870,5 @@ export const operate = (parent, { id, operation }) => {
 		throw new Error(`Unknown operation type '${operation.type}'`)
 	}
 
-	return _operate(parent, { id, data: operation.data })
+	_operate(parent, { id, data: operation.data })
 }
