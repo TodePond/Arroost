@@ -318,7 +318,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	for (const input of nod.inputs) {
 		const wire = parent.children[input]
 
-		if (wire.colour !== colour) {
+		if (wire.colour !== "any" && wire.colour !== colour) {
 			continue
 		}
 

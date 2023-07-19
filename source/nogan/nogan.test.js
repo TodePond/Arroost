@@ -301,7 +301,7 @@ describe("modifying", () => {
 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
 
 		assertEquals(wire.timing, 0)
-		assertEquals(wire.colour, "blue")
+		assertEquals(wire.colour, "any")
 		modifyWire(phantom, { id: wire.id, timing: 1, colour: "red" })
 		assertEquals(wire.timing, 1)
 		assertEquals(wire.colour, "red")
@@ -313,10 +313,10 @@ describe("modifying", () => {
 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
 
 		assertEquals(wire.timing, 0)
-		assertEquals(wire.colour, "blue")
+		assertEquals(wire.colour, "any")
 		modifyWire(phantom, { id: wire.id })
 		assertEquals(wire.timing, 0)
-		assertEquals(wire.colour, "blue")
+		assertEquals(wire.colour, "any")
 
 		assertEquals(nod.position, [0, 0])
 		assertEquals(nod.type, "any")
