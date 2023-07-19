@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"checkJs": true,
-		"lib": ["ES2017", "DOM"],
-		"target": "ES2017",
+		"lib": ["ES2022", "DOM"],
+		"target": "ES2022",
 		"moduleResolution": "nodenext"
 	}
 }

@@ -1,9 +1,11 @@
 import { memo } from "../../libraries/habitat-import.js"
+import { Schema } from "../../libraries/schema.js"
 import { BEHAVES } from "./behave.js"
 import { OPERATES } from "./operate.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
+const S = Schema
 
 /** @type any */
 const _window = window
@@ -16,20 +18,32 @@ export const shouldValidate = memo(
 	() => "",
 )
 
-export const validate = (nogan, schema = NoganSchema[nogan.schemaName]) => {
+/**
+ * @param {Validatable} value
+ * @param {Schema?} schema
+ */
+export const validate = (
+	value,
+	// @ts-expect-error
+	schema = NoganSchema[value.schemaName],
+) => {
 	if (shouldValidate()) {
 		return
 	}
 	try {
-		schema.validate(nogan)
+		schema.validate(value)
 	} catch (error) {
-		console.log(nogan)
-		console.error(schema.diagnose(nogan))
+		console.log(value)
+		console.error(schema.diagnose(value))
 		throw error
 	}
 }
 
-// Check that the parent has the child as a child.
+/**
+ * Check that the parent has the child as a child.
+ * @param {Parent} parent
+ * @param {Child} child
+ */
 export const validateFamily = (parent, child) => {
 	if (_window.shared && !_window.shared.debug.validate) {
 		return
@@ -46,71 +60,150 @@ export const validateFamily = (parent, child) => {
 //========//
 // Family //
 //========//
-export const createId = (nogan) => {
-	if (nogan.freeIds.length > 0) {
-		return nogan.freeIds.pop()
+/**
+ *
+ * @param {Parent} parent
+ * @returns {Id}
+ */
+export const createId = (parent) => {
+	if (parent.freeIds.length > 0) {
+		return parent.freeIds.pop()
 	}
-	const id = nogan.nextId
-	nogan.nextId++
+	const id = parent.nextId
+	parent.nextId++
 	return id
 }
 
-export const freeId = (nogan, id) => {
-	nogan.freeIds.push(id)
+/**
+ *
+ * @param {Parent} parent
+ * @param {Id} id
+ */
+export const freeId = (parent, id) => {
+	parent.freeIds.push(id)
 }
 
-export const addChild = (nogan, child) => {
-	const id = createId(nogan)
+/**
+ *
+ * @param {Parent} parent
+ * @param {Child} child
+ */
+export const addChild = (parent, child) => {
+	const id = createId(parent)
 	child.id = id
-	nogan.children[id] = child
+	parent.children[id] = child
 
 	validate(child)
-	validate(nogan)
+	validate(parent)
 }
 
-export const deleteChild = (nogan, id) => {
-	const child = nogan.children[id]
+/**
+ *
+ * @param {Parent} parent
+ * @param {Id} id
+ */
+export const deleteChild = (parent, id) => {
+	const child = parent.children[id]
 	child.id = null
-	nogan.children[id] = null
-	freeId(nogan, id)
+	parent.children[id] = null
+	freeId(parent, id)
 
-	validate(nogan)
+	validate(parent)
+}
+
+/**
+ * @param {Parent} parent
+ * @param {Id} id
+ * @returns {Nod}
+ */
+export const getNod = (parent, id) => {
+	const nod = parent.children[id]
+	if (shouldValidate()) {
+		if (!nod) {
+			throw new Error(`Can't find nod with id '${id}'`)
+		}
+		validate(nod, N.Nod)
+	}
+	// @ts-expect-error
+	return nod
+}
+
+/**
+ * @param {Parent} parent
+ * @param {Id} id
+ * @returns {Wire}
+ */
+export const getWire = (parent, id) => {
+	const nod = parent.children[id]
+	if (shouldValidate()) {
+		if (!nod) {
+			throw new Error(`Can't find nod with id '${id}'`)
+		}
+		validate(nod, N.Wire)
+	}
+	// @ts-expect-error
+	return nod
 }
 
 //==========//
 // Creating //
 //==========//
-export const createPhantom = (properties = {}) => {
-	const phantom = N.Phantom.make(properties)
+/**
+ * @returns {Phantom}
+ */
+export const createPhantom = () => {
+	const phantom = N.Phantom.make()
 	validate(phantom)
 	return phantom
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {Partial<Nod>} properties
+ * @returns {Nod}
+ */
 export const createNod = (parent, properties = {}) => {
 	const nod = N.Nod.make(properties)
 	addChild(parent, nod)
 	return nod
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	source: Id,
+ * 	target: Id,
+ * 	colour?: WireColour,
+ * 	timing?: Timing,
+ * }} options
+ * @returns Wire
+ */
 export const createWire = (parent, { source, target, colour = "any", timing = 0 }) => {
 	const wire = N.Wire.make({ colour, timing })
 	wire.source = source
 	wire.target = target
 	addChild(parent, wire)
 
-	const sourceNogan = parent.children[source]
-	const targetNogan = parent.children[target]
-	sourceNogan.outputs.push(wire.id)
-	targetNogan.inputs.push(wire.id)
+	const sourceNod = getNod(parent, source)
+	const targetNod = getNod(parent, target)
+	sourceNod.outputs.push(wire.id)
+	targetNod.inputs.push(wire.id)
 
 	validate(parent)
-	validate(sourceNogan)
-	validate(targetNogan)
+	validate(sourceNod)
+	validate(targetNod)
 	validate(wire)
 
 	return wire
 }
 
+/**
+ *
+ * @param {Nod} nod
+ * @returns {NodTemplate}
+ */
 export const createTemplate = (nod) => {
 	const template = N.NodTemplate.make({
 		position: nod.position,
@@ -123,25 +216,34 @@ export const createTemplate = (nod) => {
 //===========//
 // Destroying //
 //===========//
+/**
+ * @param {Parent} parent
+ * @param {Id} id
+ */
 export const destroyWire = (parent, id) => {
-	const wire = parent.children[id]
-	const sourceNogan = parent.children[wire.source]
-	const targetNogan = parent.children[wire.target]
+	const wire = getWire(parent, id)
+	const sourceNod = getNod(parent, wire.source)
+	const targetNod = getNod(parent, wire.target)
 
-	const sourceIndex = sourceNogan.outputs.indexOf(wire.id)
-	const targetIndex = targetNogan.inputs.indexOf(wire.id)
+	const sourceIndex = sourceNod.outputs.indexOf(wire.id)
+	const targetIndex = targetNod.inputs.indexOf(wire.id)
 
-	sourceNogan.outputs.splice(sourceIndex, 1)
-	targetNogan.inputs.splice(targetIndex, 1)
+	sourceNod.outputs.splice(sourceIndex, 1)
+	targetNod.inputs.splice(targetIndex, 1)
 	deleteChild(parent, id)
 
 	validate(parent)
-	validate(sourceNogan)
-	validate(targetNogan)
+	validate(sourceNod)
+	validate(targetNod)
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {Id} id
+ */
 export const destroyNod = (parent, id) => {
-	const nod = parent.children[id]
+	const nod = getNod(parent, id)
 	if (nod.inputs.length > 0 || nod.outputs.length > 0) {
 		throw new Error("Cannot destroy nod with wires")
 	}
@@ -153,11 +255,19 @@ export const destroyNod = (parent, id) => {
 //============//
 // Connecting //
 //============//
-export const replaceNod = (parent, { original = null, replacement = null } = {}) => {
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	original: Id,
+ * 	replacement: Id,
+ * }} options
+ */
+export const replaceNod = (parent, { original, replacement }) => {
 	if (original === replacement) return
 
-	const originalNod = parent.children[original]
-	const replacementNod = parent.children[replacement]
+	const originalNod = getNod(parent, original)
+	const replacementNod = getNod(parent, replacement)
 
 	replacementNod.inputs = [...originalNod.inputs]
 	replacementNod.outputs = [...originalNod.outputs]
@@ -165,12 +275,12 @@ export const replaceNod = (parent, { original = null, replacement = null } = {})
 	originalNod.outputs = []
 
 	for (const input of replacementNod.inputs) {
-		const wire = parent.children[input]
+		const wire = getWire(parent, input)
 		wire.target = replacement
 	}
 
 	for (const output of replacementNod.outputs) {
-		const wire = parent.children[output]
+		const wire = getWire(parent, output)
 		wire.source = replacement
 	}
 
@@ -179,28 +289,38 @@ export const replaceNod = (parent, { original = null, replacement = null } = {})
 	validate(replacementNod)
 }
 
-export const reconnectWire = (
-	parent,
-	{ id = null, source = undefined, target = undefined } = {},
-) => {
-	const wireNogan = parent.children[id]
-	const originalSource = parent.children[wireNogan.source]
-	const originalTarget = parent.children[wireNogan.target]
-	const replacementSource = parent.children[source] ?? originalSource
-	const replacementTarget = parent.children[target] ?? originalTarget
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	source?: Id,
+ * 	target?: Id,
+ * }} options
+ */
+export const reconnectWire = (parent, { id, source, target }) => {
+	const wire = getWire(parent, id)
+	const replacementSourceId = source ?? wire.source
+	const replacementTargetId = target ?? wire.target
+
+	const originalSource = getNod(parent, wire.source)
+	const originalTarget = getNod(parent, wire.target)
+
+	const replacementSource = getNod(parent, replacementSourceId)
+	const replacementTarget = getNod(parent, replacementTargetId)
 
 	if (originalSource !== replacementSource) {
 		const sourceIndex = originalSource.outputs.indexOf(id)
 		originalSource.outputs.splice(sourceIndex, 1)
 		replacementSource.outputs.push(id)
-		wireNogan.source = source
+		wire.source = source
 	}
 
 	if (originalTarget !== replacementTarget) {
 		const targetIndex = originalTarget.inputs.indexOf(id)
 		originalTarget.inputs.splice(targetIndex, 1)
 		replacementTarget.inputs.push(id)
-		wireNogan.target = target
+		wire.target = target
 	}
 
 	validate(parent)
@@ -213,11 +333,18 @@ export const reconnectWire = (
 //=========//
 // Pulsing //
 //=========//
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour?: PulseColour,
+ * 	type?: PulseType,
+ * }} options
+ * @returns
+ */
 export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
-	const nod = parent.children[id]
-	if (!nod) {
-		throw new Error(`Can't find nod with id '${id}'`)
-	}
+	const nod = getNod(parent, id)
 	const { pulses } = nod
 	const pulse = pulses[colour]
 
@@ -249,7 +376,14 @@ export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
 	validate(parent)
 }
 
-export const addFullPulse = (parent, { id = null } = {}) => {
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * }} options
+ */
+export const addFullPulse = (parent, { id }) => {
 	for (const colour of PULSE_COLOURS) {
 		addPulse(parent, { id, colour })
 	}
@@ -258,8 +392,17 @@ export const addFullPulse = (parent, { id = null } = {}) => {
 //===========//
 // Modifying //
 //===========//
-export const modifyNod = (parent, { id = null, type = undefined, position = undefined } = {}) => {
-	const nod = parent.children[id]
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	type?: NodType,
+ * 	position?: Vector2D,
+ * }} options
+ */
+export const modifyNod = (parent, { id, type, position }) => {
+	const nod = getNod(parent, id)
 	nod.type = type ?? nod.type
 	nod.position = position ?? nod.position
 
@@ -267,8 +410,17 @@ export const modifyNod = (parent, { id = null, type = undefined, position = unde
 	validate(nod)
 }
 
-export const modifyWire = (parent, { id = null, colour = undefined, timing = undefined } = {}) => {
-	const wire = parent.children[id]
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour?: WireColour,
+ * 	timing?: Timing,
+ * }} options
+ */
+export const modifyWire = (parent, { id, colour, timing }) => {
+	const wire = getWire(parent, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
 
@@ -279,6 +431,18 @@ export const modifyWire = (parent, { id = null, colour = undefined, timing = und
 //=========//
 // Peaking //
 //=========//
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour?: PulseColour,
+ * 	timing?: Timing,
+ * 	history?: Parent[],
+ * 	future?: Parent[],
+ * }} options
+ * @returns {Peak}
+ */
 export const getPeak = (
 	parent,
 	{ id, colour = "blue", timing = 0, history = [], future = [] },
@@ -289,6 +453,18 @@ export const getPeak = (
 	return peak
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour?: PulseColour,
+ * 	timing?: Timing,
+ * 	history?: Parent[],
+ * 	future?: Parent[],
+ * }} options
+ * @returns {Peak}
+ */
 const _getPeak = (parent, { id, colour, timing, history, future }) => {
 	switch (timing) {
 		case 0:
@@ -302,19 +478,52 @@ const _getPeak = (parent, { id, colour, timing, history, future }) => {
 	return N.Never.make({ id, colour, timing, history })
 }
 
-export const createPeak = ({
-	result = false,
-	type = undefined,
-	template = undefined,
-	operations = [],
-} = {}) => {
+/**
+ *
+ * @param {{
+ * 	result?: boolean,
+ * 	type?: PulseType,
+ * 	template?: NodTemplate,
+ * 	operations?: Operation[],
+ * }?} options
+ * @returns {Peak}
+ */
+export const createPeak = ({ result = false, type, template, operations = [] } = {}) => {
 	if (!result) return N.FailPeak.make({ operations })
 	return N.SuccessPeak.make({ result, type, template })
 }
 
+/**
+ * @param {Timing} timing
+ * @returns {Timing}
+ */
+export const flipTiming = (timing) => {
+	switch (timing) {
+		case 0:
+			return 0
+		case -1:
+			return 1
+		case 1:
+			return -1
+	}
+
+	throw new Error(`Unknown timing '${timing}'`)
+}
+
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour: PulseColour,
+ * 	history: Parent[],
+ * 	future: Parent[],
+ * }} options
+ * @returns {Peak}
+ */
 const getPeakNow = (parent, { id, colour, history, future }) => {
 	// First, let's try to find a real pulse
-	const nod = parent.children[id]
+	const nod = getNod(parent, id)
 	if (nod) {
 		const pulse = nod.pulses[colour]
 		if (pulse) {
@@ -329,7 +538,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	// Next, let's look through our inputs
 	// to see if we can find a pulse
 	for (const input of nod.inputs) {
-		const wire = parent.children[input]
+		const wire = getWire(parent, input)
 
 		if (wire.colour !== "any" && wire.colour !== colour) {
 			continue
@@ -337,7 +546,7 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 
 		const peak = getPeak(parent, {
 			id: wire.source,
-			timing: -wire.timing,
+			timing: flipTiming(wire.timing),
 			colour,
 			history,
 			future,
@@ -352,7 +561,15 @@ const getPeakNow = (parent, { id, colour, history, future }) => {
 	return createPeak()
 }
 
-// Peak refers to the input that is causing this nod to fire
+/**
+ * Peak refers to the input that is causing this nod to fire
+ * @param {Parent} parent
+ * @param {{
+ * 	peak: SuccessPeak,
+ * 	id: Id,
+ * }} options
+ * @returns {Peak}
+ */
 export const behave = (parent, { peak, id }) => {
 	const _behave = BEHAVES[peak.type]
 	if (!_behave) {
@@ -374,6 +591,17 @@ export const behave = (parent, { peak, id }) => {
 	return transformedPeak
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour: PulseColour,
+ * 	history: Parent[],
+ * 	future: Parent[],
+ * }} options
+ * @returns {Peak}
+ */
 const getPeakBefore = (parent, { id, colour, history, future }) => {
 	// If we have a recorded history
 	// ... let's just travel back in time!
@@ -413,6 +641,17 @@ const getPeakBefore = (parent, { id, colour, history, future }) => {
 	})
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	colour: PulseColour,
+ * 	history: Parent[],
+ * 	future: Parent[],
+ * }} options
+ * @returns {Peak}
+ */
 const getPeakAfter = (parent, { id, colour, history, future }) => {
 	// If we have a recorded future
 	// ... let's just travel forward in time!
@@ -452,7 +691,18 @@ const getPeakAfter = (parent, { id, colour, history, future }) => {
 	})
 }
 
-export const getFullPeak = (parent, { id = null, timing = 0, history = [], future = [] } = {}) => {
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	timing?: Timing,
+ * 	history?: Parent[],
+ * 	future?: Parent[],
+ * }} options
+ * @returns {FullPeak}
+ */
+export const getFullPeak = (parent, { id, timing = 0, history = [], future = [] }) => {
 	const fullPeak = N.FullPeak.make()
 	for (const colour of PULSE_COLOURS) {
 		const peak = getPeak(parent, { id, colour, timing, history, future })
@@ -465,6 +715,11 @@ export const getFullPeak = (parent, { id = null, timing = 0, history = [], futur
 //============//
 // Projecting //
 //============//
+/**
+ *
+ * @param {Parent} parent
+ * @returns {Parent}
+ */
 export const project = (parent) => {
 	const projection = structuredClone(parent)
 	for (const id in projection.children) {
@@ -477,6 +732,14 @@ export const project = (parent) => {
 	return projection
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	clone?: boolean,
+ * }} options
+ * @returns
+ */
 export const deepProject = (parent, { clone = true } = {}) => {
 	const projection = clone ? structuredClone(parent) : parent
 	for (const id in projection.children) {
@@ -501,6 +764,24 @@ export const deepProject = (parent, { clone = true } = {}) => {
 // It's quite a heavy function to be calling so often.
 // We could cut down its use, and also optimise it a lot.
 // But so far it's been fine!
+
+/**
+ * Propogate iterates through all nods
+ * ... and makes them fire if they should be firing.
+ *
+ * It's quite a heavy function to be calling so often.
+ * We could cut down its use, and also optimise it a lot.
+ * But so far it's been fine!
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	clone?: Parent,
+ * 	history?: Parent[],
+ * 	future?: Parent[],
+ * 	timing?: Timing,
+ * }?} options
+ * @returns {Parent}
+ */
 export const propogate = (
 	parent,
 	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
@@ -523,6 +804,14 @@ export const propogate = (
 	return parent
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	history?: Parent[],
+ * }?} options
+ * @returns {Parent}
+ */
 export const advance = (parent, { history = [] } = {}) => {
 	const projection = project(parent)
 	return propogate(projection, {
@@ -532,6 +821,14 @@ export const advance = (parent, { history = [] } = {}) => {
 	})
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	history?: Parent[],
+ * }?} options
+ * @returns {Parent}
+ */
 export const deepAdvance = (parent, { history = [] } = {}) => {
 	const firingChildrenIds = []
 	for (const _id in parent.children) {
@@ -545,14 +842,23 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 
 	const advancedParent = advance(parent, { history })
 	for (const id of firingChildrenIds) {
-		const child = advancedParent.children[id]
-		const childHistory = history.map((parent) => parent.children[id])
+		const child = getNod(advancedParent, id)
+		const childHistory = history.map((parent) => getNod(parent, id))
 		const advancedChild = deepAdvance(child, { history: childHistory })
 		advancedParent.children[id] = advancedChild
 	}
 	return advancedParent
 }
 
+/**
+ *
+ * @param {Parent} parent
+ * @param {{
+ * 	id: Id,
+ * 	operation: Operation,
+ * }} options
+ * @returns {any}
+ */
 export const operate = (parent, { id, operation }) => {
 	const _operate = OPERATES[operation.type]
 	if (!_operate) {
