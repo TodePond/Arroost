@@ -24,23 +24,28 @@ export const Flaps = class extends Polyline {
 }
 
 const render = function () {
+	const { position } = this.transform
+
+	// I tried pulling out some things, but its still really slow.
+	// I think the signals library is getting confused and re-rendering loads
+	// Let's abandon and delete this file, and lets hardcode everything instead
+	const [a, b, c] = this.targets
+
+	const baseCorners = [
+		[-6, 0],
+		[0, 0],
+		[0, -6],
+	]
+
 	this.use(() => {
-		if (this.targets.length !== 3) return
-		const [a, b, c] = this.targets
 		if (this.style.stroke === "none") return
 		if (this.style.strokeWidth === 0) return
 		const extra = this.style.strokeWidth / 2
 		this.style.strokeWidth
 		const displacement = [-extra, -extra]
 
-		const baseCorners = [
-			[-6, 0],
-			[0, 0],
-			[0, -6],
-		]
-
 		let i = 0
-		for (const target of this.targets) {
+		for (const target of [a, b, c]) {
 			const base = baseCorners[i]
 			target.transform.position.x = base.x + displacement.x
 			target.transform.position.y = base.y + displacement.y
