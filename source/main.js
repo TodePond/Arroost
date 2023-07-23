@@ -25,14 +25,12 @@ import * as Nogan from "./nogan/nogan.js"
 import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
-/** @type {any} */
-export const _window = window
-
 //===============//
 // Setup Habitat //
 //===============//
-_window.print = print
-_window.dir = console.dir.bind(console)
+window.print = print
+// @ts-expect-error
+window.dir = console.dir.bind(console)
 registerMethods()
 
 //==============//

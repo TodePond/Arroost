@@ -118,5 +118,5 @@ declare type FullPeak = {
 
 declare type Behave = (parent: Parent, { peak, id }: { peak: SuccessPeak; id: Id }) => Peak
 
-declare type OperationType = "modify"
+declare type OperationType = "modify" | "fired"
 declare type Operate = (parent: Parent, { id, data }: { id: Id; data: any }) => void

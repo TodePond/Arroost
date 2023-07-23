@@ -30,6 +30,10 @@ export const validate = (
 	if (shouldValidate()) {
 		return
 	}
+	if (!schema) {
+		console.error(value)
+		throw new Error(`Can't find schema for value ^`)
+	}
 	try {
 		schema.validate(value)
 	} catch (error) {
@@ -837,15 +841,16 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 		firingChildrenIds.push(id)
 	}
 
-	const operations = []
-
 	const { parent: advancedParent, operations: advancedChildOperations } = advance(parent, {
 		history,
 	})
 
-	operations.push(...advancedChildOperations)
+	const operations = advancedChildOperations
 
 	for (const id of firingChildrenIds) {
+		const firedOperation = N.FiredOperation.make()
+		operations.push(firedOperation)
+
 		const child = getNod(advancedParent, id)
 		const childHistory = history.map((parent) => getNod(parent, id))
 		const { parent: advancedChild, operations: advancedChildOperations } = deepAdvance(child, {
@@ -853,6 +858,10 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 		})
 		operations.push(...advancedChildOperations)
 		advancedParent.children[id] = advancedChild
+	}
+	validate(advancedParent)
+	for (const operation of operations) {
+		validate(operation, N.Operation)
 	}
 	return { parent: advancedParent, operations }
 }

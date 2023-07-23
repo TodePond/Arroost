@@ -1167,3 +1167,38 @@ describe("deep advancing and propogating", () => {
 		assert(nod4After.pulses.blue)
 	})
 })
+
+describe("operation reports", () => {
+	it("reports a fired nod", () => {
+		const phantom = createPhantom()
+		const nod = createNod(phantom)
+		addPulse(phantom, { id: nod.id })
+		const { operations } = deepAdvance(phantom)
+		assertEquals(operations.length, 1)
+		const [operation] = operations
+		assertEquals(operation.type, "fired")
+	})
+
+	it("reports all fired nods on the layer", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom)
+		const nod2 = createNod(phantom)
+		addPulse(phantom, { id: nod1.id })
+		addPulse(phantom, { id: nod2.id })
+		const { operations } = deepAdvance(phantom)
+		assertEquals(operations.length, 2)
+		const [operation1, operation2] = operations
+		assertEquals(operation1.type, "fired")
+		assertEquals(operation2.type, "fired")
+	})
+
+	it("reports a fired child nod", () => {
+		const phantom = createPhantom()
+		const nod1 = createNod(phantom, { position: [1, 0] })
+		const nod2 = createNod(nod1, { position: [2, 0] })
+		addPulse(phantom, { id: nod1.id })
+		addPulse(nod1, { id: nod2.id })
+		const { operations } = deepAdvance(phantom)
+		assertEquals(operations.length, 2)
+	})
+})

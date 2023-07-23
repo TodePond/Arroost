@@ -172,13 +172,14 @@ N.Nogan = N.Wire.or(N.Nod).or(N.Phantom)
 // Operations //
 //============//
 /** @type {OperationType[]} */
-export const OPERATION_TYPES = ["modify"]
+export const OPERATION_TYPES = ["modify", "fired"]
 
 /**
  * @type {Record<OperationType, OperationType>}
  */
 export const OPERATION_TYPE = {
 	modify: "modify",
+	fired: "fired",
 }
 
 N.OperateType = S.Enum(OPERATION_TYPES)
@@ -193,7 +194,11 @@ N.ModifyOperation = N.BaseOperation.combine({
 	data: N.NodTemplate.partial(),
 })
 
-N.Operation = S.Any([N.ModifyOperation])
+N.FiredOperation = N.BaseOperation.combine({
+	type: N.Value("fired"),
+})
+
+N.Operation = S.Any([N.ModifyOperation, N.FiredOperation])
 
 //======//
 // Peak //

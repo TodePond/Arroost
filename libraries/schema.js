@@ -24,7 +24,7 @@ export const Schema = class {
 	and(other) {
 		return new Schema({
 			check: (value) => this.check(value) && other.check(value),
-			make: this.make,
+			make: other.make,
 			diagnose: (value) => {
 				if (!this.check(value)) {
 					return this.diagnose(value)
@@ -303,6 +303,7 @@ Schema.Struct = (struct = {}) => {
 		const struct = { ...schema.struct, ...other }
 		return Schema.Struct(struct)
 	}
+	/** @param {StructSchema} other */
 	schema.combine = (other) => {
 		const implementation = {}
 		for (const key in struct) {
@@ -317,6 +318,7 @@ Schema.Struct = (struct = {}) => {
 				implementation[key] = other[key]
 			}
 		}
+		console.log(implementation.type?.make())
 		return Schema.Struct(implementation)
 	}
 
