@@ -113,6 +113,7 @@ export const Schema = class {
 	}
 }
 
+Schema.Never = new Schema().withCheck(() => false)
 Schema.Number = new Schema().withDefault(0).withCheck((value) => typeof value === "number")
 Schema.String = new Schema().withDefault("").withCheck((value) => typeof value === "string")
 Schema.Boolean = new Schema().withDefault(false).withCheck((value) => typeof value === "boolean")
@@ -178,24 +179,6 @@ Schema.Any = (schemas) => {
 	}
 
 	return new Schema({ check, make })
-}
-
-export const StructSchema = class extends Schema {
-	struct = {}
-	/** @param {{}} other */
-	extend(other) {
-		return new StructSchema()
-	}
-	base() {
-		return new StructSchema()
-	}
-	partial() {
-		return new StructSchema()
-	}
-	/** @param {{}} other */
-	combine(other) {
-		return new StructSchema()
-	}
 }
 
 Schema.PartialStruct = (struct = {}) => {
@@ -318,7 +301,6 @@ Schema.Struct = (struct = {}) => {
 				implementation[key] = other[key]
 			}
 		}
-		console.log(implementation.type?.make())
 		return Schema.Struct(implementation)
 	}
 
@@ -364,6 +346,8 @@ Schema.Negative = Schema.Number.andCheck((value) => value <= 0)
 Schema.Positive = Schema.Number.andCheck((value) => value >= 0)
 Schema.PositiveInteger = Schema.Integer.and(Schema.Positive)
 Schema.SafePositiveInteger = Schema.SafeInteger.and(Schema.Positive)
+Schema.NegativeInteger = Schema.Integer.and(Schema.Negative)
+Schema.SafeNegativeInteger = Schema.SafeInteger.and(Schema.Negative)
 
 Schema.Vector2D = Schema.Tuple([Schema.Finite, Schema.Finite])
 Schema.Vector3D = Schema.Tuple([Schema.Finite, Schema.Finite, Schema.Finite])
