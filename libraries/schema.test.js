@@ -360,7 +360,7 @@ describe("schema operations", () => {
 	})
 
 	it("does and not", () => {
-		const schema = S.Integer.and(S.Positive.not())
+		const schema = S.Positive.not().and(S.Integer)
 		const value = schema.make()
 		assertEquals(value, 0)
 		schema.validate(-1)
