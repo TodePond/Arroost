@@ -770,6 +770,12 @@ export const deepProject = (parent, { clone = true } = {}) => {
  * We could cut down its use, and also optimise it a lot.
  * But so far it's been fine!
  *
+ * eg: We should only really look through *some* of the nods
+ *     (eg: ones that are now-pointed to by a firing nod)
+ *     (eg: ones that are next-pointed to by a previously-firing nod)
+ *     (eg: ones that are previous-pointed to by a future-firing nod)
+ *     But maybe it's actually more efficient to just look through all of them??
+ *
  * @param {Parent} parent
  * @param {{
  * 	clone?: Parent,
@@ -805,7 +811,6 @@ export const propogate = (
 }
 
 /**
- *
  * @param {Parent} parent
  * @param {{
  * 	history?: Parent[],
@@ -831,6 +836,8 @@ export const advance = (parent, { history = [] } = {}) => {
  * @returns {{parent: Parent, operations: Operation[]}}
  */
 export const deepAdvance = (parent, { history = [] } = {}) => {
+	// TODO: This should be reported from the 'advance' function (and by extension, the 'project' function)
+	// (so that we don't have to do it twice)
 	const firingChildrenIds = []
 	for (const _id in parent.children) {
 		const id = +_id
@@ -841,11 +848,11 @@ export const deepAdvance = (parent, { history = [] } = {}) => {
 		firingChildrenIds.push(id)
 	}
 
-	const { parent: advancedParent, operations: advancedChildOperations } = advance(parent, {
+	const { parent: advancedParent, operations: layerOperations } = advance(parent, {
 		history,
 	})
 
-	const operations = advancedChildOperations
+	const operations = layerOperations
 
 	for (const id of firingChildrenIds) {
 		const firedOperation = N.FiredOperation.make()
