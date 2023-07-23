@@ -33,7 +33,7 @@ export const Curve = class extends Thing {
 		if (flaps) {
 			this.flaps = new Flaps()
 			// TODO: big perf hit. let's hard code flaps instead of using a slow polyline
-			//this.add(this.flaps)
+			this.add(this.flaps)
 		}
 
 		glue(this)
