@@ -1,109 +1,376 @@
 // @ts-expect-error
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
+import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
 // @ts-expect-error
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
-import { createId, createNod, createNogan, createPhantom, getCell } from "./nogan.js"
+import {
+	archiveCell,
+	archiveCellId,
+	archiveWireId,
+	createCell,
+	createNogan,
+	createTemplate,
+	createWire,
+	deleteArchivedCellId,
+	deleteArchivedCellIds,
+	deleteArchivedWireId,
+	deleteArchivedWireIds,
+	deleteCell,
+	deleteCellId,
+	deleteWire,
+	deleteWireId,
+	getCell,
+	getCells,
+	getRoot,
+	getWire,
+	getWires,
+	giveChild,
+	iterateCells,
+	iterateWires,
+	reserveCellId,
+	reserveWireId,
+} from "./nogan.js"
 import { NoganSchema } from "./schema.js"
 
 const N = NoganSchema
 
-describe("store", () => {
+describe("nogan", () => {
 	it("creates a nogan", () => {
-		createNogan()
+		const nogan = createNogan()
+		assertEquals(Object.values(nogan.items).length, 1)
 	})
 
-	it("creates an id", () => {
+	it("gets its root", () => {
 		const nogan = createNogan()
-		const id = createId(nogan)
-		assertEquals(id, 0)
+		const root = getRoot(nogan)
+		assertEquals(root.type, "root")
+	})
+})
+
+describe("id", () => {
+	it("reserves a cell id", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		assertEquals(id1, 1)
+		assertThrows(() => reserveCellId(nogan))
 	})
 
-	it("creates a phantom", () => {
+	it("reserves a wire id", () => {
 		const nogan = createNogan()
-		const phantom = createPhantom(nogan)
-		assertEquals(nogan.cells[0], phantom)
+		const id1 = reserveWireId(nogan)
+		assertEquals(id1, -1)
+		assertThrows(() => reserveWireId(nogan))
+	})
+
+	it("deletes a cell id", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		assertEquals(id1, 1)
+		deleteCellId(nogan, id1)
+		assertEquals(nogan.deletedCells, [1])
+		assertThrows(() => deleteCellId(nogan, id1))
+	})
+
+	it("deletes a wire id", () => {
+		const nogan = createNogan()
+		const id1 = reserveWireId(nogan)
+		assertEquals(id1, -1)
+		deleteWireId(nogan, id1)
+		assertEquals(nogan.deletedWires, [-1])
+		assertThrows(() => deleteWireId(nogan, id1))
+	})
+
+	it("reuses a cell id", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		assertEquals(id1, 1)
+		deleteCellId(nogan, id1)
+		const id2 = reserveCellId(nogan)
+		assertEquals(id2, 1)
+		assertThrows(() => reserveCellId(nogan))
+	})
+
+	it("reuses a wire id", () => {
+		const nogan = createNogan()
+		const id1 = reserveWireId(nogan)
+		assertEquals(id1, -1)
+		deleteWireId(nogan, id1)
+		const id2 = reserveWireId(nogan)
+		assertEquals(id2, -1)
+		assertThrows(() => reserveWireId(nogan))
+	})
+
+	it("archives a cell id", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		assertEquals(id1, 1)
+		archiveCellId(nogan, id1)
+		assertEquals(nogan.archivedCells, [1])
+		const id2 = reserveCellId(nogan)
+		assertEquals(id2, 2)
+	})
+
+	it("archives a wire id", () => {
+		const nogan = createNogan()
+		const id1 = reserveWireId(nogan)
+		assertEquals(id1, -1)
+		archiveWireId(nogan, id1)
+		assertEquals(nogan.archivedWires, [-1])
+		const id2 = reserveWireId(nogan)
+		assertEquals(id2, -2)
+	})
+
+	it("deletes an archived cell id", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		assertEquals(id1, 1)
+		archiveCellId(nogan, id1)
+		assertEquals(nogan.archivedCells, [1])
+		assertEquals(nogan.deletedCells, [])
+		deleteArchivedCellId(nogan, id1)
+		assertEquals(nogan.archivedCells, [])
+		assertEquals(nogan.deletedCells, [1])
+	})
+
+	it("deletes an archived wire id", () => {
+		const nogan = createNogan()
+		const id1 = reserveWireId(nogan)
+		assertEquals(id1, -1)
+		archiveWireId(nogan, id1)
+		assertEquals(nogan.archivedWires, [-1])
+		assertEquals(nogan.deletedWires, [])
+		deleteArchivedWireId(nogan, id1)
+		assertEquals(nogan.archivedWires, [])
+		assertEquals(nogan.deletedWires, [-1])
+	})
+
+	it("deletes archived cell ids", () => {
+		const nogan = createNogan()
+		const id1 = reserveCellId(nogan)
+		archiveCellId(nogan, id1)
+		const id2 = reserveCellId(nogan)
+		archiveCellId(nogan, id2)
+		assertEquals(nogan.archivedCells, [1, 2])
+		assertEquals(nogan.deletedCells, [])
+		deleteArchivedCellIds(nogan)
+		assertEquals(nogan.archivedCells, [])
+		assertEquals(nogan.deletedCells, [1, 2])
+	})
+
+	it("deletes archived wire ids", () => {
+		const nogan = createNogan()
+		const id1 = reserveWireId(nogan)
+		archiveWireId(nogan, id1)
+		const id2 = reserveWireId(nogan)
+		archiveWireId(nogan, id2)
+		assertEquals(nogan.archivedWires, [-1, -2])
+		assertEquals(nogan.deletedWires, [])
+		deleteArchivedWireIds(nogan)
+		assertEquals(nogan.archivedWires, [])
+		assertEquals(nogan.deletedWires, [-1, -2])
+	})
+})
+
+describe("cells", () => {
+	it("creates a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		assertEquals(nogan.items[1], cell)
 	})
 
 	it("gets a cell", () => {
 		const nogan = createNogan()
-		const phantom = createPhantom(nogan)
-		const cell = getCell(nogan, { id: phantom.id })
-		assertEquals(cell, phantom)
+		const cell1 = createCell(nogan)
+		const cell2 = getCell(nogan, cell1.id)
+		assertEquals(cell1, cell2)
 	})
 
-	it("creates a nod", () => {
+	it("iterates over cells", () => {
 		const nogan = createNogan()
-		const phantom = createPhantom(nogan)
-		const nod = createNod(nogan, { parent: phantom.id })
-		assertEquals(nogan.cells[1], nod)
+		const root = getRoot(nogan)
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cells = []
+		for (const cell of iterateCells(nogan)) {
+			cells.push(cell)
+		}
+		assertEquals(cells, [root, cell1, cell2])
+	})
+
+	it("gets all cells", () => {
+		const nogan = createNogan()
+		const root = getRoot(nogan)
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cells = getCells(nogan)
+		assertEquals(cells, [root, cell1, cell2])
+	})
+
+	it("creates a child", () => {
+		const nogan = createNogan()
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		assertEquals(child.parent, parent.id)
+		assertEquals(parent.cells, [child.id])
+	})
+
+	it("gives a child to a sibling", () => {
+		const nogan = createNogan()
+		const parent1 = createCell(nogan)
+		const parent2 = createCell(nogan)
+		const child = createCell(nogan, { parent: parent1.id })
+		assertEquals(parent1.cells, [child.id])
+		assertEquals(child.parent, parent1.id)
+		giveChild(nogan, { child: child.id, source: parent1.id, target: parent2.id })
+		assertEquals(parent1.cells, [])
+		assertEquals(parent2.cells, [child.id])
+		assertEquals(child.parent, parent2.id)
+	})
+
+	it("gives a child from root", () => {
+		const nogan = createNogan()
+		const child = createCell(nogan)
+		const parent = createCell(nogan)
+		const root = getRoot(nogan)
+		assertEquals(child.parent, root.id)
+		assertEquals(parent.cells, [])
+		assertEquals(root.cells, [child.id, parent.id])
+		giveChild(nogan, { child: child.id, target: parent.id })
+		assertEquals(child.parent, parent.id)
+		assertEquals(parent.cells, [child.id])
+		assertEquals(root.cells, [parent.id])
+	})
+
+	it("creates a cell with type and position", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan, { type: "creation", position: [10, 20] })
+		assertEquals(cell.type, "creation")
+		assertEquals(cell.position, [10, 20])
+	})
+
+	it("creates a template of a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan, { type: "creation", position: [10, 20] })
+		const template = createTemplate(cell)
+		assertEquals(template, { type: "creation", position: [10, 20] })
+	})
+
+	it("creates a cell from a template", () => {
+		const nogan = createNogan()
+		const template = createTemplate({ type: "creation", position: [10, 20] })
+		const cell = createCell(nogan, template)
+		assertEquals(cell.type, "creation")
+		assertEquals(cell.position, [10, 20])
+	})
+
+	it("deletes a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const root = getRoot(nogan)
+		assertEquals(root.cells, [cell.id])
+		deleteCell(nogan, cell.id)
+		assertEquals(root.cells, [])
+		assertEquals(nogan.deletedCells, [cell.id])
+	})
+
+	it("archives a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const root = getRoot(nogan)
+		assertEquals(root.cells, [cell.id])
+		archiveCell(nogan, cell.id)
+		assertEquals(root.cells, [])
+		assertEquals(nogan.archivedCells, [cell.id])
+	})
+
+	it("deletes a cell with children", () => {
+		const nogan = createNogan()
+		const root = getRoot(nogan)
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		const cells1 = getCells(nogan)
+		assertEquals(cells1, [root, parent, child])
+		deleteCell(nogan, parent.id)
+		assertEquals(nogan.deletedCells, [parent.id, child.id])
+		const cells2 = getCells(nogan)
+		assertEquals(cells2, [root])
+	})
+
+	it("deletes a cell with wires", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const wire1 = createWire(nogan, { source: cell1.id, target: cell2.id })
+		const wire2 = createWire(nogan, { source: cell2.id, target: cell1.id })
+		const wires1 = getWires(nogan)
+		assertEquals(wires1, [wire1, wire2])
+		assertEquals(cell2.inputs, [wire1.id])
+		assertEquals(cell2.outputs, [wire2.id])
+		deleteCell(nogan, cell1.id)
+		assertEquals(nogan.deletedCells, [cell1.id])
+		const wires2 = getWires(nogan)
+		assertEquals(wires2, [])
+		assertEquals(cell2.inputs, [])
+		assertEquals(cell2.outputs, [])
 	})
 })
 
-// describe("family", () => {
-// 	it("gets a new id", () => {
-// 		const phantom = createPhantom()
-// 		const id0 = createId(phantom)
-// 		assertEquals(id0, 0)
-// 		const id1 = createId(phantom)
-// 		assertEquals(id1, 1)
-// 	})
+describe("wires", () => {
+	it("creates a wire", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire = createWire(nogan, { source: source.id, target: target.id })
+		assertEquals(source.outputs, [wire.id])
+		assertEquals(target.inputs, [wire.id])
+		assertEquals(wire.source, source.id)
+		assertEquals(wire.target, target.id)
+		assertEquals(nogan.items[-1], wire)
+	})
 
-// 	it("reuses ids", () => {
-// 		const phantom = createPhantom()
-// 		const id0 = createId(phantom)
-// 		assertEquals(id0, 0)
-// 		freeId(phantom, id0)
-// 		const id1 = createId(phantom)
-// 		assertEquals(id1, 0)
-// 		const id2 = createId(phantom)
-// 		assertEquals(id2, 1)
-// 		freeId(phantom, id1)
-// 		const id3 = createId(phantom)
-// 		assertEquals(id3, 0)
-// 	})
+	it("gets a wire", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire1 = createWire(nogan, { source: source.id, target: target.id })
+		const wire2 = getWire(nogan, wire1.id)
+		assertEquals(wire1, wire2)
+	})
 
-// 	it("adds a child", () => {
-// 		const phantom = N.Phantom.make()
-// 		const nod = N.Nod.make()
-// 		addChild(phantom, nod)
-// 	})
+	it("iterates over wires", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const wire1 = createWire(nogan, { source: cell1.id, target: cell2.id })
+		const wire2 = createWire(nogan, { source: cell2.id, target: cell1.id })
+		const wires = []
+		for (const wire of iterateWires(nogan)) {
+			wires.push(wire)
+		}
+		assertEquals(wires, [wire1, wire2])
+	})
 
-// 	it("deletes a child", () => {
-// 		const phantom = N.Phantom.make()
-// 		const nod = N.Nod.make()
-// 		addChild(phantom, nod)
-// 		deleteChild(phantom, nod.id)
-// 	})
-// })
+	it("gets all wires", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const wire1 = createWire(nogan, { source: cell1.id, target: cell2.id })
+		const wire2 = createWire(nogan, { source: cell2.id, target: cell1.id })
+		const wires = getWires(nogan)
+		assertEquals(wires, [wire1, wire2])
+	})
 
-// describe("creating", () => {
-// 	it("creates a phantom", () => {
-// 		createPhantom()
-// 	})
-
-// 	it("creates a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 	})
-
-// 	it("creates a wire", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
-// 		assertEquals(nod.outputs, [wire.id])
-// 		assertEquals(nod.inputs, [wire.id])
-// 		assertEquals(wire.source, nod.id)
-// 		assertEquals(wire.target, nod.id)
-// 	})
-
-// 	it("creates a template from a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom, { type: "creation", position: [10, 20] })
-// 		const template = createTemplate(nod)
-// 		assertEquals(template.type, "creation")
-// 		assertEquals(template.position, [10, 20])
-// 	})
-// })
+	it("deletes a wire", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire = createWire(nogan, { source: source.id, target: target.id })
+		assertEquals(source.outputs, [wire.id])
+		assertEquals(target.inputs, [wire.id])
+		deleteWire(nogan, wire.id)
+		assertEquals(source.outputs, [])
+		assertEquals(target.inputs, [])
+	})
+})
 
 // describe("destroying", () => {
 // 	it("destroys a wire", () => {

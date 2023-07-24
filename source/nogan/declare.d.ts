@@ -1,28 +1,83 @@
 //======//
-// Wire //
+// Enum //
 //======//
-declare type Id = number
-declare type BaseItem = { id: Id }
-declare type Wire = BaseItem
+declare type CellType = "dummy" | "root" | "slot" | "creation" | "destruction" | "recording"
+declare type PulseType = "raw" | "creation" | "destruction"
+declare type PulseColour = "blue" | "green" | "red"
+declare type WireColour = "any" | "blue" | "green" | "red"
+declare type Timing = 0 | -1 | 1
+
+//=======//
+// Pulse //
+//=======//
+declare type BasePulse = {
+	type: PulseType
+}
+
+declare type RawPulse = BasePulse & {
+	type: "raw"
+}
+
+declare type Vector2D = [number, number]
+declare type CellTemplate = { type: CellType; position: Vector2D }
+declare type CreationPulse = BasePulse & {
+	type: "creation"
+	template: CellTemplate
+}
+
+declare type DestructionPulse = BasePulse & {
+	type: "destruction"
+}
+
+declare type Pulse = RawPulse | CreationPulse | DestructionPulse
+
+//====//
+// Id //
+//====//
+declare type CellId = number
+declare type WireId = number
 
 //======//
 // Cell //
 //======//
-declare type BaseCell = BaseItem & { children: Id[] }
-declare type Phantom = BaseCell
-declare type Nod = BaseCell
-declare type Cell = Phantom | Nod
-declare type Item = Wire | Cell
+declare type Cell = {
+	id: CellId
+	parent: CellId
+	type: CellType
+	position: Vector2D
+	cells: CellId[]
+	inputs: WireId[]
+	outputs: WireId[]
+	fire: {
+		red: Pulse
+		green: Pulse
+		blue: Pulse
+	}
+}
+
+//======//
+// Wire //
+//======//
+declare type Wire = {
+	id: WireId
+	colour: WireColour
+	timing: Timing
+	source: CellId
+	target: CellId
+}
 
 //=======//
 // Nogan //
 //=======//
 declare type Nogan = {
-	next: Id
-	deleted: Id[]
-	archived: Id[]
-	cells: Object<Id, Cell>
-	wires: Object<Id, Wire>
+	nextCell: CellId
+	nextWire: WireId
+	archivedCells: CellId[]
+	archivedWires: WireId[]
+	deletedCells: CellId[]
+	deletedWires: WireId[]
+
+	items: { [id: number]: Cell | Wire | null }
 }
 
 //=========//

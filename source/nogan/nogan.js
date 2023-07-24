@@ -1,4 +1,3 @@
-import { memo } from "../../libraries/habitat-import.js"
 import { Schema } from "../../libraries/schema.js"
 import { NoganSchema } from "./schema.js"
 
@@ -8,14 +7,18 @@ const S = Schema
 //============//
 // Validating //
 //============//
+/** @type {boolean | null} */
+let _shouldValidate = null
+
 /**
  * Should we validate?
  * @returns {boolean}
  */
-export const shouldValidate = memo(
-	() => window.shared && window.shared.debug.validate,
-	() => "",
-)
+export const shouldValidate = () => {
+	if (_shouldValidate !== null) return _shouldValidate
+	_shouldValidate = !!(!window.shared || window.shared.debug.validate)
+	return _shouldValidate
+}
 
 /**
  * Validate a value against a schema.
@@ -24,57 +27,20 @@ export const shouldValidate = memo(
  * @param {Schema} schema
  */
 export const validate = (value, schema) => {
-	if (shouldValidate()) return
+	if (!shouldValidate()) return
 
 	try {
 		schema.validate(value)
 	} catch (error) {
-		console.log(value)
-		console.error(schema.diagnose(value))
+		// console.log(value)
+		// console.error(schema.diagnose(value))
 		throw error
 	}
 }
 
-/**
- * Validate that an item is stored in a nogan.
- * Only runs if we're in debug mode.
- * @param {Nogan} nogan
- * @param {Item} item
- */
-export const validateStore = (nogan, item) => {
-	if (shouldValidate()) return
-
-	const cell = nogan.cells[item.id]
-	const wire = nogan.wires[item.id]
-
-	if (!cell && !wire) throw new Error("Item is not stored in nogan")
-	if (cell && wire) throw new Error("Item is stored as both cell and wire")
-	if (cell && cell !== item) throw new Error("Item is stored as a different cell")
-	if (wire && wire !== item) throw new Error("Item is stored as a different wire")
-}
-
 //=======//
-// Store //
+// Nogan //
 //=======//
-/**
- * Get an available id for a nogan, and reserve it.
- * @param {Nogan} nogan
- * @returns
- */
-export const createId = (nogan) => {
-	if (nogan.deleted.length > 0) {
-		return nogan.deleted.pop()
-	}
-	const id = nogan.next
-	nogan.next++
-	validate(nogan, N.Nogan)
-	validate(id, N.Id)
-	return id
-}
-
-//==========//
-// Creating //
-//==========//
 /**
  * Create a nogan.
  * @returns {Nogan}
@@ -86,116 +52,453 @@ export const createNogan = () => {
 }
 
 /**
- * Create a phantom.
+ * Get the root cell.
  * @param {Nogan} nogan
- * @returns {Phantom}
- */
-export const createPhantom = (nogan) => {
-	const id = createId(nogan)
-	const phantom = N.Phantom.make({ id })
-	nogan.cells[phantom.id] = phantom
-	validate(nogan, N.Nogan)
-	validate(phantom, N.Phantom)
-	validateStore(nogan, phantom)
-	return phantom
-}
-
-/**
- * Create a nod.
- * @param {Nogan} nogan
- * @param {{
- * 	parent: Id,
- * }} options
- * @returns {Nod}
- */
-export const createNod = (nogan, { parent }) => {
-	const id = createId(nogan)
-	const nod = N.Nod.make({ id })
-	nogan.cells[nod.id] = nod
-	addChild(nogan, { parent, child: id })
-	validate(nogan, N.Nogan)
-	validate(nod, N.Nod)
-	validateStore(nogan, nod)
-	return nod
-}
-
-//=========//
-// Getting //
-//=========//
-/**
- * Get a cell from a nogan.
- * @param {Nogan} nogan
- * @param {{ id: Id }} options
  * @returns {Cell}
  */
-export const getCell = (nogan, { id }) => {
-	const cell = nogan.cells[id]
-	if (shouldValidate()) {
-		if (!cell) throw new Error(`Can't find cell with id '${id}'`)
-		validate(cell, N.Cell)
-		validateStore(nogan, cell)
+export const getRoot = (nogan) => {
+	const root = nogan.items[0]
+	validate(root, N.Cell)
+	// @ts-expect-error
+	return root
+}
+
+//====//
+// Id //
+//====//
+/**
+ * Reserve a cell id.
+ * @param {Nogan} nogan
+ * @returns {CellId}
+ */
+export const reserveCellId = (nogan) => {
+	if (nogan.deletedCells.length > 0) {
+		const id = nogan.deletedCells.pop()
+		validate(nogan, N.Nogan)
+		validate(id, N.CellId)
+		// @ts-expect-error
+		return id
 	}
+
+	const id = nogan.nextCell
+	nogan.nextCell++
+	nogan.items[id] = null
+	validate(nogan, N.Nogan)
+	validate(id, N.CellId)
+	return id
+}
+
+/**
+ * Reserve a wire id.
+ * @param {Nogan} nogan
+ * @returns {WireId}
+ */
+export const reserveWireId = (nogan) => {
+	if (nogan.deletedWires.length > 0) {
+		const id = nogan.deletedWires.pop()
+		validate(nogan, N.Nogan)
+		validate(id, N.WireId)
+		// @ts-expect-error
+		return id
+	}
+
+	const id = nogan.nextWire
+	nogan.nextWire--
+	nogan.items[id] = null
+	validate(nogan, N.Nogan)
+	validate(id, N.WireId)
+	return id
+}
+
+/**
+ * Bin a cell id.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	mode?: "delete" | "archive",
+ * 	check?: boolean,
+ * }} options
+ */
+export const binCellId = (nogan, { id, mode = "delete", check = true }) => {
+	const bin = mode === "delete" ? nogan.deletedCells : nogan.archivedCells
+	bin.push(id)
+	nogan.items[id] = null
+	if (check) validate(nogan, N.Nogan)
+}
+
+/**
+ * Delete a cell id.
+ * @param {Nogan} nogan
+ * @param {CellId} id
+ * @param {{check?: boolean}} options
+ */
+export const deleteCellId = (nogan, id, { check = true } = {}) => {
+	return binCellId(nogan, { id, mode: "delete", check })
+}
+
+/**
+ * Archive a cell id.
+ * @param {Nogan} nogan
+ * @param {CellId} id
+ * @param {{check?: boolean}} options
+ */
+export const archiveCellId = (nogan, id, { check = true } = {}) => {
+	return binCellId(nogan, { id, mode: "archive", check })
+}
+
+/**
+ * Bin a wire id.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: WireId,
+ * 	mode?: "delete" | "archive",
+ * 	check?: boolean,
+ * }} options
+ */
+export const binWireId = (nogan, { id, mode = "delete", check = true }) => {
+	const bin = mode === "delete" ? nogan.deletedWires : nogan.archivedWires
+	bin.push(id)
+	nogan.items[id] = null
+	if (check) validate(nogan, N.Nogan)
+}
+
+/**
+ * Delete a wire id.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ */
+export const deleteWireId = (nogan, id) => {
+	return binWireId(nogan, { id, mode: "delete" })
+}
+
+/**
+ * Archive a wire id.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ */
+export const archiveWireId = (nogan, id) => {
+	return binWireId(nogan, { id, mode: "archive" })
+}
+
+/**
+ * Delete archived cell id.
+ * @param {Nogan} nogan
+ * @param {CellId} id
+ */
+export const deleteArchivedCellId = (nogan, id) => {
+	const index = nogan.archivedCells.indexOf(id)
+	nogan.archivedCells.splice(index, 1)
+	nogan.deletedCells.push(id)
+	validate(nogan, N.Nogan)
+}
+
+/**
+ * Delete archived wire id.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ */
+export const deleteArchivedWireId = (nogan, id) => {
+	const index = nogan.archivedWires.indexOf(id)
+	nogan.archivedWires.splice(index, 1)
+	nogan.deletedWires.push(id)
+	validate(nogan, N.Nogan)
+}
+
+/**
+ * Delete cell id archive.
+ * @param {Nogan} nogan
+ */
+export const deleteArchivedCellIds = (nogan) => {
+	nogan.deletedCells.push(...nogan.archivedCells)
+	nogan.archivedCells = []
+	validate(nogan, N.Nogan)
+}
+
+/**
+ * Delete wire id archive.
+ * @param {Nogan} nogan
+ */
+export const deleteArchivedWireIds = (nogan) => {
+	nogan.deletedWires.push(...nogan.archivedWires)
+	nogan.archivedWires = []
+	validate(nogan, N.Nogan)
+}
+
+//======//
+// Cell //
+//======//
+/**
+ * Create a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	parent?: CellId,
+ * 	type?: CellType,
+ * 	position?: Vector2D
+ * }} options
+ * @returns {Cell}
+ */
+export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0] } = {}) => {
+	const id = reserveCellId(nogan)
+	const cell = N.Cell.make({ id, type, position, parent })
+	nogan.items[id] = cell
+
+	const parentCell = getCell(nogan, parent)
+	parentCell.cells.push(id)
+
+	validate(cell, N.Cell)
+	validate(parentCell, N.Cell)
+	validate(nogan, N.Nogan)
 	return cell
 }
 
 /**
- * Get a phantom from a nogan.
+ * Get a cell.
  * @param {Nogan} nogan
- * @param {{
- * 	id: Id,
- * }} options
- * @returns {Phantom}
+ * @param {CellId} id
+ * @param {{check?: boolean}} options
+ * @returns {Cell}
  */
-export const getPhantom = (nogan, { id }) => {
-	const phantom = nogan.cells[id]
-	if (shouldValidate()) {
-		if (!phantom) throw new Error(`Can't find phantom with id '${id}'`)
-		validateCell(nogan, phantom)
-		validate(phantom, N.Phantom)
+export const getCell = (nogan, id, { check = true } = {}) => {
+	const cell = nogan.items[id]
+	if (check) validate(cell, N.Cell)
+	// @ts-expect-error
+	return cell
+}
+
+/**
+ * Iterate through all cells.
+ * @param {Nogan} nogan
+ * @return {Iterable<Cell>}
+ */
+export function* iterateCells(nogan) {
+	for (let id = 0; id < nogan.nextCell; id++) {
+		const cell = nogan.items[id]
+		if (!cell) continue
+		validate(cell, N.Cell)
+		// @ts-expect-error
+		yield cell
 	}
-	return phantom
 }
 
 /**
- * Get a nod from a nogan.
+ * Get all cells.
  * @param {Nogan} nogan
- * @param {{
- * 	id: Id,
- * }} options
- * @returns {Nod}
+ * @returns {Cell[]}
  */
-export const getNod = (nogan, { id }) => {
-	return getCell(nogan, { id, store: "nods" })
+export const getCells = (nogan) => {
+	return [...iterateCells(nogan)]
 }
 
 /**
- * Get a wire from a nogan.
+ * Give a child to another cell.
  * @param {Nogan} nogan
  * @param {{
- * 	id: Id,
+ * 	source?: CellId,
+ * 	target: CellId,
+ * 	child: CellId,
+ * }} options
+ */
+export const giveChild = (nogan, { source = 0, target, child }) => {
+	const sourceCell = getCell(nogan, source)
+	const targetCell = getCell(nogan, target)
+	const childCell = getCell(nogan, child)
+
+	const sourceIndex = sourceCell.cells.indexOf(child)
+	sourceCell.cells.splice(sourceIndex, 1)
+
+	childCell.parent = target
+	targetCell.cells.push(child)
+
+	validate(sourceCell, N.Cell)
+	validate(targetCell, N.Cell)
+	validate(childCell, N.Cell)
+	validate(nogan, N.Nogan)
+}
+
+/**
+ * Create a template from a cell.
+ * @param {Partial<Cell>} cell
+ * @returns {CellTemplate}
+ */
+export const createTemplate = ({ type = "dummy", position = [0, 0] } = {}) => {
+	const template = N.CellTemplate.make({ type, position })
+	validate(template, N.CellTemplate)
+	return template
+}
+
+/**
+ * Bin a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	mode?: "delete" | "archive",
+ * 	check?: boolean,
+ * }} options
+ */
+export const binCell = (nogan, { id, mode = "delete", check = true }) => {
+	const cell = getCell(nogan, id, { check })
+	const parentCell = getCell(nogan, cell.parent, { check })
+	if (parentCell) {
+		const index = parentCell.cells.indexOf(id)
+		parentCell.cells.splice(index, 1)
+	}
+
+	binCellId(nogan, { mode, id: cell.id, check: false })
+
+	for (const child of cell.cells) {
+		binCell(nogan, { id: child, mode, check: false })
+	}
+
+	for (const input of cell.inputs) {
+		binWire(nogan, { id: input, mode, check: false })
+	}
+
+	for (const output of cell.outputs) {
+		binWire(nogan, { id: output, mode, check: false })
+	}
+
+	if (check) {
+		validate(parentCell, N.Cell)
+		validate(nogan, N.Nogan)
+	}
+}
+
+/**
+ * Delete a cell.
+ * @param {Nogan} nogan
+ * @param {CellId} id
+ */
+export const deleteCell = (nogan, id) => {
+	return binCell(nogan, { id, mode: "delete" })
+}
+
+/**
+ * Archive a cell.
+ * @param {Nogan} nogan
+ * @param {CellId} id
+ */
+export const archiveCell = (nogan, id) => {
+	return binCell(nogan, { id, mode: "archive" })
+}
+
+//======//
+// Wire //
+//======//
+/**
+ * Create a wire.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	source: CellId,
+ * 	target: CellId,
+ * 	colour?: WireColour,
+ * 	timing?: Timing,
  * }} options
  * @returns {Wire}
  */
-export const getWire = (nogan, { id }) => {
-	return getCell(nogan, { id, store: "wires" })
+export const createWire = (nogan, { source, target, colour = "any", timing = 0 }) => {
+	const id = reserveWireId(nogan)
+	const wire = N.Wire.make({ id, source, target, colour, timing })
+	nogan.items[id] = wire
+
+	const sourceCell = getCell(nogan, source)
+	const targetCell = getCell(nogan, target)
+	sourceCell.outputs.push(id)
+	targetCell.inputs.push(id)
+
+	validate(wire, N.Wire)
+	validate(sourceCell, N.Cell)
+	validate(targetCell, N.Cell)
+	validate(nogan, N.Nogan)
+	return wire
 }
 
-//========//
-// Family //
-//========//
 /**
- * Add a child to a parent.
+ * Get a wire.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ * @param {{check?: boolean}} options
+ * @returns {Wire}
+ */
+export const getWire = (nogan, id, { check = true } = {}) => {
+	const wire = nogan.items[id]
+	validate(wire, N.Wire)
+	// @ts-expect-error
+	return wire
+}
+
+/**
+ * Delete a wire.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ */
+export const deleteWire = (nogan, id) => {
+	binWire(nogan, { id, mode: "delete" })
+}
+
+/**
+ * Archive a wire.
+ * @param {Nogan} nogan
+ * @param {WireId} id
+ */
+export const archiveWire = (nogan, id) => {
+	binWire(nogan, { id, mode: "archive" })
+}
+
+/**
+ * Bin a wire.
  * @param {Nogan} nogan
  * @param {{
- * 	parent: Id,
- * 	child: Id,
+ * 	id: WireId,
+ * 	mode?: "delete" | "archive",
+ * 	check?: boolean,
  * }} options
  */
-export const addChild = (nogan, { parent, child }) => {
-	const parentCell = getCell(nogan, { id: parent })
-	parentCell.children.push(child)
-	validate(parentCell, N.Cell)
-	validateFamily(nogan, { parent, child }) //todo
+export const binWire = (nogan, { id, mode = "delete", check = true }) => {
+	const wire = getWire(nogan, id, { check })
+
+	const sourceCell = getCell(nogan, wire.source, { check })
+	if (sourceCell) {
+		const sourceIndex = sourceCell.outputs.indexOf(id)
+		sourceCell.outputs.splice(sourceIndex, 1)
+	}
+
+	const targetCell = getCell(nogan, wire.target, { check })
+	if (targetCell) {
+		const targetIndex = targetCell.inputs.indexOf(id)
+		targetCell.inputs.splice(targetIndex, 1)
+	}
+
+	binWireId(nogan, { mode, id: wire.id, check: false })
+
+	if (check) {
+		validate(sourceCell, N.Cell)
+		validate(targetCell, N.Cell)
+		validate(nogan, N.Nogan)
+	}
+}
+
+/**
+ * Iterate through all wires.
+ * @param {Nogan} nogan
+ * @return {Iterable<Wire>}
+ */
+export function* iterateWires(nogan) {
+	for (let id = -1; id >= nogan.nextWire; id--) {
+		const wire = nogan.items[id]
+		if (!wire) continue
+		validate(wire, N.Wire)
+		// @ts-expect-error
+		yield wire
+	}
+}
+
+/**
+ * Get all wires.
+ * @param {Nogan} nogan
+ * @returns {Wire[]}
+ */
+export const getWires = (nogan) => {
+	return [...iterateWires(nogan)]
 }
 
 //============//
@@ -215,7 +518,7 @@ export const addChild = (nogan, { parent, child }) => {
 // 	// @ts-expect-error
 // 	schema = NoganSchema[value.schemaName],
 // ) => {
-// 	if (shouldValidate()) {
+// 	if (!shouldValidate()) {
 // 		return
 // 	}
 // 	if (!schema) {
