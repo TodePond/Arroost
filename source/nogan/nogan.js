@@ -501,329 +501,46 @@ export const getWires = (nogan) => {
 	return [...iterateWires(nogan)]
 }
 
-//============//
-// Validating //
-//============//
-// export const shouldValidate = memo(
-// 	() => _window.shared && _window.shared.debug.validate,
-// 	() => "",
-// )
+//======//
+// Peak //
+//======//
+/**
+ * Create a peak.
+ * This is just a helper function to make your code shorter.
+ * @param {{
+ * 	result?: boolean,
+ * 	operations?: Operation[],
+ * 	pulse?: Pulse,
+ * }} options
+ * @returns {Peak}
+ */
+export const createPeak = ({ result = false, operations = [], pulse } = {}) => {
+	const peak = result
+		? N.SuccessPeak.make({ result, operations, pulse })
+		: N.FailPeak.make({ operations })
+	validate(peak, N.Peak)
+	return peak
+}
 
-// /**
-//  * @param {Validatable} value
-//  * @param {Schema?} schema
-//  */
-// export const validate = (
-// 	value,
-// 	// @ts-expect-error
-// 	schema = NoganSchema[value.schemaName],
-// ) => {
-// 	if (!shouldValidate()) {
-// 		return
-// 	}
-// 	if (!schema) {
-// 		console.error(value)
-// 		throw new Error(`Can't find schema for value ^`)
-// 	}
-// 	try {
-// 		schema.validate(value)
-// 	} catch (error) {
-// 		console.log(value)
-// 		console.error(schema.diagnose(value))
-// 		throw error
-// 	}
-// }
+//=======//
+// Pulse //
+//=======//
+/**
+ * Fire a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour?: PulseColour,
+ * 	type?: PulseType,
+ * }} options
+ */
+export const fireCell = (nogan, { id, colour = "blue", type = "any" }) => {
+	const cell = getCell(nogan, id)
+	const { fire } = cell
+	const pulse = fire[colour]
 
-// /**
-//  * Check that the parent has the child as a child.
-//  * @param {Parent} parent
-//  * @param {Child} child
-//  */
-// export const validateFamily = (parent, child) => {
-// 	if (_window.shared && !_window.shared.debug.validate) {
-// 		return
-// 	}
-// 	if (parent.children[child.id] !== child) {
-// 		console.error(parent, child)
-// 		throw new Error("Mummy does not have the provided child")
-// 	}
-
-// 	validate(parent)
-// 	validate(child)
-// }
-
-// //========//
-// // Family //
-// //========//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @returns {Id}
-//  */
-// export const createId = (parent) => {
-// 	if (parent.freeIds.length > 0) {
-// 		return parent.freeIds.pop()
-// 	}
-// 	const id = parent.nextId
-// 	parent.nextId++
-// 	return id
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  */
-// export const freeId = (parent, id) => {
-// 	parent.freeIds.push(id)
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {Child} child
-//  */
-// export const addChild = (parent, child) => {
-// 	const id = createId(parent)
-// 	child.id = id
-// 	parent.children[id] = child
-
-// 	validate(child)
-// 	validate(parent)
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  */
-// export const deleteChild = (parent, id) => {
-// 	const child = parent.children[id]
-// 	child.id = null
-// 	parent.children[id] = null
-// 	freeId(parent, id)
-
-// 	validate(parent)
-// }
-
-// /**
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  * @returns {Nod}
-//  */
-// export const getNod = (parent, id) => {
-// 	const nod = parent.children[id]
-// 	if (shouldValidate()) {
-// 		if (!nod) {
-// 			throw new Error(`Can't find nod with id '${id}'`)
-// 		}
-// 		validate(nod, N.Nod)
-// 	}
-// 	// @ts-expect-error
-// 	return nod
-// }
-
-// /**
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  * @returns {Wire}
-//  */
-// export const getWire = (parent, id) => {
-// 	const nod = parent.children[id]
-// 	if (shouldValidate()) {
-// 		if (!nod) {
-// 			throw new Error(`Can't find nod with id '${id}'`)
-// 		}
-// 		validate(nod, N.Wire)
-// 	}
-// 	// @ts-expect-error
-// 	return nod
-// }
-
-// //==========//
-// // Creating //
-// //==========//
-// /**
-//  * @returns {Phantom}
-//  */
-// export const createPhantom = () => {
-// 	const phantom = N.Phantom.make()
-// 	validate(phantom)
-// 	return phantom
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {Partial<Nod>} properties
-//  * @returns {Nod}
-//  */
-// export const createNod = (parent, properties = {}) => {
-// 	const nod = N.Nod.make(properties)
-// 	addChild(parent, nod)
-// 	return nod
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	source: Id,
-//  * 	target: Id,
-//  * 	colour?: WireColour,
-//  * 	timing?: Timing,
-//  * }} options
-//  * @returns Wire
-//  */
-// export const createWire = (parent, { source, target, colour = "any", timing = 0 }) => {
-// 	const wire = N.Wire.make({ colour, timing })
-// 	wire.source = source
-// 	wire.target = target
-// 	addChild(parent, wire)
-
-// 	const sourceNod = getNod(parent, source)
-// 	const targetNod = getNod(parent, target)
-// 	sourceNod.outputs.push(wire.id)
-// 	targetNod.inputs.push(wire.id)
-
-// 	validate(parent)
-// 	validate(sourceNod)
-// 	validate(targetNod)
-// 	validate(wire)
-
-// 	return wire
-// }
-
-// /**
-//  *
-//  * @param {Nod} nod
-//  * @returns {NodTemplate}
-//  */
-// export const createTemplate = (nod) => {
-// 	const template = N.NodTemplate.make({
-// 		position: nod.position,
-// 		type: nod.type,
-// 	})
-// 	validate(template, N.NodTemplate)
-// 	return template
-// }
-
-// //===========//
-// // Destroying //
-// //===========//
-// /**
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  */
-// export const destroyWire = (parent, id) => {
-// 	const wire = getWire(parent, id)
-// 	const sourceNod = getNod(parent, wire.source)
-// 	const targetNod = getNod(parent, wire.target)
-
-// 	const sourceIndex = sourceNod.outputs.indexOf(wire.id)
-// 	const targetIndex = targetNod.inputs.indexOf(wire.id)
-
-// 	sourceNod.outputs.splice(sourceIndex, 1)
-// 	targetNod.inputs.splice(targetIndex, 1)
-// 	deleteChild(parent, id)
-
-// 	validate(parent)
-// 	validate(sourceNod)
-// 	validate(targetNod)
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {Id} id
-//  */
-// export const destroyNod = (parent, id) => {
-// 	const nod = getNod(parent, id)
-// 	if (nod.inputs.length > 0 || nod.outputs.length > 0) {
-// 		throw new Error("Cannot destroy nod with wires")
-// 	}
-
-// 	deleteChild(parent, id)
-// 	validate(parent)
-// }
-
-// //============//
-// // Connecting //
-// //============//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	original: Id,
-//  * 	replacement: Id,
-//  * }} options
-//  */
-// export const replaceNod = (parent, { original, replacement }) => {
-// 	if (original === replacement) return
-
-// 	const originalNod = getNod(parent, original)
-// 	const replacementNod = getNod(parent, replacement)
-
-// 	replacementNod.inputs = [...originalNod.inputs]
-// 	replacementNod.outputs = [...originalNod.outputs]
-// 	originalNod.inputs = []
-// 	originalNod.outputs = []
-
-// 	for (const input of replacementNod.inputs) {
-// 		const wire = getWire(parent, input)
-// 		wire.target = replacement
-// 	}
-
-// 	for (const output of replacementNod.outputs) {
-// 		const wire = getWire(parent, output)
-// 		wire.source = replacement
-// 	}
-
-// 	validate(parent)
-// 	validate(originalNod)
-// 	validate(replacementNod)
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	source?: Id,
-//  * 	target?: Id,
-//  * }} options
-//  */
-// export const reconnectWire = (parent, { id, source, target }) => {
-// 	const wire = getWire(parent, id)
-// 	const replacementSourceId = source ?? wire.source
-// 	const replacementTargetId = target ?? wire.target
-
-// 	const originalSource = getNod(parent, wire.source)
-// 	const originalTarget = getNod(parent, wire.target)
-
-// 	const replacementSource = getNod(parent, replacementSourceId)
-// 	const replacementTarget = getNod(parent, replacementTargetId)
-
-// 	if (originalSource !== replacementSource) {
-// 		const sourceIndex = originalSource.outputs.indexOf(id)
-// 		originalSource.outputs.splice(sourceIndex, 1)
-// 		replacementSource.outputs.push(id)
-// 		wire.source = source
-// 	}
-
-// 	if (originalTarget !== replacementTarget) {
-// 		const targetIndex = originalTarget.inputs.indexOf(id)
-// 		originalTarget.inputs.splice(targetIndex, 1)
-// 		replacementTarget.inputs.push(id)
-// 		wire.target = target
-// 	}
-
-// 	validate(parent)
-// 	validate(originalSource)
-// 	validate(originalTarget)
-// 	validate(replacementSource)
-// 	validate(replacementTarget)
-// }
+	// const peak = behave(nogan, { peak: createPeak({ type }), id })
+}
 
 // //=========//
 // // Pulsing //

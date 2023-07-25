@@ -7,6 +7,12 @@ declare type PulseColour = "blue" | "green" | "red"
 declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
 
+//=========//
+// Utility //
+//=========//
+declare type Vector2D = [number, number]
+declare type CellTemplate = { type: CellType; position: Vector2D }
+
 //=======//
 // Pulse //
 //=======//
@@ -18,8 +24,6 @@ declare type RawPulse = BasePulse & {
 	type: "raw"
 }
 
-declare type Vector2D = [number, number]
-declare type CellTemplate = { type: CellType; position: Vector2D }
 declare type CreationPulse = BasePulse & {
 	type: "creation"
 	template: CellTemplate
@@ -76,9 +80,34 @@ declare type Nogan = {
 	archivedWires: WireId[]
 	deletedCells: CellId[]
 	deletedWires: WireId[]
-
 	items: { [id: number]: Cell | Wire | null }
 }
+
+//===========//
+// Operation //
+//===========//
+declare type Operation = any //todo
+
+//======//
+// Peak //
+//======//
+declare type BasePeak = {
+	result: boolean
+	operations: Operation[]
+}
+
+declare type FailPeak = {
+	result: false
+	operations: Operation[]
+}
+
+declare type SuccessPeak = {
+	result: true
+	operations: Operation[]
+	pulse: Pulse
+}
+
+declare type Peak = FailPeak | SuccessPeak
 
 //=========//
 // Phantom //

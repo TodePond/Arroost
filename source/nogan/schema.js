@@ -60,6 +60,11 @@ N.PulseColour = S.Enum(PULSE_COLOURS)
 N.WireColour = S.Enum(WIRE_COLOURS)
 N.Timing = S.Enum(TIMINGS)
 
+//=========//
+// Utility //
+//=========//
+N.CellTemplate = S.Struct({ type: N.CellType, position: S.Vector2D })
+
 //=======//
 // Pulse //
 //=======//
@@ -71,7 +76,6 @@ N.RawPulse = N.BasePulse.combine({
 	type: N.Value("raw"),
 })
 
-N.CellTemplate = S.Struct({ type: N.CellType, position: S.Vector2D })
 N.CreationPulse = N.BasePulse.combine({
 	type: N.Value("creation"),
 	template: N.CellTemplate,
@@ -350,6 +354,30 @@ N.Nogan = S.Struct({
 
 	return true
 })
+
+//===========//
+// Operation //
+//===========//
+N.Operation = S.Anything //todo
+
+//======//
+// Peak //
+//======//
+N.BasePeak = S.Struct({
+	result: S.Boolean,
+	operations: S.ArrayOf(N.Operation),
+})
+
+N.FailPeak = N.BasePeak.combine({
+	result: S.Value(false),
+})
+
+N.SuccessPeak = N.BasePeak.combine({
+	result: S.Value(true),
+	pulse: N.Pulse,
+})
+
+N.Peak = S.Any([N.FailPeak, N.SuccessPeak])
 
 // //============//
 // // Operations //

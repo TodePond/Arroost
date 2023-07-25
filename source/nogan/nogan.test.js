@@ -8,6 +8,7 @@ import {
 	archiveWireId,
 	createCell,
 	createNogan,
+	createPeak,
 	createTemplate,
 	createWire,
 	deleteArchivedCellId,
@@ -170,7 +171,7 @@ describe("id", () => {
 	})
 })
 
-describe("cells", () => {
+describe("cell", () => {
 	it("creates a cell", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
@@ -314,7 +315,7 @@ describe("cells", () => {
 	})
 })
 
-describe("wires", () => {
+describe("wire", () => {
 	it("creates a wire", () => {
 		const nogan = createNogan()
 		const source = createCell(nogan)
@@ -372,138 +373,20 @@ describe("wires", () => {
 	})
 })
 
-// describe("destroying", () => {
-// 	it("destroys a wire", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
+//todo
+describe("pulse", () => {
+	it("fires a cell", () => {
+		// const nogan = createNogan()
+		// const cell = createCell(nogan)
+	})
+})
 
-// 		assertEquals(nod.outputs, [wire.id])
-// 		assertEquals(nod.inputs, [wire.id])
-
-// 		destroyWire(phantom, wire.id)
-
-// 		assertEquals(nod.outputs, [])
-// 		assertEquals(nod.inputs, [])
-// 	})
-
-// 	it("destroys a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-
-// 		destroyNod(phantom, nod.id)
-// 	})
-
-// 	it("can't destroy a nod with wires", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		createWire(phantom, { source: nod.id, target: nod.id })
-
-// 		assertThrows(() => destroyNod(phantom, nod.id)) //removed message because it was failing on windows for some reason
-// 	})
-// })
-
-// describe("connecting", () => {
-// 	it("replaces a nod", () => {
-// 		const phantom = createPhantom()
-// 		const original = createNod(phantom)
-// 		const replacement = createNod(phantom)
-// 		const wire = createWire(phantom, { source: original.id, target: original.id })
-
-// 		assertEquals(wire.source, original.id)
-// 		assertEquals(wire.target, original.id)
-
-// 		assertEquals(original.outputs, [wire.id])
-// 		assertEquals(original.inputs, [wire.id])
-// 		assertEquals(replacement.outputs, [])
-// 		assertEquals(replacement.inputs, [])
-
-// 		replaceNod(phantom, { original: original.id, replacement: replacement.id })
-
-// 		assertEquals(wire.source, replacement.id)
-// 		assertEquals(wire.target, replacement.id)
-
-// 		assertEquals(original.outputs, [])
-// 		assertEquals(original.inputs, [])
-// 		assertEquals(replacement.outputs, [wire.id])
-// 		assertEquals(replacement.inputs, [wire.id])
-// 	})
-
-// 	it("reconnects a wire target", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
-
-// 		assertEquals(wire.source, nod1.id)
-// 		assertEquals(wire.target, nod1.id)
-
-// 		assertEquals(nod1.outputs, [wire.id])
-// 		assertEquals(nod1.inputs, [wire.id])
-// 		assertEquals(nod2.outputs, [])
-// 		assertEquals(nod2.inputs, [])
-
-// 		reconnectWire(phantom, { id: wire.id, target: nod2.id })
-
-// 		assertEquals(wire.source, nod1.id)
-// 		assertEquals(wire.target, nod2.id)
-
-// 		assertEquals(nod1.outputs, [wire.id])
-// 		assertEquals(nod1.inputs, [])
-// 		assertEquals(nod2.outputs, [])
-// 		assertEquals(nod2.inputs, [wire.id])
-// 	})
-
-// 	it("reconnects a wire source", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
-
-// 		assertEquals(wire.source, nod1.id)
-// 		assertEquals(wire.target, nod1.id)
-
-// 		assertEquals(nod1.outputs, [wire.id])
-// 		assertEquals(nod1.inputs, [wire.id])
-// 		assertEquals(nod2.outputs, [])
-// 		assertEquals(nod2.inputs, [])
-
-// 		reconnectWire(phantom, { id: wire.id, source: nod2.id })
-
-// 		assertEquals(wire.source, nod2.id)
-// 		assertEquals(wire.target, nod1.id)
-
-// 		assertEquals(nod1.outputs, [])
-// 		assertEquals(nod1.inputs, [wire.id])
-// 		assertEquals(nod2.outputs, [wire.id])
-// 		assertEquals(nod2.inputs, [])
-// 	})
-
-// 	it("reconnects a wire source and target", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod1.id, target: nod1.id })
-
-// 		assertEquals(wire.source, nod1.id)
-// 		assertEquals(wire.target, nod1.id)
-
-// 		assertEquals(nod1.outputs, [wire.id])
-// 		assertEquals(nod1.inputs, [wire.id])
-// 		assertEquals(nod2.outputs, [])
-// 		assertEquals(nod2.inputs, [])
-
-// 		reconnectWire(phantom, { id: wire.id, source: nod2.id, target: nod2.id })
-
-// 		assertEquals(wire.source, nod2.id)
-// 		assertEquals(wire.target, nod2.id)
-
-// 		assertEquals(nod1.outputs, [])
-// 		assertEquals(nod1.inputs, [])
-// 		assertEquals(nod2.outputs, [wire.id])
-// 		assertEquals(nod2.inputs, [wire.id])
-// 	})
-// })
+describe("peak", () => {
+	it("creates a peak", () => {
+		const peak = createPeak()
+		assertEquals(peak, { result: false, operations: [] })
+	})
+})
 
 // describe("pulsing", () => {
 // 	it("pulses a nod", () => {
