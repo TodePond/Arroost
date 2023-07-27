@@ -53,9 +53,9 @@ declare type Cell = {
 	inputs: WireId[]
 	outputs: WireId[]
 	fire: {
-		red: Pulse
-		green: Pulse
-		blue: Pulse
+		red: Pulse | null
+		green: Pulse | null
+		blue: Pulse | null
 	}
 }
 

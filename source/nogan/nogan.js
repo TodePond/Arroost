@@ -381,6 +381,24 @@ export const archiveCell = (nogan, id) => {
 	return binCell(nogan, { id, mode: "archive" })
 }
 
+/**
+ * Modify a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	type?: CellType,
+ * 	position?: Vector2D,
+ * }} options
+ */
+export const modifyCell = (nogan, { id, type, position }) => {
+	const cell = getCell(nogan, id)
+	cell.type = type ?? cell.type
+	cell.position = position ?? cell.position
+
+	validate(cell, N.Cell)
+	validate(nogan, N.Nogan)
+}
+
 //======//
 // Wire //
 //======//
@@ -421,7 +439,7 @@ export const createWire = (nogan, { source, target, colour = "any", timing = 0 }
  */
 export const getWire = (nogan, id, { check = true } = {}) => {
 	const wire = nogan.items[id]
-	validate(wire, N.Wire)
+	if (check) validate(wire, N.Wire)
 	// @ts-expect-error
 	return wire
 }
@@ -501,12 +519,71 @@ export const getWires = (nogan) => {
 	return [...iterateWires(nogan)]
 }
 
+/**
+ * Modify a wire.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: WireId,
+ * 	colour?: WireColour,
+ * 	timing?: Timing,
+ * }} options
+ */
+export const modifyWire = (nogan, { id, colour, timing }) => {
+	const wire = getWire(nogan, id)
+	wire.colour = colour ?? wire.colour
+	wire.timing = timing ?? wire.timing
+
+	validate(wire, N.Wire)
+	validate(nogan, N.Nogan)
+}
+
+//=======//
+// Pulse //
+//=======//
+/**
+ * Create a pulse.
+ * @param {Pulse} options
+ * @returns {Pulse}
+ */
+export const createPulse = (options = { type: "raw" }) => {
+	const pulse = N.Pulse.make(options)
+	validate(pulse, N.Pulse)
+	return pulse
+}
+
+/**
+ * Fire a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour?: PulseColour,
+ * 	pulse?: Pulse,
+ * }} options
+ */
+export const fireCell = (nogan, { id, colour = "blue", pulse = { type: "raw" } }) => {
+	const cell = getCell(nogan, id)
+	const { fire } = cell
+
+	// Perform behaviours
+	const peak = createPeak({ result: true, pulse }) //behave(parent, { peak, id })
+	if (!peak.result) return
+
+	// Update our pulse
+	fire[colour] = peak.pulse
+
+	// Todo: Trigger any resultant changes
+	//propogate( ... )
+
+	validate(cell, N.Cell)
+	validate(nogan, N.Nogan)
+	validate(pulse, N.Pulse)
+}
+
 //======//
 // Peak //
 //======//
 /**
  * Create a peak.
- * This is just a helper function to make your code shorter.
  * @param {{
  * 	result?: boolean,
  * 	operations?: Operation[],
@@ -521,85 +598,6 @@ export const createPeak = ({ result = false, operations = [], pulse } = {}) => {
 	validate(peak, N.Peak)
 	return peak
 }
-
-//=======//
-// Pulse //
-//=======//
-/**
- * Fire a cell.
- * @param {Nogan} nogan
- * @param {{
- * 	id: CellId,
- * 	colour?: PulseColour,
- * 	type?: PulseType,
- * }} options
- */
-export const fireCell = (nogan, { id, colour = "blue", type = "any" }) => {
-	const cell = getCell(nogan, id)
-	const { fire } = cell
-	const pulse = fire[colour]
-
-	// const peak = behave(nogan, { peak: createPeak({ type }), id })
-}
-
-// //=========//
-// // Pulsing //
-// //=========//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour?: PulseColour,
-//  * 	type?: PulseType,
-//  * }} options
-//  * @returns
-//  */
-// export const addPulse = (parent, { id, colour = "blue", type = "any" }) => {
-// 	const nod = getNod(parent, id)
-// 	const { pulses } = nod
-// 	const pulse = pulses[colour]
-
-// 	const phantomPeak = N.SuccessPeak.make({
-// 		result: true,
-// 		type,
-// 		template: {},
-// 	})
-
-// 	const transformedPeak = behave(parent, { peak: phantomPeak, id })
-// 	if (!transformedPeak.result) {
-// 		return
-// 	}
-
-// 	// Don't do anything if we're already pulsing
-// 	if (pulse?.type === transformedPeak.type) {
-// 		return
-// 	}
-
-// 	// Update our pulse
-// 	pulses[colour] = N.Pulse.make({ type: transformedPeak.type })
-
-// 	// These operations could be collated together for a perf boost
-// 	// --- Apply any operations ---
-// 	propogate(parent)
-// 	// --- End of operations ---
-
-// 	validate(nod)
-// 	validate(parent)
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * }} options
-//  */
-// export const addFullPulse = (parent, { id }) => {
-// 	for (const colour of PULSE_COLOURS) {
-// 		addPulse(parent, { id, colour })
-// 	}
-// }
 
 // //===========//
 // // Modifying //

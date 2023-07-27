@@ -9,6 +9,7 @@ import {
 	createCell,
 	createNogan,
 	createPeak,
+	createPulse,
 	createTemplate,
 	createWire,
 	deleteArchivedCellId,
@@ -19,6 +20,7 @@ import {
 	deleteCellId,
 	deleteWire,
 	deleteWireId,
+	fireCell,
 	getCell,
 	getCells,
 	getRoot,
@@ -27,6 +29,8 @@ import {
 	giveChild,
 	iterateCells,
 	iterateWires,
+	modifyCell,
+	modifyWire,
 	reserveCellId,
 	reserveWireId,
 } from "./nogan.js"
@@ -313,6 +317,16 @@ describe("cell", () => {
 		assertEquals(cell2.inputs, [])
 		assertEquals(cell2.outputs, [])
 	})
+
+	it("modifies a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		assertEquals(cell.type, "dummy")
+		assertEquals(cell.position, [0, 0])
+		modifyCell(nogan, { id: cell.id, type: "creation", position: [10, 20] })
+		assertEquals(cell.type, "creation")
+		assertEquals(cell.position, [10, 20])
+	})
 })
 
 describe("wire", () => {
@@ -371,13 +385,33 @@ describe("wire", () => {
 		assertEquals(source.outputs, [])
 		assertEquals(target.inputs, [])
 	})
+
+	it("modifies a wire", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire = createWire(nogan, { source: source.id, target: target.id })
+		assertEquals(wire.timing, 0)
+		assertEquals(wire.colour, "any")
+		modifyWire(nogan, { id: wire.id, timing: 1, colour: "red" })
+		assertEquals(wire.timing, 1)
+		assertEquals(wire.colour, "red")
+	})
 })
 
-//todo
 describe("pulse", () => {
+	it("creates a pulse", () => {
+		const pulse = createPulse()
+		assertEquals(pulse, { type: "raw" })
+	})
+
 	it("fires a cell", () => {
-		// const nogan = createNogan()
-		// const cell = createCell(nogan)
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		assertEquals(cell.fire.blue, null)
+		fireCell(nogan, { id: cell.id })
+		assertEquals(cell.fire.blue, { type: "raw" })
+		assertEquals(cell.fire.green, null)
 	})
 })
 

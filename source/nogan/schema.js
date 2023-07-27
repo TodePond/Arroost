@@ -107,9 +107,9 @@ N.Cell = S.Struct({
 	inputs: S.ArrayOf(N.WireId),
 	outputs: S.ArrayOf(N.WireId),
 	fire: S.Struct({
-		red: N.Pulse,
-		green: N.Pulse,
-		blue: N.Pulse,
+		red: N.Pulse.nullable(),
+		green: N.Pulse.nullable(),
+		blue: N.Pulse.nullable(),
 	}),
 }).andCheck((cell) => {
 	if (cell.type === "root" && cell.id !== 0) {
