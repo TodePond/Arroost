@@ -23,6 +23,7 @@ import {
 	fireCell,
 	getCell,
 	getCells,
+	getPeak,
 	getRoot,
 	getWire,
 	getWires,
@@ -327,6 +328,8 @@ describe("cell", () => {
 		assertEquals(cell.type, "creation")
 		assertEquals(cell.position, [10, 20])
 	})
+
+	it.skip("propogates a modification", () => {})
 })
 
 describe("wire", () => {
@@ -397,6 +400,8 @@ describe("wire", () => {
 		assertEquals(wire.timing, 1)
 		assertEquals(wire.colour, "red")
 	})
+
+	it.skip("propogates a modification", () => {})
 })
 
 describe("pulse", () => {
@@ -413,113 +418,36 @@ describe("pulse", () => {
 		assertEquals(cell.fire.blue, { type: "raw" })
 		assertEquals(cell.fire.green, null)
 	})
+
+	it.skip("propogates through the present", () => {})
+	it.skip("propogates through the past", () => {})
+	it.skip("propogates through the future", () => {})
 })
+
+describe.skip("projection", () => {})
 
 describe("peak", () => {
 	it("creates a peak", () => {
 		const peak = createPeak()
 		assertEquals(peak, { result: false, operations: [] })
 	})
+
+	it("finds a pulse in the present", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const peak1 = getPeak(nogan, { id: cell.id })
+		assertEquals(peak1.result, false)
+		fireCell(nogan, { id: cell.id })
+		const peak2 = getPeak(nogan, { id: cell.id })
+		assertEquals(peak2.result, true)
+		if (peak2.result) {
+			assertEquals(peak2.pulse.type, "raw")
+		}
+	})
 })
 
-// describe("pulsing", () => {
-// 	it("pulses a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-
-// 		assert(!nod.pulses.blue)
-// 		addPulse(phantom, { id: nod.id })
-// 		assert(nod.pulses.blue)
-// 	})
-
-// 	it("adds a specific pulse", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-
-// 		assertEquals(nod.pulses.blue, null)
-// 		addPulse(phantom, { id: nod.id, type: "creation" })
-// 		assertEquals(nod.pulses.blue.type, "creation")
-// 	})
-
-// 	it("propogates through the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id })
-// 		addPulse(phantom, { id: nod1.id })
-// 		assert(nod1.pulses.blue)
-// 		assert(nod2.pulses.blue)
-// 	})
-
-// 	it("propogates through the past", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const nod3 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: -1 })
-// 		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
-// 		addPulse(phantom, { id: nod1.id })
-// 		assert(nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-// 		assert(nod3.pulses.blue)
-// 	})
-
-// 	it("propogates through the future", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const nod3 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-// 		createWire(phantom, { source: nod2.id, target: nod3.id, timing: -1 })
-// 		addPulse(phantom, { id: nod1.id })
-// 		assert(nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-// 		assert(nod3.pulses.blue)
-// 	})
-// })
-
-// describe("modifying", () => {
-// 	it("modifies a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-
-// 		assertEquals(nod.position, [0, 0])
-// 		assertEquals(nod.type, "any")
-// 		modifyNod(phantom, { id: nod.id, position: [10, 20], type: "creation" })
-// 		assertEquals(nod.position, [10, 20])
-// 		assertEquals(nod.type, "creation")
-// 	})
-
-// 	it("modifies a wire", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
-
-// 		assertEquals(wire.timing, 0)
-// 		assertEquals(wire.colour, "any")
-// 		modifyWire(phantom, { id: wire.id, timing: 1, colour: "red" })
-// 		assertEquals(wire.timing, 1)
-// 		assertEquals(wire.colour, "red")
-// 	})
-
-// 	it("sticks with current values", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const wire = createWire(phantom, { source: nod.id, target: nod.id })
-
-// 		assertEquals(wire.timing, 0)
-// 		assertEquals(wire.colour, "any")
-// 		modifyWire(phantom, { id: wire.id })
-// 		assertEquals(wire.timing, 0)
-// 		assertEquals(wire.colour, "any")
-
-// 		assertEquals(nod.position, [0, 0])
-// 		assertEquals(nod.type, "any")
-// 		modifyNod(phantom, { id: nod.id })
-// 		assertEquals(nod.position, [0, 0])
-// 		assertEquals(nod.type, "any")
-// 	})
-// })
+describe.skip("creation pulse", () => {})
+describe.skip("destruction pulse", () => {})
 
 // describe("projecting", () => {
 // 	it("clones a nod", () => {

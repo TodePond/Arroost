@@ -38,6 +38,14 @@ export const validate = (value, schema) => {
 	}
 }
 
+/**
+ * Reach unimplemented code.
+ * @returns {never}
+ */
+export const unimplemented = () => {
+	throw new Error("Unimplemented")
+}
+
 //=======//
 // Nogan //
 //=======//
@@ -388,12 +396,17 @@ export const archiveCell = (nogan, id) => {
  * 	id: CellId,
  * 	type?: CellType,
  * 	position?: Vector2D,
+ * 	propogate?: boolean,
  * }} options
  */
-export const modifyCell = (nogan, { id, type, position }) => {
+export const modifyCell = (nogan, { id, type, position, propogate = false }) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.position = position ?? cell.position
+
+	if (propogate) {
+		unimplemented()
+	}
 
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
@@ -526,12 +539,17 @@ export const getWires = (nogan) => {
  * 	id: WireId,
  * 	colour?: WireColour,
  * 	timing?: Timing,
+ * 	propogate?: boolean,
  * }} options
  */
-export const modifyWire = (nogan, { id, colour, timing }) => {
+export const modifyWire = (nogan, { id, colour, timing, propogate = false }) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
+
+	if (propogate) {
+		unimplemented()
+	}
 
 	validate(wire, N.Wire)
 	validate(nogan, N.Nogan)
@@ -558,21 +576,27 @@ export const createPulse = (options = { type: "raw" }) => {
  * 	id: CellId,
  * 	colour?: PulseColour,
  * 	pulse?: Pulse,
+ * 	propogate?: boolean,
  * }} options
  */
-export const fireCell = (nogan, { id, colour = "blue", pulse = { type: "raw" } }) => {
+export const fireCell = (
+	nogan,
+	{ id, colour = "blue", pulse = { type: "raw" }, propogate = false },
+) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 
 	// Perform behaviours
-	const peak = createPeak({ result: true, pulse }) //behave(parent, { peak, id })
+	const peak = createPeak({ pulse }) //todo: behave?... behave(parent, { pulse, id })
 	if (!peak.result) return
 
 	// Update our pulse
 	fire[colour] = peak.pulse
 
-	// Todo: Trigger any resultant changes
-	//propogate( ... )
+	// Propogate changes
+	if (propogate) {
+		unimplemented()
+	}
 
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
@@ -585,140 +609,72 @@ export const fireCell = (nogan, { id, colour = "blue", pulse = { type: "raw" } }
 /**
  * Create a peak.
  * @param {{
- * 	result?: boolean,
  * 	operations?: Operation[],
  * 	pulse?: Pulse,
  * }} options
  * @returns {Peak}
  */
-export const createPeak = ({ result = false, operations = [], pulse } = {}) => {
-	const peak = result
-		? N.SuccessPeak.make({ result, operations, pulse })
-		: N.FailPeak.make({ operations })
+export const createPeak = ({ operations = [], pulse } = {}) => {
+	const peak = pulse ? N.SuccessPeak.make({ operations, pulse }) : N.FailPeak.make({ operations })
 	validate(peak, N.Peak)
 	return peak
 }
 
-// //===========//
-// // Modifying //
-// //===========//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	type?: NodType,
-//  * 	position?: Vector2D,
-//  * }} options
-//  */
-// export const modifyNod = (parent, { id, type, position }) => {
-// 	const nod = getNod(parent, id)
-// 	nod.type = type ?? nod.type
-// 	nod.position = position ?? nod.position
+/**
+ * Peak at a cell to see how it's firing.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour?: PulseColour,
+ * 	timing?: Timing,
+ * }} options
+ * @returns {Peak}
+ */
+export const getPeak = (nogan, { id, colour = "blue", timing = 0 }) => {
+	const peaker = PEAKERS[timing]
+	return peaker(nogan, { id, colour })
+}
 
-// 	validate(parent)
-// 	validate(nod)
-// }
+/**
+ * Peak at a cell to see how it's firing right now.
+ * @type {Peaker}
+ */
+const getPeakNow = (nogan, { id, colour }) => {
+	const cell = getCell(nogan, id)
+	const { fire } = cell
+	const pulse = fire[colour]
+	if (!pulse) {
+		return createPeak()
+	}
 
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour?: WireColour,
-//  * 	timing?: Timing,
-//  * }} options
-//  */
-// export const modifyWire = (parent, { id, colour, timing }) => {
-// 	const wire = getWire(parent, id)
-// 	wire.colour = colour ?? wire.colour
-// 	wire.timing = timing ?? wire.timing
+	return createPeak({ pulse }) //todo: return operations?
+}
 
-// 	validate(parent)
-// 	validate(wire)
-// }
+/**
+ * Peak at a cell to see how it was firing one beat ago.
+ * @type {Peaker}
+ */
+const getPeakBefore = (nogan, { id, colour }) => {
+	return createPeak()
+}
 
-// //=========//
-// // Peaking //
-// //=========//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour?: PulseColour,
-//  * 	timing?: Timing,
-//  * 	history?: Parent[],
-//  * 	future?: Parent[],
-//  * }} options
-//  * @returns {Peak}
-//  */
-// export const getPeak = (
-// 	parent,
-// 	{ id, colour = "blue", timing = 0, history = [], future = [] },
-// ) => {
-// 	const peak = _getPeak(parent, { id, colour, timing, history, future })
-// 	validate(peak)
-// 	validate(parent)
-// 	return peak
-// }
+/**
+ * Peak at a cell to see how it will be firing one beat from now.
+ * @type {Peaker}
+ */
+const getPeakAfter = (nogan, { id, colour }) => {
+	return createPeak()
+}
 
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour?: PulseColour,
-//  * 	timing?: Timing,
-//  * 	history?: Parent[],
-//  * 	future?: Parent[],
-//  * }} options
-//  * @returns {Peak}
-//  */
-// const _getPeak = (parent, { id, colour, timing, history, future }) => {
-// 	switch (timing) {
-// 		case 0:
-// 			return getPeakNow(parent, { id, colour, history, future })
-// 		case -1:
-// 			return getPeakBefore(parent, { id, colour, history, future })
-// 		case 1:
-// 			return getPeakAfter(parent, { id, colour, history, future })
-// 	}
-
-// 	return N.Never.make({ id, colour, timing, history })
-// }
-
-// /**
-//  *
-//  * @param {{
-//  * 	result?: boolean,
-//  * 	type?: PulseType,
-//  * 	template?: NodTemplate,
-//  * 	operations?: Operation[],
-//  * }?} options
-//  * @returns {Peak}
-//  */
-// export const createPeak = ({ result = false, type, template, operations = [] } = {}) => {
-// 	if (!result) return N.FailPeak.make({ operations })
-// 	return N.SuccessPeak.make({ result, type, template })
-// }
-
-// /**
-//  * @param {Timing} timing
-//  * @returns {Timing}
-//  */
-// export const flipTiming = (timing) => {
-// 	switch (timing) {
-// 		case 0:
-// 			return 0
-// 		case -1:
-// 			return 1
-// 		case 1:
-// 			return -1
-// 	}
-
-// 	throw new Error(`Unknown timing '${timing}'`)
-// }
+/**
+ * The functions for peaking at cells at different points in time.
+ * @type {Record<Timing, Peaker>}
+ */
+const PEAKERS = {
+	[-1]: getPeakBefore,
+	[0]: getPeakNow,
+	[1]: getPeakAfter,
+}
 
 // /**
 //  *
