@@ -509,51 +509,6 @@ describe("peak", () => {
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})
 
-// 	it("finds a pulse caused by the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id })
-
-// 		const peakBefore = getPeak(phantom, { id: nod2.id })
-// 		assertEquals(peakBefore.result, false)
-
-// 		addPulse(phantom, { id: nod1.id })
-
-// 		const peakAfter = getPeak(phantom, { id: nod2.id })
-// 		assertEquals(peakAfter.result, true)
-// 	})
-
-// 	it("finds a pulse caused by the past", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-
-// 		const past = project(phantom)
-// 		const now = project(phantom)
-
-// 		addPulse(past, { id: nod1.id })
-
-// 		const peak = getPeak(now, { id: nod2.id, history: [past] })
-// 		assertEquals(peak.result, true)
-// 	})
-
-// 	it("finds a future pulse caused by the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-
-// 		const now = project(phantom)
-// 		const future = project(phantom)
-
-// 		addPulse(now, { id: nod1.id })
-
-// 		const peak = getPeak(future, { id: nod2.id, history: [now] })
-// 		assertEquals(peak.result, true)
-// 	})
-
 // describe("projecting", () => {
 // 	it("clones a nod", () => {
 // 		const phantom = createPhantom()
