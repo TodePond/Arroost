@@ -432,7 +432,7 @@ describe("peak", () => {
 		assertEquals(peak, { result: false, operations: [] })
 	})
 
-	it("finds a pulse in the present", () => {
+	it("finds a real pulse in the present", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
 		const peak1 = getPeak(nogan, { id: cell.id })
@@ -444,10 +444,73 @@ describe("peak", () => {
 			assertEquals(peak2.pulse.type, "raw")
 		}
 	})
+
+	it("finds a real pulse in the past", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const before1 = structuredClone(nogan)
+		const before2 = structuredClone(nogan)
+		fireCell(before1, { id: cell.id })
+		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, history: [before1] })
+		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, history: [before2] })
+		assertEquals(peak1.result, true)
+		assertEquals(peak2.result, false)
+	})
+
+	it("finds a real pulse in the future", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const after1 = structuredClone(nogan)
+		const after2 = structuredClone(nogan)
+		fireCell(after1, { id: cell.id })
+		const peak1 = getPeak(nogan, { id: cell.id, timing: 1, future: [after1] })
+		const peak2 = getPeak(nogan, { id: cell.id, timing: 1, future: [after2] })
+		assertEquals(peak1.result, true)
+		assertEquals(peak2.result, false)
+	})
 })
 
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})
+
+// describe("peaking", () => {
+// 	it("finds a pulse in the present", () => {
+// 		const phantom = createPhantom()
+// 		const nod = createNod(phantom)
+// 		const peak1 = getPeak(phantom, { id: nod.id })
+// 		assertEquals(peak1.result, false)
+// 		addPulse(phantom, { id: nod.id })
+// 		const peak2 = getPeak(phantom, { id: nod.id })
+// 		assertEquals(peak2.result, true)
+// 	})
+
+// 	it("finds a pulse in the past", () => {
+// 		const phantom = createPhantom()
+// 		const nod = createNod(phantom)
+
+// 		addPulse(phantom, { id: nod.id })
+// 		const before = structuredClone(phantom)
+// 		const peak2 = getPeak(before, { id: nod.id })
+// 		const peak1 = getPeak(before, {
+// 			id: nod.id,
+// 			timing: -1,
+// 		})
+
+// 		assertEquals(peak1.result, false)
+// 		assertEquals(peak2.result, true)
+
+// 		const after = structuredClone(phantom)
+// 		const afterNod = getNod(after, nod.id)
+// 		afterNod.pulses.blue = null
+// 		const peak4 = getPeak(after, { id: nod.id })
+// 		const peak3 = getPeak(after, {
+// 			id: nod.id,
+// 			timing: -1,
+// 			history: [before],
+// 		})
+// 		assertEquals(peak3.result, true)
+// 		assertEquals(peak4.result, false)
+// 	})
 
 // describe("projecting", () => {
 // 	it("clones a nod", () => {
@@ -539,45 +602,6 @@ describe.skip("destruction pulse", () => {})
 // 		assert(projectedNod3.pulses.blue.type)
 // 	})
 // })
-
-// describe("peaking", () => {
-// 	it("finds a pulse in the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const peak1 = getPeak(phantom, { id: nod.id })
-// 		assertEquals(peak1.result, false)
-// 		addPulse(phantom, { id: nod.id })
-// 		const peak2 = getPeak(phantom, { id: nod.id })
-// 		assertEquals(peak2.result, true)
-// 	})
-
-// 	it("finds a pulse in the past", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-
-// 		addPulse(phantom, { id: nod.id })
-// 		const before = structuredClone(phantom)
-// 		const peak2 = getPeak(before, { id: nod.id })
-// 		const peak1 = getPeak(before, {
-// 			id: nod.id,
-// 			timing: -1,
-// 		})
-
-// 		assertEquals(peak1.result, false)
-// 		assertEquals(peak2.result, true)
-
-// 		const after = structuredClone(phantom)
-// 		const afterNod = getNod(after, nod.id)
-// 		afterNod.pulses.blue = null
-// 		const peak4 = getPeak(after, { id: nod.id })
-// 		const peak3 = getPeak(after, {
-// 			id: nod.id,
-// 			timing: -1,
-// 			history: [before],
-// 		})
-// 		assertEquals(peak3.result, true)
-// 		assertEquals(peak4.result, false)
-// 	})
 
 // 	it("finds a pulse caused by the present", () => {
 // 		const phantom = createPhantom()

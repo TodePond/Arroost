@@ -108,7 +108,15 @@ declare type SuccessPeak = {
 }
 
 declare type Peak = FailPeak | SuccessPeak
-declare type Peaker = (nogan: Nogan, { id, colour }: { id: CellId; colour: PulseColour }) => Peak
+declare type Peaker = (
+	nogan: Nogan,
+	options: {
+		id: CellId
+		colour: PulseColour
+		history: Nogan[]
+		future: Nogan[]
+	},
+) => Peak
 
 //=========//
 // Phantom //

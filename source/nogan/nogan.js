@@ -627,34 +627,51 @@ export const createPeak = ({ operations = [], pulse } = {}) => {
  * 	id: CellId,
  * 	colour?: PulseColour,
  * 	timing?: Timing,
+ * 	history?: Nogan[],
+ * 	future?: Nogan[],
  * }} options
  * @returns {Peak}
  */
-export const getPeak = (nogan, { id, colour = "blue", timing = 0 }) => {
+export const getPeak = (nogan, { id, colour = "blue", timing = 0, history = [], future = [] }) => {
 	const peaker = PEAKERS[timing]
-	return peaker(nogan, { id, colour })
+	return peaker(nogan, { id, colour, history, future })
 }
 
 /**
  * Peak at a cell to see how it's firing right now.
  * @type {Peaker}
  */
-const getPeakNow = (nogan, { id, colour }) => {
+const getPeakNow = (nogan, { id, colour, history, future }) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	const pulse = fire[colour]
-	if (!pulse) {
-		return createPeak()
+	if (pulse) {
+		return createPeak({ pulse }) // todo: return operations?
 	}
 
-	return createPeak({ pulse }) //todo: return operations?
+	// todo: try to imagine the pulse
+
+	return createPeak()
 }
 
 /**
  * Peak at a cell to see how it was firing one beat ago.
  * @type {Peaker}
  */
-const getPeakBefore = (nogan, { id, colour }) => {
+const getPeakBefore = (nogan, { id, colour, history, future }) => {
+	const before = history.at(-1)
+	if (before) {
+		return getPeak(before, {
+			id,
+			timing: 0,
+			colour,
+			history: history.slice(0, -1),
+			future: [nogan, ...future],
+		})
+	}
+
+	// todo: try to imagine the pulse
+
 	return createPeak()
 }
 
@@ -662,7 +679,20 @@ const getPeakBefore = (nogan, { id, colour }) => {
  * Peak at a cell to see how it will be firing one beat from now.
  * @type {Peaker}
  */
-const getPeakAfter = (nogan, { id, colour }) => {
+const getPeakAfter = (nogan, { id, colour, history, future }) => {
+	const after = future.at(0)
+	if (after) {
+		return getPeak(after, {
+			id,
+			timing: 0,
+			colour,
+			history: [...history, nogan],
+			future: future.slice(1),
+		})
+	}
+
+	// todo: try to imagine the pulse
+
 	return createPeak()
 }
 
