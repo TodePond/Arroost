@@ -668,7 +668,7 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 
 	let peak = createPeak({ pulse })
 
-	if (peak.result && peak.pulse.type !== "raw") {
+	if (isPeakFinal(peak)) {
 		return peak
 	}
 
@@ -687,6 +687,10 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 			history,
 			future,
 		})
+
+		if (isPeakFinal(peak)) {
+			return peak
+		}
 	}
 
 	// todo: try to imagine the pulse
