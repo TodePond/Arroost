@@ -468,48 +468,90 @@ describe("peak", () => {
 		assertEquals(peak1.result, true)
 		assertEquals(peak2.result, false)
 	})
+
+	it("finds a pulse caused by the present", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id })
+		fireCell(nogan, { id: source.id, propogate: false })
+		const peak = getPeak(nogan, { id: target.id })
+		assertEquals(peak.result, true)
+	})
+
+	it("finds a pulse caused by the past", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+
+		const before = structuredClone(nogan)
+		fireCell(before, { id: source.id, propogate: false })
+
+		const peak = getPeak(nogan, { id: target.id, history: [before] })
+		assertEquals(peak.result, true)
+	})
+
+	it("finds a pulse caused by the future", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: -1 })
+
+		const after = structuredClone(nogan)
+		fireCell(after, { id: source.id, propogate: false })
+
+		const peak = getPeak(nogan, { id: target.id, future: [after] })
+		assertEquals(peak.result, true)
+	})
 })
 
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})
 
-// describe("peaking", () => {
-// 	it("finds a pulse in the present", () => {
+// 	it("finds a pulse caused by the present", () => {
 // 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const peak1 = getPeak(phantom, { id: nod.id })
-// 		assertEquals(peak1.result, false)
-// 		addPulse(phantom, { id: nod.id })
-// 		const peak2 = getPeak(phantom, { id: nod.id })
-// 		assertEquals(peak2.result, true)
+// 		const nod1 = createNod(phantom)
+// 		const nod2 = createNod(phantom)
+// 		createWire(phantom, { source: nod1.id, target: nod2.id })
+
+// 		const peakBefore = getPeak(phantom, { id: nod2.id })
+// 		assertEquals(peakBefore.result, false)
+
+// 		addPulse(phantom, { id: nod1.id })
+
+// 		const peakAfter = getPeak(phantom, { id: nod2.id })
+// 		assertEquals(peakAfter.result, true)
 // 	})
 
-// 	it("finds a pulse in the past", () => {
+// 	it("finds a pulse caused by the past", () => {
 // 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
+// 		const nod1 = createNod(phantom)
+// 		const nod2 = createNod(phantom)
+// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
 
-// 		addPulse(phantom, { id: nod.id })
-// 		const before = structuredClone(phantom)
-// 		const peak2 = getPeak(before, { id: nod.id })
-// 		const peak1 = getPeak(before, {
-// 			id: nod.id,
-// 			timing: -1,
-// 		})
+// 		const past = project(phantom)
+// 		const now = project(phantom)
 
-// 		assertEquals(peak1.result, false)
-// 		assertEquals(peak2.result, true)
+// 		addPulse(past, { id: nod1.id })
 
-// 		const after = structuredClone(phantom)
-// 		const afterNod = getNod(after, nod.id)
-// 		afterNod.pulses.blue = null
-// 		const peak4 = getPeak(after, { id: nod.id })
-// 		const peak3 = getPeak(after, {
-// 			id: nod.id,
-// 			timing: -1,
-// 			history: [before],
-// 		})
-// 		assertEquals(peak3.result, true)
-// 		assertEquals(peak4.result, false)
+// 		const peak = getPeak(now, { id: nod2.id, history: [past] })
+// 		assertEquals(peak.result, true)
+// 	})
+
+// 	it("finds a future pulse caused by the present", () => {
+// 		const phantom = createPhantom()
+// 		const nod1 = createNod(phantom)
+// 		const nod2 = createNod(phantom)
+// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
+
+// 		const now = project(phantom)
+// 		const future = project(phantom)
+
+// 		addPulse(now, { id: nod1.id })
+
+// 		const peak = getPeak(future, { id: nod2.id, history: [now] })
+// 		assertEquals(peak.result, true)
 // 	})
 
 // describe("projecting", () => {
@@ -602,51 +644,6 @@ describe.skip("destruction pulse", () => {})
 // 		assert(projectedNod3.pulses.blue.type)
 // 	})
 // })
-
-// 	it("finds a pulse caused by the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id })
-
-// 		const peakBefore = getPeak(phantom, { id: nod2.id })
-// 		assertEquals(peakBefore.result, false)
-
-// 		addPulse(phantom, { id: nod1.id })
-
-// 		const peakAfter = getPeak(phantom, { id: nod2.id })
-// 		assertEquals(peakAfter.result, true)
-// 	})
-
-// 	it("finds a pulse caused by the past", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-
-// 		const past = project(phantom)
-// 		const now = project(phantom)
-
-// 		addPulse(past, { id: nod1.id })
-
-// 		const peak = getPeak(now, { id: nod2.id, history: [past] })
-// 		assertEquals(peak.result, true)
-// 	})
-
-// 	it("finds a future pulse caused by the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-
-// 		const now = project(phantom)
-// 		const future = project(phantom)
-
-// 		addPulse(now, { id: nod1.id })
-
-// 		const peak = getPeak(future, { id: nod2.id, history: [now] })
-// 		assertEquals(peak.result, true)
-// 	})
 
 // 	it("finds a pulse caused by an imagined past", () => {
 // 		const phantom = createPhantom()

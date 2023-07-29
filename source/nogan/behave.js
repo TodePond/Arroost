@@ -1,6 +1,15 @@
 import { createPeak, getNod } from "./nogan.js"
 import { OPERATION_TYPE, PULSE_TYPE } from "./schema.js"
 
+// =====
+// This comment is not related to the code below
+// It is for the unique id rewrite, currently underway
+// =====
+// A behaviour happens when a pulse moves from one cell to another
+// The peak is a peak of the pulse at the source cell
+// The id is the id of the target cell
+// =====
+
 /** @type {Behave} */
 const anyBehave = (parent, { peak, id }) => {
 	// Change to creation when coming out of creation nod

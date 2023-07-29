@@ -610,7 +610,7 @@ export const fireCell = (
  * Create a peak.
  * @param {{
  * 	operations?: Operation[],
- * 	pulse?: Pulse,
+ * 	pulse?: Pulse | null,
  * }} options
  * @returns {Peak}
  */
@@ -618,6 +618,22 @@ export const createPeak = ({ operations = [], pulse } = {}) => {
 	const peak = pulse ? N.SuccessPeak.make({ operations, pulse }) : N.FailPeak.make({ operations })
 	validate(peak, N.Peak)
 	return peak
+}
+
+/**
+ * Flip a timing.
+ * @param {Timing} timing
+ * @returns {Timing}
+ */
+const getFlippedTiming = (timing) => {
+	switch (timing) {
+		case -1:
+			return 1
+		case 0:
+			return 0
+		case 1:
+			return -1
+	}
 }
 
 /**
@@ -629,12 +645,16 @@ export const createPeak = ({ operations = [], pulse } = {}) => {
  * 	timing?: Timing,
  * 	history?: Nogan[],
  * 	future?: Nogan[],
+ *  behave?: boolean,
  * }} options
  * @returns {Peak}
  */
-export const getPeak = (nogan, { id, colour = "blue", timing = 0, history = [], future = [] }) => {
+export const getPeak = (
+	nogan,
+	{ id, colour = "blue", timing = 0, history = [], future = [], behave = false },
+) => {
 	const peaker = PEAKERS[timing]
-	return peaker(nogan, { id, colour, history, future })
+	return peaker(nogan, { id, colour, history, future, behave })
 }
 
 /**
@@ -645,28 +665,60 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	const pulse = fire[colour]
-	if (pulse) {
-		return createPeak({ pulse }) // todo: return operations?
+
+	let peak = createPeak({ pulse })
+
+	if (peak.result && peak.pulse.type !== "raw") {
+		return peak
+	}
+
+	for (const input of cell.inputs) {
+		const wire = getWire(nogan, input)
+
+		if (wire.colour !== "any" && wire.colour !== colour) {
+			continue
+		}
+
+		peak = getPeak(nogan, {
+			behave: true,
+			id: wire.source,
+			timing: getFlippedTiming(wire.timing),
+			colour,
+			history,
+			future,
+		})
 	}
 
 	// todo: try to imagine the pulse
 
-	return createPeak()
+	return peak
+}
+
+/**
+ * Returns true if the peak is final.
+ * In other words, if it wouldn't be changed by any further pulses.
+ * This is specific to Arroost, not nogan.
+ * It's done so that we can stop iterating through wires that wouldn't change anything.
+ * @param {Peak} peak
+ * @returns
+ */
+const isPeakFinal = (peak) => {
+	return peak.result && peak.pulse.type !== "raw"
 }
 
 /**
  * Peak at a cell to see how it was firing one beat ago.
  * @type {Peaker}
  */
-const getPeakBefore = (nogan, { id, colour, history, future }) => {
+const getPeakBefore = (nogan, { id, colour, history, future, behave }) => {
 	const before = history.at(-1)
 	if (before) {
-		return getPeak(before, {
+		return getPeakNow(before, {
 			id,
-			timing: 0,
 			colour,
 			history: history.slice(0, -1),
 			future: [nogan, ...future],
+			behave,
 		})
 	}
 
@@ -679,15 +731,15 @@ const getPeakBefore = (nogan, { id, colour, history, future }) => {
  * Peak at a cell to see how it will be firing one beat from now.
  * @type {Peaker}
  */
-const getPeakAfter = (nogan, { id, colour, history, future }) => {
+const getPeakAfter = (nogan, { id, colour, history, future, behave }) => {
 	const after = future.at(0)
 	if (after) {
-		return getPeak(after, {
+		return getPeakNow(after, {
 			id,
-			timing: 0,
 			colour,
 			history: [...history, nogan],
 			future: future.slice(1),
+			behave,
 		})
 	}
 

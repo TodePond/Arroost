@@ -115,6 +115,7 @@ declare type Peaker = (
 		colour: PulseColour
 		history: Nogan[]
 		future: Nogan[]
+		behave: boolean
 	},
 ) => Peak
 
