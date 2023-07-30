@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
+import { assert, assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
 // @ts-expect-error
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
@@ -7,6 +7,7 @@ import {
 	archiveCellId,
 	archiveWireId,
 	createCell,
+	createFire,
 	createNogan,
 	createPeak,
 	createPulse,
@@ -24,6 +25,7 @@ import {
 	getCell,
 	getCells,
 	getPeak,
+	getProjectedNogan,
 	getRoot,
 	getWire,
 	getWires,
@@ -410,6 +412,11 @@ describe("pulse", () => {
 		assertEquals(pulse, { type: "raw" })
 	})
 
+	it("creates a fire", () => {
+		const fire = createFire()
+		assertEquals(fire, { blue: null, green: null, red: null })
+	})
+
 	it("fires a cell", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
@@ -424,98 +431,27 @@ describe("pulse", () => {
 	it.skip("propogates through the future", () => {})
 })
 
-describe.skip("projection", () => {})
-
-describe("peak", () => {
-	it("creates a peak", () => {
-		const peak = createPeak()
-		assertEquals(peak, { result: false, operations: [] })
+describe("project", () => {
+	it("clones a nogan", () => {
+		const nogan = createNogan()
+		const projection = getProjectedNogan(nogan)
+		assertEquals(projection, nogan)
+		assert(projection !== nogan)
 	})
 
-	it("finds a real pulse in the present", () => {
+	it("ends fires", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
-		const peak1 = getPeak(nogan, { id: cell.id })
-		assertEquals(peak1.result, false)
 		fireCell(nogan, { id: cell.id })
-		const peak2 = getPeak(nogan, { id: cell.id })
-		assertEquals(peak2.result, true)
-		if (peak2.result) {
-			assertEquals(peak2.pulse.type, "raw")
-		}
-	})
+		assertEquals(cell.fire.blue, { type: "raw" })
 
-	it("finds a real pulse in the past", () => {
-		const nogan = createNogan()
-		const cell = createCell(nogan)
-		const before1 = structuredClone(nogan)
-		const before2 = structuredClone(nogan)
-		fireCell(before1, { id: cell.id })
-		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, history: [before1] })
-		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, history: [before2] })
-		assertEquals(peak1.result, true)
-		assertEquals(peak2.result, false)
-	})
-
-	it("finds a real pulse in the future", () => {
-		const nogan = createNogan()
-		const cell = createCell(nogan)
-		const after1 = structuredClone(nogan)
-		const after2 = structuredClone(nogan)
-		fireCell(after1, { id: cell.id })
-		const peak1 = getPeak(nogan, { id: cell.id, timing: 1, future: [after1] })
-		const peak2 = getPeak(nogan, { id: cell.id, timing: 1, future: [after2] })
-		assertEquals(peak1.result, true)
-		assertEquals(peak2.result, false)
-	})
-
-	it("finds a pulse caused by the present", () => {
-		const nogan = createNogan()
-		const source = createCell(nogan)
-		const target = createCell(nogan)
-		createWire(nogan, { source: source.id, target: target.id })
-		fireCell(nogan, { id: source.id, propogate: false })
-		const peak = getPeak(nogan, { id: target.id })
-		assertEquals(peak.result, true)
-	})
-
-	it("finds a pulse caused by the past", () => {
-		const nogan = createNogan()
-		const source = createCell(nogan)
-		const target = createCell(nogan)
-		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
-
-		const before = structuredClone(nogan)
-		fireCell(before, { id: source.id, propogate: false })
-
-		const peak = getPeak(nogan, { id: target.id, history: [before] })
-		assertEquals(peak.result, true)
-	})
-
-	it("finds a pulse caused by the future", () => {
-		const nogan = createNogan()
-		const source = createCell(nogan)
-		const target = createCell(nogan)
-		createWire(nogan, { source: source.id, target: target.id, timing: -1 })
-
-		const after = structuredClone(nogan)
-		fireCell(after, { id: source.id, propogate: false })
-
-		const peak = getPeak(nogan, { id: target.id, future: [after] })
-		assertEquals(peak.result, true)
+		const projection = getProjectedNogan(nogan)
+		const projectedCell = getCell(projection, cell.id)
+		assertEquals(projectedCell.fire.blue, null)
 	})
 })
 
-describe.skip("creation pulse", () => {})
-describe.skip("destruction pulse", () => {})
-
 // describe("projecting", () => {
-// 	it("clones a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const projection = project(nod)
-// 		assertEquals(projection, nod)
-// 	})
 
 // 	it("removes pulses", () => {
 // 		const phantom = createPhantom()
@@ -599,6 +535,89 @@ describe.skip("destruction pulse", () => {})
 // 		assert(projectedNod3.pulses.blue.type)
 // 	})
 // })
+
+describe("peak", () => {
+	it("creates a peak", () => {
+		const peak = createPeak()
+		assertEquals(peak, { result: false, operations: [] })
+	})
+
+	it("finds a real pulse in the present", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const peak1 = getPeak(nogan, { id: cell.id })
+		assertEquals(peak1.result, false)
+		fireCell(nogan, { id: cell.id })
+		const peak2 = getPeak(nogan, { id: cell.id })
+		assertEquals(peak2.result, true)
+		if (peak2.result) {
+			assertEquals(peak2.pulse.type, "raw")
+		}
+	})
+
+	it("finds a real pulse in the past", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const before1 = structuredClone(nogan)
+		const before2 = structuredClone(nogan)
+		fireCell(before1, { id: cell.id })
+		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, history: [before1] })
+		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, history: [before2] })
+		assertEquals(peak1.result, true)
+		assertEquals(peak2.result, false)
+	})
+
+	it("finds a real pulse in the future", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		const after1 = structuredClone(nogan)
+		const after2 = structuredClone(nogan)
+		fireCell(after1, { id: cell.id })
+		const peak1 = getPeak(nogan, { id: cell.id, timing: 1, future: [after1] })
+		const peak2 = getPeak(nogan, { id: cell.id, timing: 1, future: [after2] })
+		assertEquals(peak1.result, true)
+		assertEquals(peak2.result, false)
+	})
+
+	it("finds a pulse caused by the present", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id })
+		fireCell(nogan, { id: source.id, propogate: false })
+		const peak = getPeak(nogan, { id: target.id })
+		assertEquals(peak.result, true)
+	})
+
+	it("finds a pulse caused by the past", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+
+		const before = structuredClone(nogan)
+		fireCell(before, { id: source.id, propogate: false })
+
+		const peak = getPeak(nogan, { id: target.id, history: [before] })
+		assertEquals(peak.result, true)
+	})
+
+	it("finds a pulse caused by the future", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: -1 })
+
+		const after = structuredClone(nogan)
+		fireCell(after, { id: source.id, propogate: false })
+
+		const peak = getPeak(nogan, { id: target.id, future: [after] })
+		assertEquals(peak.result, true)
+	})
+})
+
+describe.skip("creation pulse", () => {})
+describe.skip("destruction pulse", () => {})
 
 // 	it("finds a pulse caused by an imagined past", () => {
 // 		const phantom = createPhantom()

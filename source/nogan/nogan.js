@@ -1,4 +1,5 @@
 import { Schema } from "../../libraries/schema.js"
+import { BEHAVIOURS } from "./behave.js"
 import { NoganSchema } from "./schema.js"
 
 const N = NoganSchema
@@ -570,6 +571,21 @@ export const createPulse = (options = { type: "raw" }) => {
 }
 
 /**
+ * Create a fire.
+ * @param {{
+ * 	red?: Pulse,
+ * 	green?: Pulse,
+ * 	blue?: Pulse,
+ * }} options
+ * @returns {Fire}
+ */
+export const createFire = ({ red, green, blue } = {}) => {
+	const fire = N.Fire.make({ red, green, blue })
+	validate(fire, N.Fire)
+	return fire
+}
+
+/**
  * Fire a cell.
  * @param {Nogan} nogan
  * @param {{
@@ -637,6 +653,18 @@ const getFlippedTiming = (timing) => {
 }
 
 /**
+ * Returns true if the peak is final.
+ * In other words, if it wouldn't be changed by any further pulses.
+ * This is specific to Arroost, not nogan.
+ * It's done so that we can stop iterating through wires that wouldn't change anything.
+ * @param {Peak} peak
+ * @returns
+ */
+const isPeakFinal = (peak) => {
+	return peak.result && peak.pulse.type !== "raw"
+}
+
+/**
  * Peak at a cell to see how it's firing.
  * @param {Nogan} nogan
  * @param {{
@@ -645,16 +673,12 @@ const getFlippedTiming = (timing) => {
  * 	timing?: Timing,
  * 	history?: Nogan[],
  * 	future?: Nogan[],
- *  behave?: boolean,
  * }} options
  * @returns {Peak}
  */
-export const getPeak = (
-	nogan,
-	{ id, colour = "blue", timing = 0, history = [], future = [], behave = false },
-) => {
+export const getPeak = (nogan, { id, colour = "blue", timing = 0, history = [], future = [] }) => {
 	const peaker = PEAKERS[timing]
-	return peaker(nogan, { id, colour, history, future, behave })
+	return peaker(nogan, { id, colour, history, future })
 }
 
 /**
@@ -680,7 +704,6 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 		}
 
 		peak = getPeak(nogan, {
-			behave: true,
 			id: wire.source,
 			timing: getFlippedTiming(wire.timing),
 			colour,
@@ -693,28 +716,14 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 		}
 	}
 
-	// todo: try to imagine the pulse
-
 	return peak
-}
-
-/**
- * Returns true if the peak is final.
- * In other words, if it wouldn't be changed by any further pulses.
- * This is specific to Arroost, not nogan.
- * It's done so that we can stop iterating through wires that wouldn't change anything.
- * @param {Peak} peak
- * @returns
- */
-const isPeakFinal = (peak) => {
-	return peak.result && peak.pulse.type !== "raw"
 }
 
 /**
  * Peak at a cell to see how it was firing one beat ago.
  * @type {Peaker}
  */
-const getPeakBefore = (nogan, { id, colour, history, future, behave }) => {
+const getPeakBefore = (nogan, { id, colour, history, future }) => {
 	const before = history.at(-1)
 	if (before) {
 		return getPeakNow(before, {
@@ -722,7 +731,6 @@ const getPeakBefore = (nogan, { id, colour, history, future, behave }) => {
 			colour,
 			history: history.slice(0, -1),
 			future: [nogan, ...future],
-			behave,
 		})
 	}
 
@@ -735,7 +743,7 @@ const getPeakBefore = (nogan, { id, colour, history, future, behave }) => {
  * Peak at a cell to see how it will be firing one beat from now.
  * @type {Peaker}
  */
-const getPeakAfter = (nogan, { id, colour, history, future, behave }) => {
+const getPeakAfter = (nogan, { id, colour, history, future }) => {
 	const after = future.at(0)
 	if (after) {
 		return getPeakNow(after, {
@@ -743,7 +751,6 @@ const getPeakAfter = (nogan, { id, colour, history, future, behave }) => {
 			colour,
 			history: [...history, nogan],
 			future: future.slice(1),
-			behave,
 		})
 	}
 
@@ -762,85 +769,84 @@ const PEAKERS = {
 	[1]: getPeakAfter,
 }
 
+//========//
+// Behave //
+//========//
+
+/**
+ * Apply a behaviour to a peak.
+ * @type {Behaviour}
+ */
+const getBehavedPeak = (nogan, { peak, target }) => {
+	if (!peak.result) {
+		return peak
+	}
+	const behaviour = BEHAVIOURS[peak.pulse.type]
+	const behaved = behaviour(nogan, { peak, target })
+	validate(behaved, N.Peak)
+	return behaved
+}
+
+//=========//
+// Project //
+//=========//
+/**
+ * Clone a nogan, ending all fires of cells whose parents are firing.
+ * @param {Nogan} nogan
+ * @returns {Nogan}
+ */
+export const getProjectedNogan = (nogan) => {
+	const projection = structuredClone(nogan)
+
+	for (const cell of iterateCells(projection)) {
+		cell.fire = createFire()
+	}
+
+	validate(projection, N.Nogan)
+	return projection
+}
+
+// //============//
+// // Projecting //
+// //============//
+// /**
+//  *
+//  * @param {Parent} parent
+//  * @returns {Parent}
+//  */
+// export const project = (parent) => {
+// 	const projection = structuredClone(parent)
+// 	for (const id in projection.children) {
+// 		const child = projection.children[id]
+// 		if (!child.isNod) continue
+// 		child.pulses.red = null
+// 		child.pulses.green = null
+// 		child.pulses.blue = null
+// 	}
+// 	return projection
+// }
+
 // /**
 //  *
 //  * @param {Parent} parent
 //  * @param {{
-//  * 	id: Id,
-//  * 	colour: PulseColour,
-//  * 	history: Parent[],
-//  * 	future: Parent[],
+//  * 	clone?: boolean,
 //  * }} options
-//  * @returns {Peak}
+//  * @returns
 //  */
-// const getPeakNow = (parent, { id, colour, history, future }) => {
-// 	// First, let's try to find a real pulse
-// 	const nod = getNod(parent, id)
-// 	if (nod) {
-// 		const pulse = nod.pulses[colour]
-// 		if (pulse) {
-// 			return createPeak({
-// 				result: true,
-// 				type: pulse.type,
-// 				template: createTemplate(nod),
-// 			})
-// 		}
+// export const deepProject = (parent, { clone = true } = {}) => {
+// 	const projection = clone ? structuredClone(parent) : parent
+// 	for (const id in projection.children) {
+// 		const child = projection.children[id]
+// 		if (!child.isNod) continue
+// 		const isFiring = child.pulses.red || child.pulses.green || child.pulses.blue
+// 		child.pulses.red = null
+// 		child.pulses.green = null
+// 		child.pulses.blue = null
+// 		if (!isFiring) continue
+// 		deepProject(child, { clone: false })
 // 	}
-
-// 	// Next, let's look through our inputs
-// 	// to see if we can find a pulse
-// 	for (const input of nod.inputs) {
-// 		const wire = getWire(parent, input)
-
-// 		if (wire.colour !== "any" && wire.colour !== colour) {
-// 			continue
-// 		}
-
-// 		const peak = getPeak(parent, {
-// 			id: wire.source,
-// 			timing: flipTiming(wire.timing),
-// 			colour,
-// 			history,
-// 			future,
-// 		})
-
-// 		if (peak.result) {
-// 			return behave(parent, { peak, id })
-// 		}
-// 	}
-
-// 	// Too bad, we couldn't find a pulse
-// 	return createPeak()
-// }
-
-// /**
-//  * Peak refers to the input that is causing this nod to fire
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	peak: SuccessPeak,
-//  * 	id: Id,
-//  * }} options
-//  * @returns {Peak}
-//  */
-// export const behave = (parent, { peak, id }) => {
-// 	const _behave = BEHAVES[peak.type]
-// 	if (!_behave) {
-// 		return peak
-// 	}
-
-// 	const transformedPeak = _behave(parent, { peak, id })
-// 	if (!transformedPeak) {
-// 		throw new Error("Nod behave must return a peak")
-// 	}
-
-// 	if (shouldValidate()) {
-// 		validate(transformedPeak)
-// 		for (const operation of peak.operations) {
-// 			validate(operation, N.Operation)
-// 		}
-// 	}
-
-// 	return transformedPeak
+// 	return projection
 // }
 
 // /**
@@ -944,6 +950,36 @@ const PEAKERS = {
 // }
 
 // /**
+//  * Peak refers to the input that is causing this nod to fire
+//  * @param {Parent} parent
+//  * @param {{
+//  * 	peak: SuccessPeak,
+//  * 	id: Id,
+//  * }} options
+//  * @returns {Peak}
+//  */
+// export const behave = (parent, { peak, id }) => {
+// 	const _behave = BEHAVES[peak.type]
+// 	if (!_behave) {
+// 		return peak
+// 	}
+
+// 	const transformedPeak = _behave(parent, { peak, id })
+// 	if (!transformedPeak) {
+// 		throw new Error("Nod behave must return a peak")
+// 	}
+
+// 	if (shouldValidate()) {
+// 		validate(transformedPeak)
+// 		for (const operation of peak.operations) {
+// 			validate(operation, N.Operation)
+// 		}
+// 	}
+
+// 	return transformedPeak
+// }
+
+// /**
 //  *
 //  * @param {Parent} parent
 //  * @param {{
@@ -962,49 +998,6 @@ const PEAKERS = {
 // 	}
 // 	validate(fullPeak)
 // 	return fullPeak
-// }
-
-// //============//
-// // Projecting //
-// //============//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @returns {Parent}
-//  */
-// export const project = (parent) => {
-// 	const projection = structuredClone(parent)
-// 	for (const id in projection.children) {
-// 		const child = projection.children[id]
-// 		if (!child.isNod) continue
-// 		child.pulses.red = null
-// 		child.pulses.green = null
-// 		child.pulses.blue = null
-// 	}
-// 	return projection
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	clone?: boolean,
-//  * }} options
-//  * @returns
-//  */
-// export const deepProject = (parent, { clone = true } = {}) => {
-// 	const projection = clone ? structuredClone(parent) : parent
-// 	for (const id in projection.children) {
-// 		const child = projection.children[id]
-// 		if (!child.isNod) continue
-// 		const isFiring = child.pulses.red || child.pulses.green || child.pulses.blue
-// 		child.pulses.red = null
-// 		child.pulses.green = null
-// 		child.pulses.blue = null
-// 		if (!isFiring) continue
-// 		deepProject(child, { clone: false })
-// 	}
-// 	return projection
 // }
 
 // //===========//

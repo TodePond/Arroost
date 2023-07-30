@@ -35,6 +35,12 @@ declare type DestructionPulse = BasePulse & {
 
 declare type Pulse = RawPulse | CreationPulse | DestructionPulse
 
+declare type Fire = {
+	red: Pulse | null
+	green: Pulse | null
+	blue: Pulse | null
+}
+
 //====//
 // Id //
 //====//
@@ -52,11 +58,7 @@ declare type Cell = {
 	cells: CellId[]
 	inputs: WireId[]
 	outputs: WireId[]
-	fire: {
-		red: Pulse | null
-		green: Pulse | null
-		blue: Pulse | null
-	}
+	fire: Fire
 }
 
 //======//
@@ -115,7 +117,14 @@ declare type Peaker = (
 		colour: PulseColour
 		history: Nogan[]
 		future: Nogan[]
-		behave: boolean
+	},
+) => Peak
+
+declare type Behaviour = (
+	nogan: Nogan,
+	options: {
+		peak: Peak
+		target: CellId
 	},
 ) => Peak
 

@@ -86,6 +86,11 @@ N.DestructionPulse = N.BasePulse.combine({
 })
 
 N.Pulse = S.Any([N.RawPulse, N.CreationPulse, N.DestructionPulse])
+N.Fire = S.Struct({
+	red: N.Pulse.nullable(),
+	green: N.Pulse.nullable(),
+	blue: N.Pulse.nullable(),
+})
 
 //====//
 // Id //
@@ -106,11 +111,7 @@ N.Cell = S.Struct({
 	cells: S.ArrayOf(N.CellId),
 	inputs: S.ArrayOf(N.WireId),
 	outputs: S.ArrayOf(N.WireId),
-	fire: S.Struct({
-		red: N.Pulse.nullable(),
-		green: N.Pulse.nullable(),
-		blue: N.Pulse.nullable(),
-	}),
+	fire: N.Fire,
 }).andCheck((cell) => {
 	if (cell.type === "root" && cell.id !== 0) {
 		throw new Error("Root cell must have id 0")
