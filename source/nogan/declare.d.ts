@@ -6,12 +6,20 @@ declare type PulseType = "raw" | "creation" | "destruction"
 declare type PulseColour = "blue" | "green" | "red"
 declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
+declare type Direction = 1 | -1
+declare type NoganType = "real" | "projection"
+declare type Tense = "past" | "future"
 
 //=========//
 // Utility //
 //=========//
 declare type Vector2D = [number, number]
 declare type CellTemplate = { type: CellType; position: Vector2D }
+declare type ReverseRecord<T> = unknown extends {
+	[K in keyof T]-?: T[K] extends Omit<T, K>[Exclude<keyof T, K>] ? unknown : never
+}[keyof T]
+	? never
+	: T[keyof T]
 
 //=======//
 // Pulse //
@@ -76,6 +84,7 @@ declare type Wire = {
 // Nogan //
 //=======//
 declare type Nogan = {
+	type: NoganType
 	nextCell: CellId
 	nextWire: WireId
 	archivedCells: CellId[]
@@ -93,6 +102,20 @@ declare type Operation = any //todo
 //======//
 // Peak //
 //======//
+declare type TenseInfo = {
+	from: Tense
+	to: Tense
+} & (
+	| {
+			from: "past"
+			to: "future"
+	  }
+	| {
+			from: "future"
+			to: "past"
+	  }
+)
+
 declare type BasePeak = {
 	result: boolean
 	operations: Operation[]
@@ -115,9 +138,7 @@ declare type Peaker = (
 	options: {
 		id: CellId
 		colour: PulseColour
-		history: Nogan[]
-		future: Nogan[]
-	},
+	} & Record<Tense, Nogan[]>,
 ) => Peak
 
 declare type Behaviour = (

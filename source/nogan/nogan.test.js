@@ -436,7 +436,7 @@ describe("project", () => {
 	it("clones a nogan", () => {
 		const nogan = createNogan()
 		const projection = getProjectedNogan(nogan)
-		assertEquals(projection, nogan)
+		assertEquals(projection, { ...nogan, type: "projection" })
 		assert(projection !== nogan)
 	})
 
@@ -483,32 +483,6 @@ describe("project", () => {
 	})
 })
 
-// describe("deep projecting", () => {
-
-// 	it("only deep projects children that are firing", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(nod1)
-// 		const nod3 = createNod(nod2)
-// 		addPulse(phantom, { id: nod1.id })
-// 		addPulse(nod2, { id: nod3.id })
-
-// 		assert(nod1.pulses.blue)
-// 		assertEquals(nod2.pulses.blue, null)
-// 		assert(nod3.pulses.blue)
-
-// 		const projection = deepProject(phantom)
-
-// 		const projectedNod1 = getNod(projection, nod1.id)
-// 		const projectedNod2 = getNod(projectedNod1, nod2.id)
-// 		const projectedNod3 = getNod(projectedNod2, nod3.id)
-
-// 		assertEquals(projectedNod1.pulses.blue, null)
-// 		assertEquals(projectedNod2.pulses.blue, null)
-// 		assert(projectedNod3.pulses.blue.type)
-// 	})
-// })
-
 describe("peak", () => {
 	it("creates a peak", () => {
 		const peak = createPeak()
@@ -542,8 +516,8 @@ describe("peak", () => {
 		const before1 = structuredClone(nogan)
 		const before2 = structuredClone(nogan)
 		fireCell(before1, { id: cell.id })
-		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, history: [before1] })
-		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, history: [before2] })
+		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, past: [before1] })
+		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, past: [before2] })
 		assertEquals(peak1.result, true)
 		assertEquals(peak2.result, false)
 	})
@@ -565,9 +539,13 @@ describe("peak", () => {
 		const source = createCell(nogan)
 		const target = createCell(nogan)
 		createWire(nogan, { source: source.id, target: target.id })
+
+		const peak1 = getPeak(nogan, { id: target.id })
+		assertEquals(peak1.result, false)
+
 		fireCell(nogan, { id: source.id, propogate: false })
-		const peak = getPeak(nogan, { id: target.id })
-		assertEquals(peak.result, true)
+		const peak2 = getPeak(nogan, { id: target.id })
+		assertEquals(peak2.result, true)
 	})
 
 	it("finds a pulse caused by the past", () => {
@@ -576,11 +554,13 @@ describe("peak", () => {
 		const target = createCell(nogan)
 		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
 
+		const peak1 = getPeak(nogan, { id: target.id })
+		assertEquals(peak1.result, false)
+
 		const before = structuredClone(nogan)
 		fireCell(before, { id: source.id, propogate: false })
-
-		const peak = getPeak(nogan, { id: target.id, history: [before] })
-		assertEquals(peak.result, true)
+		const peak2 = getPeak(nogan, { id: target.id, past: [before] })
+		assertEquals(peak2.result, true)
 	})
 
 	it("finds a pulse caused by the future", () => {
@@ -589,11 +569,45 @@ describe("peak", () => {
 		const target = createCell(nogan)
 		createWire(nogan, { source: source.id, target: target.id, timing: -1 })
 
+		const peak1 = getPeak(nogan, { id: target.id })
+		assertEquals(peak1.result, false)
+
 		const after = structuredClone(nogan)
 		fireCell(after, { id: source.id, propogate: false })
+		const peak2 = getPeak(nogan, { id: target.id, future: [after] })
+		assertEquals(peak2.result, true)
+	})
 
-		const peak = getPeak(nogan, { id: target.id, future: [after] })
-		assertEquals(peak.result, true)
+	it("finds a pulse caused by an imagined future", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cell3 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: 1 })
+		createWire(nogan, { source: cell2.id, target: cell3.id, timing: -1 })
+
+		const peak1 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak1.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak2 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak2.result, true)
+	})
+
+	it("finds a pulse caused by an imagined past", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cell3 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: -1 })
+		createWire(nogan, { source: cell2.id, target: cell3.id, timing: 1 })
+
+		const peak1 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak1.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak2 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak2.result, true)
 	})
 })
 
@@ -899,7 +913,7 @@ describe.skip("destruction pulse", () => {})
 // 		assert(!nod3After.pulses.blue)
 // 		assert(nod4After.pulses.blue)
 
-// 		const advanced2 = advance(advanced, { history: [phantom] }).parent
+// 		const advanced2 = advance(advanced, { past: [phantom] }).parent
 // 		const nod1After2 = getNod(advanced2, nod1.id)
 // 		const nod3After2 = getNod(advanced2, nod3.id)
 // 		const nod2After2 = getNod(advanced2, nod2.id)
@@ -933,7 +947,7 @@ describe.skip("destruction pulse", () => {})
 // 		assert(!nod2.pulses.blue)
 // 		assert(!nod3.pulses.blue)
 
-// 		const advanced = advance(phantom, { history: [past] }).parent
+// 		const advanced = advance(phantom, { past: [past] }).parent
 // 		const nod1After = getNod(advanced, nod1.id)
 // 		const nod2After = getNod(advanced, nod2.id)
 // 		const nod3After = getNod(advanced, nod3.id)
@@ -1038,12 +1052,12 @@ describe.skip("destruction pulse", () => {})
 // 		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
 // 		addPulse(phantom, { id: creation.id })
 // 		const advanced = advance(phantom).parent
-// 		const peak = getPeak(advanced, { id: any.id, history: [phantom] })
+// 		const peak = getPeak(advanced, { id: any.id, past: [phantom] })
 // 		if (!peak.result) {
 // 			throw new Error("Peak should have fired")
 // 		}
 // 		assertEquals(peak.type, "creation")
-// 		const advanced2 = advance(advanced, { history: [phantom] }).parent
+// 		const advanced2 = advance(advanced, { past: [phantom] }).parent
 // 		const recording = getNod(advanced2, slot.id)
 // 		assertEquals(recording.type, "recording")
 // 	})
@@ -1221,7 +1235,7 @@ describe.skip("destruction pulse", () => {})
 // 		createWire(child, { source: source.id, target: target.id, timing: 1 })
 // 		addPulse(child, { id: source.id })
 // 		addPulse(phantom, { id: child.id })
-// 		const advanced = deepAdvance(phantom, { history: [phantom] }).parent
+// 		const advanced = deepAdvance(phantom, { past: [phantom] }).parent
 // 		const childAfter = getNod(advanced, child.id)
 // 		const targetAfter = getNod(childAfter, target.id)
 // 		const sourceAfter = getNod(childAfter, source.id)

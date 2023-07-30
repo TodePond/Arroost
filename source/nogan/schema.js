@@ -48,17 +48,41 @@ export const TIMING = {
 	"1": 1,
 }
 
+/** @type {Record<Direction, Direction>} */
+export const DIRECTION = {
+	"1": 1,
+	"-1": -1,
+}
+
+/** @type {Record<Tense, Tense>} */
+export const TENSE = {
+	past: "past",
+	future: "future",
+}
+
+/** @type {Record<NoganType, NoganType>} */
+export const NOGAN_TYPE = {
+	real: "real",
+	projection: "projection",
+}
+
 export const CELL_TYPES = Object.values(CELL_TYPE)
 export const PULSE_TYPES = Object.values(PULSE_TYPE)
 export const PULSE_COLOURS = Object.values(PULSE_COLOUR)
 export const WIRE_COLOURS = Object.values(WIRE_COLOUR)
 export const TIMINGS = Object.values(TIMING)
+export const DIRECTIONS = Object.values(DIRECTION)
+export const TENSES = Object.values(TENSE)
+export const NOGAN_TYPES = Object.values(NOGAN_TYPE)
 
 N.CellType = S.Enum(CELL_TYPES)
 N.PulseType = S.Enum(PULSE_TYPES)
 N.PulseColour = S.Enum(PULSE_COLOURS)
 N.WireColour = S.Enum(WIRE_COLOURS)
 N.Timing = S.Enum(TIMINGS)
+N.Direction = S.Enum(DIRECTIONS)
+N.Tense = S.Enum(TENSES)
+N.NoganType = S.Enum(NOGAN_TYPES)
 
 //=========//
 // Utility //
@@ -150,13 +174,13 @@ N.Wire = S.Struct({
 // Nogan //
 //=======//
 N.Nogan = S.Struct({
+	type: N.NoganType,
 	nextCell: N.CellId.withDefault(1),
 	nextWire: N.WireId.withDefault(-1),
 	archivedCells: S.ArrayOf(N.CellId),
 	archivedWires: S.ArrayOf(N.WireId),
 	deletedCells: S.ArrayOf(N.CellId),
 	deletedWires: S.ArrayOf(N.WireId),
-
 	items: S.ObjectWith({
 		keysOf: N.Id,
 		valuesOf: S.Any([N.Cell, N.Wire]).nullable(),

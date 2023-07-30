@@ -1,4 +1,5 @@
 import { Schema } from "../../libraries/schema.js"
+import { objectEquals } from "../../libraries/utilities.js"
 import { BEHAVIOURS } from "./behave.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
@@ -628,6 +629,28 @@ export const fireCell = (
 	validate(pulse, N.Pulse)
 }
 
+//=========//
+// Project //
+//=========//
+/**
+ * Clone a nogan, ending all fires of cells whose parents are firing.
+ * @param {Nogan} nogan
+ * @returns {Nogan}
+ */
+export const getProjectedNogan = (nogan) => {
+	const projection = structuredClone(nogan)
+	projection.type = "projection"
+
+	for (const cell of iterateCells(projection)) {
+		const { parent } = cell
+		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
+		cell.fire = createFire()
+	}
+
+	validate(projection, N.Nogan)
+	return projection
+}
+
 //======//
 // Peak //
 //======//
@@ -680,21 +703,24 @@ const isPeakFinal = (peak) => {
  * 	id: CellId,
  * 	colour?: PulseColour,
  * 	timing?: Timing,
- * 	history?: Nogan[],
+ * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
  * @returns {Peak}
  */
-export const getPeak = (nogan, { id, colour = "blue", timing = 0, history = [], future = [] }) => {
-	const peaker = PEAKERS[timing]
-	return peaker(nogan, { id, colour, history, future })
+export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], future = [] }) => {
+	if (timing === 0) {
+		return getPeakNow(nogan, { id, colour, past, future })
+	}
+
+	return getDirectedPeak(nogan, { id, colour, past, future, direction: timing })
 }
 
 /**
  * Peak at a cell to see how it's firing right now.
  * @type {Peaker}
  */
-const getPeakNow = (nogan, { id, colour, history, future }) => {
+const getPeakNow = (nogan, { id, colour, past, future }) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	const pulse = fire[colour]
@@ -716,7 +742,7 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 			id: wire.source,
 			timing: getFlippedTiming(wire.timing),
 			colour,
-			history,
+			past,
 			future,
 		})
 
@@ -729,53 +755,82 @@ const getPeakNow = (nogan, { id, colour, history, future }) => {
 }
 
 /**
- * Peak at a cell to see how it was firing one beat ago.
- * @type {Peaker}
+ * Get the forwards and backwards tenses from a direction.
+ * @param {Direction} direction
+ * @param {{
+ * 	past: Nogan[],
+ * 	future: Nogan[],
+ * }} options
+ * @returns {TenseInfo & {
+ * 	backwards: Nogan[],
+ * 	forwards: Nogan[]
+ * }}
  */
-const getPeakBefore = (nogan, { id, colour, history, future }) => {
-	const before = history.at(-1)
-	if (before) {
-		return getPeakNow(before, {
-			id,
-			colour,
-			history: history.slice(0, -1),
-			future: [nogan, ...future],
-		})
+const getTenses = (direction, { past, future }) => {
+	switch (direction) {
+		case 1:
+			return {
+				from: "past",
+				to: "future",
+				backwards: past,
+				forwards: future,
+			}
+		case -1:
+			return {
+				from: "future",
+				to: "past",
+				backwards: future,
+				forwards: past,
+			}
 	}
-
-	// todo: try to imagine the pulse
-
-	return createPeak()
 }
 
 /**
- * Peak at a cell to see how it will be firing one beat from now.
- * @type {Peaker}
+ * Peak at a cell in the future or past.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour: PulseColour,
+ * 	past: Nogan[],
+ * 	future: Nogan[],
+ * 	direction: Direction
+ * }} options
+ * @returns {Peak}
  */
-const getPeakAfter = (nogan, { id, colour, history, future }) => {
-	const after = future.at(0)
-	if (after) {
-		return getPeakNow(after, {
+const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
+	const { from, to, forwards, backwards } = getTenses(direction, { past, future })
+
+	// First, let's try to look in the known [future]
+	const next = forwards.at(0)
+	if (next) {
+		// @ts-expect-error
+		return getPeakNow(next, {
 			id,
 			colour,
-			history: [...history, nogan],
-			future: future.slice(1),
+			[from]: [...backwards, nogan],
+			[to]: forwards.slice(1),
 		})
 	}
 
-	// todo: try to imagine the pulse
+	// Otherwise, let's prepare to imagine the [future]
+	const projectedNext = getProjectedNogan(nogan)
 
-	return createPeak()
-}
+	// But wait!
+	// Are we stuck in a loop?
+	const previous = backwards.at(-1)
+	if (objectEquals(previous, projectedNext)) {
+		return createPeak()
+	}
 
-/**
- * The functions for peaking at cells at different points in time.
- * @type {Record<Timing, Peaker>}
- */
-const PEAKERS = {
-	[-1]: getPeakBefore,
-	[0]: getPeakNow,
-	[1]: getPeakAfter,
+	// If not, let's imagine the [future]!
+	//@ts-expect-error
+	return getDirectedPeak(nogan, {
+		id,
+		colour,
+		[from]: backwards,
+		[to]: [projectedNext],
+		direction,
+	})
 }
 
 /**
@@ -797,7 +852,6 @@ export const isFiring = (nogan, { id }) => {
 //========//
 // Behave //
 //========//
-
 /**
  * Apply a behaviour to a peak.
  * @type {Behaviour}
@@ -812,91 +866,27 @@ const getBehavedPeak = (nogan, { peak, target }) => {
 	return behaved
 }
 
-//=========//
-// Project //
-//=========//
-/**
- * Clone a nogan, ending all fires of cells whose parents are firing.
- * @param {Nogan} nogan
- * @returns {Nogan}
- */
-export const getProjectedNogan = (nogan) => {
-	const projection = structuredClone(nogan)
-
-	for (const cell of iterateCells(projection)) {
-		const { parent } = cell
-		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
-		cell.fire = createFire()
-	}
-
-	validate(projection, N.Nogan)
-	return projection
-}
-
-// //============//
-// // Projecting //
-// //============//
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @returns {Parent}
-//  */
-// export const project = (parent) => {
-// 	const projection = structuredClone(parent)
-// 	for (const id in projection.children) {
-// 		const child = projection.children[id]
-// 		if (!child.isNod) continue
-// 		child.pulses.red = null
-// 		child.pulses.green = null
-// 		child.pulses.blue = null
-// 	}
-// 	return projection
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	clone?: boolean,
-//  * }} options
-//  * @returns
-//  */
-// export const deepProject = (parent, { clone = true } = {}) => {
-// 	const projection = clone ? structuredClone(parent) : parent
-// 	for (const id in projection.children) {
-// 		const child = projection.children[id]
-// 		if (!child.isNod) continue
-// 		const isFiring = child.pulses.red || child.pulses.green || child.pulses.blue
-// 		child.pulses.red = null
-// 		child.pulses.green = null
-// 		child.pulses.blue = null
-// 		if (!isFiring) continue
-// 		deepProject(child, { clone: false })
-// 	}
-// 	return projection
-// }
-
 // /**
 //  *
 //  * @param {Parent} parent
 //  * @param {{
 //  * 	id: Id,
 //  * 	colour: PulseColour,
-//  * 	history: Parent[],
+//  * 	past: Parent[],
 //  * 	future: Parent[],
 //  * }} options
 //  * @returns {Peak}
 //  */
-// const getPeakBefore = (parent, { id, colour, history, future }) => {
-// 	// If we have a recorded history
+// const getPeakBefore = (parent, { id, colour, past, future }) => {
+// 	// If we have a recorded past
 // 	// ... let's just travel back in time!
-// 	const before = history.at(-1)
+// 	const before = past.at(-1)
 // 	if (before) {
 // 		return getPeak(before, {
 // 			id,
 // 			timing: 0,
 // 			colour,
-// 			history: history.slice(0, -1),
+// 			past: past.slice(0, -1),
 // 			future: [parent, ...future],
 // 		})
 // 	}
@@ -921,7 +911,7 @@ export const getProjectedNogan = (nogan) => {
 // 		id,
 // 		timing: 0,
 // 		colour,
-// 		history: [],
+// 		past: [],
 // 		future: [parent, ...future],
 // 	})
 // }
@@ -932,12 +922,12 @@ export const getProjectedNogan = (nogan) => {
 //  * @param {{
 //  * 	id: Id,
 //  * 	colour: PulseColour,
-//  * 	history: Parent[],
+//  * 	past: Parent[],
 //  * 	future: Parent[],
 //  * }} options
 //  * @returns {Peak}
 //  */
-// const getPeakAfter = (parent, { id, colour, history, future }) => {
+// const getPeakAfter = (parent, { id, colour, past, future }) => {
 // 	// If we have a recorded future
 // 	// ... let's just travel forward in time!
 // 	const after = future.at(0)
@@ -946,7 +936,7 @@ export const getProjectedNogan = (nogan) => {
 // 			id,
 // 			timing: 0,
 // 			colour,
-// 			history: [...history, parent],
+// 			past: [...past, parent],
 // 			future: future.slice(1),
 // 		})
 // 	}
@@ -956,7 +946,7 @@ export const getProjectedNogan = (nogan) => {
 
 // 	// But wait!
 // 	// Are we repeating ourselves?
-// 	const before = history.at(-1)
+// 	const before = past.at(-1)
 // 	if (before) {
 // 		const beforeStamp = JSON.stringify(before)
 // 		const parentStamp = JSON.stringify(parent)
@@ -971,7 +961,7 @@ export const getProjectedNogan = (nogan) => {
 // 		id,
 // 		timing: 0,
 // 		colour,
-// 		history: [...history, parent],
+// 		past: [...past, parent],
 // 		future: [],
 // 	})
 // }
@@ -1012,15 +1002,15 @@ export const getProjectedNogan = (nogan) => {
 //  * @param {{
 //  * 	id: Id,
 //  * 	timing?: Timing,
-//  * 	history?: Parent[],
+//  * 	past?: Parent[],
 //  * 	future?: Parent[],
 //  * }} options
 //  * @returns {FullPeak}
 //  */
-// export const getFullPeak = (parent, { id, timing = 0, history = [], future = [] }) => {
+// export const getFullPeak = (parent, { id, timing = 0, past = [], future = [] }) => {
 // 	const fullPeak = N.FullPeak.make()
 // 	for (const colour of PULSE_COLOURS) {
-// 		const peak = getPeak(parent, { id, colour, timing, history, future })
+// 		const peak = getPeak(parent, { id, colour, timing, past, future })
 // 		fullPeak[colour] = peak
 // 	}
 // 	validate(fullPeak)
@@ -1047,7 +1037,7 @@ export const getProjectedNogan = (nogan) => {
 //  * @param {Parent} parent
 //  * @param {{
 //  * 	clone?: Parent,
-//  * 	history?: Parent[],
+//  * 	past?: Parent[],
 //  * 	future?: Parent[],
 //  * 	timing?: Timing,
 //  * }?} options
@@ -1055,7 +1045,7 @@ export const getProjectedNogan = (nogan) => {
 //  */
 // export const propogate = (
 // 	parent,
-// 	{ clone = structuredClone(parent), history = [], future = [], timing = 0 } = {},
+// 	{ clone = structuredClone(parent), past = [], future = [], timing = 0 } = {},
 // ) => {
 // 	/** @type {Operation[]} */
 // 	const operations = []
@@ -1063,7 +1053,7 @@ export const getProjectedNogan = (nogan) => {
 // 		const id = +_id
 // 		const child = clone.children[id]
 // 		if (!child.isNod) continue
-// 		const fullPeak = getFullPeak(clone, { id, history, future, timing })
+// 		const fullPeak = getFullPeak(clone, { id, past, future, timing })
 // 		for (const colour of PULSE_COLOURS) {
 // 			const peak = fullPeak[colour]
 // 			for (const operation of peak.operations) {
@@ -1081,15 +1071,15 @@ export const getProjectedNogan = (nogan) => {
 // /**
 //  * @param {Parent} parent
 //  * @param {{
-//  * 	history?: Parent[],
+//  * 	past?: Parent[],
 //  * }?} options
 //  * @returns {{ parent: Parent, operations: Operation[] }}
 //  */
-// export const advance = (parent, { history = [] } = {}) => {
+// export const advance = (parent, { past = [] } = {}) => {
 // 	const projection = project(parent)
 // 	const operations = propogate(projection, {
 // 		clone: parent,
-// 		history,
+// 		past,
 // 		timing: 1,
 // 	})
 // 	return { parent: projection, operations }
@@ -1099,11 +1089,11 @@ export const getProjectedNogan = (nogan) => {
 //  *
 //  * @param {Parent} parent
 //  * @param {{
-//  * 	history?: Parent[],
+//  * 	past?: Parent[],
 //  * }?} options
 //  * @returns {{parent: Parent, operations: Operation[]}}
 //  */
-// export const deepAdvance = (parent, { history = [] } = {}) => {
+// export const deepAdvance = (parent, { past = [] } = {}) => {
 // 	// TODO: This should be reported from the 'advance' function (and by extension, the 'project' function)
 // 	// (so that we don't have to do it twice)
 // 	const firingChildrenIds = []
@@ -1117,7 +1107,7 @@ export const getProjectedNogan = (nogan) => {
 // 	}
 
 // 	const { parent: advancedParent, operations: layerOperations } = advance(parent, {
-// 		history,
+// 		past,
 // 	})
 
 // 	const operations = layerOperations
@@ -1127,9 +1117,9 @@ export const getProjectedNogan = (nogan) => {
 // 		operations.push(firedOperation)
 
 // 		const child = getNod(advancedParent, id)
-// 		const childHistory = history.map((parent) => getNod(parent, id))
+// 		const childHistory = past.map((parent) => getNod(parent, id))
 // 		const { parent: advancedChild, operations: advancedChildOperations } = deepAdvance(child, {
-// 			history: childHistory,
+// 			past: childHistory,
 // 		})
 // 		operations.push(...advancedChildOperations)
 // 		advancedParent.children[id] = advancedChild
