@@ -30,6 +30,7 @@ import {
 	getWire,
 	getWires,
 	giveChild,
+	isFiring,
 	iterateCells,
 	iterateWires,
 	modifyCell,
@@ -449,68 +450,40 @@ describe("project", () => {
 		const projectedCell = getCell(projection, cell.id)
 		assertEquals(projectedCell.fire.blue, null)
 	})
+
+	it("ends fires of children", () => {
+		const nogan = createNogan()
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		fireCell(nogan, { id: parent.id })
+		fireCell(nogan, { id: child.id })
+		assertEquals(parent.fire.blue, { type: "raw" })
+		assertEquals(child.fire.blue, { type: "raw" })
+
+		const projection = getProjectedNogan(nogan)
+		const projectedParent = getCell(projection, parent.id)
+		const projectedChild = getCell(projection, child.id)
+		assertEquals(projectedParent.fire.blue, null)
+		assertEquals(projectedChild.fire.blue, null)
+	})
+
+	it("only ends fires of children with firing parents", () => {
+		const nogan = createNogan()
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		fireCell(nogan, { id: child.id })
+		assertEquals(parent.fire.blue, null)
+		assertEquals(child.fire.blue, { type: "raw" })
+
+		const projection = getProjectedNogan(nogan)
+		const projectedParent = getCell(projection, parent.id)
+		const projectedChild = getCell(projection, child.id)
+		assertEquals(projectedParent.fire.blue, null)
+		assertEquals(projectedChild.fire.blue, { type: "raw" })
+	})
 })
 
-// describe("projecting", () => {
-
-// 	it("removes pulses", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		assertEquals(nod.pulses.blue, null)
-// 		addPulse(phantom, { id: nod.id })
-// 		assert(nod.pulses.blue)
-// 		const projection = project(phantom)
-// 		assert(nod.pulses.blue)
-
-// 		const projectedNod = getNod(projection, nod.id)
-// 		assertEquals(projectedNod.pulses.blue, null)
-// 	})
-// })
-
 // describe("deep projecting", () => {
-// 	it("clones a nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		const projection = deepProject(nod)
-// 		assertEquals(projection, nod)
-// 	})
-
-// 	it("removes pulses", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		assertEquals(nod.pulses.blue, null)
-// 		addPulse(phantom, { id: nod.id })
-// 		assert(nod.pulses.blue)
-// 		const projection = deepProject(phantom)
-// 		assert(nod.pulses.blue)
-
-// 		const projectedNod = getNod(projection, nod.id)
-// 		assertEquals(projectedNod.pulses.blue, null)
-// 	})
-
-// 	it("removes pulses recursively", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(nod1)
-// 		const nod3 = createNod(nod2)
-// 		addPulse(phantom, { id: nod1.id })
-// 		addPulse(nod1, { id: nod2.id })
-// 		addPulse(nod2, { id: nod3.id })
-
-// 		assert(nod1.pulses.blue)
-// 		assert(nod2.pulses.blue)
-// 		assert(nod3.pulses.blue)
-
-// 		const projection = deepProject(phantom)
-
-// 		const projectedNod1 = getNod(projection, nod1.id)
-// 		const projectedNod2 = getNod(projectedNod1, nod2.id)
-// 		const projectedNod3 = getNod(projectedNod2, nod3.id)
-
-// 		assertEquals(projectedNod1.pulses.blue, null)
-// 		assertEquals(projectedNod2.pulses.blue, null)
-// 		assertEquals(projectedNod3.pulses.blue, null)
-// 	})
 
 // 	it("only deep projects children that are firing", () => {
 // 		const phantom = createPhantom()
@@ -540,6 +513,14 @@ describe("peak", () => {
 	it("creates a peak", () => {
 		const peak = createPeak()
 		assertEquals(peak, { result: false, operations: [] })
+	})
+
+	it("checks if a cell is firing", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		assertEquals(isFiring(nogan, { id: cell.id }), false)
+		fireCell(nogan, { id: cell.id })
+		assertEquals(isFiring(nogan, { id: cell.id }), true)
 	})
 
 	it("finds a real pulse in the present", () => {

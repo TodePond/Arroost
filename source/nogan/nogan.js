@@ -1,6 +1,6 @@
 import { Schema } from "../../libraries/schema.js"
 import { BEHAVIOURS } from "./behave.js"
-import { NoganSchema } from "./schema.js"
+import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
 const S = Schema
@@ -70,6 +70,15 @@ export const getRoot = (nogan) => {
 	validate(root, N.Cell)
 	// @ts-expect-error
 	return root
+}
+
+/**
+ * Checks if a cell is the root cell.
+ * @param {CellId} id
+ * @returns {boolean}
+ */
+export const isRoot = (id) => {
+	return id === 0
 }
 
 //====//
@@ -769,6 +778,22 @@ const PEAKERS = {
 	[1]: getPeakAfter,
 }
 
+/**
+ * Check if a cell is firing right now.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * }} options
+ * @returns {boolean}
+ */
+export const isFiring = (nogan, { id }) => {
+	for (const colour of PULSE_COLOURS) {
+		const peak = getPeak(nogan, { id, colour })
+		if (peak.result) return true
+	}
+	return false
+}
+
 //========//
 // Behave //
 //========//
@@ -799,6 +824,8 @@ export const getProjectedNogan = (nogan) => {
 	const projection = structuredClone(nogan)
 
 	for (const cell of iterateCells(projection)) {
+		const { parent } = cell
+		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
 		cell.fire = createFire()
 	}
 
