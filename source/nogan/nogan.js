@@ -779,8 +779,7 @@ const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
 
 	// But wait!
 	// Are we stuck in a loop?
-	const previous = from.at(0)
-	if (objectEquals(previous, projectedNext)) {
+	if (objectEquals(from.at(0), projectedNext) && objectEquals(from.at(1), projectedNext)) {
 		return createPeak()
 	}
 
