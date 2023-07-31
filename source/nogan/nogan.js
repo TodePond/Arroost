@@ -711,9 +711,7 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 		return getPeakNow(nogan, { id, colour, past, future })
 	}
 
-	const from = timing === 1 ? future : past
-	const to = timing === -1 ? past : future
-	return getDirectedPeak(nogan, { id, colour, from, to, direction: timing })
+	return getDirectedPeak(nogan, { id, colour, past, future, direction: timing })
 }
 
 /**
@@ -733,7 +731,6 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 
 	for (const input of cell.inputs) {
 		const wire = getWire(nogan, input)
-
 		if (wire.colour !== "any" && wire.colour !== colour) {
 			continue
 		}
@@ -760,43 +757,43 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
  * @param {{
  * 	id: CellId,
  * 	colour: PulseColour,
- * 	from: Nogan[],
- * 	to: Nogan[],
+ * 	past: Nogan[],
+ * 	future: Nogan[],
  * 	direction: Direction
  * }} options
  * @returns {Peak}
  */
-const getDirectedPeak = (nogan, { id, colour, from, to, direction }) => {
-	// First, let's try to look in the known [future]
-	const next = to.at(0)
-	if (next) {
-		const past = direction === 1 ? [...from, nogan] : from.slice(1)
-		const future = direction === 1 ? to.slice(1) : [nogan, ...to]
+const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
+	const to = direction === 1 ? future : past
+	const from = direction === 1 ? past : future
 
+	// First, let's try to look in the known future/past
+	const [next, ...rest] = to
+	if (next) {
 		return getPeakNow(next, {
 			id,
 			colour,
-			past,
-			future,
+			past: direction === 1 ? [nogan, ...past] : rest,
+			future: direction === 1 ? rest : [nogan, ...future],
 		})
 	}
 
-	// Otherwise, let's prepare to imagine the [future]
+	// Otherwise, let's prepare to imagine the future/past
 	const projectedNext = getProjectedNogan(nogan)
 
 	// But wait!
 	// Are we stuck in a loop?
-	const previous = from.at(-1)
+	const previous = from.at(0)
 	if (objectEquals(previous, projectedNext)) {
 		return createPeak()
 	}
 
-	// If not, let's imagine the [future]!
+	// If not, let's imagine the future/past!
 	return getDirectedPeak(nogan, {
 		id,
 		colour,
-		from: from,
-		to: [projectedNext],
+		past: direction === 1 ? from : [projectedNext],
+		future: direction === 1 ? [projectedNext] : from,
 		direction,
 	})
 }
