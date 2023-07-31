@@ -10,17 +10,17 @@
 /**
  * @type {Behaviour}
  */
-const none = (nogan, { peak, target }) => {
-	return peak
+const override = ({ previous, next }) => {
+	return next
 }
 
 /**
  * @type {Record<PulseType, Behaviour>}
  */
 export const BEHAVIOURS = {
-	raw: none,
-	creation: none,
-	destruction: none,
+	raw: override,
+	creation: override,
+	destruction: override,
 }
 
 // /** @type {Behave} */

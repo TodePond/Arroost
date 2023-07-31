@@ -102,17 +102,6 @@ declare type Operation = any //todo
 //======//
 // Peak //
 //======//
-declare type TenseInfo<From extends TenseType, To extends Exclude<TenseType, From>> = {
-	towards: To
-	from: Tense<From>
-	to: Tense<To>
-}
-
-declare type Tense<Type extends TenseType> = {
-	type: Type
-	timeline: Nogan[]
-}
-
 declare type BasePeak = {
 	result: boolean
 	operations: Operation[]
@@ -138,13 +127,7 @@ declare type Peaker = (
 	} & Record<TenseType, Nogan[]>,
 ) => Peak
 
-declare type Behaviour = (
-	nogan: Nogan,
-	options: {
-		peak: Peak
-		target: CellId
-	},
-) => Peak
+declare type Behaviour = ({ previous, next }: { previous: Peak; next: Peak }) => Peak
 
 //=========//
 // Phantom //

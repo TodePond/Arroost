@@ -719,6 +719,26 @@ describe("peak", () => {
 		assertEquals(peak24.result, true)
 		assertEquals(peak25.result, true)
 	})
+
+	it("peaks in a recursive past without crashing", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: 1 })
+		createWire(nogan, { source: cell2.id, target: cell1.id, timing: 1 })
+
+		const peak11 = getPeak(nogan, { id: cell1.id })
+		const peak12 = getPeak(nogan, { id: cell2.id })
+		assertEquals(peak11.result, false)
+		assertEquals(peak12.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak21 = getPeak(nogan, { id: cell1.id })
+		const peak22 = getPeak(nogan, { id: cell2.id })
+		assertEquals(cell1.fire.blue, { type: "raw" })
+		assertEquals(peak21.result, true)
+		assertEquals(peak22.result, false)
+	})
 })
 
 describe.skip("creation pulse", () => {})

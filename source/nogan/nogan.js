@@ -724,10 +724,7 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 	const pulse = fire[colour]
 
 	let peak = createPeak({ pulse })
-
-	if (isPeakFinal(peak)) {
-		return peak
-	}
+	if (isPeakFinal(peak)) return peak
 
 	for (const input of cell.inputs) {
 		const wire = getWire(nogan, input)
@@ -735,7 +732,7 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 			continue
 		}
 
-		peak = getPeak(nogan, {
+		const inputPeak = getPeak(nogan, {
 			id: wire.source,
 			timing: getFlippedTiming(wire.timing),
 			colour,
@@ -743,9 +740,8 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 			future,
 		})
 
-		if (isPeakFinal(peak)) {
-			return peak
-		}
+		peak = getBehavedPeak({ previous: peak, next: inputPeak })
+		if (isPeakFinal(peak)) return peak
 	}
 
 	return peak
@@ -821,12 +817,13 @@ export const isFiring = (nogan, { id }) => {
  * Apply a behaviour to a peak.
  * @type {Behaviour}
  */
-const getBehavedPeak = (nogan, { peak, target }) => {
-	if (!peak.result) {
-		return peak
+const getBehavedPeak = ({ previous, next }) => {
+	if (!next.result) {
+		return previous
 	}
-	const behaviour = BEHAVIOURS[peak.pulse.type]
-	const behaved = behaviour(nogan, { peak, target })
+
+	const behaviour = BEHAVIOURS[next.pulse.type]
+	const behaved = behaviour({ previous, next })
 	validate(behaved, N.Peak)
 	return behaved
 }
