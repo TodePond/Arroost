@@ -1,10 +1,8 @@
-import { Schema } from "../../libraries/schema.js"
 import { objectEquals } from "../../libraries/utilities.js"
 import { BEHAVIOURS } from "./behave.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
-const S = Schema
 
 //============//
 // Validating //
@@ -713,7 +711,9 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 		return getPeakNow(nogan, { id, colour, past, future })
 	}
 
-	return getDirectedPeak(nogan, { id, colour, past, future, direction: timing })
+	const from = timing === 1 ? future : past
+	const to = timing === -1 ? past : future
+	return getDirectedPeak(nogan, { id, colour, from, to, direction: timing })
 }
 
 /**
@@ -755,60 +755,29 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 }
 
 /**
- * Get the forwards and backwards tenses from a direction.
- * @param {Direction} direction
- * @param {{
- * 	past: Nogan[],
- * 	future: Nogan[],
- * }} options
- * @returns {TenseInfo & {
- * 	backwards: Nogan[],
- * 	forwards: Nogan[]
- * }}
- */
-const getTenses = (direction, { past, future }) => {
-	switch (direction) {
-		case 1:
-			return {
-				from: "past",
-				to: "future",
-				backwards: past,
-				forwards: future,
-			}
-		case -1:
-			return {
-				from: "future",
-				to: "past",
-				backwards: future,
-				forwards: past,
-			}
-	}
-}
-
-/**
  * Peak at a cell in the future or past.
  * @param {Nogan} nogan
  * @param {{
  * 	id: CellId,
  * 	colour: PulseColour,
- * 	past: Nogan[],
- * 	future: Nogan[],
+ * 	from: Nogan[],
+ * 	to: Nogan[],
  * 	direction: Direction
  * }} options
  * @returns {Peak}
  */
-const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
-	const { from, to, forwards, backwards } = getTenses(direction, { past, future })
-
+const getDirectedPeak = (nogan, { id, colour, from, to, direction }) => {
 	// First, let's try to look in the known [future]
-	const next = forwards.at(0)
+	const next = to.at(0)
 	if (next) {
-		// @ts-expect-error
+		const past = direction === 1 ? [...from, nogan] : from.slice(1)
+		const future = direction === 1 ? to.slice(1) : [nogan, ...to]
+
 		return getPeakNow(next, {
 			id,
 			colour,
-			[from]: [...backwards, nogan],
-			[to]: forwards.slice(1),
+			past,
+			future,
 		})
 	}
 
@@ -817,18 +786,17 @@ const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
 
 	// But wait!
 	// Are we stuck in a loop?
-	const previous = backwards.at(-1)
+	const previous = from.at(-1)
 	if (objectEquals(previous, projectedNext)) {
 		return createPeak()
 	}
 
 	// If not, let's imagine the [future]!
-	//@ts-expect-error
 	return getDirectedPeak(nogan, {
 		id,
 		colour,
-		[from]: backwards,
-		[to]: [projectedNext],
+		from: from,
+		to: [projectedNext],
 		direction,
 	})
 }

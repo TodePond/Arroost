@@ -54,12 +54,6 @@ export const DIRECTION = {
 	"-1": -1,
 }
 
-/** @type {Record<Tense, Tense>} */
-export const TENSE = {
-	past: "past",
-	future: "future",
-}
-
 /** @type {Record<NoganType, NoganType>} */
 export const NOGAN_TYPE = {
 	real: "real",
@@ -72,7 +66,6 @@ export const PULSE_COLOURS = Object.values(PULSE_COLOUR)
 export const WIRE_COLOURS = Object.values(WIRE_COLOUR)
 export const TIMINGS = Object.values(TIMING)
 export const DIRECTIONS = Object.values(DIRECTION)
-export const TENSES = Object.values(TENSE)
 export const NOGAN_TYPES = Object.values(NOGAN_TYPE)
 
 N.CellType = S.Enum(CELL_TYPES)
@@ -81,7 +74,6 @@ N.PulseColour = S.Enum(PULSE_COLOURS)
 N.WireColour = S.Enum(WIRE_COLOURS)
 N.Timing = S.Enum(TIMINGS)
 N.Direction = S.Enum(DIRECTIONS)
-N.Tense = S.Enum(TENSES)
 N.NoganType = S.Enum(NOGAN_TYPES)
 
 //=========//

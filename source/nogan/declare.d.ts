@@ -8,7 +8,7 @@ declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
 declare type Direction = 1 | -1
 declare type NoganType = "real" | "projection"
-declare type Tense = "past" | "future"
+declare type TenseType = "past" | "future"
 
 //=========//
 // Utility //
@@ -102,19 +102,16 @@ declare type Operation = any //todo
 //======//
 // Peak //
 //======//
-declare type TenseInfo = {
-	from: Tense
-	to: Tense
-} & (
-	| {
-			from: "past"
-			to: "future"
-	  }
-	| {
-			from: "future"
-			to: "past"
-	  }
-)
+declare type TenseInfo<From extends TenseType, To extends Exclude<TenseType, From>> = {
+	towards: To
+	from: Tense<From>
+	to: Tense<To>
+}
+
+declare type Tense<Type extends TenseType> = {
+	type: Type
+	timeline: Nogan[]
+}
 
 declare type BasePeak = {
 	result: boolean
@@ -138,7 +135,7 @@ declare type Peaker = (
 	options: {
 		id: CellId
 		colour: PulseColour
-	} & Record<Tense, Nogan[]>,
+	} & Record<TenseType, Nogan[]>,
 ) => Peak
 
 declare type Behaviour = (
