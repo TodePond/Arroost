@@ -711,7 +711,36 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 		return getPeakNow(nogan, { id, colour, past, future })
 	}
 
-	return getDirectedPeak(nogan, { id, colour, past, future, direction: timing })
+	const to = timing === 1 ? future : past
+	const from = timing === 1 ? past : future
+
+	// First, let's try to look in the known future/past
+	const [next, ...rest] = to
+	if (next) {
+		return getPeakNow(next, {
+			id,
+			colour,
+			past: timing === 1 ? [nogan, ...past] : rest,
+			future: timing === 1 ? rest : [nogan, ...future],
+		})
+	}
+
+	// Otherwise, let's prepare to imagine the future/past
+	const projectedNext = getProjectedNogan(nogan)
+
+	// But wait!
+	// Are we stuck in a loop?
+	if (objectEquals(from.at(0), projectedNext) && objectEquals(from.at(1), projectedNext)) {
+		return createPeak()
+	}
+
+	// If not, let's imagine the future/past!
+	return getPeakNow(projectedNext, {
+		id,
+		colour,
+		past: timing === 1 ? [nogan, ...past] : [],
+		future: timing === 1 ? [] : [nogan, ...future],
+	})
 }
 
 /**
@@ -745,52 +774,6 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 	}
 
 	return peak
-}
-
-/**
- * Peak at a cell in the future or past.
- * @param {Nogan} nogan
- * @param {{
- * 	id: CellId,
- * 	colour: PulseColour,
- * 	past: Nogan[],
- * 	future: Nogan[],
- * 	direction: Direction
- * }} options
- * @returns {Peak}
- */
-const getDirectedPeak = (nogan, { id, colour, past, future, direction }) => {
-	const to = direction === 1 ? future : past
-	const from = direction === 1 ? past : future
-
-	// First, let's try to look in the known future/past
-	const [next, ...rest] = to
-	if (next) {
-		return getPeakNow(next, {
-			id,
-			colour,
-			past: direction === 1 ? [nogan, ...past] : rest,
-			future: direction === 1 ? rest : [nogan, ...future],
-		})
-	}
-
-	// Otherwise, let's prepare to imagine the future/past
-	const projectedNext = getProjectedNogan(nogan)
-
-	// But wait!
-	// Are we stuck in a loop?
-	if (objectEquals(from.at(0), projectedNext) && objectEquals(from.at(1), projectedNext)) {
-		return createPeak()
-	}
-
-	// If not, let's imagine the future/past!
-	return getDirectedPeak(nogan, {
-		id,
-		colour,
-		past: direction === 1 ? from : [projectedNext],
-		future: direction === 1 ? [projectedNext] : from,
-		direction,
-	})
 }
 
 /**
