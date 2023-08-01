@@ -6,9 +6,7 @@ declare type PulseType = "raw" | "creation" | "destruction"
 declare type PulseColour = "blue" | "green" | "red"
 declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
-declare type Direction = 1 | -1
 declare type NoganType = "real" | "projection"
-declare type TenseType = "past" | "future"
 
 //=========//
 // Utility //
@@ -119,13 +117,6 @@ declare type SuccessPeak = {
 }
 
 declare type Peak = FailPeak | SuccessPeak
-declare type Peaker = (
-	nogan: Nogan,
-	options: {
-		id: CellId
-		colour: PulseColour
-	} & Record<TenseType, Nogan[]>,
-) => Peak
 
 declare type Behaviour = ({ previous, next }: { previous: Peak; next: Peak }) => Peak
 

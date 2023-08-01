@@ -745,7 +745,14 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 
 /**
  * Peak at a cell to see how it's firing right now.
- * @type {Peaker}
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour: PulseColour,
+ * 	past: Nogan[],
+ * 	future: Nogan[],
+ * }} options
+ * @returns {Peak}
  */
 const getPeakNow = (nogan, { id, colour, past, future }) => {
 	const cell = getCell(nogan, id)
@@ -809,157 +816,6 @@ const getBehavedPeak = ({ previous, next }) => {
 	validate(behaved, N.Peak)
 	return behaved
 }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour: PulseColour,
-//  * 	past: Parent[],
-//  * 	future: Parent[],
-//  * }} options
-//  * @returns {Peak}
-//  */
-// const getPeakBefore = (parent, { id, colour, past, future }) => {
-// 	// If we have a recorded past
-// 	// ... let's just travel back in time!
-// 	const before = past.at(-1)
-// 	if (before) {
-// 		return getPeak(before, {
-// 			id,
-// 			timing: 0,
-// 			colour,
-// 			past: past.slice(0, -1),
-// 			future: [parent, ...future],
-// 		})
-// 	}
-
-// 	// Otherwise, let's try to imagine it...
-// 	const projectedBefore = project(parent)
-
-// 	// But wait!
-// 	// Are we repeating ourselves?
-// 	const after = future.at(0)
-// 	if (after) {
-// 		const afterStamp = JSON.stringify(after)
-// 		const parentStamp = JSON.stringify(parent)
-// 		if (afterStamp === parentStamp) {
-// 			// Recursion detected!
-// 			return createPeak()
-// 		}
-// 	}
-
-// 	// No, we're fine!
-// 	return getPeak(projectedBefore, {
-// 		id,
-// 		timing: 0,
-// 		colour,
-// 		past: [],
-// 		future: [parent, ...future],
-// 	})
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	colour: PulseColour,
-//  * 	past: Parent[],
-//  * 	future: Parent[],
-//  * }} options
-//  * @returns {Peak}
-//  */
-// const getPeakAfter = (parent, { id, colour, past, future }) => {
-// 	// If we have a recorded future
-// 	// ... let's just travel forward in time!
-// 	const after = future.at(0)
-// 	if (after) {
-// 		return getPeak(after, {
-// 			id,
-// 			timing: 0,
-// 			colour,
-// 			past: [...past, parent],
-// 			future: future.slice(1),
-// 		})
-// 	}
-
-// 	// Otherwise, let's try to imagine it...
-// 	const projectedAfter = project(parent)
-
-// 	// But wait!
-// 	// Are we repeating ourselves?
-// 	const before = past.at(-1)
-// 	if (before) {
-// 		const beforeStamp = JSON.stringify(before)
-// 		const parentStamp = JSON.stringify(parent)
-// 		if (beforeStamp === parentStamp) {
-// 			// Recursion detected!
-// 			return createPeak()
-// 		}
-// 	}
-
-// 	// No, we're fine!
-// 	return getPeak(projectedAfter, {
-// 		id,
-// 		timing: 0,
-// 		colour,
-// 		past: [...past, parent],
-// 		future: [],
-// 	})
-// }
-
-// /**
-//  * Peak refers to the input that is causing this nod to fire
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	peak: SuccessPeak,
-//  * 	id: Id,
-//  * }} options
-//  * @returns {Peak}
-//  */
-// export const behave = (parent, { peak, id }) => {
-// 	const _behave = BEHAVES[peak.type]
-// 	if (!_behave) {
-// 		return peak
-// 	}
-
-// 	const transformedPeak = _behave(parent, { peak, id })
-// 	if (!transformedPeak) {
-// 		throw new Error("Nod behave must return a peak")
-// 	}
-
-// 	if (shouldValidate()) {
-// 		validate(transformedPeak)
-// 		for (const operation of peak.operations) {
-// 			validate(operation, N.Operation)
-// 		}
-// 	}
-
-// 	return transformedPeak
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	timing?: Timing,
-//  * 	past?: Parent[],
-//  * 	future?: Parent[],
-//  * }} options
-//  * @returns {FullPeak}
-//  */
-// export const getFullPeak = (parent, { id, timing = 0, past = [], future = [] }) => {
-// 	const fullPeak = N.FullPeak.make()
-// 	for (const colour of PULSE_COLOURS) {
-// 		const peak = getPeak(parent, { id, colour, timing, past, future })
-// 		fullPeak[colour] = peak
-// 	}
-// 	validate(fullPeak)
-// 	return fullPeak
-// }
 
 // //===========//
 // // Advancing //
