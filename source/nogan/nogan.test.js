@@ -422,7 +422,7 @@ describe("projecting", () => {
 	it("clones a nogan", () => {
 		const nogan = createNogan()
 		const projection = getProjectedNogan(nogan)
-		assertEquals(projection, { ...nogan, type: "projection", json: projection.json })
+		assertEquals(projection, { ...nogan, json: projection.json })
 		assert(projection !== nogan)
 	})
 

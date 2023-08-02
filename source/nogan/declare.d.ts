@@ -6,7 +6,6 @@ declare type PulseType = Pulse["type"]
 declare type PulseColour = "blue" | "green" | "red"
 declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
-declare type NoganType = "real" | "projection"
 declare type OperationType = Operation["type"]
 
 //=========//
@@ -58,7 +57,6 @@ declare type Wire = {
 // Nogan //
 //=======//
 declare type Nogan = {
-	type: NoganType
 	json: string | null
 	nextCell: CellId
 	nextWire: WireId

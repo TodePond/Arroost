@@ -8,7 +8,7 @@ const N = NoganSchema
 // Validating //
 //============//
 /** @type {boolean | undefined} */
-const SHOULD_VALIDATE_OVERRIDE = false
+const SHOULD_VALIDATE_OVERRIDE = undefined
 
 /** @type {boolean | null} */
 let _shouldValidate = null
@@ -763,7 +763,6 @@ export const fireCell = (
  */
 export const getProjectedNogan = (nogan) => {
 	const projection = getClone(nogan)
-	projection.type = "projection"
 
 	for (const cell of iterateCells(projection)) {
 		const { parent } = cell
@@ -806,19 +805,6 @@ const getFlippedTiming = (timing) => {
 		case 1:
 			return -1
 	}
-}
-
-/**
- * Returns true if the peak is final.
- * In other words, if it wouldn't be changed by any further pulses.
- * This is specific to Arroost, not nogan.
- * It's done so that we can stop iterating through wires that wouldn't change anything.
- * @param {Peak} peak
- * @returns
- */
-const isPeakFinal = (peak) => {
-	if (!peak.result) return false
-	return peak.pulse.type !== "raw" // todo: make this customisable
 }
 
 /**
@@ -936,7 +922,6 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 	const pulse = fire[colour]
 
 	let peak = createPeak({ pulse })
-	if (isPeakFinal(peak)) return peak
 
 	for (const input of cell.inputs) {
 		const wire = getWire(nogan, input)
@@ -954,7 +939,6 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 		})
 
 		peak = getBehavedPeak({ previous: peak, next: inputPeak })
-		if (isPeakFinal(peak)) return peak
 	}
 
 	return peak
@@ -1031,7 +1015,6 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
 export const getAdvanced = (nogan, { past = [] } = {}) => {
 	const projection = getProjectedNogan(nogan)
 	refresh(projection, { past: [nogan, ...past] })
-	projection.type = "real"
 	validate(projection, N.Nogan)
 	return projection
 }
