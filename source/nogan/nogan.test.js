@@ -22,6 +22,7 @@ import {
 	deleteWire,
 	deleteWireId,
 	fireCell,
+	getAdvanced,
 	getCell,
 	getCells,
 	getClone,
@@ -1230,200 +1231,123 @@ describe("propogating", () => {
 	})
 })
 
-// 	it("propogates firing children, depending on the past", () => {
-// 		const phantom = createPhantom()
-// 		const child = createNod(phantom)
-// 		const source = createNod(child)
-// 		const target = createNod(child)
-// 		createWire(child, { source: source.id, target: target.id, timing: 1 })
-// 		addPulse(child, { id: source.id })
-// 		addPulse(phantom, { id: child.id })
-// 		const advanced = deepAdvance(phantom, { past: [phantom] }).parent
-// 		const childAfter = getNod(advanced, child.id)
-// 		const targetAfter = getNod(childAfter, target.id)
-// 		const sourceAfter = getNod(childAfter, source.id)
-// 		assert(child.pulses.blue)
-// 		assert(source.pulses.blue)
-// 		assert(!target.pulses.blue)
+describe("advancing", () => {
+	it("clones", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id })
+		const advanced = getAdvanced(nogan)
+		assertEquals(advanced, { ...nogan, json: advanced.json })
+	})
 
-// 		assert(!childAfter.pulses.blue)
-// 		assert(!sourceAfter.pulses.blue)
-// 		assert(targetAfter.pulses.blue)
-// 	})
+	it("unfires cells", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id })
+		fireCell(nogan, { id: source.id })
+		assert(source.fire.blue)
+		assert(target.fire.blue)
+		const advanced = getAdvanced(nogan)
+		const sourceAfter = getCell(advanced, source.id)
+		const targetAfter = getCell(advanced, target.id)
+		assert(!sourceAfter.fire.blue)
+		assert(!targetAfter.fire.blue)
+	})
 
-// 	it("propogates firing children, depending on the future", () => {
-// 		const phantom = createPhantom()
-// 		const child = createNod(phantom)
-// 		const nod1 = createNod(child)
-// 		const nod2 = createNod(child)
-// 		const nod3 = createNod(child)
-// 		const nod4 = createNod(child)
-// 		createWire(child, { source: nod1.id, target: nod2.id, timing: 1 })
-// 		createWire(child, { source: nod2.id, target: nod3.id, timing: 1 })
-// 		createWire(child, { source: nod3.id, target: nod4.id, timing: -1 })
-// 		addPulse(phantom, { id: child.id })
-// 		addPulse(child, { id: nod1.id })
-// 		const advanced = deepAdvance(phantom).parent
-// 		const childAfter = getNod(advanced, child.id)
-// 		const nod1After = getNod(childAfter, nod1.id)
-// 		const nod2After = getNod(childAfter, nod2.id)
-// 		const nod3After = getNod(childAfter, nod3.id)
-// 		const nod4After = getNod(childAfter, nod4.id)
-// 		assert(nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-// 		assert(!nod3.pulses.blue)
-// 		assert(!nod4.pulses.blue)
+	it("unfires cells with firing parents", () => {
+		const nogan = createNogan()
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		fireCell(nogan, { id: parent.id })
+		fireCell(nogan, { id: child.id })
+		assert(parent.fire.blue)
+		assert(child.fire.blue)
 
-// 		assert(!nod1After.pulses.blue)
-// 		assert(nod2After.pulses.blue)
-// 		assert(!nod3After.pulses.blue)
-// 		assert(nod4After.pulses.blue)
-// 	})
-// })
+		const advanced = getAdvanced(nogan)
+		const parentAfter = getCell(advanced, parent.id)
+		const childAfter = getCell(advanced, child.id)
+		assert(!parentAfter.fire.blue)
+		assert(!childAfter.fire.blue)
+	})
 
-describe.skip("advancing", () => {})
+	it("doesn't unfire cells with firing children", () => {
+		const nogan = createNogan()
+		const parent = createCell(nogan)
+		const child = createCell(nogan, { parent: parent.id })
+		fireCell(nogan, { id: child.id })
+		assert(!parent.fire.blue)
+		assert(child.fire.blue)
 
+		const advanced = getAdvanced(nogan)
+		const parentAfter = getCell(advanced, parent.id)
+		const childAfter = getCell(advanced, child.id)
+		assert(!parentAfter.fire.blue)
+		assert(childAfter.fire.blue)
+	})
+
+	it("fires from the present", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+		fireCell(nogan, { id: source.id })
+		assert(source.fire.blue)
+		assert(!target.fire.blue)
+
+		const advanced = getAdvanced(nogan)
+		const sourceAfter = getCell(advanced, source.id)
+		const targetAfter = getCell(advanced, target.id)
+		assert(!sourceAfter.fire.blue)
+		assert(targetAfter.fire.blue)
+	})
+
+	it("fires from the real past", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const middle = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: middle.id, timing: 1 })
+		createWire(nogan, { source: middle.id, target: target.id, timing: 1 })
+
+		const past = getClone(nogan)
+		fireCell(past, { id: source.id })
+
+		const advanced = getAdvanced(nogan, { past: [past] })
+		const sourceAfter = getCell(advanced, source.id)
+		const middleAfter = getCell(advanced, middle.id)
+		const targetAfter = getCell(advanced, target.id)
+		assert(!sourceAfter.fire.blue)
+		assert(!middleAfter.fire.blue)
+		assert(targetAfter.fire.blue)
+	})
+
+	it("fires from the imagined future", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const middle1 = createCell(nogan)
+		const middle2 = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: middle1.id, timing: 1 })
+		createWire(nogan, { source: middle1.id, target: middle2.id, timing: 1 })
+		createWire(nogan, { source: middle2.id, target: target.id, timing: -1 })
+		fireCell(nogan, { id: source.id })
+
+		const advanced = getAdvanced(nogan)
+		const sourceAfter = getCell(advanced, source.id)
+		const middle1After = getCell(advanced, middle1.id)
+		const middle2After = getCell(advanced, middle2.id)
+		const targetAfter = getCell(advanced, target.id)
+		assert(!sourceAfter.fire.blue)
+		assert(middle1After.fire.blue)
+		assert(!middle2After.fire.blue)
+		assert(targetAfter.fire.blue)
+	})
+})
 describe.skip("operation")
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})
-
-// describe("advancing time", () => {
-// 	it("unfires pulses", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		addPulse(phantom, { id: nod.id })
-// 		assert(nod.pulses.blue)
-// 		const advanced = advance(phantom).parent
-
-// 		const nodAfter = getNod(advanced, nod.id)
-// 		assert(!nodAfter.pulses.blue)
-// 	})
-
-// 	it("fires nods that would have get fired from the present", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-
-// 		addPulse(phantom, { id: nod1.id })
-// 		assert(nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-
-// 		const advanced = advance(phantom).parent
-// 		const nod1After = getNod(advanced, nod1.id)
-// 		const nod2After = getNod(advanced, nod2.id)
-
-// 		assert(!nod1After.pulses.blue)
-// 		assert(nod2After.pulses.blue)
-// 	})
-
-// 	it("fires nods that get fired from the future", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const nod3 = createNod(phantom)
-// 		const nod4 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-// 		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
-// 		createWire(phantom, { source: nod3.id, target: nod4.id, timing: -1 })
-
-// 		addPulse(phantom, { id: nod1.id })
-// 		assert(nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-// 		assert(!nod3.pulses.blue)
-// 		assert(!nod4.pulses.blue)
-
-// 		const advanced = advance(phantom).parent
-// 		const nod1After = getNod(advanced, nod1.id)
-// 		const nod2After = getNod(advanced, nod2.id)
-// 		const nod3After = getNod(advanced, nod3.id)
-// 		const nod4After = getNod(advanced, nod4.id)
-
-// 		assert(!nod1After.pulses.blue)
-// 		assert(nod2After.pulses.blue)
-// 		assert(!nod3After.pulses.blue)
-// 		assert(nod4After.pulses.blue)
-
-// 		const advanced2 = advance(advanced, { past: [phantom] }).parent
-// 		const nod1After2 = getNod(advanced2, nod1.id)
-// 		const nod3After2 = getNod(advanced2, nod3.id)
-// 		const nod2After2 = getNod(advanced2, nod2.id)
-// 		const nod4After2 = getNod(advanced2, nod4.id)
-
-// 		assert(!nod1After2.pulses.blue)
-// 		assert(!nod2After2.pulses.blue)
-// 		assert(nod3After2.pulses.blue)
-// 		assert(!nod4After2.pulses.blue)
-// 	})
-
-// 	it("fires nods that get fired from the real past", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		const nod3 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1 })
-// 		createWire(phantom, { source: nod2.id, target: nod3.id, timing: 1 })
-
-// 		const past = project(phantom)
-// 		addPulse(past, { id: nod1.id })
-
-// 		const nod1Before = getNod(past, nod1.id)
-// 		const nod2Before = getNod(past, nod2.id)
-// 		const nod3Before = getNod(past, nod3.id)
-// 		assert(nod1Before.pulses.blue)
-// 		assert(!nod2Before.pulses.blue)
-// 		assert(!nod3Before.pulses.blue)
-
-// 		assert(!nod1.pulses.blue)
-// 		assert(!nod2.pulses.blue)
-// 		assert(!nod3.pulses.blue)
-
-// 		const advanced = advance(phantom, { past: [past] }).parent
-// 		const nod1After = getNod(advanced, nod1.id)
-// 		const nod2After = getNod(advanced, nod2.id)
-// 		const nod3After = getNod(advanced, nod3.id)
-
-// 		assert(!nod1After.pulses.blue)
-// 		assert(!nod2After.pulses.blue)
-// 		assert(nod3After.pulses.blue)
-// 	})
-
-// 	it("doesn't fire pulses through the wrong colour wire over time", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1, colour: "red" })
-
-// 		addPulse(phantom, { id: nod1.id, colour: "green" })
-
-// 		const advanced = advance(phantom).parent
-// 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
-// 		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
-// 		assertEquals(peakGreen.result, false)
-// 		assertEquals(peakRed.result, false)
-// 	})
-
-// 	it("fires pulses through the right colour wire over time", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		createWire(phantom, { source: nod1.id, target: nod2.id, timing: 1, colour: "red" })
-
-// 		addPulse(phantom, { id: nod1.id, colour: "red" })
-
-// 		const advanced = advance(phantom).parent
-// 		const peakGreen = getPeak(advanced, { id: nod2.id, colour: "green" })
-// 		const peakRed = getPeak(advanced, { id: nod2.id, colour: "red" })
-// 		assertEquals(peakGreen.result, false)
-// 		assertEquals(peakRed.result, true)
-// 	})
-
-// 	it("peaks after advancing time", () => {
-// 		const phantom = createPhantom()
-// 		const source = createNod(phantom)
-// 		const target = createNod(phantom)
-// 	})
-// })
 
 // describe("creation nod", () => {
 // 	it("doesn't transform an any pulse while on itself", () => {
@@ -1620,8 +1544,6 @@ describe.skip("destruction pulse", () => {})
 // 		assertEquals(otherAfter.pulses.blue, null)
 // 	})
 // })
-
-// describe("deep advancing and propogating", () => {
 
 // describe("operation reports", () => {
 // 	it("reports a fired nod", () => {

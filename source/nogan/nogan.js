@@ -1015,56 +1015,25 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
 	}
 }
 
-// //===========//
-// // Advancing //
-// //===========//
-// /**
-//  * Propogate iterates through all nods
-//  * ... and makes them fire if they should be firing.
-//  *
-//  * It's quite a heavy function to be calling so often.
-//  * We could cut down its use, and also optimise it a lot.
-//  * But so far it's been fine!
-//  *
-//  * eg: We should only really look through *some* of the nods
-//  *     (eg: ones that are now-pointed to by a firing nod)
-//  *     (eg: ones that are next-pointed to by a previously-firing nod)
-//  *     (eg: ones that are previous-pointed to by a future-firing nod)
-//  *     But maybe it's actually more efficient to just look through all of them??
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	clone?: Parent,
-//  * 	past?: Parent[],
-//  * 	future?: Parent[],
-//  * 	timing?: Timing,
-//  * }?} options
-//  * @returns {Operation[]}
-//  */
-// export const propogate = (
-// 	parent,
-// 	{ clone = getClone(parent), past = [], future = [], timing = 0 } = {},
-// ) => {
-// 	/** @type {Operation[]} */
-// 	const operations = []
-// 	for (const _id in clone.children) {
-// 		const id = +_id
-// 		const child = clone.children[id]
-// 		if (!child.isNod) continue
-// 		const fullPeak = getFullPeak(clone, { id, past, future, timing })
-// 		for (const colour of PULSE_COLOURS) {
-// 			const peak = fullPeak[colour]
-// 			for (const operation of peak.operations) {
-// 				operate(parent, { id, operation })
-// 				operations.push(operation)
-// 			}
-// 			if (!peak.result) continue
-// 			addPulse(parent, { id, colour, type: peak.type })
-// 		}
-// 	}
-// 	validate(parent)
-// 	return operations
-// }
+//===========//
+// Advancing //
+//===========//
+/**
+ * Gets the state of a nogan on the next beat.
+ * It does this by projecting the nogan and then refreshing it, using the current nogan as the past.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	past?: Nogan[],
+ * }} options
+ * @returns {Nogan}
+ */
+export const getAdvanced = (nogan, { past = [] } = {}) => {
+	const projection = getProjectedNogan(nogan)
+	refresh(projection, { past: [nogan, ...past] })
+	projection.type = "real"
+	validate(projection, N.Nogan)
+	return projection
+}
 
 // /**
 //  * @param {Parent} parent
