@@ -24,6 +24,7 @@ import {
 	fireCell,
 	getCell,
 	getCells,
+	getClone,
 	getPeak,
 	getProjectedNogan,
 	getRoot,
@@ -35,6 +36,7 @@ import {
 	iterateWires,
 	modifyCell,
 	modifyWire,
+	refresh,
 	reserveCellId,
 	reserveWireId,
 } from "./nogan.js"
@@ -1154,7 +1156,7 @@ describe("propogating", () => {
 		assertEquals(target.fire.blue, { type: "raw" })
 	})
 
-	it.skip("propogates a wiring", () => {
+	it("propogates a wiring", () => {
 		const nogan = createNogan()
 		const source = createCell(nogan)
 		const target = createCell(nogan)
@@ -1167,8 +1169,65 @@ describe("propogating", () => {
 		assert(target.fire.blue)
 	})
 
-	it.skip("propogates a wire modification", () => {})
-	it.skip("propogates a cell modification", () => {})
+	it("propogates a wire colour modification", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire = createWire(nogan, { source: source.id, target: target.id, colour: "red" })
+		fireCell(nogan, { id: source.id, colour: "green" })
+		assert(source.fire.green)
+		assert(!target.fire.green)
+
+		modifyWire(nogan, { id: wire.id, colour: "green" })
+		assert(source.fire.green)
+		assert(target.fire.green)
+	})
+
+	it("propogates a wire timing modification", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const wire = createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+		fireCell(nogan, { id: source.id })
+		assert(source.fire.blue)
+		assert(!target.fire.blue)
+
+		modifyWire(nogan, { id: wire.id, timing: 0 })
+		assert(source.fire.blue)
+		assert(target.fire.blue)
+	})
+
+	it("propogates based on the past", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+
+		const past = getClone(nogan)
+		fireCell(past, { id: source.id })
+		assert(!source.fire.blue)
+		assert(!target.fire.blue)
+
+		refresh(nogan, { past: [past] })
+		assert(!source.fire.blue)
+		assert(target.fire.blue)
+	})
+
+	it("propogates based on the future", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: -1 })
+
+		const future = getClone(nogan)
+		fireCell(future, { id: source.id })
+		assert(!source.fire.blue)
+		assert(!target.fire.blue)
+
+		refresh(nogan, { future: [future] })
+		assert(!source.fire.blue)
+		assert(target.fire.blue)
+	})
 })
 
 // 	it("propogates firing children, depending on the past", () => {

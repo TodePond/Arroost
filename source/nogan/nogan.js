@@ -476,15 +476,20 @@ export const archiveCell = (nogan, id) => {
  * 	type?: CellType,
  * 	position?: Vector2D,
  * 	propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
  * }} options
  */
-export const modifyCell = (nogan, { id, type, position, propogate = true }) => {
+export const modifyCell = (
+	nogan,
+	{ id, type, position, propogate = true, past = [], future = [] },
+) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.position = position ?? cell.position
 
 	if (propogate) {
-		unimplemented()
+		refresh(nogan, { past, future })
 	}
 
 	validate(cell, N.Cell)
@@ -503,12 +508,14 @@ export const modifyCell = (nogan, { id, type, position, propogate = true }) => {
  * 	colour?: WireColour,
  * 	timing?: Timing,
  *  propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
  * }} options
  * @returns {Wire}
  */
 export const createWire = (
 	nogan,
-	{ source, target, colour = "any", timing = 0, propogate = true },
+	{ source, target, colour = "any", timing = 0, propogate = true, past = [], future = [] },
 ) => {
 	const id = reserveWireId(nogan)
 	const wire = N.Wire.make({ id, source, target, colour, timing })
@@ -520,7 +527,7 @@ export const createWire = (
 	targetCell.inputs.push(id)
 
 	if (propogate) {
-		refresh(nogan)
+		refresh(nogan, { past, future })
 	}
 
 	validate(wire, N.Wire)
@@ -642,15 +649,20 @@ export const getWires = (nogan) => {
  * 	colour?: WireColour,
  * 	timing?: Timing,
  * 	propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
  * }} options
  */
-export const modifyWire = (nogan, { id, colour, timing, propogate = true }) => {
+export const modifyWire = (
+	nogan,
+	{ id, colour, timing, propogate = true, past = [], future = [] },
+) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
 
 	if (propogate) {
-		unimplemented()
+		refresh(nogan, { past, future })
 	}
 
 	validate(wire, N.Wire)
@@ -694,18 +706,20 @@ export const createFire = ({ red, green, blue } = {}) => {
  * 	colour?: PulseColour,
  * 	pulse?: Pulse,
  * 	propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
  * }} options
  */
 export const fireCell = (
 	nogan,
-	{ id, colour = "blue", pulse = { type: "raw" }, propogate = true },
+	{ id, colour = "blue", pulse = { type: "raw" }, propogate = true, past = [], future = [] },
 ) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	fire[colour] = pulse
 
 	if (propogate) {
-		refresh(nogan)
+		refresh(nogan, { past, future })
 	}
 
 	validate(cell, N.Cell)
