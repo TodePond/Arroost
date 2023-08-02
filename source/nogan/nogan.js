@@ -1023,6 +1023,26 @@ export const getAdvanced = (nogan, { past = [] } = {}) => {
 	return projection
 }
 
+//=======//
+// Types //
+//=======//
+/**
+ * Return the value 'as const'.
+ * @template {number | string | boolean | bigint | symbol | null | undefined} T
+ * @param {T} value
+ */
+// @ts-expect-error
+export const c = (value) => /** @type {const} */ (value)
+
+/**
+ * Return the tuple 'as const'.
+ * @template {any[]} T
+ * @param {T} v
+ * @returns {T}
+ */
+// @ts-expect-error
+export const t = (...v) => /** @type {const} */ (v)
+
 // /**
 //  * @param {Parent} parent
 //  * @param {{

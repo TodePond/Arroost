@@ -65,11 +65,6 @@ declare type Nogan = {
 //======//
 // Peak //
 //======//
-declare type BasePeak = {
-	result: boolean
-	operations: Operation[]
-}
-
 declare type FailPeak = {
 	result: false
 	operations: Operation[]
@@ -138,7 +133,8 @@ type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell
 //==============//
 declare type CreationPulse = { type: "creation"; template: CellTemplate }
 declare type DestructionPulse = { type: "destruction" }
-type CustomPulse = CreationPulse | DestructionPulse
+declare type PingPulse = { type: "ping" }
+type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
 //==================//
 // Custom Operation //
@@ -149,4 +145,9 @@ declare type ModifyOperation = {
 	template: Partial<CellTemplate>
 }
 
-type CustomOperation = ModifyOperation
+declare type PingOperation = {
+	type: "ping"
+	message: "pong"
+}
+
+type CustomOperation = ModifyOperation | PingOperation
