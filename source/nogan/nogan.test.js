@@ -1345,7 +1345,8 @@ describe("advancing", () => {
 		assert(targetAfter.fire.blue)
 	})
 })
-describe.skip("operation")
+describe("operation", () => {})
+
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})
 

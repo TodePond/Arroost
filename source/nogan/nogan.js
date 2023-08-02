@@ -817,7 +817,8 @@ const getFlippedTiming = (timing) => {
  * @returns
  */
 const isPeakFinal = (peak) => {
-	return peak.result && peak.pulse.type !== "raw"
+	if (!peak.result) return false
+	return peak.pulse.type !== "raw" // todo: make this customisable
 }
 
 /**
