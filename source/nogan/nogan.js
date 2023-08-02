@@ -8,7 +8,7 @@ const N = NoganSchema
 // Validating //
 //============//
 /** @type {boolean | undefined} */
-const SHOULD_VALIDATE_OVERRIDE = undefined
+const SHOULD_VALIDATE_OVERRIDE = false
 
 /** @type {boolean | null} */
 let _shouldValidate = null
@@ -101,7 +101,17 @@ export const createNogan = () => {
  * @returns {string}
  */
 export const getJSON = (nogan) => {
-	return JSON.stringify(nogan)
+	if (!nogan.json) nogan.json = JSON.stringify(nogan)
+	validate(nogan, N.Nogan)
+	return nogan.json
+}
+
+/**
+ * Clear a nogan's cache.
+ * @param {Nogan} nogan
+ */
+const clearCache = (nogan) => {
+	nogan.json = null
 }
 
 /**
@@ -146,6 +156,7 @@ export const isRoot = (id) => {
 export const reserveCellId = (nogan) => {
 	if (nogan.deletedCells.length > 0) {
 		const id = nogan.deletedCells.pop()
+		clearCache(nogan)
 		validate(nogan, N.Nogan)
 		validate(id, N.CellId)
 		// @ts-expect-error
@@ -155,6 +166,7 @@ export const reserveCellId = (nogan) => {
 	const id = nogan.nextCell
 	nogan.nextCell++
 	nogan.items[id] = null
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 	validate(id, N.CellId)
 	return id
@@ -168,6 +180,7 @@ export const reserveCellId = (nogan) => {
 export const reserveWireId = (nogan) => {
 	if (nogan.deletedWires.length > 0) {
 		const id = nogan.deletedWires.pop()
+		clearCache(nogan)
 		validate(nogan, N.Nogan)
 		validate(id, N.WireId)
 		// @ts-expect-error
@@ -177,6 +190,7 @@ export const reserveWireId = (nogan) => {
 	const id = nogan.nextWire
 	nogan.nextWire--
 	nogan.items[id] = null
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 	validate(id, N.WireId)
 	return id
@@ -195,6 +209,7 @@ export const binCellId = (nogan, { id, mode = "delete", check = true }) => {
 	const bin = mode === "delete" ? nogan.deletedCells : nogan.archivedCells
 	bin.push(id)
 	nogan.items[id] = null
+	clearCache(nogan)
 	if (check) validate(nogan, N.Nogan)
 }
 
@@ -231,6 +246,7 @@ export const binWireId = (nogan, { id, mode = "delete", check = true }) => {
 	const bin = mode === "delete" ? nogan.deletedWires : nogan.archivedWires
 	bin.push(id)
 	nogan.items[id] = null
+	clearCache(nogan)
 	if (check) validate(nogan, N.Nogan)
 }
 
@@ -261,6 +277,7 @@ export const deleteArchivedCellId = (nogan, id) => {
 	const index = nogan.archivedCells.indexOf(id)
 	nogan.archivedCells.splice(index, 1)
 	nogan.deletedCells.push(id)
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 }
 
@@ -273,6 +290,7 @@ export const deleteArchivedWireId = (nogan, id) => {
 	const index = nogan.archivedWires.indexOf(id)
 	nogan.archivedWires.splice(index, 1)
 	nogan.deletedWires.push(id)
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 }
 
@@ -283,6 +301,7 @@ export const deleteArchivedWireId = (nogan, id) => {
 export const deleteArchivedCellIds = (nogan) => {
 	nogan.deletedCells.push(...nogan.archivedCells)
 	nogan.archivedCells = []
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 }
 
@@ -293,6 +312,7 @@ export const deleteArchivedCellIds = (nogan) => {
 export const deleteArchivedWireIds = (nogan) => {
 	nogan.deletedWires.push(...nogan.archivedWires)
 	nogan.archivedWires = []
+	clearCache(nogan)
 	validate(nogan, N.Nogan)
 }
 
@@ -317,6 +337,7 @@ export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0
 	const parentCell = getCell(nogan, parent)
 	parentCell.cells.push(id)
 
+	clearCache(nogan)
 	validate(cell, N.Cell)
 	validate(parentCell, N.Cell)
 	validate(nogan, N.Nogan)
@@ -396,6 +417,7 @@ export const giveChild = (nogan, { source = 0, target, child }) => {
 	childCell.parent = target
 	targetCell.cells.push(child)
 
+	clearCache(nogan)
 	validate(sourceCell, N.Cell)
 	validate(targetCell, N.Cell)
 	validate(childCell, N.Cell)
@@ -487,6 +509,7 @@ export const modifyCell = (
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.position = position ?? cell.position
+	clearCache(nogan)
 
 	if (propogate) {
 		refresh(nogan, { past, future })
@@ -525,6 +548,7 @@ export const createWire = (
 	const targetCell = getCell(nogan, target)
 	sourceCell.outputs.push(id)
 	targetCell.inputs.push(id)
+	clearCache(nogan)
 
 	if (propogate) {
 		refresh(nogan, { past, future })
@@ -660,6 +684,7 @@ export const modifyWire = (
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
+	clearCache(nogan)
 
 	if (propogate) {
 		refresh(nogan, { past, future })
@@ -717,6 +742,7 @@ export const fireCell = (
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	fire[colour] = pulse
+	clearCache(nogan)
 
 	if (propogate) {
 		refresh(nogan, { past, future })

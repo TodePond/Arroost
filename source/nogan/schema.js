@@ -159,6 +159,7 @@ N.Wire = S.Struct({
 //=======//
 N.Nogan = S.Struct({
 	type: N.NoganType,
+	json: S.String.nullable(),
 	nextCell: N.CellId.withDefault(1),
 	nextWire: N.WireId.withDefault(-1),
 	archivedCells: S.ArrayOf(N.CellId),
@@ -174,6 +175,13 @@ N.Nogan = S.Struct({
 }).andCheck((nogan) => {
 	if (!nogan.items[0] || nogan.items[0].type !== "root") {
 		throw new Error("Nogan must have a root cell with id 0")
+	}
+
+	if (nogan.json) {
+		const json = JSON.stringify({ ...nogan, json: null })
+		if (json !== nogan.json) {
+			throw new Error("Cached nogan JSON does not match nogan")
+		}
 	}
 
 	const connectionTypes = [

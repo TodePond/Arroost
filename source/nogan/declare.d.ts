@@ -59,6 +59,7 @@ declare type Wire = {
 //=======//
 declare type Nogan = {
 	type: NoganType
+	json: string | null
 	nextCell: CellId
 	nextWire: WireId
 	archivedCells: CellId[]
