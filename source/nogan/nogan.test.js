@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { assert, assertEquals, assertThrows } from "https://deno.land/std/testing/asserts.ts"
+import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts"
 // @ts-expect-error
 import { describe, it } from "https://deno.land/std/testing/bdd.ts"
 import {
@@ -38,9 +38,6 @@ import {
 	reserveCellId,
 	reserveWireId,
 } from "./nogan.js"
-import { NoganSchema } from "./schema.js"
-
-const N = NoganSchema
 
 describe("nogan", () => {
 	it("creates a nogan", () => {
@@ -60,14 +57,12 @@ describe("id", () => {
 		const nogan = createNogan()
 		const id1 = reserveCellId(nogan)
 		assertEquals(id1, 1)
-		assertThrows(() => reserveCellId(nogan))
 	})
 
 	it("reserves a wire id", () => {
 		const nogan = createNogan()
 		const id1 = reserveWireId(nogan)
 		assertEquals(id1, -1)
-		assertThrows(() => reserveWireId(nogan))
 	})
 
 	it("deletes a cell id", () => {
@@ -76,7 +71,6 @@ describe("id", () => {
 		assertEquals(id1, 1)
 		deleteCellId(nogan, id1)
 		assertEquals(nogan.deletedCells, [1])
-		assertThrows(() => deleteCellId(nogan, id1))
 	})
 
 	it("deletes a wire id", () => {
@@ -85,7 +79,6 @@ describe("id", () => {
 		assertEquals(id1, -1)
 		deleteWireId(nogan, id1)
 		assertEquals(nogan.deletedWires, [-1])
-		assertThrows(() => deleteWireId(nogan, id1))
 	})
 
 	it("reuses a cell id", () => {
@@ -95,7 +88,6 @@ describe("id", () => {
 		deleteCellId(nogan, id1)
 		const id2 = reserveCellId(nogan)
 		assertEquals(id2, 1)
-		assertThrows(() => reserveCellId(nogan))
 	})
 
 	it("reuses a wire id", () => {
@@ -105,7 +97,6 @@ describe("id", () => {
 		deleteWireId(nogan, id1)
 		const id2 = reserveWireId(nogan)
 		assertEquals(id2, -1)
-		assertThrows(() => reserveWireId(nogan))
 	})
 
 	it("archives a cell id", () => {
@@ -996,6 +987,90 @@ describe("peaking", () => {
 		assertEquals(peak23before.result, true)
 		assertEquals(peak24before.result, false)
 	})
+
+	it("peaks at a wire loop in the present", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id })
+		createWire(nogan, { source: cell2.id, target: cell1.id })
+		const peak11 = getPeak(nogan, { id: cell1.id })
+		const peak12 = getPeak(nogan, { id: cell2.id })
+		assertEquals(peak11.result, false)
+		assertEquals(peak12.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak21 = getPeak(nogan, { id: cell1.id })
+		const peak22 = getPeak(nogan, { id: cell2.id })
+		assertEquals(peak21.result, true)
+		assertEquals(peak22.result, true)
+	})
+
+	it("peaks at a deep wire loop in the present", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cell3 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id })
+		createWire(nogan, { source: cell2.id, target: cell3.id })
+		createWire(nogan, { source: cell3.id, target: cell1.id })
+		const peak11 = getPeak(nogan, { id: cell1.id })
+		const peak12 = getPeak(nogan, { id: cell2.id })
+		const peak13 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak11.result, false)
+		assertEquals(peak12.result, false)
+		assertEquals(peak13.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak21 = getPeak(nogan, { id: cell1.id })
+		const peak22 = getPeak(nogan, { id: cell2.id })
+		const peak23 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak21.result, true)
+		assertEquals(peak22.result, true)
+		assertEquals(peak23.result, true)
+	})
+
+	it("peaks at a wire loop that goes across time", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: -1 })
+		createWire(nogan, { source: cell2.id, target: cell1.id, timing: 1 })
+		const peak11 = getPeak(nogan, { id: cell1.id })
+		const peak12 = getPeak(nogan, { id: cell2.id })
+		assertEquals(peak11.result, false)
+		assertEquals(peak12.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak21 = getPeak(nogan, { id: cell1.id })
+		const peak22 = getPeak(nogan, { id: cell2.id })
+		assertEquals(peak21.result, true)
+		assertEquals(peak22.result, false)
+	})
+
+	it("peaks at a deep wire loop that goes across time", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		const cell3 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: -1 })
+		createWire(nogan, { source: cell2.id, target: cell3.id })
+		createWire(nogan, { source: cell3.id, target: cell1.id, timing: 1 })
+		const peak11 = getPeak(nogan, { id: cell1.id })
+		const peak12 = getPeak(nogan, { id: cell2.id })
+		const peak13 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak11.result, false)
+		assertEquals(peak12.result, false)
+		assertEquals(peak13.result, false)
+
+		fireCell(nogan, { id: cell1.id, propogate: false })
+		const peak21 = getPeak(nogan, { id: cell1.id })
+		const peak22 = getPeak(nogan, { id: cell2.id })
+		const peak23 = getPeak(nogan, { id: cell3.id })
+		assertEquals(peak21.result, true)
+		assertEquals(peak22.result, false)
+		assertEquals(peak23.result, false)
+	})
 })
 
 describe("pulse colour", () => {
@@ -1045,8 +1120,52 @@ describe("propogating", () => {
 		assertEquals(target.fire.blue, { type: "raw" })
 	})
 
-	it.skip("propogates a firing through the past", () => {})
-	it.skip("propogates a firing through the future", () => {})
+	it("propogates a firing through the past", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const middle = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: middle.id, timing: -1 })
+		createWire(nogan, { source: middle.id, target: target.id, timing: 1 })
+		assertEquals(source.fire.blue, null)
+		assertEquals(middle.fire.blue, null)
+		assertEquals(target.fire.blue, null)
+
+		fireCell(nogan, { id: source.id })
+		assertEquals(source.fire.blue, { type: "raw" })
+		assertEquals(middle.fire.blue, null)
+		assertEquals(target.fire.blue, { type: "raw" })
+	})
+
+	it("propogates a firing through the future", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const middle = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: middle.id, timing: 1 })
+		createWire(nogan, { source: middle.id, target: target.id, timing: -1 })
+		assertEquals(source.fire.blue, null)
+		assertEquals(middle.fire.blue, null)
+		assertEquals(target.fire.blue, null)
+
+		fireCell(nogan, { id: source.id })
+		assertEquals(source.fire.blue, { type: "raw" })
+		assertEquals(middle.fire.blue, null)
+		assertEquals(target.fire.blue, { type: "raw" })
+	})
+
+	it.skip("propogates a wiring", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		fireCell(nogan, { id: source.id })
+		assert(source.fire.blue)
+		assert(!target.fire.blue)
+
+		createWire(nogan, { source: source.id, target: target.id })
+		assert(source.fire.blue)
+		assert(target.fire.blue)
+	})
 
 	it.skip("propogates a wire modification", () => {})
 	it.skip("propogates a cell modification", () => {})

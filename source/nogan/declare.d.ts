@@ -107,6 +107,20 @@ declare type Fire = {
 declare type Pulse = RawPulse | CustomPulse
 declare type RawPulse = { type: "raw" }
 
+//=======//
+// Cache //
+//=======//
+declare class Memo<Value, Key, Args> {
+	static RESERVED: unique symbol
+	static NEW: unique symbol
+
+	entries: Map<string, Value | typeof Memo.RESERVED>
+
+	encode(args: Args): Key
+	query(key: Key): Value | typeof Memo.RESERVED
+	store(key: Key, value: Value): void
+}
+
 //------- Custom types below this line -------//
 
 type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell

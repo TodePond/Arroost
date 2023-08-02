@@ -7,6 +7,9 @@ const N = NoganSchema
 //============//
 // Validating //
 //============//
+/** @type {boolean | undefined} */
+const SHOULD_VALIDATE_OVERRIDE = undefined
+
 /** @type {boolean | null} */
 let _shouldValidate = null
 
@@ -15,6 +18,7 @@ let _shouldValidate = null
  * @returns {boolean}
  */
 export const shouldValidate = () => {
+	if (SHOULD_VALIDATE_OVERRIDE !== undefined) return SHOULD_VALIDATE_OVERRIDE
 	if (_shouldValidate !== null) return _shouldValidate
 	_shouldValidate = !!(!window.shared || window.shared.debug.validate)
 	return _shouldValidate
@@ -46,6 +50,38 @@ export const unimplemented = () => {
 	throw new Error("Unimplemented")
 }
 
+//=========//
+// Memoise //
+//=========//
+/** @implements {Memo<any, any, any>} */
+const Cache = class {
+	static RESERVED = Symbol("reserved")
+	static NEW = Symbol("new")
+	entries = new Map()
+
+	/** @param {any} args */
+	encode(args) {
+		return JSON.stringify(args)
+	}
+
+	/** @param {any} key */
+	query(key) {
+		if (!this.entries.has(key)) {
+			this.entries.set(key, Cache.RESERVED)
+			return Cache.NEW
+		}
+		return this.entries.get(key)
+	}
+
+	/**
+	 * @param {any} key
+	 * @param {any} value
+	 */
+	store(key, value) {
+		this.entries.set(key, value)
+	}
+}
+
 //=======//
 // Nogan //
 //=======//
@@ -57,6 +93,25 @@ export const createNogan = () => {
 	const nogan = N.Nogan.make()
 	validate(nogan, N.Nogan)
 	return nogan
+}
+
+/**
+ * Get a JSON string of a nogan.
+ * @param {Nogan} nogan
+ * @returns {string}
+ */
+export const getJSON = (nogan) => {
+	return JSON.stringify(nogan)
+}
+
+/**
+ * Get a clone of a nogan.
+ * @param {Nogan} nogan
+ * @returns {Nogan}
+ */
+export const getClone = (nogan) => {
+	const json = getJSON(nogan)
+	return JSON.parse(json)
 }
 
 /**
@@ -447,10 +502,14 @@ export const modifyCell = (nogan, { id, type, position, propogate = true }) => {
  * 	target: CellId,
  * 	colour?: WireColour,
  * 	timing?: Timing,
+ *  propogate?: boolean,
  * }} options
  * @returns {Wire}
  */
-export const createWire = (nogan, { source, target, colour = "any", timing = 0 }) => {
+export const createWire = (
+	nogan,
+	{ source, target, colour = "any", timing = 0, propogate = true },
+) => {
 	const id = reserveWireId(nogan)
 	const wire = N.Wire.make({ id, source, target, colour, timing })
 	nogan.items[id] = wire
@@ -459,6 +518,10 @@ export const createWire = (nogan, { source, target, colour = "any", timing = 0 }
 	const targetCell = getCell(nogan, target)
 	sourceCell.outputs.push(id)
 	targetCell.inputs.push(id)
+
+	if (propogate) {
+		// refresh(nogan)
+	}
 
 	validate(wire, N.Wire)
 	validate(sourceCell, N.Cell)
@@ -659,7 +722,7 @@ export const fireCell = (
  * @returns {Nogan}
  */
 export const getProjectedNogan = (nogan) => {
-	const projection = structuredClone(nogan)
+	const projection = getClone(nogan)
 	projection.type = "projection"
 
 	for (const cell of iterateCells(projection)) {
@@ -718,6 +781,32 @@ const isPeakFinal = (peak) => {
 }
 
 /**
+ * @typedef {{
+ *  nogan: Nogan,
+ *  id: CellId,
+ *  colour: PulseColour,
+ *  timing: Timing,
+ *  past: Nogan[],
+ *  future: Nogan[],
+ * }} GetPeakOptions
+ */
+
+/** @implements {Memo<Peak, string, GetPeakOptions>} */
+const GetPeakMemo = class extends Cache {
+	/** @param {GetPeakOptions} options */
+	encode({ nogan, id, colour, timing, past, future }) {
+		return [
+			getJSON(nogan),
+			id,
+			colour,
+			timing,
+			past.map((v) => getJSON(v)),
+			future.map((v) => getJSON(v)),
+		].join("|")
+	}
+}
+
+/**
  * Peak at a cell to see how it's firing.
  * @param {Nogan} nogan
  * @param {{
@@ -726,12 +815,28 @@ const isPeakFinal = (peak) => {
  * 	timing?: Timing,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
+ *  memo?: GetPeakMemo,
  * }} options
  * @returns {Peak}
  */
-export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], future = [] }) => {
+export const getPeak = (
+	nogan,
+	{ id, colour = "blue", timing = 0, past = [], future = [], memo = new GetPeakMemo() },
+) => {
+	const key = memo.encode({ nogan, id, colour, timing, past, future })
+	const cached = memo.query(key)
+
+	if (cached === Cache.RESERVED) {
+		// Infinite wire loop detected!
+		return createPeak()
+	} else if (cached !== Cache.NEW) {
+		return cached
+	}
+
 	if (timing === 0) {
-		return getPeakNow(nogan, { id, colour, past, future })
+		const peak = getPeakNow(nogan, { id, colour, past, future, memo })
+		memo.store(key, peak)
+		return peak
 	}
 
 	const to = timing === 1 ? future : past
@@ -740,12 +845,15 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 	// First, let's try to look in the known future/past
 	const [next, ...rest] = to
 	if (next) {
-		return getPeakNow(next, {
+		const peak = getPeakNow(next, {
 			id,
 			colour,
 			past: timing === 1 ? [nogan, ...past] : rest,
 			future: timing === 1 ? rest : [nogan, ...future],
+			memo,
 		})
+		memo.store(key, peak)
+		return peak
 	}
 
 	// Otherwise, let's prepare to imagine the future/past
@@ -758,12 +866,15 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 	}
 
 	// If not, let's imagine the future/past!
-	return getPeakNow(projectedNext, {
+	const peak = getPeakNow(projectedNext, {
 		id,
 		colour,
 		past: timing === 1 ? [nogan, ...past] : [],
 		future: timing === 1 ? [] : [nogan, ...future],
+		memo,
 	})
+	memo.store(key, peak)
+	return peak
 }
 
 /**
@@ -774,10 +885,11 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
  * 	colour: PulseColour,
  * 	past: Nogan[],
  * 	future: Nogan[],
+ *	memo?: GetPeakMemo,
  * }} options
  * @returns {Peak}
  */
-const getPeakNow = (nogan, { id, colour, past, future }) => {
+const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() }) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
 	const pulse = fire[colour]
@@ -797,6 +909,7 @@ const getPeakNow = (nogan, { id, colour, past, future }) => {
 			colour,
 			past,
 			future,
+			memo,
 		})
 
 		peak = getBehavedPeak({ previous: peak, next: inputPeak })
@@ -852,10 +965,7 @@ const getBehavedPeak = ({ previous, next }) => {
  * 	future?: Nogan[],
  * }} options
  */
-export const refresh = (
-	nogan,
-	{ snapshot = structuredClone(nogan), past = [], future = [] } = {},
-) => {
+export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future = [] } = {}) => {
 	for (const id of iterateCellIds(snapshot)) {
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, { id, colour, past, future })
@@ -893,7 +1003,7 @@ export const refresh = (
 //  */
 // export const propogate = (
 // 	parent,
-// 	{ clone = structuredClone(parent), past = [], future = [], timing = 0 } = {},
+// 	{ clone = getClone(parent), past = [], future = [], timing = 0 } = {},
 // ) => {
 // 	/** @type {Operation[]} */
 // 	const operations = []
