@@ -611,7 +611,7 @@ export const fireCell = (
 	const { fire } = cell
 
 	// Perform behaviours
-	const peak = createPeak({ pulse }) //todo: behave?... behave(parent, { pulse, id })
+	const peak = createPeak({ pulse })
 	if (!peak.result) return
 
 	// Update our pulse
@@ -619,7 +619,8 @@ export const fireCell = (
 
 	// Propogate changes
 	if (propogate) {
-		unimplemented()
+		// todo: propogate in a more efficient way
+		refresh(nogan)
 	}
 
 	validate(cell, N.Cell)
@@ -815,6 +816,31 @@ const getBehavedPeak = ({ previous, next }) => {
 	const behaved = behaviour({ previous, next })
 	validate(behaved, N.Peak)
 	return behaved
+}
+
+//=========//
+// Refresh //
+//=========//
+/**
+ * Refresh a the state of all cells in a nogan.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	clone?: Nogan,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
+ * }} options
+ */
+export const refresh = (
+	nogan,
+	{ clone = structuredClone(nogan), past = [], future = [] } = {},
+) => {
+	for (const cell of iterateCells(clone)) {
+		for (const colour of PULSE_COLOURS) {
+			const peak = getPeak(clone, { id: cell.id, colour, past, future })
+			if (!peak.result) continue
+			cell.fire[colour] = peak.pulse
+		}
+	}
 }
 
 // //===========//
