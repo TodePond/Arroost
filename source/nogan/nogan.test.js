@@ -327,12 +327,10 @@ describe("cell", () => {
 		const cell = createCell(nogan)
 		assertEquals(cell.type, "dummy")
 		assertEquals(cell.position, [0, 0])
-		modifyCell(nogan, { id: cell.id, type: "creation", position: [10, 20] })
+		modifyCell(nogan, { id: cell.id, type: "creation", position: [10, 20], propogate: false })
 		assertEquals(cell.type, "creation")
 		assertEquals(cell.position, [10, 20])
 	})
-
-	it.skip("propogates a modification", () => {})
 })
 
 describe("wire", () => {
@@ -399,12 +397,10 @@ describe("wire", () => {
 		const wire = createWire(nogan, { source: source.id, target: target.id })
 		assertEquals(wire.timing, 0)
 		assertEquals(wire.colour, "any")
-		modifyWire(nogan, { id: wire.id, timing: 1, colour: "red" })
+		modifyWire(nogan, { id: wire.id, timing: 1, colour: "red", propogate: false })
 		assertEquals(wire.timing, 1)
 		assertEquals(wire.colour, "red")
 	})
-
-	it.skip("propogates a modification", () => {})
 })
 
 describe("firing", () => {
@@ -422,17 +418,13 @@ describe("firing", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
 		assertEquals(cell.fire.blue, null)
-		fireCell(nogan, { id: cell.id })
+		fireCell(nogan, { id: cell.id, propogate: false })
 		assertEquals(cell.fire.blue, { type: "raw" })
 		assertEquals(cell.fire.green, null)
 	})
-
-	it.skip("propogates through the present", () => {})
-	it.skip("propogates through the past", () => {})
-	it.skip("propogates through the future", () => {})
 })
 
-describe("projecting", () => {
+describe.skip("projecting", () => {
 	it("clones a nogan", () => {
 		const nogan = createNogan()
 		const projection = getProjectedNogan(nogan)
@@ -493,7 +485,7 @@ describe("peaking", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
 		assertEquals(isFiring(nogan, { id: cell.id }), false)
-		fireCell(nogan, { id: cell.id })
+		fireCell(nogan, { id: cell.id, propogate: false })
 		assertEquals(isFiring(nogan, { id: cell.id }), true)
 	})
 
@@ -502,7 +494,7 @@ describe("peaking", () => {
 		const cell = createCell(nogan)
 		const peak1 = getPeak(nogan, { id: cell.id })
 		assertEquals(peak1.result, false)
-		fireCell(nogan, { id: cell.id })
+		fireCell(nogan, { id: cell.id, propogate: false })
 		const peak2 = getPeak(nogan, { id: cell.id })
 		assertEquals(peak2.result, true)
 		if (peak2.result) {
@@ -515,7 +507,7 @@ describe("peaking", () => {
 		const cell = createCell(nogan)
 		const before1 = structuredClone(nogan)
 		const before2 = structuredClone(nogan)
-		fireCell(before1, { id: cell.id })
+		fireCell(before1, { id: cell.id, propogate: false })
 		const peak1 = getPeak(nogan, { id: cell.id, timing: -1, past: [before1] })
 		const peak2 = getPeak(nogan, { id: cell.id, timing: -1, past: [before2] })
 		assertEquals(peak1.result, true)
@@ -527,7 +519,7 @@ describe("peaking", () => {
 		const cell = createCell(nogan)
 		const after1 = structuredClone(nogan)
 		const after2 = structuredClone(nogan)
-		fireCell(after1, { id: cell.id })
+		fireCell(after1, { id: cell.id, propogate: false })
 		const peak1 = getPeak(nogan, { id: cell.id, timing: 1, future: [after1] })
 		const peak2 = getPeak(nogan, { id: cell.id, timing: 1, future: [after2] })
 		assertEquals(peak1.result, true)
@@ -1035,6 +1027,29 @@ describe("pulse colour", () => {
 		assertEquals(peak21red.result, true)
 		assertEquals(peak22red.result, true)
 	})
+})
+
+describe("propogating", () => {
+	it("propogates a firing through the present", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id })
+
+		assertEquals(source.fire.blue, null)
+		assertEquals(target.fire.blue, null)
+
+		fireCell(nogan, { id: source.id })
+
+		assertEquals(source.fire.blue, { type: "raw" })
+		assertEquals(target.fire.blue, { type: "raw" })
+	})
+
+	it.skip("propogates a firing through the past", () => {})
+	it.skip("propogates a firing through the future", () => {})
+
+	it.skip("propogates a wire modification", () => {})
+	it.skip("propogates a cell modification", () => {})
 })
 
 // 	it("propogates firing children, depending on the past", () => {

@@ -408,7 +408,7 @@ export const archiveCell = (nogan, id) => {
  * 	propogate?: boolean,
  * }} options
  */
-export const modifyCell = (nogan, { id, type, position, propogate = false }) => {
+export const modifyCell = (nogan, { id, type, position, propogate = true }) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.position = position ?? cell.position
@@ -551,7 +551,7 @@ export const getWires = (nogan) => {
  * 	propogate?: boolean,
  * }} options
  */
-export const modifyWire = (nogan, { id, colour, timing, propogate = false }) => {
+export const modifyWire = (nogan, { id, colour, timing, propogate = true }) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
@@ -605,7 +605,7 @@ export const createFire = ({ red, green, blue } = {}) => {
  */
 export const fireCell = (
 	nogan,
-	{ id, colour = "blue", pulse = { type: "raw" }, propogate = false },
+	{ id, colour = "blue", pulse = { type: "raw" }, propogate = true },
 ) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
