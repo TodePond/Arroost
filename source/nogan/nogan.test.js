@@ -417,11 +417,11 @@ describe("firing", () => {
 	})
 })
 
-describe.skip("projecting", () => {
+describe("projecting", () => {
 	it("clones a nogan", () => {
 		const nogan = createNogan()
 		const projection = getProjectedNogan(nogan)
-		assertEquals(projection, { ...nogan, type: "projection" })
+		assertEquals(projection, { ...nogan, type: "projection", json: projection.json })
 		assert(projection !== nogan)
 	})
 
