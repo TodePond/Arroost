@@ -298,6 +298,21 @@ export function* iterateCells(nogan) {
 }
 
 /**
+ * Iterate through all cell ids.
+ * @param {Nogan} nogan
+ * @return {Iterable<CellId>}
+ */
+export function* iterateCellIds(nogan) {
+	for (let id = 0; id < nogan.nextCell; id++) {
+		const cell = nogan.items[id]
+		if (!cell) continue
+		validate(cell, N.Cell)
+		validate(id, N.CellId)
+		yield id
+	}
+}
+
+/**
  * Get all cells.
  * @param {Nogan} nogan
  * @returns {Cell[]}
@@ -533,6 +548,21 @@ export function* iterateWires(nogan) {
 }
 
 /**
+ * Iterate through all wire ids.
+ * @param {Nogan} nogan
+ * @return {Iterable<WireId>}
+ */
+export function* iterateWireIds(nogan) {
+	for (let id = -1; id >= nogan.nextWire; id--) {
+		const wire = nogan.items[id]
+		if (!wire) continue
+		validate(wire, N.Wire)
+		validate(id, N.WireId)
+		yield id
+	}
+}
+
+/**
  * Get all wires.
  * @param {Nogan} nogan
  * @returns {Wire[]}
@@ -609,17 +639,9 @@ export const fireCell = (
 ) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
+	fire[colour] = pulse
 
-	// Perform behaviours
-	const peak = createPeak({ pulse })
-	if (!peak.result) return
-
-	// Update our pulse
-	fire[colour] = peak.pulse
-
-	// Propogate changes
 	if (propogate) {
-		// todo: propogate in a more efficient way
 		refresh(nogan)
 	}
 
@@ -825,20 +847,20 @@ const getBehavedPeak = ({ previous, next }) => {
  * Refresh a the state of all cells in a nogan.
  * @param {Nogan} nogan
  * @param {{
- * 	clone?: Nogan,
+ * 	snapshot?: Nogan,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
  */
 export const refresh = (
 	nogan,
-	{ clone = structuredClone(nogan), past = [], future = [] } = {},
+	{ snapshot = structuredClone(nogan), past = [], future = [] } = {},
 ) => {
-	for (const cell of iterateCells(clone)) {
+	for (const id of iterateCellIds(snapshot)) {
 		for (const colour of PULSE_COLOURS) {
-			const peak = getPeak(clone, { id: cell.id, colour, past, future })
+			const peak = getPeak(snapshot, { id, colour, past, future })
 			if (!peak.result) continue
-			cell.fire[colour] = peak.pulse
+			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
 		}
 	}
 }
