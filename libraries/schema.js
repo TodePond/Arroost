@@ -178,7 +178,9 @@ Schema.Any = (schemas) => {
 		return head.make(value)
 	}
 
-	return new Schema({ check, make })
+	const schema = new Schema({ check, make })
+	schema.schemas = schemas
+	return schema
 }
 
 Schema.PartialStruct = (struct = {}) => {

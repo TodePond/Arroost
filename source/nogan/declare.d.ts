@@ -12,12 +12,6 @@ declare type OperationType = Operation["type"]
 // Utility //
 //=========//
 declare type Vector2D = [number, number]
-declare type CellTemplate = { type: CellType; position: Vector2D }
-declare type ReverseRecord<T> = unknown extends {
-	[K in keyof T]-?: T[K] extends Omit<T, K>[Exclude<keyof T, K>] ? unknown : never
-}[keyof T]
-	? never
-	: T[keyof T]
 
 //====//
 // Id //
@@ -28,6 +22,7 @@ declare type WireId = number
 //======//
 // Cell //
 //======//
+declare type CellTemplate = { type: CellType; position: Vector2D }
 declare type Cell = BaseCell & (RootCell | DummyCell | CustomCell)
 declare type BaseCell = {
 	id: CellId
@@ -87,9 +82,16 @@ declare type SuccessPeak = {
 }
 
 declare type Peak = FailPeak | SuccessPeak
-
 declare type Behaviour = ({ previous, next }: { previous: Peak; next: Peak }) => Peak
-declare type Operation = CustomOperation
+
+//===========//
+// Operation //
+//===========//
+declare type Operation = FiredOperation | CustomOperation
+declare type FiredOperation = {
+	type: "fired"
+	id: CellId
+}
 
 //======//
 // Fire //
@@ -122,26 +124,29 @@ declare class Memo<Value, Key, Args> {
 
 //------- Custom types below this line -------//
 
-type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell
-type CustomPulse = CreationPulse | DestructionPulse
-type CustomOperation = ModifyOperation | FiredOperation
-
+//=============//
+// Custom Cell //
+//=============//
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
-
 declare type CreationCell = { type: "creation" }
-declare type CreationPulse = { type: "creation"; template: CellTemplate }
-
 declare type DestructionCell = { type: "destruction" }
-declare type DestructionPulse = { type: "destruction" }
+type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell
 
+//==============//
+// Custom Pulse //
+//==============//
+declare type CreationPulse = { type: "creation"; template: CellTemplate }
+declare type DestructionPulse = { type: "destruction" }
+type CustomPulse = CreationPulse | DestructionPulse
+
+//==================//
+// Custom Operation //
+//==================//
 declare type ModifyOperation = {
 	type: "modify"
 	id: CellId
-	template: Partial<Cell>
+	template: Partial<CellTemplate>
 }
 
-declare type FiredOperation = {
-	type: "fired"
-	id: CellId
-}
+type CustomOperation = ModifyOperation

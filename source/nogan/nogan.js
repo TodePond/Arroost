@@ -989,15 +989,19 @@ const getBehavedPeak = ({ previous, next }) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
+ * @return {Operation[]}
  */
 export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future = [] } = {}) => {
+	const operations = []
 	for (const id of iterateCellIds(snapshot)) {
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, { id, colour, past, future })
 			if (!peak.result) continue
 			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
+			operations.push(...peak.operations)
 		}
 	}
+	return operations
 }
 
 //===========//
@@ -1014,7 +1018,7 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
  */
 export const getAdvanced = (nogan, { past = [] } = {}) => {
 	const projection = getProjectedNogan(nogan)
-	refresh(projection, { past: [nogan, ...past] })
+	const operations = refresh(projection, { past: [nogan, ...past] })
 	validate(projection, N.Nogan)
 	return projection
 }

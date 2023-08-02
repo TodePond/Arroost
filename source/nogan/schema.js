@@ -9,23 +9,6 @@ const N = NoganSchema
 //=======//
 // Enums //
 //=======//
-/** @type {Record<CellType, CellType>} */
-export const CELL_TYPE = {
-	dummy: "dummy",
-	root: "root",
-	slot: "slot",
-	creation: "creation",
-	destruction: "destruction",
-	recording: "recording",
-}
-
-/** @type {Record<PulseType, PulseType>} */
-export const PULSE_TYPE = {
-	raw: "raw",
-	creation: "creation",
-	destruction: "destruction",
-}
-
 /** @type {Record<PulseColour, PulseColour>} */
 export const PULSE_COLOUR = {
 	blue: "blue",
@@ -48,52 +31,23 @@ export const TIMING = {
 	"1": 1,
 }
 
-/** @type {Record<OperationType, OperationType>} */
-export const OPERATION_TYPE = {
-	modify: "modify",
-	fired: "fired",
-}
-
-export const CELL_TYPES = Object.values(CELL_TYPE)
-export const PULSE_TYPES = Object.values(PULSE_TYPE)
 export const PULSE_COLOURS = Object.values(PULSE_COLOUR)
 export const WIRE_COLOURS = Object.values(WIRE_COLOUR)
 export const TIMINGS = Object.values(TIMING)
-export const OPERATION_TYPES = Object.values(OPERATION_TYPE)
 
-N.CellType = S.Enum(CELL_TYPES)
-N.PulseType = S.Enum(PULSE_TYPES)
 N.PulseColour = S.Enum(PULSE_COLOURS)
 N.WireColour = S.Enum(WIRE_COLOURS)
 N.Timing = S.Enum(TIMINGS)
-N.OperationType = S.Enum(OPERATION_TYPES)
-
-//=========//
-// Utility //
-//=========//
-N.CellTemplate = S.Struct({ type: N.CellType, position: S.Vector2D })
 
 //=======//
 // Pulse //
 //=======//
-N.BasePulse = S.Struct({
-	type: N.PulseType,
-})
-
-N.RawPulse = N.BasePulse.combine({
+N.RawPulse = S.Struct({
 	type: N.Value("raw"),
 })
 
-N.CreationPulse = N.BasePulse.combine({
-	type: N.Value("creation"),
-	template: N.CellTemplate,
-})
+N.Pulse = S.Any([N.RawPulse, N.reference("CustomPulse")])
 
-N.DestructionPulse = N.BasePulse.combine({
-	type: N.Value("destruction"),
-})
-
-N.Pulse = S.Any([N.RawPulse, N.CreationPulse, N.DestructionPulse])
 N.Fire = S.Struct({
 	red: N.Pulse.nullable(),
 	green: N.Pulse.nullable(),
@@ -111,37 +65,59 @@ N.Id = S.Any([N.RootId, N.CellId, N.WireId])
 //======//
 // Cell //
 //======//
-N.Cell = S.Struct({
+N.DummyCell = S.BaseStruct({
+	type: N.Value("dummy"),
+})
+
+N.RootCell = S.BaseStruct({
+	type: N.Value("root"),
+})
+
+N.CoreCell = S.Any([N.DummyCell, N.RootCell])
+N.CustomCell = S.Any([])
+
+N.CellTemplate = S.Struct({ type: N.String.withDefault("dummy"), position: S.Vector2D })
+N.Cell = S.BaseStruct({
+	type: N.String.withDefault("dummy"),
 	id: N.CellId.withDefault(null),
 	parent: N.CellId.withDefault(null),
-	type: N.CellType,
 	position: S.Vector2D,
 	cells: S.ArrayOf(N.CellId),
 	inputs: S.ArrayOf(N.WireId),
 	outputs: S.ArrayOf(N.WireId),
 	fire: N.Fire,
 }).andCheck((cell) => {
-	if (cell.type === "root" && cell.id !== 0) {
-		throw new Error("Root cell must have id 0")
+	for (const schema of N.CoreCell.schemas) {
+		if (schema.check(cell)) return true
 	}
-
-	if (cell.type !== "root" && cell.id === 0) {
-		throw new Error("Non-root cell cannot have id 0")
+	for (const schema of N.CustomCell.schemas) {
+		if (schema.check(cell)) return true
 	}
-
-	const cellSet = new Set(cell.cells)
-	if (cellSet.size !== cell.cells.length) {
-		throw new Error("Cell contains duplicate cells")
-	}
-
-	for (const childId of cell.cells) {
-		if (childId === cell.id) {
-			throw new Error("Cell cannot contain itself")
-		}
-	}
-
-	return true
+	return false
 })
+
+// .andCheck((cell) => {
+// 	if (cell.type === "root" && cell.id !== 0) {
+// 		throw new Error("Root cell must have id 0")
+// 	}
+
+// 	if (cell.type !== "root" && cell.id === 0) {
+// 		throw new Error("Non-root cell cannot have id 0")
+// 	}
+
+// 	const cellSet = new Set(cell.cells)
+// 	if (cellSet.size !== cell.cells.length) {
+// 		throw new Error("Cell contains duplicate cells")
+// 	}
+
+// 	for (const childId of cell.cells) {
+// 		if (childId === cell.id) {
+// 			throw new Error("Cell cannot contain itself")
+// 		}
+// 	}
+
+// 	return true
+// })
 
 //======//
 // Wire //
@@ -169,7 +145,7 @@ N.Nogan = S.Struct({
 		keysOf: N.Id,
 		valuesOf: S.Any([N.Cell, N.Wire]).nullable(),
 	}).withMake(() => {
-		return { [0]: N.Cell.make({ type: "root", id: 0, parent: 0 }) }
+		return { [0]: N.Cell.make({ id: 0, parent: 0, type: "root" }) }
 	}),
 }).andCheck((nogan) => {
 	if (!nogan.items[0] || nogan.items[0].type !== "root") {
@@ -376,6 +352,11 @@ N.Nogan = S.Struct({
 //===========//
 N.Operation = S.Anything //todo
 
+N.FiredOperation = S.Struct({
+	type: N.Value("fired"),
+	id: N.CellId,
+})
+
 //======//
 // Peak //
 //======//
@@ -395,63 +376,50 @@ N.SuccessPeak = N.BasePeak.combine({
 
 N.Peak = S.Any([N.FailPeak, N.SuccessPeak])
 
-// //============//
-// // Operations //
-// //============//
-// /** @type {OperationType[]} */
-// export const OPERATION_TYPES = ["modify", "fired"]
+//------- Custom types below this line -------//
 
-// /**
-//  * @type {Record<OperationType, OperationType>}
-//  */
-// export const OPERATION_TYPE = {
-// 	modify: "modify",
-// 	fired: "fired",
-// }
+//=============//
+// Custom Cell //
+//=============//
+N.SlotCell = S.BaseStruct({
+	type: S.Value("slot"),
+})
 
-// N.OperateType = S.Enum(OPERATION_TYPES)
+N.RecordingCell = S.BaseStruct({
+	type: S.Value("recording"),
+})
 
-// N.BaseOperation = S.Struct({
-// 	type: N.String,
-// 	data: S.Anything,
-// })
+N.CreationCell = S.BaseStruct({
+	type: S.Value("creation"),
+})
 
-// N.ModifyOperation = N.BaseOperation.combine({
-// 	type: N.Value("modify"),
-// 	data: N.NodTemplate.partial(),
-// })
+N.DestructionCell = S.BaseStruct({
+	type: S.Value("destruction"),
+})
 
-// N.FiredOperation = N.BaseOperation.combine({
-// 	type: N.Value("fired"),
-// })
+N.CustomCell = S.Any([N.SlotCell, N.CreationCell, N.DestructionCell, N.RecordingCell])
 
-// N.Operation = S.Any([N.ModifyOperation, N.FiredOperation])
+//==============//
+// Custom Pulse //
+//==============//
+N.CreationPulse = S.Struct({
+	type: N.Value("creation"),
+	template: N.CellTemplate,
+})
 
-// //======//
-// // Peak //
-// //======//
+N.DestructionPulse = S.Struct({
+	type: N.Value("destruction"),
+})
 
-// N.FailPeak = S.Struct({
-// 	schemaName: S.Value("FailPeak"),
-// 	result: S.Value(false),
-// 	operations: S.ArrayOf(N.Operation),
-// })
+N.CustomPulse = S.Any([N.CreationPulse, N.DestructionPulse])
 
-// N.SuccessPeak = S.Struct({
-// 	schemaName: S.Value("SuccessPeak"),
-// 	result: S.Value(true),
-// 	type: N.PulseType,
-// 	template: N.NodTemplate,
-// 	data: S.Anything, //yolo
-// 	operations: S.ArrayOf(N.Operation),
-// })
+//==================//
+// Custom Operation //
+//==================//
+N.ModifyOperation = S.Struct({
+	type: N.Value("modify"),
+	id: N.CellId,
+	template: N.CellTemplate.partial(),
+})
 
-// N.Peak = S.Any([N.FailPeak, N.SuccessPeak])
-
-// N.FullPeak = S.Struct({
-// 	schemaName: S.Value("FullPeak"),
-// 	result: S.Boolean,
-// 	red: N.Peak,
-// 	green: N.Peak,
-// 	blue: N.Peak,
-// })
+N.CustomOperation = S.Any([N.ModifyOperation])
