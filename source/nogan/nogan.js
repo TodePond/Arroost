@@ -520,7 +520,7 @@ export const createWire = (
 	targetCell.inputs.push(id)
 
 	if (propogate) {
-		// refresh(nogan)
+		refresh(nogan)
 	}
 
 	validate(wire, N.Wire)
