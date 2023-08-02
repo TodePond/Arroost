@@ -730,7 +730,7 @@ export const getPeak = (nogan, { id, colour = "blue", timing = 0, past = [], fut
 
 	// But wait!
 	// Are we stuck in a loop?
-	if (objectEquals(from.at(0), projectedNext) && objectEquals(from.at(1), projectedNext)) {
+	if (objectEquals(from.at(0), nogan)) {
 		return createPeak()
 	}
 
