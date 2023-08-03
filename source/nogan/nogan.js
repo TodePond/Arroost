@@ -948,6 +948,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 			memo,
 		})
 
+		if (!inputPeak.result) continue
 		peak = getBehavedPeak({ previous: peak, next: inputPeak })
 	}
 
@@ -975,17 +976,24 @@ export const isFiring = (nogan, { id }) => {
 //========//
 /**
  * Apply a behaviour to a peak.
- * @type {Behaviour}
+ * @type {Behaviour<Pulse>}
  */
 const getBehavedPeak = ({ previous, next }) => {
-	if (!next.result) {
-		return previous
-	}
-
-	const behaviour = BEHAVIOURS[next.pulse.type]
+	const behaviour = getBehaviour(next.pulse)
 	const behaved = behaviour({ previous, next })
 	validate(behaved, N.Peak)
 	return behaved
+}
+
+/**
+ * @template {Pulse} T
+ * @param {T} pulse
+ * @returns {Behaviour<T>}
+ */
+export const getBehaviour = (pulse) => {
+	const behaviour = BEHAVIOURS[pulse.type]
+	// @ts-expect-error
+	return behaviour
 }
 
 //=========//

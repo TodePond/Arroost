@@ -1346,14 +1346,22 @@ describe("advancing", () => {
 	})
 })
 describe("operation", () => {
-	it("gets an operation from firing a cell", () => {
+	it("gets operations from firing a cell", () => {
 		const nogan = createNogan()
 		const source = createCell(nogan)
 		const target = createCell(nogan)
-		const pulse = createPulse({ type: "ping" })
+		const pulse = createPulse({ type: "ping", message: "hello" })
 		createWire(nogan, { source: source.id, target: target.id })
 		const operations = fireCell(nogan, { id: source.id, pulse })
-		assertEquals(operations, [{ type: "pong", message: "pong" }])
+		assertEquals(operations, [{ type: "pong", message: "hello" }])
+	})
+
+	it("gets operations from modifying a cell", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const pulse = createPulse({ type: "ping", message: "hello" })
+		createWire(nogan, { source: source.id, target: target.id })
 	})
 })
 

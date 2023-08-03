@@ -77,7 +77,18 @@ declare type SuccessPeak = {
 }
 
 declare type Peak = FailPeak | SuccessPeak
-declare type Behaviour = ({ previous, next }: { previous: Peak; next: Peak }) => Peak
+
+declare type Behaviour<T extends Pulse> = ({
+	previous,
+	next,
+}: {
+	previous: Peak
+	next: SuccessPeak & { pulse: T }
+}) => Peak
+
+declare type BehaviourMap = {
+	[key in PulseType]: Behaviour<Extract<Pulse, { type: key }>>
+}
 
 //===========//
 // Operation //
@@ -141,14 +152,15 @@ declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell
+declare type PingerCell = { type: "pinger"; message: string }
+type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | PingerCell
 
 //==============//
 // Custom Pulse //
 //==============//
 declare type CreationPulse = { type: "creation"; template: CellTemplate }
 declare type DestructionPulse = { type: "destruction" }
-declare type PingPulse = { type: "ping" }
+declare type PingPulse = { type: "ping"; message: string }
 type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
 //==================//
@@ -162,7 +174,7 @@ declare type ModifyOperation = {
 
 declare type PongOperation = {
 	type: "pong"
-	message: "pong"
+	message: string
 }
 
 type CustomOperation = ModifyOperation | PongOperation

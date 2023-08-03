@@ -1,15 +1,15 @@
 import { c } from "./nogan.js"
 
-/** @type {Behaviour} */
+/** @type {Behaviour<Pulse>} */
 const override = ({ previous, next }) => {
 	return next
 }
 
-/** @type {Behaviour} */
+/** @type {Behaviour<PingPulse>} */
 const pong = ({ previous, next }) => {
 	const operation = c({
 		type: "pong",
-		message: "pong",
+		message: next.pulse.message,
 	})
 	return {
 		...next,
@@ -17,7 +17,7 @@ const pong = ({ previous, next }) => {
 	}
 }
 
-/** @type {Record<PulseType, Behaviour>} */
+/** @type {BehaviourMap} */
 export const BEHAVIOURS = {
 	raw: override,
 	creation: override,
