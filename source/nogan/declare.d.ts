@@ -79,9 +79,13 @@ declare type SuccessPeak = {
 declare type Peak = FailPeak | SuccessPeak
 
 declare type Behaviour<T extends Pulse> = ({
+	source,
+	target,
 	previous,
 	next,
 }: {
+	source: Cell
+	target: Cell
 	previous: Peak
 	next: SuccessPeak & { pulse: T }
 }) => Peak
@@ -161,7 +165,8 @@ type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | Pi
 declare type CreationPulse = { type: "creation"; template: CellTemplate }
 declare type DestructionPulse = { type: "destruction" }
 declare type PingPulse = { type: "ping"; message: string }
-type CustomPulse = CreationPulse | DestructionPulse | PingPulse
+declare type RawPingPulse = { type: "rawPing" }
+type CustomPulse = CreationPulse | DestructionPulse | PingPulse | RawPingPulse
 
 //==================//
 // Custom Operation //

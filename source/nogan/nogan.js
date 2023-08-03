@@ -949,7 +949,9 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 		})
 
 		if (!inputPeak.result) continue
-		peak = getBehavedPeak({ previous: peak, next: inputPeak })
+		const source = getCell(nogan, wire.source)
+		const target = getCell(nogan, wire.target)
+		peak = getBehavedPeak({ source, target, previous: peak, next: inputPeak })
 	}
 
 	return peak
@@ -976,11 +978,16 @@ export const isFiring = (nogan, { id }) => {
 //========//
 /**
  * Apply a behaviour to a peak.
- * @type {Behaviour<Pulse>}
+ * @param {{
+ *  source: Cell,
+ *  target: Cell,
+ *  previous: Peak,
+ *  next: SuccessPeak,
+ * }} options
  */
-const getBehavedPeak = ({ previous, next }) => {
+const getBehavedPeak = ({ source, target, previous, next }) => {
 	const behaviour = getBehaviour(next.pulse)
-	const behaved = behaviour({ previous, next })
+	const behaved = behaviour({ source, target, previous, next })
 	validate(behaved, N.Peak)
 	return behaved
 }

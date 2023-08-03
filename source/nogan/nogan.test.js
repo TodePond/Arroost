@@ -1360,8 +1360,9 @@ describe("operation", () => {
 		const nogan = createNogan()
 		const source = createCell(nogan)
 		const target = createCell(nogan)
-		const pulse = createPulse({ type: "ping", message: "hello" })
-		createWire(nogan, { source: source.id, target: target.id })
+		fireCell(nogan, { id: source.id, pulse: createPulse({ type: "ping", message: "hello" }) })
+		const { operations } = createWire(nogan, { source: source.id, target: target.id })
+		assertEquals(operations, [{ type: "pong", message: "hello" }])
 	})
 })
 
