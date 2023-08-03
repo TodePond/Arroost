@@ -504,6 +504,7 @@ export const archiveCell = (nogan, id) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
+ * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
@@ -515,11 +516,12 @@ export const modifyCell = (
 	clearCache(nogan)
 
 	if (propogate) {
-		refresh(nogan, { past, future })
+		return refresh(nogan, { past, future })
 	}
 
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
+	return []
 }
 
 //======//
@@ -537,7 +539,7 @@ export const modifyCell = (
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
- * @returns {Wire}
+ * @returns {{ wire: Wire, operations: Operation[] }}
  */
 export const createWire = (
 	nogan,
@@ -554,14 +556,15 @@ export const createWire = (
 	clearCache(nogan)
 
 	if (propogate) {
-		refresh(nogan, { past, future })
+		const operations = refresh(nogan, { past, future })
+		return { wire, operations }
 	}
 
 	validate(wire, N.Wire)
 	validate(sourceCell, N.Cell)
 	validate(targetCell, N.Cell)
 	validate(nogan, N.Nogan)
-	return wire
+	return { wire, operations: [] }
 }
 
 /**
@@ -679,6 +682,7 @@ export const getWires = (nogan) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
+ * @returns {Operation[]}
  */
 export const modifyWire = (
 	nogan,
@@ -690,11 +694,12 @@ export const modifyWire = (
 	clearCache(nogan)
 
 	if (propogate) {
-		refresh(nogan, { past, future })
+		return refresh(nogan, { past, future })
 	}
 
 	validate(wire, N.Wire)
 	validate(nogan, N.Nogan)
+	return []
 }
 
 //=======//
@@ -1019,13 +1024,13 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
  * @param {{
  * 	past?: Nogan[],
  * }} options
- * @returns {Nogan}
+ * @returns {{advanced: Nogan, operations: Operation[]}}
  */
 export const getAdvanced = (nogan, { past = [] } = {}) => {
 	const projection = getProjectedNogan(nogan)
 	const operations = refresh(projection, { past: [nogan, ...past] })
 	validate(projection, N.Nogan)
-	return projection
+	return { advanced: projection, operations }
 }
 
 // /**
