@@ -1,122 +1,185 @@
-declare type Id = number
-declare type PhantomId = -1
-
-declare type Validatable = Nogan | Operation | Peak
-
-declare type BaseChild = {
-	schemaName: string
-	isChild: true
-	id: Id
-}
-
-declare type BaseParent = BaseChild & {
-	isParent: true
-	nextId: Id
-	freeIds: Id[]
-	children: Record<Id, Nogan | null>
-}
-
+//======//
+// Enum //
+//======//
+declare type CellType = Cell["type"]
+declare type PulseType = Pulse["type"]
+declare type PulseColour = "blue" | "green" | "red"
 declare type WireColour = "any" | "blue" | "green" | "red"
 declare type Timing = 0 | -1 | 1
+declare type OperationType = Operation["type"]
 
-declare type Wire = BaseChild & {
-	isWire: true
-	isNod: false
+//=========//
+// Utility //
+//=========//
+declare type Vector2D = [number, number]
+
+//====//
+// Id //
+//====//
+declare type CellId = number
+declare type WireId = number
+
+//======//
+// Cell //
+//======//
+declare type CellTemplate = { type: CellType; position: Vector2D }
+declare type Cell = BaseCell & (RootCell | DummyCell | CustomCell)
+declare type BaseCell = {
+	id: CellId
+	parent: CellId
+	position: Vector2D
+	cells: CellId[]
+	inputs: WireId[]
+	outputs: WireId[]
+	fire: Fire
+}
+
+declare type RootCell = { type: "root" }
+declare type DummyCell = { type: "dummy" }
+
+//======//
+// Wire //
+//======//
+declare type Wire = {
+	id: WireId
 	colour: WireColour
 	timing: Timing
-	source: Id
-	target: Id
+	source: CellId
+	target: CellId
 }
 
-declare type PulseColour = "blue" | "green" | "red"
-declare type PulseType = "any" | "creation" | "destruction"
-
-declare type Pulse = {
-	type: PulseType
-	colour: PulseColour
+//=======//
+// Nogan //
+//=======//
+declare type Nogan = {
+	json: string | null
+	nextCell: CellId
+	nextWire: WireId
+	archivedCells: CellId[]
+	archivedWires: WireId[]
+	deletedCells: CellId[]
+	deletedWires: WireId[]
+	items: { [id: number]: Cell | Wire | null }
 }
 
-declare type PhantomPulse = Pulse & {
-	type: "any"
+//======//
+// Peak //
+//======//
+declare type FailPeak = {
+	result: false
+	operations: Operation[]
 }
 
-declare type Pulses = {
+declare type SuccessPeak = {
+	result: true
+	operations: Operation[]
+	pulse: Pulse
+}
+
+declare type Peak = FailPeak | SuccessPeak
+
+declare type Behaviour<T extends Pulse> = ({
+	source,
+	target,
+	previous,
+	next,
+}: {
+	source: Cell
+	target: Cell
+	previous: Peak
+	next: SuccessPeak & { pulse: T }
+}) => Peak
+
+declare type BehaviourMap = {
+	[key in PulseType]: Behaviour<Extract<Pulse, { type: key }>>
+}
+
+//===========//
+// Operation //
+//===========//
+declare type Operation = FiredOperation | CustomOperation
+declare type FiredOperation = {
+	type: "fired"
+	id: CellId
+}
+
+//======//
+// Fire //
+//======//
+declare type Fire = {
 	red: Pulse | null
 	green: Pulse | null
 	blue: Pulse | null
 }
 
-declare type PhantomPulses = {
-	red: PhantomPulse
-	green: PhantomPulse
-	blue: PhantomPulse
+//=======//
+// Pulse //
+//=======//
+declare type Pulse = RawPulse | CustomPulse
+declare type RawPulse = { type: "raw" }
+
+//=======//
+// Cache //
+//=======//
+declare class Memo<Value, Key, Args> {
+	static RESERVED: unique symbol
+	static NEW: unique symbol
+
+	entries: Map<string, Value | typeof Memo.RESERVED>
+
+	encode(args: Args): Key
+	query(key: Key): Value | typeof Memo.RESERVED
+	store(key: Key, value: Value): void
 }
 
-declare type NodType = "any" | "slot" | "creation" | "destruction" | "recording"
+//======//
+// Type //
+//======//
 
-declare type Vector2D = [number, number]
-
-declare type NodTemplate = {
-	position: Vector2D
-	type: NodType
+declare type Primitive = string | number | boolean | null | undefined
+declare function asConst<
+	V extends Primitive,
+	T extends V | Record<string, T> | [...V],
+	R extends T,
+>(v: R): R {
+	return v
 }
 
-declare type Nod = BaseParent & {
-	isNod: true
-	isWire: false
-	outputs: Id[]
-	inputs: Id[]
-	pulses: Pulses
-	position: Vector2D
-	type: NodType
+declare type AsConst = typeof asConst
+
+//------- Custom types below this line -------//
+
+//=============//
+// Custom Cell //
+//=============//
+declare type SlotCell = { type: "slot" }
+declare type RecordingCell = { type: "recording" }
+declare type CreationCell = { type: "creation" }
+declare type DestructionCell = { type: "destruction" }
+declare type PingerCell = { type: "pinger"; message: string }
+type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | PingerCell
+
+//==============//
+// Custom Pulse //
+//==============//
+declare type CreationPulse = { type: "creation"; template: CellTemplate }
+declare type DestructionPulse = { type: "destruction" }
+declare type PingPulse = { type: "ping"; message: string }
+declare type RawPingPulse = { type: "rawPing" }
+type CustomPulse = CreationPulse | DestructionPulse | PingPulse | RawPingPulse
+
+//==================//
+// Custom Operation //
+//==================//
+declare type ModifyOperation = {
+	type: "modify"
+	id: CellId
+	template: Partial<CellTemplate>
 }
 
-declare type Phantom = Nod & {
-	isPhantom: true
-	id: PhantomId
-	pulses: PhantomPulses
+declare type PongOperation = {
+	type: "pong"
+	message: string
 }
 
-declare type Nogan = Nod | Wire | Phantom
-declare type Parent = Nod | Phantom
-declare type Child = Nod | Wire
-
-declare type Operation = {
-	type: OperationType
-	data: any
-}
-
-declare type BasePeak = {
-	schemaName: string
-	result: boolean
-	operations: Operation[]
-}
-
-declare type FailPeak = BasePeak & {
-	schemaName: "FailPeak"
-	result: false
-}
-
-declare type SuccessPeak = {
-	schemaName: "SuccessPeak"
-	result: true
-	operations: Operation[]
-	type: PulseType
-	template: NodTemplate
-	data: any
-}
-
-declare type Peak = FailPeak | SuccessPeak
-
-declare type FullPeak = {
-	schemaName: "FullPeak"
-	result: boolean
-	red: Peak
-	green: Peak
-	blue: Peak
-}
-
-declare type Behave = (parent: Parent, { peak, id }: { peak: SuccessPeak; id: Id }) => Peak
-
-declare type OperationType = "modify" | "fired"
-declare type Operate = (parent: Parent, { id, data }: { id: Id; data: any }) => void
+type CustomOperation = ModifyOperation | PongOperation
