@@ -1345,7 +1345,17 @@ describe("advancing", () => {
 		assert(targetAfter.fire.blue)
 	})
 })
-describe("operation", () => {})
+describe("operation", () => {
+	it("gets an operation from firing a cell", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		const pulse = createPulse({ type: "ping" })
+		createWire(nogan, { source: source.id, target: target.id })
+		const operations = fireCell(nogan, { id: source.id, pulse })
+		assertEquals(operations, [{ type: "pong", message: "pong" }])
+	})
+})
 
 describe.skip("creation pulse", () => {})
 describe.skip("destruction pulse", () => {})

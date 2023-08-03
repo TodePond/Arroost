@@ -4,6 +4,9 @@ import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
 
+/** @type {AsConst} */
+export const c = (v) => v
+
 //============//
 // Validating //
 //============//
@@ -734,6 +737,7 @@ export const createFire = ({ red, green, blue } = {}) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * }} options
+ * @returns {Operation[]}
  */
 export const fireCell = (
 	nogan,
@@ -745,12 +749,13 @@ export const fireCell = (
 	clearCache(nogan)
 
 	if (propogate) {
-		refresh(nogan, { past, future })
+		return refresh(nogan, { past, future })
 	}
 
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
 	validate(pulse, N.Pulse)
+	return []
 }
 
 //=========//
@@ -1022,26 +1027,6 @@ export const getAdvanced = (nogan, { past = [] } = {}) => {
 	validate(projection, N.Nogan)
 	return projection
 }
-
-//=======//
-// Types //
-//=======//
-/**
- * Return the value 'as const'.
- * @template {number | string | boolean | bigint | symbol | null | undefined} T
- * @param {T} value
- */
-// @ts-expect-error
-export const c = (value) => /** @type {const} */ (value)
-
-/**
- * Return the tuple 'as const'.
- * @template {any[]} T
- * @param {T} v
- * @returns {T}
- */
-// @ts-expect-error
-export const t = (...v) => /** @type {const} */ (v)
 
 // /**
 //  * @param {Parent} parent

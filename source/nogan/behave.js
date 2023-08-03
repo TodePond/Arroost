@@ -6,11 +6,11 @@ const override = ({ previous, next }) => {
 }
 
 /** @type {Behaviour} */
-const ping = ({ previous, next }) => {
-	const operation = {
-		type: c("ping"),
-		message: c("pong"),
-	}
+const pong = ({ previous, next }) => {
+	const operation = c({
+		type: "pong",
+		message: "pong",
+	})
 	return {
 		...next,
 		operations: [operation],
@@ -22,5 +22,5 @@ export const BEHAVIOURS = {
 	raw: override,
 	creation: override,
 	destruction: override,
-	ping: ping,
+	ping: pong,
 }

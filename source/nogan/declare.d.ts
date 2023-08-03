@@ -117,6 +117,21 @@ declare class Memo<Value, Key, Args> {
 	store(key: Key, value: Value): void
 }
 
+//======//
+// Type //
+//======//
+
+declare type Primitive = string | number | boolean | null | undefined
+declare function asConst<
+	V extends Primitive,
+	T extends V | Record<string, T> | [...V],
+	R extends T,
+>(v: R): R {
+	return v
+}
+
+declare type AsConst = typeof asConst
+
 //------- Custom types below this line -------//
 
 //=============//
@@ -145,9 +160,9 @@ declare type ModifyOperation = {
 	template: Partial<CellTemplate>
 }
 
-declare type PingOperation = {
-	type: "ping"
+declare type PongOperation = {
+	type: "pong"
 	message: "pong"
 }
 
-type CustomOperation = ModifyOperation | PingOperation
+type CustomOperation = ModifyOperation | PongOperation
