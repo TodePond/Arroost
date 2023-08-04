@@ -11,7 +11,6 @@ import {
 	createNogan,
 	createPeak,
 	createPulse,
-	createTemplate,
 	createWire,
 	deleteArchivedCellId,
 	deleteArchivedCellIds,
@@ -29,6 +28,7 @@ import {
 	getPeak,
 	getProjected,
 	getRoot,
+	getTemplate,
 	getWire,
 	getWires,
 	giveChild,
@@ -253,13 +253,13 @@ describe("cell", () => {
 	it("creates a template of a cell", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan, { type: "creation" })
-		const template = createTemplate(cell)
+		const template = getTemplate(cell)
 		assertEquals(template, { type: "creation" })
 	})
 
 	it("creates a cell from a template", () => {
 		const nogan = createNogan()
-		const template = createTemplate({ type: "creation" })
+		const template = getTemplate({ type: "creation" })
 		const cell = createCell(nogan, template)
 		assertEquals(cell.type, "creation")
 	})

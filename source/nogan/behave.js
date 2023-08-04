@@ -1,4 +1,4 @@
-import { c } from "./nogan.js"
+import { c, getTemplate } from "./nogan.js"
 
 /**
  * Placeholder: Just override the previous pulse.
@@ -54,7 +54,11 @@ const raw = ({ source, previous, next }) => {
  * The creation pulse overrides any other pulse.
  * @type {Behaviour<CreationPulse>}
  */
-const creation = ({ target, next }) => {
+const creation = ({ source, target, next }) => {
+	let template = next.pulse.template
+	if (CLONEABLES.has(source.type)) {
+		template = getTemplate(source)
+	}
 	if (target.type === "slot") {
 		return {
 			result: false,
@@ -62,13 +66,15 @@ const creation = ({ target, next }) => {
 				c({
 					type: "modify",
 					id: target.id,
-					template: next.pulse.template,
+					template,
 				}),
 			],
 		}
 	}
-	return next
+	return { ...next, pulse: { ...next.pulse, template } }
 }
+
+const CLONEABLES = new Set(["recording", "destruction", "creation"])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {
