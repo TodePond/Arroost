@@ -1354,12 +1354,12 @@ describe("operation", () => {
 		assertEquals(operations0, [])
 		const operations1 = fireCell(nogan, {
 			id: source.id,
-			pulse: { type: "ping", message: "hello" },
+			pulse: { type: "ping" },
 		})
-		assertEquals(operations1, [{ type: "pong", message: "hello" }])
+		assertEquals(operations1, [{ type: "pong" }])
 		const operations2 = fireCell(nogan, {
 			id: source.id,
-			pulse: { type: "ping", message: "hello" },
+			pulse: { type: "ping" },
 		})
 		assertEquals(operations2, [])
 	})
@@ -1370,11 +1370,11 @@ describe("operation", () => {
 		const target = createCell(nogan)
 		const operations0 = fireCell(nogan, {
 			id: source.id,
-			pulse: { type: "ping", message: "hello" },
+			pulse: { type: "ping" },
 		})
 		assertEquals(operations0, [])
 		const operations1 = createWire(nogan, { source: source.id, target: target.id }).operations
-		assertEquals(operations1, [{ type: "pong", message: "hello" }])
+		assertEquals(operations1, [{ type: "pong" }])
 	})
 
 	it("gets operations from modifying a wire", () => {
@@ -1385,11 +1385,11 @@ describe("operation", () => {
 		const operations0 = fireCell(nogan, {
 			id: source.id,
 			colour: "red",
-			pulse: { type: "ping", message: "hello" },
+			pulse: { type: "ping" },
 		})
 		assertEquals(operations0, [])
 		const operations1 = modifyWire(nogan, { id: wire.id, colour: "red" })
-		assertEquals(operations1, [{ type: "pong", message: "hello" }])
+		assertEquals(operations1, [{ type: "pong" }])
 	})
 
 	it("gets operations from modifying a cell", () => {
@@ -1399,11 +1399,20 @@ describe("operation", () => {
 		createWire(nogan, { source: source.id, target: target.id })
 		const operations0 = fireCell(nogan, {
 			id: source.id,
-			pulse: { type: "ping", message: "hello" },
+			pulse: { type: "ping" },
 		})
 		assertEquals(operations0, [])
 		const operations1 = modifyCell(nogan, { id: target.id, type: "dummy" })
-		assertEquals(operations1, [{ type: "pong", message: "hello" }])
+		assertEquals(operations1, [{ type: "pong" }])
+	})
+
+	it("gets operations from advancing", () => {
+		const nogan = createNogan()
+		const source = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
+		const operations0 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
+		assertEquals(operations0, [])
 	})
 })
 

@@ -11,10 +11,7 @@ const pong = ({ previous, next, target }) => {
 	if (previous.result && previous.pulse.type === "ping") {
 		return previous
 	}
-	const operation = c({
-		type: "pong",
-		message: next.pulse.message,
-	})
+	const operation = c({ type: "pong" })
 	return {
 		...next,
 		operations: [operation],

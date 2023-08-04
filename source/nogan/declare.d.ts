@@ -152,33 +152,29 @@ declare type AsConst = typeof asConst
 //=============//
 // Custom Cell //
 //=============//
+declare type StopperCell = { type: "stopper" }
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-declare type StopperCell = { type: "stopper" }
 type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | StopperCell
 
 //==============//
 // Custom Pulse //
 //==============//
+declare type PingPulse = { type: "ping" }
 declare type CreationPulse = { type: "creation"; template: CellTemplate }
 declare type DestructionPulse = { type: "destruction" }
-declare type PingPulse = { type: "ping"; message: string }
 type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
 //==================//
 // Custom Operation //
 //==================//
+declare type PongOperation = { type: "pong" }
 declare type ModifyOperation = {
 	type: "modify"
 	id: CellId
 	template: Partial<CellTemplate>
-}
-
-declare type PongOperation = {
-	type: "pong"
-	message: string
 }
 
 type CustomOperation = ModifyOperation | PongOperation
