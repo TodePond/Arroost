@@ -2,7 +2,7 @@ import { c, getTemplate } from "./nogan.js"
 
 /**
  * Placeholder: Just override the previous pulse.
- * @type {Behaviour<Pulse>}
+ * @type {Behave<Pulse>}
  */
 const override = ({ next }) => {
 	return next
@@ -12,7 +12,7 @@ const override = ({ next }) => {
  * The ping pulse is for testing purposes.
  * It triggers a pong operation whenever it spreads.
  * It can be stopped by a stopper cell.
- * @type {Behaviour<PingPulse>}
+ * @type {Behave<PingPulse>}
  */
 const ping = ({ previous, next, target }) => {
 	if (target.type === "stopper") return previous
@@ -30,7 +30,7 @@ const ping = ({ previous, next, target }) => {
  * Raw pulses don't override any other pulse.
  * They only spread to cells with no pulse.
  * Certain cell types can change it into different kinds of pulses.
- * @type {Behaviour<RawPulse>}
+ * @type {Behave<RawPulse>}
  */
 const raw = ({ source, target, previous, next }) => {
 	switch (source.type) {
@@ -56,7 +56,7 @@ const raw = ({ source, target, previous, next }) => {
  * They change the slot cell into the pulse's template.
  * The template changes into any cloneable cell that the pulse travels through.
  * The creation pulse overrides any other pulse.
- * @type {Behaviour<CreationPulse>}
+ * @type {Behave<CreationPulse>}
  */
 const creation = ({ source, target, next }) => {
 	let template = next.pulse.template

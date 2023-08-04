@@ -78,7 +78,7 @@ declare type SuccessPeak = {
 
 declare type Peak = FailPeak | SuccessPeak
 
-declare type Behaviour<T extends Pulse> = ({
+declare type Behave<T extends Pulse> = ({
 	source,
 	target,
 	previous,
@@ -91,7 +91,7 @@ declare type Behaviour<T extends Pulse> = ({
 }) => Peak
 
 declare type BehaviourMap = {
-	[key in PulseType]: Behaviour<Extract<Pulse, { type: key }>>
+	[key in PulseType]: Behave<Extract<Pulse, { type: key }>>
 }
 
 //===========//

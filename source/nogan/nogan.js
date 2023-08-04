@@ -996,7 +996,7 @@ const getBehavedPeak = ({ source, target, previous, next }) => {
 /**
  * @template {Pulse} T
  * @param {T} pulse
- * @returns {Behaviour<T>}
+ * @returns {Behave<T>}
  */
 export const getBehaviour = (pulse) => {
 	const behaviour = BEHAVIOURS[pulse.type]
