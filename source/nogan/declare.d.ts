@@ -156,8 +156,8 @@ declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-declare type PingerCell = { type: "pinger"; message: string }
-type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | PingerCell
+declare type StopperCell = { type: "stopper" }
+type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | StopperCell
 
 //==============//
 // Custom Pulse //
@@ -165,8 +165,7 @@ type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | Pi
 declare type CreationPulse = { type: "creation"; template: CellTemplate }
 declare type DestructionPulse = { type: "destruction" }
 declare type PingPulse = { type: "ping"; message: string }
-declare type RawPingPulse = { type: "rawPing" }
-type CustomPulse = CreationPulse | DestructionPulse | PingPulse | RawPingPulse
+type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
 //==================//
 // Custom Operation //

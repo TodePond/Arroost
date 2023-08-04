@@ -6,7 +6,11 @@ const override = ({ next }) => {
 }
 
 /** @type {Behaviour<PingPulse>} */
-const pong = ({ next }) => {
+const pong = ({ previous, next, target }) => {
+	if (target.type === "stopper") return previous
+	if (previous.result && previous.pulse.type === "ping") {
+		return previous
+	}
 	const operation = c({
 		type: "pong",
 		message: next.pulse.message,
@@ -17,27 +21,10 @@ const pong = ({ next }) => {
 	}
 }
 
-/** @type {Behaviour<RawPingPulse>} */
-const rawPing = ({ target, next }) => {
-	if (target.type === "pinger") {
-		const pulse = c({
-			...next.pulse,
-			type: "ping",
-			message: "yo",
-		})
-		return {
-			...next,
-			pulse,
-		}
-	}
-	return next
-}
-
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {
 	raw: override,
 	creation: override,
 	destruction: override,
 	ping: pong,
-	rawPing: rawPing,
 }
