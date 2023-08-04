@@ -36,14 +36,18 @@ const raw = ({ source, target, previous, next }) => {
 	if (previous.result) return previous
 	switch (source.type) {
 		case "creation":
-			const peak = {
-				...next,
-				pulse: c({
-					type: "creation",
-					template: { type: "recording" },
-				}),
-			}
-			return creation({ source, target, previous, next: peak })
+			return creation({
+				source,
+				target,
+				previous,
+				next: {
+					...next,
+					pulse: c({
+						type: "creation",
+						template: { type: "recording" },
+					}),
+				},
+			})
 	}
 	return next
 }
