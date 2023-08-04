@@ -1014,10 +1014,14 @@ export const getBehaviour = (pulse) => {
  * 	snapshot?: Nogan,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
+ * 	operate?: boolean,
  * }} options
  * @return {Operation[]}
  */
-export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future = [] } = {}) => {
+export const refresh = (
+	nogan,
+	{ snapshot = getClone(nogan), past = [], future = [], operate = true } = {},
+) => {
 	const operations = []
 	for (const id of iterateCellIds(snapshot)) {
 		for (const colour of PULSE_COLOURS) {
@@ -1027,6 +1031,7 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
 			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
 		}
 	}
+	if (operate) applyOperations(nogan, { operations })
 	return operations
 }
 
@@ -1049,82 +1054,16 @@ export const getAdvanced = (nogan, { past = [] } = {}) => {
 	return { advanced: projection, operations }
 }
 
-// /**
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	past?: Parent[],
-//  * }?} options
-//  * @returns {{ parent: Parent, operations: Operation[] }}
-//  */
-// export const advance = (parent, { past = [] } = {}) => {
-// 	const projection = project(parent)
-// 	const operations = propogate(projection, {
-// 		clone: parent,
-// 		past,
-// 		timing: 1,
-// 	})
-// 	return { parent: projection, operations }
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	past?: Parent[],
-//  * }?} options
-//  * @returns {{parent: Parent, operations: Operation[]}}
-//  */
-// export const deepAdvance = (parent, { past = [] } = {}) => {
-// 	// TODO: This should be reported from the 'advance' function (and by extension, the 'project' function)
-// 	// (so that we don't have to do it twice)
-// 	const firingChildrenIds = []
-// 	for (const _id in parent.children) {
-// 		const id = +_id
-// 		const child = parent.children[id]
-// 		if (!child.isNod) continue
-// 		const isFiring = child.pulses.red || child.pulses.green || child.pulses.blue
-// 		if (!isFiring) continue
-// 		firingChildrenIds.push(id)
-// 	}
-
-// 	const { parent: advancedParent, operations: layerOperations } = advance(parent, {
-// 		past,
-// 	})
-
-// 	const operations = layerOperations
-
-// 	for (const id of firingChildrenIds) {
-// 		const firedOperation = N.FiredOperation.make()
-// 		operations.push(firedOperation)
-
-// 		const child = getNod(advancedParent, id)
-// 		const childHistory = past.map((parent) => getNod(parent, id))
-// 		const { parent: advancedChild, operations: advancedChildOperations } = deepAdvance(child, {
-// 			past: childHistory,
-// 		})
-// 		operations.push(...advancedChildOperations)
-// 		advancedParent.children[id] = advancedChild
-// 	}
-// 	validate(advancedParent)
-// 	for (const operation of operations) {
-// 		validate(operation, N.Operation)
-// 	}
-// 	return { parent: advancedParent, operations }
-// }
-
-// /**
-//  *
-//  * @param {Parent} parent
-//  * @param {{
-//  * 	id: Id,
-//  * 	operation: Operation,
-//  * }} options
-//  */
-// export const operate = (parent, { id, operation }) => {
-// 	const _operate = OPERATES[operation.type]
-// 	if (!_operate) {
-// 		throw new Error(`Unknown operation type '${operation.type}'`)
-// 	}
-
-// 	_operate(parent, { id, data: operation.data })
-// }
+//===========//
+// Operating //
+//===========//
+/**
+ * Apply operations to a nogan.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	operations: Operation[]
+ * }} options
+ */
+export const applyOperations = (nogan, { operations }) => {
+	// todo
+}

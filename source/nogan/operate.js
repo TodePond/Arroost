@@ -1,17 +1,23 @@
-import { modifyNod } from "./nogan.js"
+import { modifyCell } from "./nogan.js"
 
 /**
- * @param {Parent} parent
- * @param {{
- * 	id: Id
- * 	data: Partial<NodTemplate>
- * }} options
+ * Modify a cell.
+ * @type {Operate<ModifyOperation>}
  */
-const modify = (parent, { id, data }) => {
-	modifyNod(parent, { id, ...data })
+const modify = ({ nogan, operation }) => {
+	const { id, template } = operation
+	modifyCell(nogan, { id, ...template })
 }
 
-/** @type {Record<OperationType, Operate>} */
-export const OPERATES = {
+/**
+ * Placeholder: Do nothing.
+ * @type {Operate<Operation>}
+ */
+const noop = () => {}
+
+/** @type {OperationMap} */
+export const OPERATIONS = {
 	modify,
+	fired: noop,
+	pong: noop,
 }
