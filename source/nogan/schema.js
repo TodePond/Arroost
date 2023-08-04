@@ -73,7 +73,7 @@ N.RootCell = S.BaseStruct({
 
 N.CoreCell = S.Any([N.DummyCell, N.RootCell])
 
-N.CellTemplate = S.Struct({ type: N.String.withDefault("dummy"), position: S.Vector2D })
+N.CellTemplate = S.BaseStruct({ type: N.String.withDefault("dummy") })
 N.Cell = S.BaseStruct({
 	type: N.Enum(["dummy", "root"]).or(N.String),
 	id: N.CellId.withDefault(null),

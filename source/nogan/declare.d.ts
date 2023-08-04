@@ -22,8 +22,8 @@ declare type WireId = number
 //======//
 // Cell //
 //======//
-declare type CellTemplate = { type: CellType; position: Vector2D }
-declare type Cell = BaseCell & (RootCell | DummyCell | CustomCell)
+declare type CellTemplate = RootCell | DummyCell | CustomCell
+declare type Cell = BaseCell & CellTemplate
 declare type BaseCell = {
 	id: CellId
 	parent: CellId
