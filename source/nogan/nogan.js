@@ -771,7 +771,7 @@ export const fireCell = (
  * @param {Nogan} nogan
  * @returns {Nogan}
  */
-export const getProjectedNogan = (nogan) => {
+export const getProjected = (nogan) => {
 	const projection = getClone(nogan)
 
 	for (const cell of iterateCells(projection)) {
@@ -894,7 +894,7 @@ export const getPeak = (
 	}
 
 	// Otherwise, let's prepare to imagine the future/past
-	const projectedNext = getProjectedNogan(nogan)
+	const projectedNext = getProjected(nogan)
 
 	// But wait!
 	// Are we stuck in a loop?
@@ -1042,7 +1042,7 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
  * @returns {{advanced: Nogan, operations: Operation[]}}
  */
 export const getAdvanced = (nogan, { past = [] } = {}) => {
-	const projection = getProjectedNogan(nogan)
+	const projection = getProjected(nogan)
 	const operations = refresh(projection, { past: [nogan, ...past] })
 	validate(projection, N.Nogan)
 	return { advanced: projection, operations }
