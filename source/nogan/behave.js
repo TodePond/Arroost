@@ -32,17 +32,18 @@ const ping = ({ previous, next, target }) => {
  * Certain cell types can change it into different kinds of pulses.
  * @type {Behaviour<RawPulse>}
  */
-const raw = ({ source, previous, next }) => {
+const raw = ({ source, target, previous, next }) => {
 	if (previous.result) return previous
 	switch (source.type) {
 		case "creation":
-			return {
+			const peak = {
 				...next,
 				pulse: c({
 					type: "creation",
 					template: { type: "recording" },
 				}),
 			}
+			return creation({ source, target, previous, next: peak })
 	}
 	return next
 }

@@ -1408,20 +1408,36 @@ describe("operation", () => {
 	})
 })
 
-describe.skip("creation pulse", () => {})
+describe("creation", () => {
+	it("transforms a raw pulse into a creation pulse", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const target = createCell(nogan)
+		createWire(nogan, { source: creation.id, target: target.id })
+		fireCell(nogan, { id: creation.id })
+		const peak1 = getPeak(nogan, { id: creation.id })
+		const peak2 = getPeak(nogan, { id: target.id })
+		assertEquals(peak1.result && peak1.pulse.type, "raw")
+		assertEquals(peak2.result && peak2.pulse.type, "creation")
+	})
+
+	it("changes a slot into a recording cell", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: slot.id })
+		fireCell(nogan, { id: creation.id })
+		const peak1 = getPeak(nogan, { id: creation.id })
+		const peak2 = getPeak(nogan, { id: slot.id })
+		assertEquals(peak1.result && peak1.pulse.type, "raw")
+		assertEquals(peak2.result, false)
+		// assertEquals(slot.type, "recording") // todo
+	})
+})
+
 describe.skip("destruction pulse", () => {})
 
 // describe("creation nod", () => {
-// 	it("doesn't transform an any pulse while on itself", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		addPulse(phantom, { id: creation.id })
-// 		const peak = getPeak(phantom, { id: creation.id })
-// 		if (!peak.result) {
-// 			throw new Error("Peak should have fired")
-// 		}
-// 		assertEquals(peak.type, "any")
-// 	})
 
 // 	it("transforms an any pulse into a creation pulse", () => {
 // 		const phantom = createPhantom()
