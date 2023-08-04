@@ -4,7 +4,7 @@ import { c, getTemplate } from "./nogan.js"
  * Placeholder: Just override the previous pulse.
  * @type {Behave<Pulse>}
  */
-const override = ({ next }) => {
+const noop = ({ next }) => {
 	return next
 }
 
@@ -89,5 +89,5 @@ export const BEHAVIOURS = {
 	raw,
 	ping,
 	creation,
-	destruction: override,
+	destruction: noop,
 }
