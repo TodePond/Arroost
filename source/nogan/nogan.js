@@ -932,6 +932,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 	const pulse = fire[colour]
 
 	let peak = createPeak({ pulse })
+	// todo: if (peak.final) return peak
 
 	for (const input of cell.inputs) {
 		const wire = getWire(nogan, input)
@@ -952,8 +953,8 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 		const source = getCell(nogan, wire.source)
 		const target = getCell(nogan, wire.target)
 		peak = getBehavedPeak({ source, target, previous: peak, next: inputPeak })
+		// todo: if (peak.final) return peak
 	}
-
 	return peak
 }
 
@@ -1021,9 +1022,9 @@ export const refresh = (nogan, { snapshot = getClone(nogan), past = [], future =
 	for (const id of iterateCellIds(snapshot)) {
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, { id, colour, past, future })
+			operations.push(...peak.operations)
 			if (!peak.result) continue
 			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
-			operations.push(...peak.operations)
 		}
 	}
 	return operations

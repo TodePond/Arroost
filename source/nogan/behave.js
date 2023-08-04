@@ -33,7 +33,6 @@ const ping = ({ previous, next, target }) => {
  * @type {Behaviour<RawPulse>}
  */
 const raw = ({ source, target, previous, next }) => {
-	if (previous.result) return previous
 	switch (source.type) {
 		case "creation":
 			return creation({
@@ -44,12 +43,12 @@ const raw = ({ source, target, previous, next }) => {
 					...next,
 					pulse: c({
 						type: "creation",
-						template: { type: "recording" },
+						template: null,
 					}),
 				},
 			})
 	}
-	return next
+	return previous.result ? previous : next
 }
 
 /**
@@ -61,8 +60,12 @@ const raw = ({ source, target, previous, next }) => {
  */
 const creation = ({ source, target, next }) => {
 	let template = next.pulse.template
-	if (CLONEABLES.has(source.type)) {
-		template = getTemplate(source)
+	if (template) {
+		if (CLONEABLES.has(source.type)) {
+			template = getTemplate(source)
+		}
+	} else {
+		template = c({ type: "recording" })
 	}
 	if (target.type === "slot") {
 		return {

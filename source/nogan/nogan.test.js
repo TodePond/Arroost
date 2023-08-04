@@ -1426,11 +1426,12 @@ describe("creation", () => {
 		const creation = createCell(nogan, { type: "creation" })
 		const slot = createCell(nogan, { type: "slot" })
 		createWire(nogan, { source: creation.id, target: slot.id })
-		fireCell(nogan, { id: creation.id })
+		const [operation] = fireCell(nogan, { id: creation.id })
 		const peak1 = getPeak(nogan, { id: creation.id })
 		const peak2 = getPeak(nogan, { id: slot.id })
 		assertEquals(peak1.result && peak1.pulse.type, "raw")
 		assertEquals(peak2.result, false)
+		assertEquals(operation.type === "modify" && operation.template.type, "recording")
 		// assertEquals(slot.type, "recording") // todo
 	})
 })

@@ -163,7 +163,7 @@ type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | St
 // Custom Pulse //
 //==============//
 declare type PingPulse = { type: "ping" }
-declare type CreationPulse = { type: "creation"; template: CellTemplate }
+declare type CreationPulse = { type: "creation"; template: CellTemplate | null }
 declare type DestructionPulse = { type: "destruction" }
 type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
