@@ -1,4 +1,4 @@
-import { modifyCell } from "./nogan.js"
+import { getCell, modifyCell } from "./nogan.js"
 
 /**
  * Modify a cell.
@@ -24,9 +24,23 @@ const pong = () => {
 	return []
 }
 
+/**
+ * Tag a cell.
+ * @type {Operate<TagOperation>}
+ */
+const tag = (nogan, { id, key, value = true }) => {
+	const cell = getCell(nogan, id)
+	const tag = {
+		...cell.tag,
+		[key]: value,
+	}
+	return modifyCell(nogan, { id, tag })
+}
+
 /** @type {OperationMap} */
 export const OPERATIONS = {
 	modify,
 	fired: noop,
 	pong,
+	tag,
 }

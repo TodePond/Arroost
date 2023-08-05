@@ -1453,7 +1453,7 @@ describe("creation", () => {
 		const operations = fireCell(nogan, { id: creation.id })
 		assertEquals(slot1.type, "recording")
 		assertEquals(slot2.type, "slot")
-		assertEquals(operations.length, 1)
+		assertEquals(operations.length, 2)
 	})
 
 	it("spreads through previously created cells on later beats", () => {
@@ -1468,7 +1468,7 @@ describe("creation", () => {
 		const operations = fireCell(nogan, { id: creation.id })
 		assertEquals(slot1.type, "recording")
 		assertEquals(slot2.type, "slot")
-		assertEquals(operations.length, 1)
+		assertEquals(operations.length, 2)
 
 		const { advanced } = getAdvanced(nogan)
 		const slot1After = getCell(advanced, slot1.id)
@@ -1479,197 +1479,153 @@ describe("creation", () => {
 		const operations2 = fireCell(advanced, { id: creation.id })
 		assertEquals(slot1After.type, "recording")
 		assertEquals(slot2After.type, "recording")
-		assertEquals(operations2.length, 1)
+		assertEquals(operations2.length, 2)
+	})
+
+	it("creates when advancing", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: slot.id, timing: 1 })
+		fireCell(nogan, { id: creation.id })
+		const { advanced, operations } = getAdvanced(nogan)
+		const slotAfter = getCell(advanced, slot.id)
+		assertEquals(slotAfter.type, "recording")
+		assertEquals(operations.length, 2)
+	})
+
+	it("creates with gaps", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const middle = createCell(nogan)
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: middle.id })
+		createWire(nogan, { source: middle.id, target: slot.id })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "recording")
+	})
+
+	it("create with gaps when advancing", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const middle = createCell(nogan)
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: middle.id, timing: 1 })
+		createWire(nogan, { source: middle.id, target: slot.id })
+		fireCell(nogan, { id: creation.id })
+		const { advanced } = getAdvanced(nogan)
+		const slotAfter = getCell(advanced, slot.id)
+		assertEquals(slotAfter.type, "recording")
+	})
+
+	it("clones cloneable cells", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const destruction = createCell(nogan, { type: "destruction" })
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: destruction.id })
+		createWire(nogan, { source: destruction.id, target: slot.id })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "destruction")
+	})
+
+	it("creates through the past", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const middle = createCell(nogan)
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: middle.id, timing: -1 })
+		createWire(nogan, { source: middle.id, target: slot.id, timing: 1 })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "recording")
+	})
+
+	it("creates through the future", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const middle = createCell(nogan)
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: middle.id, timing: 1 })
+		createWire(nogan, { source: middle.id, target: slot.id, timing: -1 })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "recording")
+	})
+
+	it("clones through the past", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const destruction = createCell(nogan, { type: "destruction" })
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: destruction.id, timing: -1 })
+		createWire(nogan, { source: destruction.id, target: slot.id, timing: 1 })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "destruction")
+	})
+
+	it("clones through the future", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const destruction = createCell(nogan, { type: "destruction" })
+		const slot = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: destruction.id, timing: 1 })
+		createWire(nogan, { source: destruction.id, target: slot.id, timing: -1 })
+		fireCell(nogan, { id: creation.id })
+		assertEquals(slot.type, "destruction")
+	})
+
+	it("handles simultanous creations in order of connection", () => {
+		{
+			const nogan = createNogan()
+			const creation = createCell(nogan, { type: "creation" })
+			const slot = createCell(nogan, { type: "slot" })
+			const destruction = createCell(nogan, { type: "destruction" })
+			createWire(nogan, { source: creation.id, target: slot.id })
+			createWire(nogan, { source: creation.id, target: destruction.id })
+			createWire(nogan, { source: destruction.id, target: slot.id })
+			fireCell(nogan, { id: creation.id })
+			assertEquals(slot.type, "destruction")
+		}
+		{
+			const nogan = createNogan()
+			const creation = createCell(nogan, { type: "creation" })
+			const slot = createCell(nogan, { type: "slot" })
+			const destruction = createCell(nogan, { type: "destruction" })
+			createWire(nogan, { source: creation.id, target: destruction.id })
+			createWire(nogan, { source: destruction.id, target: slot.id })
+			createWire(nogan, { source: creation.id, target: slot.id })
+			fireCell(nogan, { id: creation.id })
+			assertEquals(slot.type, "recording")
+		}
+	})
+
+	it("ends at a slot", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const slot = createCell(nogan, { type: "slot" })
+		const other = createCell(nogan)
+		createWire(nogan, { source: creation.id, target: slot.id })
+		createWire(nogan, { source: slot.id, target: other.id })
+		fireCell(nogan, { id: creation.id })
+		assert(isFiring(nogan, { id: creation.id }))
+		assert(!isFiring(nogan, { id: slot.id }))
+		assert(!isFiring(nogan, { id: other.id }))
+	})
+
+	it("continues through non-slots", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const middle = createCell(nogan)
+		const target = createCell(nogan)
+		createWire(nogan, { source: creation.id, target: middle.id })
+		createWire(nogan, { source: middle.id, target: target.id })
+		fireCell(nogan, { id: creation.id })
+		assert(isFiring(nogan, { id: creation.id }))
+		assert(isFiring(nogan, { id: middle.id }))
+		assert(isFiring(nogan, { id: target.id }))
 	})
 })
 
 describe.skip("destruction pulse", () => {})
-
-// describe("creation nod", () => {
-
-// 	it("transforms an any pulse into a creation pulse", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const any = createNod(phantom, { type: "any", position: [2, 0] })
-// 		createWire(phantom, { source: creation.id, target: any.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		const peak = getPeak(phantom, { id: any.id })
-// 		if (!peak.result) {
-// 			throw new Error("Peak should have fired")
-// 		}
-// 		assertEquals(peak.type, "creation")
-// 	})
-
-// 	it("modifies when advancing", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [2, 0] })
-// 		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const advanced = advance(phantom).parent
-// 		const recording = getNod(advanced, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("modifies when advancing, with gaps", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const any = createNod(phantom, { type: "any", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: any.id, timing: 1 })
-// 		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const advanced = advance(phantom).parent
-// 		const peak = getPeak(advanced, { id: any.id, past: [phantom] })
-// 		if (!peak.result) {
-// 			throw new Error("Peak should have fired")
-// 		}
-// 		assertEquals(peak.type, "creation")
-// 		const advanced2 = advance(advanced, { past: [phantom] }).parent
-// 		const recording = getNod(advanced2, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("modifies in the present", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [2, 0] })
-// 		createWire(phantom, { source: creation.id, target: slot.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		const recording = getNod(phantom, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("modifies in the present, with gaps", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const any = createNod(phantom, { type: "any", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: any.id })
-// 		createWire(phantom, { source: any.id, target: slot.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		const recording = getNod(phantom, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("clones cloneable nods", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: destruction.id })
-// 		createWire(phantom, { source: destruction.id, target: slot.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		const clone = getNod(phantom, slot.id)
-// 		assertEquals(clone.type, "destruction")
-// 	})
-
-// 	it("creates immediately through the past", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const any = createNod(phantom, { type: "any", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: any.id, timing: -1 })
-// 		createWire(phantom, { source: any.id, target: slot.id, timing: 1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const recording = getNod(phantom, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("creates immediately through the future", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const any = createNod(phantom, { type: "any", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: any.id, timing: 1 })
-// 		createWire(phantom, { source: any.id, target: slot.id, timing: -1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const recording = getNod(phantom, slot.id)
-// 		assertEquals(recording.type, "recording")
-// 	})
-
-// 	it("clones immediately through the past", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: destruction.id, timing: -1 })
-// 		createWire(phantom, { source: destruction.id, target: slot.id, timing: 1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const clone = getNod(phantom, slot.id)
-// 		assertEquals(clone.type, "destruction")
-// 	})
-
-// 	it("clones immediately through the future", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 		const destruction = createNod(phantom, { type: "destruction", position: [2, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 		createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
-// 		createWire(phantom, { source: destruction.id, target: slot.id, timing: -1 })
-// 		addPulse(phantom, { id: creation.id })
-// 		const clone = getNod(phantom, slot.id)
-// 		assertEquals(clone.type, "destruction")
-// 	})
-
-// 	it("handles simultanous creations in order of creation", () => {
-// 		{
-// 			const phantom = createPhantom()
-// 			const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 			const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 			const destruction = createNod(phantom, { type: "destruction", position: [4, 0] })
-// 			createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
-// 			createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
-// 			createWire(phantom, { source: destruction.id, target: slot.id })
-// 			addPulse(phantom, { id: creation.id })
-// 			const advanced = advance(phantom).parent
-// 			const created = getNod(advanced, slot.id)
-// 			assertEquals(created.type, "recording")
-// 		}
-// 		{
-// 			const phantom = createPhantom()
-// 			const creation = createNod(phantom, { type: "creation", position: [1, 0] })
-// 			const slot = createNod(phantom, { type: "slot", position: [3, 0] })
-// 			const destruction = createNod(phantom, { type: "destruction", position: [4, 0] })
-// 			createWire(phantom, { source: creation.id, target: destruction.id, timing: 1 })
-// 			createWire(phantom, { source: destruction.id, target: slot.id })
-// 			createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
-// 			addPulse(phantom, { id: creation.id })
-// 			const advanced = advance(phantom).parent
-// 			const created = getNod(advanced, slot.id)
-// 			assertEquals(created.type, "destruction")
-// 		}
-// 	})
-
-// 	it("ends instant pulse at slot", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [0, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [1, 0] })
-// 		const other = createNod(phantom, { position: [2, 0] })
-// 		createWire(phantom, { source: creation.id, target: slot.id })
-// 		createWire(phantom, { source: slot.id, target: other.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		assertEquals(slot.type, "recording")
-// 		assertEquals(slot.pulses.blue, null)
-// 		assertEquals(other.pulses.blue, null)
-// 	})
-
-// 	it("ends delayed pulse at slot", () => {
-// 		const phantom = createPhantom()
-// 		const creation = createNod(phantom, { type: "creation", position: [0, 0] })
-// 		const slot = createNod(phantom, { type: "slot", position: [1, 0] })
-// 		const other = createNod(phantom, { position: [2, 0] })
-// 		createWire(phantom, { source: creation.id, target: slot.id, timing: 1 })
-// 		createWire(phantom, { source: slot.id, target: other.id })
-// 		addPulse(phantom, { id: creation.id })
-// 		const advanced = advance(phantom).parent
-// 		const created = getNod(advanced, slot.id)
-// 		const otherAfter = getNod(advanced, other.id)
-// 		assertEquals(created.type, "recording")
-// 		assertEquals(created.pulses.blue, null)
-// 		assertEquals(otherAfter.pulses.blue, null)
-// 	})
-// })
 
 // describe("operation reports", () => {
 // 	it("reports a fired nod", () => {

@@ -32,7 +32,7 @@ declare type BaseCell = {
 	inputs: WireId[]
 	outputs: WireId[]
 	fire: Fire
-	tag: { [key: string]: string }
+	tag: { [key: string]: Seralisable }
 }
 
 declare type RootCell = { type: "root" }
@@ -141,8 +141,8 @@ declare class Memo<Value, Key, Args> {
 //======//
 // Type //
 //======//
-
 declare type Primitive = string | number | boolean | null | undefined
+declare type Seralisable = Primitive | [...Serialisable] | Record<string, Serialisable>
 declare function asConst<
 	V extends Primitive,
 	T extends V | Record<string, T> | [...V],
@@ -183,4 +183,11 @@ declare type ModifyOperation = {
 	template: Partial<CellTemplate>
 }
 
-type CustomOperation = ModifyOperation | PongOperation
+declare type TagOperation = {
+	type: "tag"
+	id: CellId
+	key: string
+	value?: Serialisable
+}
+
+type CustomOperation = ModifyOperation | PongOperation | TagOperation

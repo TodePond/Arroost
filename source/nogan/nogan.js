@@ -510,7 +510,7 @@ export const archiveCell = (nogan, id) => {
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, position, propogate = true, past = [], future = [] },
+	{ id, type, tag, position, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
@@ -546,7 +546,15 @@ export const modifyCell = (
  */
 export const createWire = (
 	nogan,
-	{ source, target, colour = "any", timing = 0, propogate = true, past = [], future = [] },
+	{
+		source,
+		target,
+		colour = "any",
+		timing = 0,
+		propogate = PROPOGATE_DEFAULT,
+		past = [],
+		future = [],
+	},
 ) => {
 	const id = reserveWireId(nogan)
 	const wire = N.Wire.make({ id, source, target, colour, timing })
@@ -689,7 +697,7 @@ export const getWires = (nogan) => {
  */
 export const modifyWire = (
 	nogan,
-	{ id, colour, timing, propogate = true, past = [], future = [] },
+	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
 ) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
@@ -749,7 +757,14 @@ export const createFire = ({ red, green, blue } = {}) => {
  */
 export const fireCell = (
 	nogan,
-	{ id, colour = "blue", pulse = { type: "raw" }, propogate = true, past = [], future = [] },
+	{
+		id,
+		colour = "blue",
+		pulse = { type: "raw" },
+		propogate = PROPOGATE_DEFAULT,
+		past = [],
+		future = [],
+	},
 ) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
@@ -1011,6 +1026,9 @@ export const getBehave = (pulse) => {
 //=========//
 // Refresh //
 //=========//
+let PROPOGATE_DEFAULT = true
+const MAX_OPERATION_STACK = 1000
+
 /**
  * Refresh a the state of all cells in a nogan.
  * @param {Nogan} nogan
@@ -1037,8 +1055,19 @@ export const refresh = (
 	}
 
 	if (operate) {
-		const bonusOperations = applyOperations(nogan, { operations })
-		operations.push(...bonusOperations)
+		PROPOGATE_DEFAULT = false
+		let currentOperations = operations
+		let stackSize = 0
+		while (currentOperations.length > 0) {
+			const bonusOperations = applyOperations(nogan, { operations })
+			operations.push(...bonusOperations)
+			currentOperations = bonusOperations
+			stackSize++
+			if (stackSize > MAX_OPERATION_STACK) {
+				throw new Error("Operation stack overflow!")
+			}
+		}
+		PROPOGATE_DEFAULT = true
 	}
 	return operations
 }

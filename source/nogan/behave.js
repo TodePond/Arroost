@@ -85,12 +85,12 @@ const creation = ({ source, target, next }) => {
 				c({
 					type: "modify",
 					id: target.id,
-					template: {
-						...template,
-						tag: {
-							justCreated: true,
-						},
-					},
+					template,
+				}),
+				c({
+					type: "tag",
+					id: target.id,
+					key: "justCreated",
 				}),
 			],
 		}
