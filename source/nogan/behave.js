@@ -18,11 +18,6 @@ const ping = ({ previous, next, target }) => {
 	// Don't spread to 'stopper' cells
 	if (target.type === "stopper") return previous
 
-	// Don't re-ping a cell that's currently pinging
-	if (previous.result && previous.pulse.type === "ping") {
-		return previous
-	}
-
 	// Send a pong operation!
 	return {
 		...next,
