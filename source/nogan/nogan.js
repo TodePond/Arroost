@@ -1,5 +1,6 @@
 import { objectEquals } from "../../libraries/utilities.js"
 import { BEHAVIOURS } from "./behave.js"
+import { OPERATIONS } from "./operate.js"
 import { NoganSchema, PULSE_COLOURS } from "./schema.js"
 
 const N = NoganSchema
@@ -987,8 +988,8 @@ export const isFiring = (nogan, { id }) => {
  * }} options
  */
 const getBehavedPeak = ({ source, target, previous, next }) => {
-	const behaviour = getBehaviour(next.pulse)
-	const behaved = behaviour({ source, target, previous, next })
+	const behave = getBehave(next.pulse)
+	const behaved = behave({ source, target, previous, next })
 	validate(behaved, N.Peak)
 	return behaved
 }
@@ -998,10 +999,10 @@ const getBehavedPeak = ({ source, target, previous, next }) => {
  * @param {T} pulse
  * @returns {Behave<T>}
  */
-export const getBehaviour = (pulse) => {
-	const behaviour = BEHAVIOURS[pulse.type]
+export const getBehave = (pulse) => {
+	const behave = BEHAVIOURS[pulse.type]
 	// @ts-expect-error
-	return behaviour
+	return behave
 }
 
 //=========//
@@ -1031,7 +1032,11 @@ export const refresh = (
 			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
 		}
 	}
-	if (operate) applyOperations(nogan, { operations })
+
+	if (operate) {
+		const bonusOperations = applyOperations(nogan, { operations })
+		operations.push(...bonusOperations)
+	}
 	return operations
 }
 
@@ -1065,5 +1070,22 @@ export const getAdvanced = (nogan, { past = [] } = {}) => {
  * }} options
  */
 export const applyOperations = (nogan, { operations }) => {
-	// todo
+	const allBonusOperations = []
+	for (const operation of operations) {
+		const operate = getOperate(operation)
+		const bonusOperations = operate(nogan, operation)
+		allBonusOperations.push(...bonusOperations)
+	}
+	return allBonusOperations
+}
+
+/**
+ * @template {Operation} T
+ * @param {T} operation
+ * @returns {Operate<T>}
+ */
+export const getOperate = (operation) => {
+	const operate = OPERATIONS[operation.type]
+	// @ts-expect-error
+	return operate
 }

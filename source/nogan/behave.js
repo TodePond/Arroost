@@ -15,14 +15,18 @@ const noop = ({ next }) => {
  * @type {Behave<PingPulse>}
  */
 const ping = ({ previous, next, target }) => {
+	// Don't spread to 'stopper' cells
 	if (target.type === "stopper") return previous
+
+	// Don't re-ping a cell that's currently pinging
 	if (previous.result && previous.pulse.type === "ping") {
 		return previous
 	}
-	const operation = c({ type: "pong" })
+
+	// Send a pong operation!
 	return {
 		...next,
-		operations: [operation],
+		operations: [c({ type: "pong" })],
 	}
 }
 
