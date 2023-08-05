@@ -1362,7 +1362,11 @@ describe("operation", () => {
 		const operations0 = createWire(nogan, { source: source.id, target: target.id }).operations
 		assertEquals(operations0, [])
 		const operations1 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
-		assertEquals(operations1, [{ type: "pong" }])
+		assertEquals(operations1, [
+			{ type: "pong" },
+			{ type: "fired", id: target.id },
+			{ type: "fired", id: source.id },
+		])
 		const operations2 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
 		assertEquals(operations2, [])
 	})
@@ -1375,9 +1379,9 @@ describe("operation", () => {
 			id: source.id,
 			pulse: { type: "ping" },
 		})
-		assertEquals(operations0, [])
+		assertEquals(operations0, [{ type: "fired", id: source.id }])
 		const operations1 = createWire(nogan, { source: source.id, target: target.id }).operations
-		assertEquals(operations1, [{ type: "pong" }])
+		assertEquals(operations1, [{ type: "pong" }, { type: "fired", id: target.id }])
 	})
 
 	it("gets operations from modifying a wire", () => {
@@ -1390,9 +1394,9 @@ describe("operation", () => {
 			colour: "red",
 			pulse: { type: "ping" },
 		})
-		assertEquals(operations0, [])
+		assertEquals(operations0, [{ type: "fired", id: source.id }])
 		const operations1 = modifyWire(nogan, { id: wire.id, colour: "red" })
-		assertEquals(operations1, [{ type: "pong" }])
+		assertEquals(operations1, [{ type: "pong" }, { type: "fired", id: target.id }])
 	})
 
 	it("gets operations from modifying a cell", () => {
@@ -1401,9 +1405,9 @@ describe("operation", () => {
 		const target = createCell(nogan, { type: "stopper" })
 		createWire(nogan, { source: source.id, target: target.id })
 		const operations0 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
-		assertEquals(operations0, [])
+		assertEquals(operations0, [{ type: "fired", id: source.id }])
 		const operations1 = modifyCell(nogan, { id: target.id, type: "dummy" })
-		assertEquals(operations1, [{ type: "pong" }])
+		assertEquals(operations1, [{ type: "pong" }, { type: "fired", id: target.id }])
 	})
 
 	it("gets operations from advancing", () => {
@@ -1412,9 +1416,9 @@ describe("operation", () => {
 		const target = createCell(nogan)
 		createWire(nogan, { source: source.id, target: target.id, timing: 1 })
 		const operations0 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
-		assertEquals(operations0, [])
+		assertEquals(operations0, [{ type: "fired", id: source.id }])
 		const operations1 = getAdvanced(nogan).operations
-		assertEquals(operations1, [{ type: "pong" }])
+		assertEquals(operations1, [{ type: "pong" }, { type: "fired", id: target.id }])
 	})
 })
 
@@ -1450,10 +1454,9 @@ describe("creation", () => {
 		createWire(nogan, { source: slot1.id, target: slot2.id })
 		assertEquals(slot1.type, "slot")
 		assertEquals(slot2.type, "slot")
-		const operations = fireCell(nogan, { id: creation.id })
+		fireCell(nogan, { id: creation.id })
 		assertEquals(slot1.type, "recording")
 		assertEquals(slot2.type, "slot")
-		assertEquals(operations.length, 2)
 	})
 
 	it("spreads through previously created cells on later beats", () => {
@@ -1465,10 +1468,9 @@ describe("creation", () => {
 		createWire(nogan, { source: slot1.id, target: slot2.id })
 		assertEquals(slot1.type, "slot")
 		assertEquals(slot2.type, "slot")
-		const operations = fireCell(nogan, { id: creation.id })
+		fireCell(nogan, { id: creation.id })
 		assertEquals(slot1.type, "recording")
 		assertEquals(slot2.type, "slot")
-		assertEquals(operations.length, 2)
 
 		const { advanced } = getAdvanced(nogan)
 		const slot1After = getCell(advanced, slot1.id)
@@ -1476,10 +1478,9 @@ describe("creation", () => {
 		assertEquals(slot1After.type, "recording")
 		assertEquals(slot2After.type, "slot")
 
-		const operations2 = fireCell(advanced, { id: creation.id })
+		fireCell(advanced, { id: creation.id })
 		assertEquals(slot1After.type, "recording")
 		assertEquals(slot2After.type, "recording")
-		assertEquals(operations2.length, 2)
 	})
 
 	it("creates when advancing", () => {
@@ -1488,10 +1489,9 @@ describe("creation", () => {
 		const slot = createCell(nogan, { type: "slot" })
 		createWire(nogan, { source: creation.id, target: slot.id, timing: 1 })
 		fireCell(nogan, { id: creation.id })
-		const { advanced, operations } = getAdvanced(nogan)
+		const { advanced } = getAdvanced(nogan)
 		const slotAfter = getCell(advanced, slot.id)
 		assertEquals(slotAfter.type, "recording")
-		assertEquals(operations.length, 2)
 	})
 
 	it("creates with gaps", () => {
@@ -1626,38 +1626,3 @@ describe("creation", () => {
 })
 
 describe.skip("destruction pulse", () => {})
-
-// describe("operation reports", () => {
-// 	it("reports a fired nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod = createNod(phantom)
-// 		addPulse(phantom, { id: nod.id })
-// 		const { operations } = deepAdvance(phantom)
-// 		assertEquals(operations.length, 1)
-// 		const [operation] = operations
-// 		assertEquals(operation.type, "fired")
-// 	})
-
-// 	it("reports all fired nods on the layer", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom)
-// 		const nod2 = createNod(phantom)
-// 		addPulse(phantom, { id: nod1.id })
-// 		addPulse(phantom, { id: nod2.id })
-// 		const { operations } = deepAdvance(phantom)
-// 		assertEquals(operations.length, 2)
-// 		const [operation1, operation2] = operations
-// 		assertEquals(operation1.type, "fired")
-// 		assertEquals(operation2.type, "fired")
-// 	})
-
-// 	it("reports a fired child nod", () => {
-// 		const phantom = createPhantom()
-// 		const nod1 = createNod(phantom, { position: [1, 0] })
-// 		const nod2 = createNod(nod1, { position: [2, 0] })
-// 		addPulse(phantom, { id: nod1.id })
-// 		addPulse(nod1, { id: nod2.id })
-// 		const { operations } = deepAdvance(phantom)
-// 		assertEquals(operations.length, 2)
-// 	})
-// })

@@ -1,8 +1,8 @@
 /**
  * Check if two objects are equal.
  * This is a full, deep comparison.
- * @param {object | undefined} a
- * @param {object | undefined} b
+ * @param {object | null | undefined} a
+ * @param {object | null | undefined} b
  * @returns {boolean}
  */
 export const objectEquals = (a, b) => {

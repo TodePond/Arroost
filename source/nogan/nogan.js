@@ -768,17 +768,23 @@ export const fireCell = (
 ) => {
 	const cell = getCell(nogan, id)
 	const { fire } = cell
+	const current = fire[colour]
+	if (objectEquals(current, pulse)) return []
 	fire[colour] = pulse
 	clearCache(nogan)
 
+	const firedOperation = c({ type: "fired", id })
+
 	if (propogate) {
-		return refresh(nogan, { past, future })
+		const refreshOperations = refresh(nogan, { past, future })
+		refreshOperations.push(firedOperation)
+		return refreshOperations
 	}
 
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
 	validate(pulse, N.Pulse)
-	return []
+	return [firedOperation]
 }
 
 //=========//
@@ -1050,7 +1056,13 @@ export const refresh = (
 			const peak = getPeak(snapshot, { id, colour, past, future })
 			operations.push(...peak.operations)
 			if (!peak.result) continue
-			fireCell(nogan, { id, colour, pulse: peak.pulse, propogate: false })
+			const firedOperations = fireCell(nogan, {
+				id,
+				colour,
+				pulse: peak.pulse,
+				propogate: false,
+			})
+			operations.push(...firedOperations)
 		}
 	}
 
