@@ -63,6 +63,13 @@ const raw = ({ source, target, previous, next }) => {
  * @type {Behave<CreationPulse>}
  */
 const creation = ({ source, target, next }) => {
+	if (target.tag.justCreated) {
+		return {
+			result: false,
+			operations: [],
+		}
+	}
+
 	let template = next.pulse.template
 	if (template) {
 		if (CLONEABLES.has(source.type)) {
@@ -78,7 +85,12 @@ const creation = ({ source, target, next }) => {
 				c({
 					type: "modify",
 					id: target.id,
-					template,
+					template: {
+						...template,
+						tag: {
+							justCreated: true,
+						},
+					},
 				}),
 			],
 		}

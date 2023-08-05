@@ -500,6 +500,7 @@ export const archiveCell = (nogan, id) => {
  * @param {{
  * 	id: CellId,
  * 	type?: CellType,
+ *  tag?: { [key: string]: string }
  * 	position?: Vector2D,
  * 	propogate?: boolean,
  * 	past?: Nogan[],
@@ -509,11 +510,12 @@ export const archiveCell = (nogan, id) => {
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, position, propogate = true, past = [], future = [] },
+	{ id, type, tag, position, propogate = true, past = [], future = [] },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.position = position ?? cell.position
+	cell.tag = tag ?? cell.tag
 	clearCache(nogan)
 
 	if (propogate) {
@@ -776,6 +778,7 @@ export const getProjected = (nogan) => {
 	const projection = getClone(nogan)
 
 	for (const cell of iterateCells(projection)) {
+		cell.tag = {}
 		const { parent } = cell
 		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
 		cell.fire = createFire()

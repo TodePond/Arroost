@@ -83,6 +83,7 @@ N.Cell = S.BaseStruct({
 	inputs: S.ArrayOf(N.WireId),
 	outputs: S.ArrayOf(N.WireId),
 	fire: N.Fire,
+	tag: S.Object,
 }).andCheck((cell) => {
 	if (cell.type === "root" && cell.id !== 0) {
 		throw new Error("Root cell must have id 0")

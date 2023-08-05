@@ -32,6 +32,7 @@ declare type BaseCell = {
 	inputs: WireId[]
 	outputs: WireId[]
 	fire: Fire
+	tag: { [key: string]: string }
 }
 
 declare type RootCell = { type: "root" }

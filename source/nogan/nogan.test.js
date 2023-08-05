@@ -466,6 +466,16 @@ describe("projecting", () => {
 		assertEquals(projectedParent.fire.blue, null)
 		assertEquals(projectedChild.fire.blue, { type: "raw" })
 	})
+
+	it("clears tags", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		modifyCell(nogan, { id: cell.id, tag: { foo: "bar" } })
+		assertEquals(cell.tag, { foo: "bar" })
+		const projection = getProjected(nogan)
+		const projectedCell = getCell(projection, cell.id)
+		assertEquals(projectedCell.tag, {})
+	})
 })
 
 describe("peaking", () => {
@@ -1431,7 +1441,7 @@ describe("creation", () => {
 		assertEquals(slot.type, "recording")
 	})
 
-	it("changes two slots into a recording cells", () => {
+	it("only creates in the first slot it comes across", () => {
 		const nogan = createNogan()
 		const creation = createCell(nogan, { type: "creation" })
 		const slot1 = createCell(nogan, { type: "slot" })
@@ -1442,8 +1452,34 @@ describe("creation", () => {
 		assertEquals(slot2.type, "slot")
 		const operations = fireCell(nogan, { id: creation.id })
 		assertEquals(slot1.type, "recording")
-		assertEquals(slot2.type, "recording")
-		assertEquals(operations.length, 2)
+		assertEquals(slot2.type, "slot")
+		assertEquals(operations.length, 1)
+	})
+
+	it("spreads through previously created cells on later beats", () => {
+		const nogan = createNogan()
+		const creation = createCell(nogan, { type: "creation" })
+		const slot1 = createCell(nogan, { type: "slot" })
+		const slot2 = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: creation.id, target: slot1.id })
+		createWire(nogan, { source: slot1.id, target: slot2.id })
+		assertEquals(slot1.type, "slot")
+		assertEquals(slot2.type, "slot")
+		const operations = fireCell(nogan, { id: creation.id })
+		assertEquals(slot1.type, "recording")
+		assertEquals(slot2.type, "slot")
+		assertEquals(operations.length, 1)
+
+		const { advanced } = getAdvanced(nogan)
+		const slot1After = getCell(advanced, slot1.id)
+		const slot2After = getCell(advanced, slot2.id)
+		assertEquals(slot1After.type, "recording")
+		assertEquals(slot2After.type, "slot")
+
+		const operations2 = fireCell(advanced, { id: creation.id })
+		assertEquals(slot1After.type, "recording")
+		assertEquals(slot2After.type, "recording")
+		assertEquals(operations2.length, 1)
 	})
 })
 
