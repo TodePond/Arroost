@@ -1,4 +1,4 @@
-import { c, getTemplate } from "./nogan.js"
+import { c, createPeak, getTemplate } from "./nogan.js"
 
 /**
  * Placeholder: Just override the previous pulse.
@@ -57,25 +57,28 @@ const raw = ({ source, target, previous, next }) => {
  * The creation pulse overrides any other pulse.
  * @type {Behave<CreationPulse>}
  */
-const creation = ({ source, target, next }) => {
+const creation = ({ source, target, previous, next }) => {
 	if (target.tag.justCreated) {
-		return {
-			result: false,
-			operations: [],
+		return previous
+	}
+
+	if (previous.result) {
+		if (FINAL_PULSES.has(previous.pulse.type)) {
+			return previous
 		}
 	}
 
 	let template = next.pulse.template
 	if (template) {
-		if (CLONEABLES.has(source.type)) {
+		if (CLONEABLE_CELLS.has(source.type)) {
 			template = getTemplate(source)
 		}
 	} else {
 		template = c({ type: "recording" })
 	}
+
 	if (target.type === "slot") {
-		return {
-			result: false,
+		return createPeak({
 			operations: [
 				c({
 					type: "modify",
@@ -88,12 +91,13 @@ const creation = ({ source, target, next }) => {
 					key: "justCreated",
 				}),
 			],
-		}
+		})
 	}
 	return { ...next, pulse: { ...next.pulse, template } }
 }
 
-const CLONEABLES = new Set(["recording", "destruction", "creation"])
+const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])
+const FINAL_PULSES = new Set(["creation", "destruction"])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {

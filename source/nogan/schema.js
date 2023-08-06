@@ -345,17 +345,15 @@ N.Operation = S.BaseStruct({
 //======//
 // Peak //
 //======//
-N.BasePeak = S.Struct({
-	result: S.Boolean,
-	operations: S.ArrayOf(N.Operation),
-})
-
-N.FailPeak = N.BasePeak.combine({
+N.FailPeak = S.Struct({
 	result: S.Value(false),
+	operations: S.ArrayOf(N.Operation),
+	pulse: S.Null,
 })
 
-N.SuccessPeak = N.BasePeak.combine({
+N.SuccessPeak = S.Struct({
 	result: S.Value(true),
+	operations: S.ArrayOf(N.Operation),
 	pulse: N.Pulse,
 })
 

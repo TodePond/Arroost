@@ -69,6 +69,7 @@ declare type Nogan = {
 declare type FailPeak = {
 	result: false
 	operations: Operation[]
+	pulse: null
 }
 
 declare type SuccessPeak = {
