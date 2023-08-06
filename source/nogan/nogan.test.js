@@ -1625,4 +1625,25 @@ describe("creation", () => {
 	})
 })
 
-describe.skip("destruction pulse", () => {})
+describe.skip("destruction", () => {
+	it("transforms a raw pulse into a destruction pulse", () => {
+		const nogan = createNogan()
+		const destruction = createCell(nogan, { type: "destruction" })
+		const target = createCell(nogan)
+		createWire(nogan, { source: destruction.id, target: target.id })
+		fireCell(nogan, { id: destruction.id })
+		const peak1 = getPeak(nogan, { id: destruction.id })
+		const peak2 = getPeak(nogan, { id: target.id })
+		assertEquals(peak1.result && peak1.pulse.type, "raw")
+		assertEquals(peak2.result && peak2.pulse.type, "destruction")
+	})
+
+	it("destroys a cell", () => {
+		const nogan = createNogan()
+		const destruction = createCell(nogan, { type: "destruction" })
+		const recording = createCell(nogan, { type: "recording" })
+		createWire(nogan, { source: destruction.id, target: recording.id })
+		fireCell(nogan, { id: destruction.id })
+		assertEquals(recording.type, "slot")
+	})
+})

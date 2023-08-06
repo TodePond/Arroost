@@ -33,6 +33,8 @@ const ping = ({ previous, next, target }) => {
  */
 const raw = ({ source, target, previous, next }) => {
 	switch (source.type) {
+		// If the pulse is coming from a creation cell
+		// ... turn it into a creation pulse
 		case "creation":
 			return creation({
 				source,
@@ -44,6 +46,16 @@ const raw = ({ source, target, previous, next }) => {
 						type: "creation",
 						template: null,
 					}),
+				},
+			})
+		case "destruction":
+			return destruction({
+				source,
+				target,
+				previous,
+				next: {
+					...next,
+					pulse: c({ type: "destruction" }),
 				},
 			})
 	}
@@ -58,19 +70,21 @@ const raw = ({ source, target, previous, next }) => {
  * @type {Behave<CreationPulse>}
  */
 const creation = ({ source, target, previous, next }) => {
-	if (target.tag.justCreated) {
-		return previous
-	}
+	// If the target was just created, don't create from it
+	if (target.tag.justCreated) return previous
 
 	let template = next.pulse.template
 	if (template) {
+		// Change the template to any cloneable cell that the pulse travels through
 		if (CLONEABLE_CELLS.has(source.type)) {
 			template = getTemplate(source)
 		}
 	} else {
+		// Set the template to recording if it's not already set
 		template = c({ type: "recording" })
 	}
 
+	// If the pulse arrives at a slot, create a cell from the template
 	if (target.type === "slot") {
 		return createPeak({
 			operations: [
@@ -87,15 +101,38 @@ const creation = ({ source, target, previous, next }) => {
 			],
 		})
 	}
+
+	// Otherwise, carry on through
 	return c({ ...next, pulse: { ...next.pulse, template }, final: true })
 }
 
+/**
+ * Destruction pulses spread until they reach a destroyable cell.
+ * They change the destroyable cell into a slot cell.
+ * @type {Behave<DestructionPulse>}
+ */
+const destruction = ({ target, next }) => {
+	if (DESTROYABLE_CELLS.has(target.type)) {
+		return createPeak({
+			operations: [
+				c({
+					type: "modify",
+					id: target.id,
+					template: c({ type: "slot" }),
+				}),
+			],
+		})
+	}
+	return next
+}
+
 const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])
+const DESTROYABLE_CELLS = new Set(["recording", "destruction", "creation"])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {
 	raw,
 	ping,
 	creation,
-	destruction: noop,
+	destruction,
 }
