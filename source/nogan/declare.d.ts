@@ -166,6 +166,8 @@ declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
+declare type MagnetCell = todo
+declare type TimingCell = todo
 type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | StopperCell
 
 //==============//
