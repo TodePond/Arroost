@@ -70,12 +70,14 @@ declare type FailPeak = {
 	result: false
 	operations: Operation[]
 	pulse: null
+	final: boolean
 }
 
 declare type SuccessPeak = {
 	result: true
 	operations: Operation[]
 	pulse: Pulse
+	final: boolean
 }
 
 declare type Peak = FailPeak | SuccessPeak

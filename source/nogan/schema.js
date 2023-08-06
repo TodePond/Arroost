@@ -349,12 +349,14 @@ N.FailPeak = S.Struct({
 	result: S.Value(false),
 	operations: S.ArrayOf(N.Operation),
 	pulse: S.Null,
+	final: S.Boolean,
 })
 
 N.SuccessPeak = S.Struct({
 	result: S.Value(true),
 	operations: S.ArrayOf(N.Operation),
 	pulse: N.Pulse,
+	final: S.Boolean,
 })
 
 N.Peak = S.Any([N.FailPeak, N.SuccessPeak])

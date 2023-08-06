@@ -62,12 +62,6 @@ const creation = ({ source, target, previous, next }) => {
 		return previous
 	}
 
-	if (previous.result) {
-		if (FINAL_PULSES.has(previous.pulse.type)) {
-			return previous
-		}
-	}
-
 	let template = next.pulse.template
 	if (template) {
 		if (CLONEABLE_CELLS.has(source.type)) {
@@ -93,11 +87,10 @@ const creation = ({ source, target, previous, next }) => {
 			],
 		})
 	}
-	return { ...next, pulse: { ...next.pulse, template } }
+	return c({ ...next, pulse: { ...next.pulse, template }, final: true })
 }
 
 const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])
-const FINAL_PULSES = new Set(["creation", "destruction"])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {

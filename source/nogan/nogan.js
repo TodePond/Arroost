@@ -817,11 +817,14 @@ export const getProjected = (nogan) => {
  * @param {{
  * 	operations?: Operation[],
  * 	pulse?: Pulse | null,
+ * 	final?: boolean,
  * }} options
  * @returns {Peak}
  */
-export const createPeak = ({ operations = [], pulse } = {}) => {
-	const peak = pulse ? N.SuccessPeak.make({ operations, pulse }) : N.FailPeak.make({ operations })
+export const createPeak = ({ operations = [], pulse, final = false } = {}) => {
+	const peak = pulse
+		? N.SuccessPeak.make({ operations, pulse, final })
+		: N.FailPeak.make({ operations, final })
 	validate(peak, N.Peak)
 	return peak
 }
@@ -957,7 +960,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 	const pulse = fire[colour]
 
 	let peak = createPeak({ pulse })
-	// todo: if (peak.final) return peak
+	if (peak.final) return peak // this may cause issues. it's just for perf. remove if necessary
 
 	for (const input of cell.inputs) {
 		const wire = getWire(nogan, input)
@@ -978,7 +981,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 		const source = getCell(nogan, wire.source)
 		const target = getCell(nogan, wire.target)
 		peak = getBehavedPeak({ source, target, previous: peak, next: inputPeak })
-		// todo: if (peak.final) return peak
+		if (peak.final) return peak // this may cause issues. it's just for perf. remove if necessary
 	}
 	return peak
 }
