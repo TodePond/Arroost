@@ -83,13 +83,15 @@ declare type SuccessPeak = {
 declare type Peak = FailPeak | SuccessPeak
 
 declare type Behave<T extends Pulse> = ({
+	nogan,
 	source,
 	target,
 	previous,
 	next,
 }: {
-	source: Cell
-	target: Cell
+	nogan: Nogan
+	source: CellId
+	target: CellId
 	previous: Peak
 	next: SuccessPeak & { pulse: T }
 }) => Peak
@@ -166,9 +168,16 @@ declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-declare type MagnetCell = todo
-declare type TimingCell = todo
-type CustomCell = SlotCell | CreationCell | DestructionCell | RecordingCell | StopperCell
+declare type MagnetCell = { type: "magnet" }
+declare type TimeCell = { type: "time" }
+type CustomCell =
+	| SlotCell
+	| CreationCell
+	| DestructionCell
+	| RecordingCell
+	| StopperCell
+	| MagnetCell
+	| TimeCell
 
 //==============//
 // Custom Pulse //

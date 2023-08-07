@@ -1,4 +1,4 @@
-import { c, createPeak, getTemplate } from "./nogan.js"
+import { c, createPeak, getCell, getTemplate } from "./nogan.js"
 
 /**
  * Placeholder: Just override the previous pulse.
@@ -14,9 +14,10 @@ const noop = ({ next }) => {
  * It can be stopped by a stopper cell.
  * @type {Behave<PingPulse>}
  */
-const ping = ({ previous, next, target }) => {
+const ping = ({ nogan, previous, next, target }) => {
+	const targetCell = getCell(nogan, target)
 	// Don't spread to 'stopper' cells
-	if (target.type === "stopper") return previous
+	if (targetCell.type === "stopper") return previous
 
 	// Send a pong operation!
 	return {
@@ -31,14 +32,16 @@ const ping = ({ previous, next, target }) => {
  * Certain cell types can change it into different kinds of pulses.
  * @type {Behave<RawPulse>}
  */
-const raw = ({ source, target, previous, next }) => {
-	switch (source.type) {
+const raw = (args) => {
+	const { nogan, source, previous, next, ...rest } = args
+	const sourceCell = getCell(nogan, source)
+	switch (sourceCell.type) {
 		// If the pulse is coming from a creation cell
 		// ... turn it into a creation pulse
 		case "creation":
 			return creation({
+				nogan,
 				source,
-				target,
 				previous,
 				next: {
 					...next,
@@ -47,16 +50,18 @@ const raw = ({ source, target, previous, next }) => {
 						template: null,
 					}),
 				},
+				...rest,
 			})
 		case "destruction":
 			return destruction({
+				nogan,
 				source,
-				target,
 				previous,
 				next: {
 					...next,
 					pulse: c({ type: "destruction" }),
 				},
+				...rest,
 			})
 	}
 	return previous.result ? previous : next
@@ -69,15 +74,18 @@ const raw = ({ source, target, previous, next }) => {
  * The creation pulse overrides any other pulse.
  * @type {Behave<CreationPulse>}
  */
-const creation = ({ source, target, previous, next }) => {
+const creation = (args) => {
+	const { nogan, source, target, previous, next, ...rest } = args
+	const sourceCell = getCell(nogan, source)
+	const targetCell = getCell(nogan, target)
 	// If the target was just created, don't create from it
-	if (target.tag.justCreated) return previous
+	if (targetCell.tag.justCreated) return previous
 
 	let template = next.pulse.template
 	if (template) {
 		// Change the template to any cloneable cell that the pulse travels through
-		if (CLONEABLE_CELLS.has(source.type)) {
-			template = getTemplate(source)
+		if (CLONEABLE_CELLS.has(sourceCell.type)) {
+			template = getTemplate(sourceCell)
 		}
 	} else {
 		// Set the template to recording if it's not already set
@@ -85,17 +93,17 @@ const creation = ({ source, target, previous, next }) => {
 	}
 
 	// If the pulse arrives at a slot, create a cell from the template
-	if (target.type === "slot") {
+	if (targetCell.type === "slot") {
 		return createPeak({
 			operations: [
 				c({
 					type: "modify",
-					id: target.id,
+					id: target,
 					template,
 				}),
 				c({
 					type: "tag",
-					id: target.id,
+					id: target,
 					key: "justCreated",
 				}),
 			],
@@ -111,13 +119,14 @@ const creation = ({ source, target, previous, next }) => {
  * They change the destroyable cell into a slot cell.
  * @type {Behave<DestructionPulse>}
  */
-const destruction = ({ target, next }) => {
-	if (DESTROYABLE_CELLS.has(target.type)) {
+const destruction = ({ nogan, target, next }) => {
+	const targetCell = getCell(nogan, target)
+	if (DESTROYABLE_CELLS.has(targetCell.type)) {
 		return createPeak({
 			operations: [
 				c({
 					type: "modify",
-					id: target.id,
+					id: target,
 					template: c({ type: "slot" }),
 				}),
 			],
