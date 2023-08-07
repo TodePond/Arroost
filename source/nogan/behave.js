@@ -75,7 +75,7 @@ const raw = (args) => {
  * @type {Behave<CreationPulse>}
  */
 const creation = (args) => {
-	const { nogan, source, target, previous, next, ...rest } = args
+	const { nogan, source, target, previous, next } = args
 	const sourceCell = getCell(nogan, source)
 	const targetCell = getCell(nogan, target)
 	// If the target was just created, don't create from it
