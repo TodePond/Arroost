@@ -1,14 +1,6 @@
 import { c, createPeak, getCell, getTemplate } from "./nogan.js"
 
 /**
- * Placeholder: Just override the previous pulse.
- * @type {Behave<Pulse>}
- */
-const noop = ({ next }) => {
-	return next
-}
-
-/**
  * The ping pulse is for testing purposes.
  * It triggers a pong operation whenever it spreads.
  * It can be stopped by a stopper cell.
