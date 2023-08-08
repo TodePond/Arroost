@@ -7,7 +7,6 @@ import {
 	repeatArray,
 } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { addPulse, createNod, modifyNod } from "../../../nogan/nogan.js"
 import { getAudioContext, makeBufferSource, record } from "../../audio/audio.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -25,12 +24,17 @@ export const ArrowOfRecording = class extends Carryable {
 	isRecording = this.use(false)
 	isPulsing = this.use(false)
 
-	constructor(layer = shared.nogan.current, nod = createNod(layer, { type: "recording" })) {
+	stop = () => {}
+
+	constructor(
+		layer = shared.nogan.current,
+		// nod = createNod(layer, { type: "recording" })
+	) {
 		super()
 		const { style } = this
 		glue(this)
 		this.layer = layer
-		this.nod = nod
+		this.nod = undefined //nod
 		this.add(this.noiseHolder)
 		this.add(this.inner)
 
@@ -50,7 +54,7 @@ export const ArrowOfRecording = class extends Carryable {
 			this.inner.style.fill = colour.value
 		})
 		this.use(() => {
-			modifyNod(this.layer, { id: this.nod.id, position: this.transform.absolutePosition })
+			// modifyNod(this.layer, { id: this.nod.id, position: this.transform.absolutePosition })
 		})
 
 		style.stroke = "none"
@@ -93,7 +97,7 @@ export const ArrowOfRecording = class extends Carryable {
 
 	async onPlayStart() {
 		this.isPulsing = true
-		addPulse(this.layer, { id: this.nod.id })
+		// addPulse(this.layer, { id: this.nod.id })
 		const context = getAudioContext()
 		const source = makeBufferSource(this.recording)
 		const semitones = 0

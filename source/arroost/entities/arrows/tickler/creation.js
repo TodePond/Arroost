@@ -6,7 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
-import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
+// import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
@@ -19,12 +19,15 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
-	constructor(layer = shared.nogan.current, nod = createNod(layer, { type: "creation" })) {
+	constructor(
+		layer = shared.nogan.current,
+		// nod = createNod(layer, { type: "creation" })
+	) {
 		super()
 
-		validateFamily(layer, nod)
+		// validateFamily(layer, nod)
 
-		this.nod = nod
+		this.nod = undefined //nod
 		this.layer = layer
 	}
 
@@ -65,7 +68,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Position
 		this.use(() => {
 			const [x, y] = transform.absolutePosition
-			modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
+			// modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
 		})
 
 		return super.render()

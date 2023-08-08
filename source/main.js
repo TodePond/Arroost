@@ -22,7 +22,8 @@ import { registerWheel } from "./arroost/input/wheel.js"
 import { UNIT } from "./arroost/unit.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
-import { createPhantom } from "./nogan/nogan.js"
+// import { createPhantom } from "./nogan/nogan.js"
+import { createNogan } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
 //===============//
@@ -48,7 +49,7 @@ display.input = camera.input
 const machine = new Machine()
 const pointer = getPointer(camera)
 const hover = getHover()
-const nogan = createPhantom()
+const nogan = createNogan()
 
 export const shared = {
 	stage,

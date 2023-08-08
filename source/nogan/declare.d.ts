@@ -169,7 +169,7 @@ declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
-declare type TimeCell = { type: "time" }
+declare type TimeCell = { type: "time"; groupStart: CellId; groupEnd: CellId }
 type CustomCell =
 	| SlotCell
 	| CreationCell
