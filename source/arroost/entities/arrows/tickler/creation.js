@@ -6,6 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared, unlockTool } from "../../../../main.js"
+import { createCell, fireCell, modifyCell } from "../../../../nogan/nogan.js"
 // import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
 import { Dragging, Idle, Pointing } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
@@ -20,15 +21,13 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	vertical = new Rectangle()
 
 	constructor(
-		layer = shared.nogan.current,
-		// nod = createNod(layer, { type: "creation" })
+		level = shared.level,
+		cell = createCell(shared.nogan, { type: "creation", parent: level }),
 	) {
 		super()
 
-		// validateFamily(layer, nod)
-
-		this.nod = undefined //nod
-		this.layer = layer
+		this.cell = cell
+		this.level = level
 	}
 
 	render() {
@@ -68,7 +67,7 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		// Position
 		this.use(() => {
 			const [x, y] = transform.absolutePosition
-			// modifyNod(this.layer, { id: this.nod.id, position: [x, y] })
+			modifyCell(shared.nogan, { id: this.cell.id, position: [x, y] })
 		})
 
 		return super.render()
@@ -99,6 +98,8 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		state.input.state = Idle
 		state.input = recording.input
 		state.entity = recording
+
+		fireCell(shared.nogan, { id: this.cell.id })
 
 		return Dragging
 	}

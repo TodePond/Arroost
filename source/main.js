@@ -23,7 +23,6 @@ import { UNIT } from "./arroost/unit.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
 // import { createPhantom } from "./nogan/nogan.js"
-import { createNogan } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
 //===============//
@@ -49,7 +48,7 @@ display.input = camera.input
 const machine = new Machine()
 const pointer = getPointer(camera)
 const hover = getHover()
-const nogan = createNogan()
+const nogan = Nogan.createNogan()
 
 export const shared = {
 	stage,
@@ -59,11 +58,8 @@ export const shared = {
 	hover,
 	display,
 	time: performance.now(),
-	nogan: {
-		root: nogan,
-		/** @type {Parent} */
-		current: nogan,
-	},
+	nogan,
+	level: Nogan.getRoot(nogan).id,
 	debug: {
 		validate: true,
 	},
