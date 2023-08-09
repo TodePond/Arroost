@@ -11,16 +11,12 @@ export class Scene extends Entity {
 	constructor() {
 		super()
 		this.transform = this.attach(new Transform())
-		this.dom = this.attach(new Dom({ transform: this.transform, type: "div" }))
+		this.dom = this.attach(new Dom({ transform: this.transform, type: "html" }))
 	}
 
 	start({ html }) {
 		const container = this.dom.getContainer()
 		html.append(container)
-
-		// const ellipse = new Dummy()
-		// this.dom.append(ellipse.dom)
-		// ellipse.transform.position.set([100, 100])
 
 		addEventListener("pointerdown", (e) => {
 			if (e.target !== html) return

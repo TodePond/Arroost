@@ -3,6 +3,7 @@ import { snuse, use } from "../../../libraries/habitat-import.js"
 export const Entity = class {
 	components = new Set()
 	signals = new Set()
+	listeners = new Set()
 
 	/**
 	 * @template {import("../components/component.js").Component} T
@@ -46,5 +47,20 @@ export const Entity = class {
 		for (const component of this.components) {
 			component.dispose()
 		}
+
+		for (const { type, listener } of this.listeners) {
+			removeEventListener(type, listener)
+		}
+	}
+
+	/**
+	 * @param {string} type
+	 * @param {EventListener} listener
+	 * @param {AddEventListenerOptions} options
+	 */
+	listen(type, listener, options = {}) {
+		addEventListener(type, listener, options)
+		this.listeners.add({ type, listener })
+		return listener
 	}
 }

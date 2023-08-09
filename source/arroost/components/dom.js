@@ -12,7 +12,7 @@ export class Dom extends Component {
 	/**
 	 * @param {{
 	 * 	transform?: Transform
-	 * 	type?: "div" | "svg"
+	 * 	type?: "html" | "svg"
 	 * }} options
 	 */
 	constructor({ transform = Transform.Root, type = "svg" } = {}) {
