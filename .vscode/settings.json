@@ -2,7 +2,6 @@
 	"editor": {
 		"formatOnSave": true,
 		"codeActionsOnSave": {
-			"source.addMissingImports": true,
 			"source.organizeImports": true
 		}
 	},

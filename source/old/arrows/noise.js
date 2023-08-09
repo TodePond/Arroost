@@ -1,17 +1,10 @@
-import {
-	GREY,
-	RED,
-	SILVER,
-	clamp,
-	glue,
-	repeatArray,
-} from "../../../../libraries/habitat-import.js"
-import { shared } from "../../../main.js"
-import { setCursor } from "../../input/cursor.js"
-import { Dragging } from "../../input/states.js"
-import { INNER_RATIO, INNER_UNIT, MARGIN_RATIO, MARGIN_UNIT } from "../../unit.js"
+import { GREY, RED, SILVER, clamp, glue, repeatArray } from "../../../libraries/habitat-import.js"
+import { setCursor } from "../../arroost/input/cursor.js"
+import { INNER_RATIO, INNER_UNIT, MARGIN_RATIO, MARGIN_UNIT } from "../../arroost/unit.js"
+import { shared } from "../../main.js"
 import { ClosedFlaps } from "../shapes/flaps.js"
 import { Line } from "../shapes/line.js"
+import { Dragging } from "../states.js"
 import { Thing } from "../thing.js"
 
 const DURATION_RATIO = 0.01

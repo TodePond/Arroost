@@ -1,4 +1,4 @@
-import { UNIT } from "../../unit.js"
+import { UNIT } from "../../arroost/unit.js"
 import { Polygon } from "./polygon.js"
 
 export const Triangle = class extends Polygon {

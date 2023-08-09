@@ -1,10 +1,9 @@
-import { angleBetween, subtract } from "../../../../../libraries/habitat-import.js"
-import { shared } from "../../../../main.js"
-import { fireCell, modifyCell } from "../../../../nogan/nogan.js"
+import { shared } from "../../../main.js"
+import { fireCell } from "../../../nogan/nogan.js"
 // import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
-import { Dragging } from "../../../input/states.js"
-import { INNER_RATIO } from "../../../unit.js"
+import { INNER_RATIO } from "../../../arroost/unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
+import { Dragging } from "../../states.js"
 import { ArrowTickler } from "./tickler.js"
 
 let createdCount = 0
@@ -44,33 +43,33 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		})
 
 		// Position
-		this.use(() => {
-			const [x, y] = transform.absolutePosition
-			modifyCell(shared.nogan, { id: this.cell.id, position: [x, y] })
-		})
+		// this.use(() => {
+		// 	const [x, y] = transform.absolutePosition
+		// 	modifyCell(shared.nogan, { id: this.cell.id, position: [x, y] })
+		// })
 
 		return super.render()
 	}
 
 	onTickle(event, state) {
 		createdCount++
-		if (createdCount >= 2) {
-			const reverseDirection = subtract(
-				this.transform.absolutePosition,
-				shared.pointer.position,
-			)
-			const angle = angleBetween(reverseDirection, [1, 0])
-			// unlockTool(this, "connection", angle)
-		}
+		// if (createdCount >= 2) {
+		// 	const reverseDirection = subtract(
+		// 		this.transform.absolutePosition,
+		// 		shared.pointer.position,
+		// 	)
+		// 	const angle = angleBetween(reverseDirection, [1, 0])
+		// 	// unlockTool(this, "connection", angle)
+		// }
 
-		if (createdCount >= 3) {
-			const reverseDirection = subtract(
-				this.transform.absolutePosition,
-				shared.pointer.position,
-			)
-			const angle = angleBetween(reverseDirection, [1, 0])
-			// unlockTool(this, "destruction", angle)
-		}
+		// if (createdCount >= 3) {
+		// 	const reverseDirection = subtract(
+		// 		this.transform.absolutePosition,
+		// 		shared.pointer.position,
+		// 	)
+		// 	const angle = angleBetween(reverseDirection, [1, 0])
+		// 	// unlockTool(this, "destruction", angle)
+		// }
 
 		// Create a Recording
 		// const recording = new ArrowOfRecording()

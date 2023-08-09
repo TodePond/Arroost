@@ -1,5 +1,5 @@
-import { SVG } from "../../../../libraries/habitat-import.js"
-import { UNIT } from "../../unit.js"
+import { SVG } from "../../../libraries/habitat-import.js"
+import { UNIT } from "../../arroost/unit.js"
 import { Thing } from "../thing.js"
 
 export const Rectangle = class extends Thing {

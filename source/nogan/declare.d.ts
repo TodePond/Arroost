@@ -156,7 +156,12 @@ declare function asConst<
 	return v
 }
 
+declare function asTuple<V extends any, T extends [...V], R extends T>(v: R): R {
+	return v
+}
+
 declare type AsConst = typeof asConst
+declare type AsTuple = typeof asTuple
 
 //------- Custom types below this line -------//
 

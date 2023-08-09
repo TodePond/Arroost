@@ -1,4 +1,4 @@
-import { SVG, glue } from "../../../../libraries/habitat-import.js"
+import { SVG, glue } from "../../../libraries/habitat-import.js"
 import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 

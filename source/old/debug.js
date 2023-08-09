@@ -1,7 +1,7 @@
-import { RED, use } from "../../../libraries/habitat-import.js"
-import { shared } from "../../main.js"
+import { RED, use } from "../../libraries/habitat-import.js"
+import { getPointer } from "../arroost/input/pointer.js"
 import { Ellipse } from "../entities/shapes/ellipse.js"
-import { getPointer } from "./pointer.js"
+import { shared } from "../main.js"
 
 export const registerDebugs = (reallyThough = true) => {
 	if (!reallyThough) return

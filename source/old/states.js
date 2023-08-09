@@ -1,5 +1,6 @@
-import { shared } from "../../main.js"
-import { getCell } from "../../nogan/nogan.js"
+import { subtract } from "../../libraries/habitat-import.js"
+import { shared } from "../main.js"
+import { getCell } from "../nogan/nogan.js"
 import { State } from "./state.js"
 
 // Idle is only the default state when you load.
@@ -76,9 +77,13 @@ export const Pointing = new State({
 	cursor: "pointer",
 
 	onEnter() {
-		this.pointerStartPosition = [...shared.pointer.position]
-		this.pointerStartDisplacedPosition = [...shared.pointer.displacedPosition]
-		this.inputStartPosition = [...this.input.entity.transform.absolutePosition]
+		this.pointerStart = [...shared.pointer.position]
+		this.inputStart = [...this.input.entity.transform.position]
+		this.offset = subtract(this.pointerStart, this.inputStart)
+
+		this.pointerStartAbsolute = [...shared.pointer.absolutePosition]
+		this.inputStartAbsolute = [...this.input.entity.transform.absolutePosition]
+		this.offsetAbsolute = subtract(this.pointerStartAbsolute, this.inputStartAbsolute)
 	},
 
 	onPointerUp() {
@@ -95,15 +100,13 @@ export const Dragging = new State({
 	cursor: "move",
 
 	onEnter(previous) {
-		if (previous === Pointing) {
-			this.pointerStartPosition = previous.pointerStartPosition
-			this.pointerStartDisplacedPosition = previous.pointerStartDisplacedPosition
-			this.inputStartPosition = previous.inputStartPosition
-		} else {
-			this.pointerStartPosition = [...shared.pointer.position]
-			this.pointerStartDisplacedPosition = [...shared.pointer.displacedPosition]
-			this.inputStartPosition = [...this.input.entity.transform.absolutePosition]
-		}
+		this.pointerStart = [...shared.pointer.position]
+		this.inputStart = [...this.input.entity.transform.position]
+		this.offset = subtract(this.pointerStart, this.inputStart)
+
+		this.pointerStartAbsolute = [...shared.pointer.absolutePosition]
+		this.inputStartAbsolute = [...this.input.entity.transform.absolutePosition]
+		this.offset = subtract(this.pointerStartAbsolute, this.inputStartAbsolute)
 	},
 
 	onPointerUp() {

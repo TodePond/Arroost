@@ -1,6 +1,6 @@
-import { GREY, SILVER, WHITE } from "../../../../../libraries/habitat-import.js"
-import { Pointing } from "../../../input/states.js"
+import { GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { Rectangle } from "../../shapes/rectangle.js"
+import { Pointing } from "../../states.js"
 import { ArrowTickler } from "./tickler.js"
 
 export const ArrowOfDestruction = class extends ArrowTickler {

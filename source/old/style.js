@@ -1,5 +1,5 @@
-import { glue, GREY, use } from "../../../libraries/habitat-import.js"
-import { Component } from "./component.js"
+import { glue, GREY, use } from "../../libraries/habitat-import.js"
+import { Component } from "../arroost/components/component.js"
 
 export const Style = class extends Component {
 	name = "style"

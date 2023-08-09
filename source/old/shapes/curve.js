@@ -8,8 +8,8 @@ import {
 	glue,
 	rotate,
 	wrap,
-} from "../../../../libraries/habitat-import.js"
-import { INNER_ATOM_RATIO, INNER_ATOM_UNIT } from "../../unit.js"
+} from "../../../libraries/habitat-import.js"
+import { INNER_ATOM_RATIO, INNER_ATOM_UNIT } from "../../arroost/unit.js"
 import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 import { Flaps } from "./flaps.js"

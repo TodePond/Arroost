@@ -8,6 +8,9 @@ const N = NoganSchema
 /** @type {AsConst} */
 export const c = (v) => v
 
+/** @type {AsTuple} */
+export const t = (v) => v
+
 //============//
 // Validating //
 //============//

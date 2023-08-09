@@ -1,5 +1,5 @@
-import { State as _State } from "../../../libraries/habitat-import.js"
-import { setCursor } from "./cursor.js"
+import { State as _State } from "../../libraries/habitat-import.js"
+import { setCursor } from "../arroost/input/cursor.js"
 
 export const State = class extends _State {
 	static options = {

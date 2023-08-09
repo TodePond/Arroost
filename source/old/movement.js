@@ -1,5 +1,5 @@
-import { add, distanceBetween, equals, glue, scale } from "../../../libraries/habitat-import.js"
-import { Component } from "./component.js"
+import { add, distanceBetween, equals, glue, scale } from "../../libraries/habitat-import.js"
+import { Component } from "../arroost/components/component.js"
 
 export const Movement = class extends Component {
 	name = "movement"

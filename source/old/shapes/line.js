@@ -1,5 +1,5 @@
-import { SVG, WHITE, angleBetween, glue } from "../../../../libraries/habitat-import.js"
-import { INNER_ATOM_UNIT } from "../../unit.js"
+import { SVG, WHITE, angleBetween, glue } from "../../../libraries/habitat-import.js"
+import { INNER_ATOM_UNIT } from "../../arroost/unit.js"
 import { Ghost } from "../ghost.js"
 import { Thing } from "../thing.js"
 

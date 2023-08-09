@@ -1,27 +1,10 @@
-import {
-	Habitat,
-	Machine,
-	print,
-	registerMethods,
-	repeatArray,
-	rotate,
-	Stage,
-} from "../libraries/habitat-import.js"
-import { ArrowOfConnection } from "./arroost/entities/arrows/tickler/connection.js"
-import { ArrowOfCreation } from "./arroost/entities/arrows/tickler/creation.js"
-import { ArrowOfDestruction } from "./arroost/entities/arrows/tickler/destruction.js"
+import { Habitat, Stage, print, registerMethods } from "../libraries/habitat-import.js"
 import { Camera } from "./arroost/entities/camera.js"
-import { Display } from "./arroost/entities/display.js"
-import { registerDebugs } from "./arroost/input/debug.js"
-import { getHover } from "./arroost/input/hover.js"
-import { connectMachine } from "./arroost/input/machine.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
-import { Idle } from "./arroost/input/states.js"
-import { registerWheel } from "./arroost/input/wheel.js"
-import { UNIT } from "./arroost/unit.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
+import { registerWheel } from "./old/wheel.js"
 // import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
@@ -36,27 +19,22 @@ registerMethods()
 //==============//
 // Setup Engine //
 //==============//
-const stage = new Stage({
-	context: { background: "2d", html: "html", svg: "svg", foreground: "2d" },
-})
-
-const display = new Display(stage)
+const stage = new Stage({ context: { html: "html" } })
 const camera = new Camera()
-display.add(camera)
-display.input = camera.input
+stage.start = camera.start.bind(camera)
+stage.tick = camera.tick.bind(camera)
 
-const machine = new Machine()
-const pointer = getPointer(camera)
-const hover = getHover()
+// const machine = new Machine()
+const pointer = getPointer()
+// const hover = getHover()
 const nogan = Nogan.createNogan()
 
 export const shared = {
 	stage,
 	camera,
-	machine,
+
 	pointer,
-	hover,
-	display,
+
 	time: performance.now(),
 	nogan,
 	level: Nogan.getRoot(nogan).id,
@@ -66,48 +44,51 @@ export const shared = {
 }
 
 // Set default zoom
-camera.transform.scale = repeatArray([UNIT], 2)
+// camera.transform.scale = repeatArray([UNIT], 2)
 
 // Register inputs
-connectMachine(machine)
-machine.set(Idle)
+// connectMachine(machine)
+// machine.set(Idle)
 registerWheel()
 registerPreventDefaults()
-registerDebugs(false)
+// registerDebugs(false)
 
 //=======//
 // Tools //
 //=======//
-const arrowOfCreation = new ArrowOfCreation()
-camera.add(arrowOfCreation)
-arrowOfCreation.transform.position = [0, 0]
+// const arrowOfCreation = new ArrowOfCreation()
+// camera.add(arrowOfCreation)
+// arrowOfCreation.transform.position = [0, 0]
 
-camera.transform.position = [innerWidth / 2, innerHeight / 2]
+// const dummy = new Dummy()
+// camera.add(dummy)
+// dummy.transform.position = [100, 100]
+
+// camera.transform.position = [innerWidth / 2, innerHeight / 2]
 
 let arrowOfConnection
 let arrowOfDestruction
 export const unlockTool = (source, target, angle) => {
-	switch (target) {
-		case "connection": {
-			if (arrowOfConnection) return
-			arrowOfConnection = new ArrowOfConnection()
-			camera.add(arrowOfConnection)
-			arrowOfConnection.transform.position = source.transform.position
-			arrowOfConnection.movement.velocity = rotate([2, 0], angle)
-			source.bringToFront()
-			return
-		}
-
-		case "destruction": {
-			if (arrowOfDestruction) return
-			arrowOfDestruction = new ArrowOfDestruction()
-			camera.add(arrowOfDestruction)
-			arrowOfDestruction.transform.position = source.transform.position
-			arrowOfDestruction.movement.velocity = rotate([2, 0], angle)
-			source.bringToFront()
-			return
-		}
-	}
+	// switch (target) {
+	// 	case "connection": {
+	// 		if (arrowOfConnection) return
+	// 		arrowOfConnection = new ArrowOfConnection()
+	// 		camera.add(arrowOfConnection)
+	// 		arrowOfConnection.transform.position = source.transform.position
+	// 		arrowOfConnection.movement.velocity = rotate([2, 0], angle)
+	// 		source.bringToFront()
+	// 		return
+	// 	}
+	// 	case "destruction": {
+	// 		if (arrowOfDestruction) return
+	// 		arrowOfDestruction = new ArrowOfDestruction()
+	// 		camera.add(arrowOfDestruction)
+	// 		arrowOfDestruction.transform.position = source.transform.position
+	// 		arrowOfDestruction.movement.velocity = rotate([2, 0], angle)
+	// 		source.bringToFront()
+	// 		return
+	// 	}
+	// }
 }
 
 frame()

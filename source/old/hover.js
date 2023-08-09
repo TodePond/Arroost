@@ -1,4 +1,4 @@
-import { Machine, State } from "../../../libraries/habitat-import.js"
+import { Machine, State } from "../../libraries/habitat-import.js"
 import { connectMachine } from "./machine.js"
 
 export const getHover = () => {

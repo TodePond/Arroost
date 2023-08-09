@@ -1,3 +1,4 @@
+// @ts-nocheck
 // This is a modified version of Habitat
 
 //=============//
@@ -270,17 +271,9 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		HabitatFrogasaurus["./component.js"] = {}
 
 		const Component = class {
-			static options = {
-				default: "name",
-				isDefault: (v) => typeof v === "string",
-				name: () => "component",
-			}
-
-			constructor(head, tail) {
-				const options = new Options(Component.options)(head, tail)
-				Object.assign(this, options)
-				this.entity = use(undefined, { store: false })
-				glue(this)
+			name = "component"
+			constructor(entity) {
+				this.entity = entity
 			}
 		}
 
@@ -315,8 +308,9 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				return [x / sx, y / sy]
 			}
 
-			absolutePosition = snuse(() => {
+			absolutePosition = use(() => {
 				const { entity } = this
+				if (!entity) return this.position
 				const { parent } = entity
 
 				if (!parent || !parent.transform) {
@@ -332,21 +326,21 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			})
 
 			// TODO: make this support rotation
-			setAbsolutePosition(position) {
+			setAbsolutePosition(absolutePosition) {
 				const { entity } = this
 				const { parent } = entity
 
 				if (!parent || !parent.transform) {
-					this.position = position
+					this.position = absolutePosition
 					return
 				}
 
-				this.position = [
-					(position.x - parent.transform.absolutePosition.x) /
-						parent.transform.absoluteScale.x,
-					(position.y - parent.transform.absolutePosition.y) /
-						parent.transform.absoluteScale.y,
-				]
+				const [ax, ay] = absolutePosition
+				const [pax, pay] = parent.transform.absolutePosition
+				const [psx, psy] = parent.transform.absoluteScale
+				const [x, y] = [(ax - pax) / psx, (ay - pay) / psy]
+
+				this.position = [x, y]
 
 				// this.absolutePosition
 			}
@@ -535,69 +529,8 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 	//====== ./entity.js ======
 	{
-		HabitatFrogasaurus["./entity.js"] = {}
-
-		const Entity = class {
-			components = []
-			parent = use(null)
-			children = new Set() //TODO: use a signal here once other signal types are implemented
-
-			static options = {
-				default: "components",
-				isDefault: (v) => Array.isArray(v),
-				components: () => [],
-			}
-
-			constructor(head, tail) {
-				const options = new Options(Entity.options)(head, tail)
-
-				for (const component of options.components) {
-					this[component.name] = component
-					component.entity = this
-				}
-
-				Object.assign(this, options)
-				glue(this)
-			}
-
-			add(entity) {
-				if (entity === this) {
-					throw new Error("Parent can't adopt itself")
-				}
-
-				if (entity.parent === this) {
-					throw new Error("Parent already adopted child")
-				}
-
-				if (entity.parent !== null) {
-					throw new Error("Parent can't adopt child that already has a parent")
-				}
-
-				entity.parent = this
-				this.children.add(entity)
-
-				for (const component of entity.components) {
-					component.onParent?.(this)
-				}
-				entity.onParent?.(this)
-			}
-
-			delete(entity) {
-				if (entity.parent !== this) {
-					throw new Error("Parent can't delete child that it doesn't own")
-				}
-
-				entity.parent = null
-				this.children.delete(entity)
-
-				for (const component of entity.components) {
-					component.onUnparent?.(this)
-				}
-				entity.onUnparent?.(this)
-			}
-		}
-
-		HabitatFrogasaurus["./entity.js"].Entity = Entity
+		// HabitatFrogasaurus["./entity.js"] = {}
+		// HabitatFrogasaurus["./entity.js"].Entity = Entity
 	}
 
 	//====== ./event.js ======
@@ -1100,20 +1033,26 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			isPointerTracked = true
 
 			addEventListener("pointermove", (e) => {
-				pointer.position[0] = e.clientX
-				pointer.position[1] = e.clientY
+				const [x, y] = [e.clientX, e.clientY]
+				if (x === pointer.position[0] && y === pointer.position[1]) return
+				pointer.position[0] = x
+				pointer.position[1] = y
 			})
 
 			addEventListener("pointerdown", (e) => {
-				pointer.position[0] = e.clientX
-				pointer.position[1] = e.clientY
 				pointer.down = true
+				const [x, y] = [e.clientX, e.clientY]
+				if (x === pointer.position[0] && y === pointer.position[1]) return
+				pointer.position[0] = x
+				pointer.position[1] = y
 			})
 
 			addEventListener("pointerup", (e) => {
-				pointer.position[0] = e.clientX
-				pointer.position[1] = e.clientY
 				pointer.down = false
+				const [x, y] = [e.clientX, e.clientY]
+				if (x === pointer.position[0] && y === pointer.position[1]) return
+				pointer.position[0] = x
+				pointer.position[1] = y
 			})
 
 			return pointer
@@ -1239,8 +1178,8 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				Object.assign(self, {
 					dynamic: false,
 					lazy: false,
-					store: false,
 					...options,
+					store: false,
 				})
 
 				// Initialise our value
@@ -1555,7 +1494,21 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		}
 
 		HabitatFrogasaurus["./signal.js"].ArrayView = ArrayView
+
+		/**
+		 * @template {any} T
+		 * @param {T | (() => T)} template
+		 * @param {any?} options
+		 * @returns {Signal<T>}
+		 */
 		HabitatFrogasaurus["./signal.js"].use = use
+
+		/**
+		 * @template {any} T
+		 * @param {T | (() => T)} template
+		 * @param {any?} options
+		 * @returns {Signal<T>}
+		 */
 		HabitatFrogasaurus["./signal.js"].snuse = snuse
 		HabitatFrogasaurus["./signal.js"].glue = glue
 	}
@@ -2208,13 +2161,13 @@ export const HUES = HabitatFrogasaurus["./colour.js"].HUES
 export const SHADES = HabitatFrogasaurus["./colour.js"].SHADES
 /** @type {Colour[]} */
 export const COLOURS = HabitatFrogasaurus["./colour.js"].COLOURS
-export const Component = HabitatFrogasaurus["./component.js"].Component
+// export const Component = HabitatFrogasaurus["./component.js"].Component
 export const print = HabitatFrogasaurus["./console.js"].print
 export const print9 = HabitatFrogasaurus["./console.js"].print9
 export const registerDebugMethods = HabitatFrogasaurus["./console.js"].registerDebugMethods
 export const $ = HabitatFrogasaurus["./document.js"].$
 export const $$ = HabitatFrogasaurus["./document.js"].$$
-export const Entity = HabitatFrogasaurus["./entity.js"].Entity
+// export const Entity = HabitatFrogasaurus["./entity.js"].Entity
 export const fireEvent = HabitatFrogasaurus["./event.js"].fireEvent
 export const on = HabitatFrogasaurus["./event.js"].on
 export const registerMethods = HabitatFrogasaurus["./habitat.js"].registerMethods
@@ -2250,6 +2203,7 @@ export const randomBetween = HabitatFrogasaurus["./random.js"].randomBetween
 export const oneIn = HabitatFrogasaurus["./random.js"].oneIn
 export const maybe = HabitatFrogasaurus["./random.js"].maybe
 export const ArrayView = HabitatFrogasaurus["./signal.js"].ArrayView
+
 export const use = HabitatFrogasaurus["./signal.js"].use
 export const snuse = HabitatFrogasaurus["./signal.js"].snuse
 export const glue = HabitatFrogasaurus["./signal.js"].glue
@@ -2298,13 +2252,13 @@ export const Habitat = {
 	HUES: HabitatFrogasaurus["./colour.js"].HUES,
 	SHADES: HabitatFrogasaurus["./colour.js"].SHADES,
 	COLOURS: HabitatFrogasaurus["./colour.js"].COLOURS,
-	Component: HabitatFrogasaurus["./component.js"].Component,
+	// Component: HabitatFrogasaurus["./component.js"].Component,
 	print: HabitatFrogasaurus["./console.js"].print,
 	print9: HabitatFrogasaurus["./console.js"].print9,
 	registerDebugMethods: HabitatFrogasaurus["./console.js"].registerDebugMethods,
 	$: HabitatFrogasaurus["./document.js"].$,
 	$$: HabitatFrogasaurus["./document.js"].$$,
-	Entity: HabitatFrogasaurus["./entity.js"].Entity,
+	// Entity: HabitatFrogasaurus["./entity.js"].Entity,
 	fireEvent: HabitatFrogasaurus["./event.js"].fireEvent,
 	on: HabitatFrogasaurus["./event.js"].on,
 	registerMethods: HabitatFrogasaurus["./habitat.js"].registerMethods,

@@ -1,16 +1,10 @@
-import {
-	GREY,
-	WHITE,
-	angleBetween,
-	glue,
-	subtract,
-} from "../../../../../libraries/habitat-import.js"
-import { shared } from "../../../../main.js"
-import { Cell } from "../../../components/cell.js"
-import { State } from "../../../input/state.js"
-import { Dragging, Idle } from "../../../input/states.js"
-import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../unit.js"
+import { GREY, WHITE, angleBetween, glue, subtract } from "../../../../libraries/habitat-import.js"
+import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../arroost/unit.js"
+import { shared } from "../../../main.js"
+import { Cell } from "../../cell.js"
 import { Curve } from "../../shapes/curve.js"
+import { State } from "../../state.js"
+import { Dragging, Idle } from "../../states.js"
 import { Carryable } from "../carryable.js"
 
 export const ArrowTickler = class extends Carryable {
@@ -22,7 +16,6 @@ export const ArrowTickler = class extends Carryable {
 		const cell = new Cell(options)
 		super([cell, ...components])
 		glue(this)
-		this.cell = cell
 	}
 
 	render() {

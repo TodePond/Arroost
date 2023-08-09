@@ -1,5 +1,4 @@
-import { SVG } from "../../../libraries/habitat-import.js"
-import { Component } from "./component.js"
+import { Component } from "../arroost/components/component.js"
 
 export const Svg = class extends Component {
 	name = "svg"
@@ -9,7 +8,7 @@ export const Svg = class extends Component {
 
 	get element() {
 		if (this._element === undefined) {
-			const group = SVG("g")
+			const group = document.createElementNS("http://www.w3.org/2000/svg", "svg")
 			group.entity = this.entity
 			group.input = this.entity?.input
 			this._element = group

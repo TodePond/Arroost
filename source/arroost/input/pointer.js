@@ -2,60 +2,62 @@ import {
 	getPointer as _getPointer,
 	add,
 	equals,
-	glue,
 	scale,
 	subtract,
 	use,
 } from "../../../libraries/habitat-import.js"
+import { Transform } from "../components/transform.js"
 
-export const getPointer = (camera) => {
+export const getPointer = () => {
 	const pointer = _getPointer()
-	pointer.position = use([undefined, undefined])
-	pointer.velocity = use([0, 0])
-	pointer.absolutePosition = use(() => {
-		const [x, y] = pointer.position
-		const [sx, sy] = camera.transform.scale
-		const [cx, cy] = camera.transform.position
-		return [x * sx + cx, y * sy + cy]
-	})
-	pointer.displacedPosition = use(() => {
-		const [x, y] = pointer.position
-		const [cx, cy] = camera.transform.position
-		return [x + cx, y + cy]
-	})
-	glue(pointer)
+	const transform = new Transform()
 
-	const velocityHistory = []
+	/** @type {Signal<[number, number]>} */
+	const velocity = use([0, 0])
+
 	const HISTORY_LENGTH = 4
-
+	const velocityHistory = []
 	let previousPosition = [undefined, undefined]
 
-	pointer.tick = () => {
+	const tick = () => {
+		// Do nothing if the pointer hasn't moved yet
 		const { position } = pointer
-
 		if (equals(previousPosition, [undefined, undefined])) {
 			previousPosition = [...position]
 			return
 		}
 
-		const velocity = subtract(position, previousPosition)
+		// Update position if it has changed
+		const displacement = subtract(position, previousPosition)
+		if (!equals(displacement, [0, 0])) {
+			transform.position.set(position)
+		}
 
+		// Record this in the history
 		previousPosition = [...position]
-
-		velocityHistory.push(velocity)
+		velocityHistory.push(displacement)
 		if (velocityHistory.length > HISTORY_LENGTH) {
 			velocityHistory.shift()
 		}
 
+		// If there's not enough history, we can't calculate the velocity
 		if (velocityHistory.length === 0) {
-			pointer.velocity = [0, 0]
+			velocity.set([0, 0])
 			return
 		}
 
+		// Otherwise, calculate the velocity
 		const sum = velocityHistory.reduce((sum, velocity) => add(sum, velocity), [0, 0])
 		const average = scale(sum, 1 / velocityHistory.length)
-		pointer.velocity = average
+		if (!equals(average, velocity.get())) {
+			velocity.set(average)
+		}
 	}
 
-	return pointer
+	return {
+		...pointer,
+		tick,
+		transform,
+		velocity,
+	}
 }
