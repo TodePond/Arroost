@@ -55,4 +55,12 @@ export class Dom extends Component {
 		this.getContainer().append(container)
 		return container
 	}
+
+	dispose() {
+		super.dispose()
+		if (this._container) {
+			this._container.remove()
+			this._container = null
+		}
+	}
 }
