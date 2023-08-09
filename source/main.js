@@ -6,6 +6,7 @@ import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
 // import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
+import { registerWheel } from "./old/wheel.js"
 
 //===============//
 // Setup Habitat //
@@ -41,7 +42,7 @@ shared.pointer = getPointer()
 // Register inputs
 // connectMachine(machine)
 // machine.set(Idle)
-// registerWheel()
+registerWheel()
 registerPreventDefaults()
 // registerDebugs(false)
 

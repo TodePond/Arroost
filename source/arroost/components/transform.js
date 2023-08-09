@@ -16,6 +16,6 @@ export class Transform extends Component {
 	getAbsolutePosition() {
 		const [x, y] = this.position.get()
 		const [px, py] = this.parent?.getAbsolutePosition() ?? [0, 0]
-		return [x + px, y + py]
+		return [-x + px, -y + py]
 	}
 }
