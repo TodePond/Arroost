@@ -13,6 +13,8 @@ interface Window {
 	shared: any
 }
 
+declare function print(...args: any[]): void
+
 declare type Check = (value: any) => boolean
 declare type Make = (value: any) => any
 declare type Diagnose = (value: any) => any
@@ -42,3 +44,12 @@ declare type StructSchema = BaseSchema & {
 }
 
 declare type Schema = BaseSchema | StructSchema
+
+declare type Signal<T extends any> = {
+	value: T
+	get(): T
+	set(value: T): void
+}
+
+declare type Colour = [number, number, number]
+declare type Value = Primitive | object

@@ -7,6 +7,10 @@ import { Ellipse } from "../shapes/ellipse.js"
 export const Carryable = class extends Ellipse {
 	carryCursor = "move"
 
+	constructor(components = []) {
+		super(undefined, components)
+	}
+
 	onPointingEnter() {
 		this.bringToFront()
 	}

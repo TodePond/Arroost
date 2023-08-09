@@ -3,8 +3,8 @@ import { UNIT } from "../../unit.js"
 import { Thing } from "../thing.js"
 
 export const Ellipse = class extends Thing {
-	constructor(dimensions = [UNIT, UNIT]) {
-		super()
+	constructor(dimensions = [UNIT, UNIT], components = []) {
+		super(components)
 		this.rectangle.dimensions = dimensions
 	}
 

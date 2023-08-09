@@ -1,17 +1,10 @@
-import {
-	BLACK,
-	SILVER,
-	WHITE,
-	angleBetween,
-	subtract,
-} from "../../../../../libraries/habitat-import.js"
-import { shared, unlockTool } from "../../../../main.js"
-import { createCell, fireCell, modifyCell } from "../../../../nogan/nogan.js"
+import { angleBetween, subtract } from "../../../../../libraries/habitat-import.js"
+import { shared } from "../../../../main.js"
+import { fireCell, modifyCell } from "../../../../nogan/nogan.js"
 // import { createNod, modifyNod, validateFamily } from "../../../../nogan/nogan.js"
-import { Dragging, Idle, Pointing } from "../../../input/states.js"
+import { Dragging } from "../../../input/states.js"
 import { INNER_RATIO } from "../../../unit.js"
 import { Rectangle } from "../../shapes/rectangle.js"
-import { ArrowOfRecording } from "../recording.js"
 import { ArrowTickler } from "./tickler.js"
 
 let createdCount = 0
@@ -20,14 +13,8 @@ export const ArrowOfCreation = class extends ArrowTickler {
 	horizontal = new Rectangle()
 	vertical = new Rectangle()
 
-	constructor(
-		level = shared.level,
-		cell = createCell(shared.nogan, { type: "creation", parent: level }),
-	) {
-		super()
-
-		this.cell = cell
-		this.level = level
+	constructor(options = {}) {
+		super({ type: "creation", ...options })
 	}
 
 	render() {
@@ -44,22 +31,14 @@ export const ArrowOfCreation = class extends ArrowTickler {
 		horizontal.style.pointerEvents = "none"
 		vertical.style.pointerEvents = "none"
 
-		// Colour
 		this.use(() => {
-			let colour
-			if (this.isPulsing) {
-				colour = BLACK
-			} else {
-				colour = this.isTickling() || this.input.state === Pointing ? WHITE : SILVER
-			}
-			horizontal.style.fill = colour
-			vertical.style.fill = colour
+			horizontal.style.fill = this.cell.foreground.value
+			vertical.style.fill = this.cell.foreground.value
 		})
 
 		// Size
 		this.use(() => {
 			const [width, height] = dimensions
-			console.log("foo")
 			horizontal.rectangle.dimensions = [width, height / 3]
 			vertical.rectangle.dimensions = [width / 3, height]
 		})
@@ -81,24 +60,28 @@ export const ArrowOfCreation = class extends ArrowTickler {
 				shared.pointer.position,
 			)
 			const angle = angleBetween(reverseDirection, [1, 0])
-			unlockTool(this, "connection", angle)
+			// unlockTool(this, "connection", angle)
 		}
+
 		if (createdCount >= 3) {
 			const reverseDirection = subtract(
 				this.transform.absolutePosition,
 				shared.pointer.position,
 			)
 			const angle = angleBetween(reverseDirection, [1, 0])
-			unlockTool(this, "destruction", angle)
+			// unlockTool(this, "destruction", angle)
 		}
-		const recording = new ArrowOfRecording()
-		shared.camera.add(recording)
-		recording.transform.setAbsolutePosition(shared.pointer.position)
-		recording.movement.setAbsoluteVelocity(shared.pointer.velocity)
-		state.input.state = Idle
-		state.input = recording.input
-		state.entity = recording
 
+		// Create a Recording
+		// const recording = new ArrowOfRecording()
+		// shared.camera.add(recording)
+		// recording.transform.setAbsolutePosition(shared.pointer.position)
+		// recording.movement.setAbsoluteVelocity(shared.pointer.velocity)
+		// state.input.state = Idle
+		// state.input = recording.input
+		// state.entity = recording
+
+		// Fire this cell!
 		fireCell(shared.nogan, { id: this.cell.id })
 
 		return Dragging

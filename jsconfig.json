@@ -4,6 +4,7 @@
 		"lib": ["ES2022", "DOM"],
 		"target": "ES2022",
 		"moduleResolution": "nodenext",
-		"strict": true
+		"strict": true,
+		"noImplicitAny": false
 	}
 }

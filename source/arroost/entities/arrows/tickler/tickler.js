@@ -6,6 +6,7 @@ import {
 	subtract,
 } from "../../../../../libraries/habitat-import.js"
 import { shared } from "../../../../main.js"
+import { Cell } from "../../../components/cell.js"
 import { State } from "../../../input/state.js"
 import { Dragging, Idle } from "../../../input/states.js"
 import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../unit.js"
@@ -17,9 +18,11 @@ export const ArrowTickler = class extends Carryable {
 	isStartAngleDecided = this.use(false)
 	isPulsing = this.use(false)
 
-	constructor() {
-		super()
+	constructor(options, components = []) {
+		const cell = new Cell(options)
+		super([cell, ...components])
 		glue(this)
+		this.cell = cell
 	}
 
 	render() {
@@ -46,6 +49,10 @@ export const ArrowTickler = class extends Carryable {
 			} else {
 				this.style.fill = GREY
 			}
+		})
+
+		this.use(() => {
+			this.style.fill = this.cell.background.value
 		})
 
 		this.use((v) => {

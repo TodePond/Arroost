@@ -320,6 +320,35 @@ export const deleteArchivedWireIds = (nogan) => {
 	validate(nogan, N.Nogan)
 }
 
+/**
+ * Create a cell or a wire, depending on the id.
+ * @template {Cell | Wire} Item
+ * @param {Nogan} nogan
+ * @param {Item extends Cell ? {
+ *  id: CellId,
+ * 	parent?: CellId,
+ * 	type?: CellType,
+ * 	position?: Vector2D
+ * } : {
+ *  id: WireId,
+ * 	source: CellId,
+ * 	target: CellId,
+ * 	colour?: WireColour,
+ * 	timing?: Timing,
+ * }} options
+ * @returns {Item}
+ */
+export const createItem = (nogan, options) => {
+	const { id } = options
+	if (id > 0) {
+		// @ts-expect-error
+		return createCell(nogan, options)
+	}
+
+	// @ts-expect-error
+	return createWire(nogan, options)
+}
+
 //======//
 // Cell //
 //======//

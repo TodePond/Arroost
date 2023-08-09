@@ -1,18 +1,13 @@
-import {
-	BLACK,
-	GREY,
-	SILVER,
-	WHITE,
-	glue,
-	repeatArray,
-} from "../../../../libraries/habitat-import.js"
+import { GREY, glue } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
+import { createCell, fireCell, modifyCell } from "../../../nogan/nogan.js"
 import { getAudioContext, makeBufferSource, record } from "../../audio/audio.js"
 import { INNER_RATIO } from "../../unit.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Thing } from "../thing.js"
 import { Carryable } from "./carryable.js"
 import { ArrowOfNoise } from "./noise.js"
+import { getCellBackground } from "./util.js"
 
 export const ArrowOfRecording = class extends Carryable {
 	recordingStartTime = this.use(null)
@@ -22,39 +17,29 @@ export const ArrowOfRecording = class extends Carryable {
 	noise = this.use(null, { store: false })
 
 	isRecording = this.use(false)
-	isPulsing = this.use(false)
 
 	stop = () => {}
 
-	constructor(
-		layer = shared.nogan.current,
-		// nod = createNod(layer, { type: "recording" })
-	) {
+	constructor(cell = createCell(shared.nogan, { type: "recording", parent: shared.level }).id) {
 		super()
 		const { style } = this
 		glue(this)
-		this.layer = layer
-		this.nod = undefined //nod
+
+		this.cell = cell
 		this.add(this.noiseHolder)
 		this.add(this.inner)
 
-		this.inner.transform.scale = repeatArray([INNER_RATIO], 2)
+		this.inner.transform.scale = [INNER_RATIO, INNER_RATIO]
 		this.inner.input = this.input
 
-		const colour = this.use(
-			() => {
-				if (this.isPulsing) return BLACK
-				if (this.input.Pointing) return WHITE
-				return SILVER
-			},
-			{ store: false },
-		)
+		this.colour = this.use(() => GREY)
+		this.bgColour = this.snuse(() => getCellBackground(this.cell), { store: false })
+
+		this.use(() => (this.inner.style.fill = this.colour.value))
+		this.use(() => (this.style.fill = this.bgColour.value))
 
 		this.use(() => {
-			this.inner.style.fill = colour.value
-		})
-		this.use(() => {
-			// modifyNod(this.layer, { id: this.nod.id, position: this.transform.absolutePosition })
+			modifyCell(shared.nogan, { id: this.cell, position: this.transform.absolutePosition })
 		})
 
 		style.stroke = "none"
@@ -88,16 +73,16 @@ export const ArrowOfRecording = class extends Carryable {
 
 		this.isRecording = true
 		this.stop = await record()
+		fireCell(shared.nogan, { id: this.cell })
 	}
 
 	async onRecordStop() {
 		this.isRecording = false
 		this.recording = await this.stop()
+		fireCell(shared.nogan, { id: this.cell })
 	}
 
 	async onPlayStart() {
-		this.isPulsing = true
-		// addPulse(this.layer, { id: this.nod.id })
 		const context = getAudioContext()
 		const source = makeBufferSource(this.recording)
 		const semitones = 0
@@ -108,5 +93,7 @@ export const ArrowOfRecording = class extends Carryable {
 			this.noise.startingPoint / 1000,
 			this.noise.trimEnd / 1000 - this.noise.startingPoint / 1000,
 		)
+		fireCell(shared.nogan, { id: this.cell })
+		this.bgColour.update()
 	}
 }

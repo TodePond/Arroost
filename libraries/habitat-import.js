@@ -206,20 +206,34 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		const GREEN_SPLASH_VALUES = [29, 67, 98, 128, 159, 174, 204, 222, 245, 255]
 		const BLUE_SPLASH_VALUES = [40, 70, 98, 128, 159, 174, 204, 222, 247, 255]
 
+		/** @type {Colour} */
 		const VOID = new Colour(6, 7, 10)
+		/** @type {Colour} */
 		const BLACK = new Splash(0)
+		/** @type {Colour} */
 		const GREY = new Splash(112)
+		/** @type {Colour} */
 		const SILVER = new Splash(556)
+		/** @type {Colour} */
 		const WHITE = new Splash(999)
 
+		/** @type {Colour} */
 		const GREEN = new Splash(293)
+		/** @type {Colour} */
 		const CYAN = new Splash(269)
+		/** @type {Colour} */
 		const BLUE = new Splash(239)
+		/** @type {Colour} */
 		const PURPLE = new Splash(418)
+		/** @type {Colour} */
 		const PINK = new Splash(937)
+		/** @type {Colour} */
 		const CORAL = new Splash(933)
+		/** @type {Colour} */
 		const RED = new Splash(911)
+		/** @type {Colour} */
 		const ORANGE = new Splash(931)
+		/** @type {Colour} */
 		const YELLOW = new Splash(991)
 
 		const HUES = [GREEN, CYAN, BLUE, PURPLE, PINK, CORAL, RED, ORANGE, YELLOW]
@@ -2160,22 +2174,39 @@ export const Colour = HabitatFrogasaurus["./colour.js"].Colour
 export const Splash = HabitatFrogasaurus["./colour.js"].Splash
 export const showColour = HabitatFrogasaurus["./colour.js"].showColour
 export const registerColourMethods = HabitatFrogasaurus["./colour.js"].registerColourMethods
+/** @type {Colour} */
 export const VOID = HabitatFrogasaurus["./colour.js"].VOID
+/** @type {Colour} */
 export const BLACK = HabitatFrogasaurus["./colour.js"].BLACK
+/** @type {Colour} */
 export const GREY = HabitatFrogasaurus["./colour.js"].GREY
+/** @type {Colour} */
 export const SILVER = HabitatFrogasaurus["./colour.js"].SILVER
+/** @type {Colour} */
 export const WHITE = HabitatFrogasaurus["./colour.js"].WHITE
+/** @type {Colour} */
 export const GREEN = HabitatFrogasaurus["./colour.js"].GREEN
+/** @type {Colour} */
 export const CYAN = HabitatFrogasaurus["./colour.js"].CYAN
+/** @type {Colour} */
 export const BLUE = HabitatFrogasaurus["./colour.js"].BLUE
+/** @type {Colour} */
 export const PURPLE = HabitatFrogasaurus["./colour.js"].PURPLE
+/** @type {Colour} */
 export const PINK = HabitatFrogasaurus["./colour.js"].PINK
+/** @type {Colour} */
 export const CORAL = HabitatFrogasaurus["./colour.js"].CORAL
+/** @type {Colour} */
 export const RED = HabitatFrogasaurus["./colour.js"].RED
+/** @type {Colour} */
 export const ORANGE = HabitatFrogasaurus["./colour.js"].ORANGE
+/** @type {Colour} */
 export const YELLOW = HabitatFrogasaurus["./colour.js"].YELLOW
+/** @type {Colour[]} */
 export const HUES = HabitatFrogasaurus["./colour.js"].HUES
+/** @type {Colour[]} */
 export const SHADES = HabitatFrogasaurus["./colour.js"].SHADES
+/** @type {Colour[]} */
 export const COLOURS = HabitatFrogasaurus["./colour.js"].COLOURS
 export const Component = HabitatFrogasaurus["./component.js"].Component
 export const print = HabitatFrogasaurus["./console.js"].print

@@ -17,6 +17,12 @@ export const Entity = class extends _Entity {
 		return signal
 	}
 
+	snuse(template, options) {
+		const signal = use(template, { lazy: true, ...options })
+		this.signals.add(signal)
+		return signal
+	}
+
 	// This probably isn't needed!
 	// From my tests, chrome doesn't leak memory when we delete an entity.
 	// But let's dispose of the signals just in case.

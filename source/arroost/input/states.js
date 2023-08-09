@@ -1,4 +1,5 @@
 import { shared } from "../../main.js"
+import { getCell } from "../../nogan/nogan.js"
 import { State } from "./state.js"
 
 // Idle is only the default state when you load.
@@ -58,7 +59,12 @@ export const Debugging = new State({
 		if (event.shiftKey) {
 			print(event.input)
 		} else if (event.ctrlKey) {
-			print(event.input?.entity?.cell)
+			const cellId = event.input?.entity?.cell?.id
+			if (cellId === undefined) {
+				print(cellId)
+			} else {
+				print(getCell(shared.nogan, cellId))
+			}
 		} else {
 			print(event.input?.entity)
 		}
