@@ -4,7 +4,7 @@ import { Entity } from "./entities/entity.js"
 import { Ellipse } from "./entities/shapes/ellipse.js"
 import { Dom } from "./components/dom.js"
 import { Dummy } from "./entities/cells/dummy.js"
-import { BLACK, GREY, fireEvent } from "../../libraries/habitat-import.js"
+import { BLACK, GREY, equals, fireEvent } from "../../libraries/habitat-import.js"
 
 // const ZOOM_FRICTION = 0.75
 
@@ -19,7 +19,14 @@ export class Scene extends Entity {
 		const container = this.dom.getContainer()
 		html.append(container)
 
-		addEventListener("pointerdown", (e) => {
+		this.listen("pointerdown", (e) => {
+			shared.pointer.tick()
+
+			const position = shared.pointer.transform.absolutePosition.get()
+			if (equals(position, [0, 0])) {
+				return
+			}
+
 			const colour =
 				e.target === html
 					? GREY
@@ -28,7 +35,7 @@ export class Scene extends Entity {
 					: BLACK
 			const ellipse = new Dummy(colour)
 			this.dom.append(ellipse.dom)
-			const position = shared.pointer.transform.absolutePosition.get()
+
 			ellipse.transform.position.set(position)
 		})
 	}

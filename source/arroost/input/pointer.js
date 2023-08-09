@@ -20,12 +20,18 @@ export const getPointer = () => {
 	const velocityHistory = []
 	let previousPosition = [undefined, undefined]
 
+	// TODO: replace crappy tick function position update with just reimpl of habitat pointer
+	// velocity is fine to do here, but we should update the position signal here
+	// its always one or two frames behind
 	const tick = () => {
 		// Do nothing if the pointer hasn't moved yet
 		const { position } = pointer
+		if (equals(position, [undefined, undefined])) {
+			return
+		}
+
 		if (equals(previousPosition, [undefined, undefined])) {
 			previousPosition = [...position]
-			return
 		}
 
 		// Update position if it has changed
