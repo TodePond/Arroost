@@ -4,8 +4,8 @@ import { shared } from "../main.js"
 const ZOOM_MOUSE_SPEED = 0.00075
 const ZOOM_TRACKPAD_SPEED = 0.01
 export const registerWheel = () => {
-	const { camera, pointer } = shared
-	const { transform } = camera
+	const { scene, pointer } = shared
+	const { transform } = scene
 	addEventListener(
 		"wheel",
 		(event) => {
@@ -16,7 +16,7 @@ export const registerWheel = () => {
 			if (!isTrackpad || event.ctrlKey) {
 				const isTrackpad = Math.abs(event.deltaY) < 20
 				const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
-				camera.zoomSpeed = delta
+				scene.zoomSpeed = delta
 				return
 			}
 

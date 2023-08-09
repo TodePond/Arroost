@@ -1,12 +1,10 @@
-import { shared } from "../../main.js"
-import { Transform } from "../components/transform.js"
-import { Entity } from "./entity.js"
+import { shared } from "../main.js"
+import { Transform } from "./components/transform.js"
+import { Entity } from "./entities/entity.js"
 
-const ZOOM_FRICTION = 0.75
+// const ZOOM_FRICTION = 0.75
 
-export const Camera = class extends Entity {
-	zoomSpeed = this.use(0.0)
-
+export const Scene = class extends Entity {
 	constructor() {
 		super()
 		this.transform = this.attach(new Transform())
@@ -16,8 +14,10 @@ export const Camera = class extends Entity {
 
 	tick() {
 		const { pointer } = shared
-		pointer.tick()
+		shared.pointer.tick()
 	}
+
+	// zoomSpeed = this.use(0.0)
 
 	// tick() {
 	// 	const { pointer } = shared

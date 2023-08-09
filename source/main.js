@@ -1,10 +1,9 @@
 import { Habitat, Stage, print, registerMethods } from "../libraries/habitat-import.js"
-import { Camera } from "./arroost/entities/camera.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
+import { Scene } from "./arroost/scene.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
-import { registerWheel } from "./old/wheel.js"
 // import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 
@@ -20,9 +19,9 @@ registerMethods()
 // Setup Engine //
 //==============//
 const stage = new Stage({ context: { html: "html" } })
-const camera = new Camera()
-stage.start = camera.start.bind(camera)
-stage.tick = camera.tick.bind(camera)
+const scene = new Scene()
+stage.start = scene.start.bind(scene)
+stage.tick = scene.tick.bind(scene)
 
 // const machine = new Machine()
 const pointer = getPointer()
@@ -31,7 +30,7 @@ const nogan = Nogan.createNogan()
 
 export const shared = {
 	stage,
-	camera,
+	scene,
 
 	pointer,
 
@@ -49,7 +48,7 @@ export const shared = {
 // Register inputs
 // connectMachine(machine)
 // machine.set(Idle)
-registerWheel()
+// registerWheel()
 registerPreventDefaults()
 // registerDebugs(false)
 
