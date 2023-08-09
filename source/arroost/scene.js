@@ -1,20 +1,40 @@
 import { shared } from "../main.js"
 import { Transform } from "./components/transform.js"
 import { Entity } from "./entities/entity.js"
+import { Ellipse } from "./entities/shapes/ellipse.js"
+import { Svg } from "./components/svg.js"
 
 // const ZOOM_FRICTION = 0.75
 
-export const Scene = class extends Entity {
+export class Scene extends Entity {
 	constructor() {
 		super()
-		this.transform = this.attach(new Transform())
+		this.transform = this.attach(new Transform(null))
+		// this.transform.position.set([500, 200])
 	}
 
-	start({ html }) {}
+	start({ html }) {
+		this.html = html
+		const ellipse = new Ellipse()
+		this.add(ellipse)
+
+		addEventListener("pointerdown", () => {
+			const ellipse = new Ellipse()
+			this.add(ellipse)
+			const position = shared.pointer.transform.absolutePosition.get()
+			ellipse.transform.position.set(position)
+		})
+	}
 
 	tick() {
-		const { pointer } = shared
 		shared.pointer.tick()
+	}
+
+	/** @param {Entity & { svg: Svg }} entity */
+	add(entity) {
+		if (!entity.svg) throw new Error("Cannot add entity with no SVG component")
+		const container = entity.svg.getContainer()
+		this.html.append(container)
 	}
 
 	// zoomSpeed = this.use(0.0)

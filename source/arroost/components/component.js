@@ -22,7 +22,7 @@ export const Component = class {
 	 * @param {any?} options
 	 * @returns {Signal<T>}
 	 */
-	snuse(template, options) {
+	snuse(template, options = {}) {
 		const signal = snuse(template, options)
 		this.signals.add(signal)
 		return signal

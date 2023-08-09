@@ -18,32 +18,25 @@ registerMethods()
 //==============//
 // Setup Engine //
 //==============//
+export const shared = {
+	time: performance.now(),
+	nogan: Nogan.createNogan(),
+	level: Nogan.getRoot(Nogan.createNogan()).id,
+	debug: { validate: true },
+}
+
 const stage = new Stage({ context: { html: "html" } })
+shared.stage = stage
+
 const scene = new Scene()
+shared.scene = scene
 stage.start = scene.start.bind(scene)
 stage.tick = scene.tick.bind(scene)
 
+shared.pointer = getPointer()
+
 // const machine = new Machine()
-const pointer = getPointer()
 // const hover = getHover()
-const nogan = Nogan.createNogan()
-
-export const shared = {
-	stage,
-	scene,
-
-	pointer,
-
-	time: performance.now(),
-	nogan,
-	level: Nogan.getRoot(nogan).id,
-	debug: {
-		validate: true,
-	},
-}
-
-// Set default zoom
-// camera.transform.scale = repeatArray([UNIT], 2)
 
 // Register inputs
 // connectMachine(machine)

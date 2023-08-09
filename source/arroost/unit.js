@@ -1,4 +1,5 @@
 export const FULL = 100
+export const HALF = FULL / 2
 
 // export const MARGIN_RATIO = 1 / 10
 // export const ATOM_RATIO = 1 / 3
