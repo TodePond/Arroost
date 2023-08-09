@@ -4,6 +4,7 @@ import { Entity } from "./entities/entity.js"
 import { Ellipse } from "./entities/shapes/ellipse.js"
 import { Dom } from "./components/dom.js"
 import { Dummy } from "./entities/cells/dummy.js"
+import { BLACK, GREY, fireEvent } from "../../libraries/habitat-import.js"
 
 // const ZOOM_FRICTION = 0.75
 
@@ -19,8 +20,13 @@ export class Scene extends Entity {
 		html.append(container)
 
 		addEventListener("pointerdown", (e) => {
-			if (e.target !== html) return
-			const ellipse = new Dummy()
+			const colour =
+				e.target === html
+					? GREY
+					: e.target?.getAttribute("fill") === BLACK.toString()
+					? GREY
+					: BLACK
+			const ellipse = new Dummy(colour)
 			this.dom.append(ellipse.dom)
 			const position = shared.pointer.transform.absolutePosition.get()
 			ellipse.transform.position.set(position)
@@ -29,6 +35,7 @@ export class Scene extends Entity {
 
 	tick() {
 		shared.pointer.tick()
+		fireEvent("tick")
 	}
 
 	// zoomSpeed = this.use(0.0)

@@ -538,7 +538,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		HabitatFrogasaurus["./event.js"] = {}
 		const fireEvent = (name, options = {}, type = Event) => {
 			const { target = window, bubbles = true, cancelable = true, ...data } = options
-			const event = new type(name, { bubbles, cancelable, ...options })
+			const event = new type(name, { target, bubbles, cancelable, ...options })
 			for (const key in data) {
 				if (event[key] !== undefined) continue
 				event[key] = data[key]
