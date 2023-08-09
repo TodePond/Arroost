@@ -6,11 +6,12 @@ import {
 	subtract,
 	use,
 } from "../../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
 import { Transform } from "../components/transform.js"
 
 export const getPointer = () => {
 	const pointer = _getPointer()
-	const transform = new Transform()
+	const transform = new Transform.Inverse(shared.scene.transform)
 
 	/** @type {Signal<[number, number]>} */
 	const velocity = use([0, 0])

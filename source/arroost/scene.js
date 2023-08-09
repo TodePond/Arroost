@@ -2,7 +2,7 @@ import { shared } from "../main.js"
 import { Transform } from "./components/transform.js"
 import { Entity } from "./entities/entity.js"
 import { Ellipse } from "./entities/shapes/ellipse.js"
-import { Svg } from "./components/svg.js"
+import { Dom } from "./components/dom.js"
 
 // const ZOOM_FRICTION = 0.75
 
@@ -10,13 +10,17 @@ export class Scene extends Entity {
 	constructor() {
 		super()
 		this.transform = this.attach(new Transform(null))
-		// this.transform.position.set([500, 200])
+		this.dom = this.attach(new Dom({ transform: this.transform, type: "div" }))
 	}
 
 	start({ html }) {
 		this.html = html
+		const container = this.dom.getContainer()
+		this.html.append(container)
+
 		const ellipse = new Ellipse()
-		this.add(ellipse)
+		this.add(new Ellipse())
+		ellipse.transform.position.set([100, 100])
 
 		addEventListener("pointerdown", () => {
 			const ellipse = new Ellipse()
@@ -30,11 +34,16 @@ export class Scene extends Entity {
 		shared.pointer.tick()
 	}
 
-	/** @param {Entity & { svg: Svg }} entity */
+	/**
+	 * @param {Entity & { dom: Dom }} entity
+	 * @returns {Entity & { dom: Dom }}
+	 */
 	add(entity) {
-		if (!entity.svg) throw new Error("Cannot add entity with no SVG component")
-		const container = entity.svg.getContainer()
-		this.html.append(container)
+		if (!entity.dom) throw new Error("Cannot add entity with no SVG component")
+
+		const container = entity.dom.getContainer()
+		this.dom.getContainer().append(container)
+		return entity
 	}
 
 	// zoomSpeed = this.use(0.0)
