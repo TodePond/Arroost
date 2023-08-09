@@ -15,10 +15,10 @@ export const registerWheel = () => {
 
 			const isTrackpad = Math.abs(event.deltaY) < 20
 			if (!isTrackpad || event.ctrlKey) {
-				// const isTrackpad = Math.abs(event.deltaY) < 20
-				// const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
-				// scene.zoomSpeed = delta
-				// return
+				const isTrackpad = Math.abs(event.deltaY) < 20
+				const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
+				scene.zoomSpeed = delta
+				return
 			}
 
 			const position = subtract(transform.position.get(), [event.deltaX, event.deltaY])

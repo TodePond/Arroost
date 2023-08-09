@@ -3,28 +3,29 @@ import { Transform } from "./components/transform.js"
 import { Entity } from "./entities/entity.js"
 import { Ellipse } from "./entities/shapes/ellipse.js"
 import { Dom } from "./components/dom.js"
+import { Dummy } from "../old/arrows/dummy.js"
 
 // const ZOOM_FRICTION = 0.75
 
 export class Scene extends Entity {
 	constructor() {
 		super()
-		this.transform = this.attach(new Transform(null))
+		this.transform = this.attach(new Transform())
 		this.dom = this.attach(new Dom({ transform: this.transform, type: "div" }))
 	}
 
 	start({ html }) {
-		this.html = html
 		const container = this.dom.getContainer()
-		this.html.append(container)
+		html.append(container)
 
-		const ellipse = new Ellipse()
-		this.add(new Ellipse())
-		ellipse.transform.position.set([100, 100])
+		// const ellipse = new Dummy()
+		// this.dom.append(ellipse.dom)
+		// ellipse.transform.position.set([100, 100])
 
-		addEventListener("pointerdown", () => {
-			const ellipse = new Ellipse()
-			this.add(ellipse)
+		addEventListener("pointerdown", (e) => {
+			if (e.target !== html) return
+			const ellipse = new Dummy()
+			this.dom.append(ellipse.dom)
 			const position = shared.pointer.transform.absolutePosition.get()
 			ellipse.transform.position.set(position)
 		})
@@ -32,18 +33,6 @@ export class Scene extends Entity {
 
 	tick() {
 		shared.pointer.tick()
-	}
-
-	/**
-	 * @param {Entity & { dom: Dom }} entity
-	 * @returns {Entity & { dom: Dom }}
-	 */
-	add(entity) {
-		if (!entity.dom) throw new Error("Cannot add entity with no SVG component")
-
-		const container = entity.dom.getContainer()
-		this.dom.getContainer().append(container)
-		return entity
 	}
 
 	// zoomSpeed = this.use(0.0)

@@ -1,7 +1,8 @@
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
+import { Entity } from "../entities/entity.js"
 
-export const Dom = class extends Component {
+export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
 	render = () => null
 
@@ -42,6 +43,16 @@ export const Dom = class extends Component {
 		if (element) container.append(element)
 
 		this._container = container
+		return container
+	}
+
+	/**
+	 * @param {Dom} dom
+	 * @returns {SVGElement | HTMLElement}
+	 */
+	append(dom) {
+		const container = dom.getContainer()
+		this.getContainer().append(container)
 		return container
 	}
 }
