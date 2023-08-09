@@ -3,7 +3,7 @@ import { Transform } from "./components/transform.js"
 import { Entity } from "./entities/entity.js"
 import { Ellipse } from "./entities/shapes/ellipse.js"
 import { Dom } from "./components/dom.js"
-import { Dummy } from "../old/arrows/dummy.js"
+import { Dummy } from "./entities/cells/dummy.js"
 
 // const ZOOM_FRICTION = 0.75
 

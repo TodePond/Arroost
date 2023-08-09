@@ -1,7 +1,7 @@
-import { BLUE, WHITE } from "../../../libraries/habitat-import.js"
-import { Dom } from "../../arroost/components/dom.js"
-import { Transform } from "../../arroost/components/transform.js"
-import { Entity } from "../../arroost/entities/entity.js"
+import { BLUE, WHITE } from "../../../../libraries/habitat-import.js"
+import { Dom } from "../../components/dom.js"
+import { Transform } from "../../components/transform.js"
+import { Entity } from "../entity.js"
 
 export class Dummy extends Entity {
 	constructor() {
@@ -22,7 +22,6 @@ export class Dummy extends Entity {
 			div.style["top"] = "-25px"
 			div.style["text-align"] = "center"
 			div.style["color"] = WHITE.toString()
-			div.textContent = "Ribbit"
 			return div
 		}
 	}
