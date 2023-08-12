@@ -20,6 +20,13 @@ Arroost is a mad all-star mix of big ideas from my previous projects:
 It's not ready yet!<br>
 But when it is, it'll be up at [arroost.com](https://arroost.com).
 
+## What's in the code?
+
+This repo has two parts.
+
+1. The user-interface is in the [arroost](https://github.com/TodePond/Arroost/tree/main/source/arroost) folder.
+2. The inner-engine is in the [nogan](https://github.com/TodePond/Arroost/tree/main/source/nogan) folder.
+
 ## How can I help develop it?
 
 To run it locally, clone this repo, then run a local file server.<br>
