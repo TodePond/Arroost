@@ -100,7 +100,7 @@ fireCell(nogan, {id: cell.id})
 const before = getPeak(nogan, {id: cell.id})
 print(before.result) //true
 
-const after = getPeak(advanced, {id: cell.id, timing: 1})
+const after = getPeak(nogan, {id: cell.id, timing: 1})
 print(after.result) //false
 ```
 
