@@ -17,7 +17,7 @@ const cell = createCell(nogan)
 
 ## Firing
 
-You can fire a cell.
+You can fire cells.
 
 ```js
 const nogan = createNogan()
