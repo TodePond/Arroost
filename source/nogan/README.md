@@ -33,7 +33,7 @@ You can peak at a cell to check if it's firing.
 const nogan = createNogan()
 const cell = createCell(nogan)
 
-getPeak(nogan, {id: cell.id})
+const before = getPeak(nogan, {id: cell.id})
 print(before.result) //false
 
 fireCell(nogan, {id: cell.id})
