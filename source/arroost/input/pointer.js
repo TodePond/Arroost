@@ -9,29 +9,28 @@ import {
 import { shared } from "../../main.js"
 import { Transform } from "../components/transform.js"
 
+let done = false
+
 export const getPointer = () => {
-	const pointer = _getPointer()
+	if (done) throw new Error("getPointer called after pointer already initialized")
+	done = true
+
 	const transform = new Transform.Inverse(shared.scene.transform)
 
 	/** @type {Signal<[number, number]>} */
 	const velocity = use([0, 0])
 
-	const HISTORY_LENGTH = 4
-	const velocityHistory = []
 	let previousPosition = [undefined, undefined]
 
-	// TODO: replace crappy tick function position update with just reimpl of habitat pointer
-	// velocity is fine to do here, but we should update the position signal here
-	// its always one or two frames behind
-	const tick = () => {
+	const updatePosition = (position) => {
 		// Do nothing if the pointer hasn't moved yet
-		const { position } = pointer
 		if (equals(position, [undefined, undefined])) {
 			return
 		}
 
 		if (equals(previousPosition, [undefined, undefined])) {
 			previousPosition = [...position]
+			return
 		}
 
 		// Update position if it has changed
@@ -40,20 +39,45 @@ export const getPointer = () => {
 			transform.position.set(position)
 		}
 
-		// Record this in the history
 		previousPosition = [...position]
-		velocityHistory.push(displacement)
-		if (velocityHistory.length > HISTORY_LENGTH) {
-			velocityHistory.shift()
-		}
+	}
 
-		// If there's not enough history, we can't calculate the velocity
-		if (velocityHistory.length === 0) {
-			velocity.set([0, 0])
+	addEventListener("pointermove", (e) => {
+		updatePosition([e.clientX, e.clientY])
+	})
+
+	addEventListener("pointerup", (e) => {
+		updatePosition([e.clientX, e.clientY])
+	})
+
+	addEventListener("pointerdown", (e) => {
+		updatePosition([e.clientX, e.clientY])
+	})
+
+	const HISTORY_LENGTH = 4
+	const velocityHistory = []
+	let lastTickPosition = [undefined, undefined]
+
+	const tick = () => {
+		// Do nothing if the pointer hasn't moved yet
+		if (equals(previousPosition, [undefined, undefined])) {
 			return
 		}
 
-		// Otherwise, calculate the velocity
+		// Do nothing if the history stack isn't full yet
+		if (velocityHistory.length < HISTORY_LENGTH) {
+			const displacement = subtract(previousPosition, lastTickPosition)
+			velocityHistory.push(displacement)
+			lastTickPosition = [...previousPosition]
+			return
+		}
+
+		// Update velocity if the pointer has moved enough
+		const displacement = subtract(previousPosition, lastTickPosition)
+		velocityHistory.push(displacement)
+		velocityHistory.shift()
+		lastTickPosition = [...previousPosition]
+
 		const sum = velocityHistory.reduce((sum, velocity) => add(sum, velocity), [0, 0])
 		const average = scale(sum, 1 / velocityHistory.length)
 		if (!equals(average, velocity.get())) {
@@ -62,7 +86,6 @@ export const getPointer = () => {
 	}
 
 	return {
-		...pointer,
 		tick,
 		transform,
 		velocity,

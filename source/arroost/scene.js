@@ -24,16 +24,11 @@ export class Scene extends Entity {
 
 			const position = shared.pointer.transform.absolutePosition.get()
 			if (equals(position, [0, 0])) {
+				console.log("sdsd")
 				return
 			}
 
-			const colour =
-				e.target === html
-					? GREY
-					: e.target?.getAttribute("fill") === BLACK.toString()
-					? GREY
-					: BLACK
-			const ellipse = new Dummy(colour)
+			const ellipse = new Dummy()
 			this.dom.append(ellipse.dom)
 
 			ellipse.transform.position.set(position)

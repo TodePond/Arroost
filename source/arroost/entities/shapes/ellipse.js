@@ -10,7 +10,6 @@ export class Ellipse extends Entity {
 	/** @param {Transform} parent */
 	constructor(parent = Transform.Root, colour = GREY) {
 		super()
-		this.colour = colour
 		this.transform = this.attach(new Transform(parent))
 		this.dom = this.attach(new Dom({ transform: this.transform, type: "svg" }))
 
@@ -20,7 +19,7 @@ export class Ellipse extends Entity {
 	render() {
 		const element = SVG("ellipse")
 		element.setAttribute("rx", HALF)
-		element.setAttribute("fill", this.colour.toString())
+		element.setAttribute("fill", GREY)
 		return element
 	}
 }

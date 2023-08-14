@@ -7,7 +7,10 @@ export class Dom extends Component {
 	render = () => null
 
 	/** @type {SVGElement | HTMLElement | null} */
-	_container = null
+	#container = null
+
+	/** @type {SVGElement | HTMLElement | null} */
+	#element = null
 
 	/**
 	 * @param {{
@@ -21,8 +24,15 @@ export class Dom extends Component {
 		this.type = type
 	}
 
+	getElement() {
+		if (this.#element) return this.#element
+		const element = this.render()
+		this.#element = element
+		return element
+	}
+
 	getContainer() {
-		if (this._container) return this._container
+		if (this.#container) return this.#container
 
 		const container =
 			this.type === "svg"
@@ -39,10 +49,10 @@ export class Dom extends Component {
 			container.style["transform"] = `translate(${x}px, ${y}px) scale(${sx}, ${sy})`
 		})
 
-		const element = this.render()
+		const element = this.getElement()
 		if (element) container.append(element)
 
-		this._container = container
+		this.#container = container
 		return container
 	}
 
