@@ -40,6 +40,7 @@ export class Dom extends Component {
 		if (element) {
 			element.setAttribute("class", `${this.id}${this.id ? "-" : ""}element`)
 			this.style.applyElement(element)
+			element["input"] = this.input
 		}
 		return element
 	}
@@ -56,7 +57,6 @@ export class Dom extends Component {
 		container.style["height"] = "1"
 		container.style["overflow"] = "visible"
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
-		container["input"] = this.input
 
 		this.use(() => {
 			const [x, y] = this.transform.absolutePosition.get()
