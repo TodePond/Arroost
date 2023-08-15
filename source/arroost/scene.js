@@ -19,20 +19,10 @@ export class Scene extends Entity {
 		const container = this.dom.getContainer()
 		html.append(container)
 
-		this.listen("pointerdown", (e) => {
-			shared.pointer.tick()
+		this.transform.position.set([innerWidth / 2, innerHeight / 2])
 
-			const position = shared.pointer.transform.absolutePosition.get()
-			if (equals(position, [0, 0])) {
-				console.log("sdsd")
-				return
-			}
-
-			const ellipse = new Dummy()
-			this.dom.append(ellipse.dom)
-
-			ellipse.transform.position.set(position)
-		})
+		const dummy = new Dummy()
+		this.dom.append(dummy.dom)
 	}
 
 	tick() {

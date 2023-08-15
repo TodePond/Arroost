@@ -33,7 +33,6 @@ const scene = new Scene()
 shared.scene = scene
 stage.start = scene.start.bind(scene)
 stage.tick = scene.tick.bind(scene)
-
 shared.pointer = getPointer()
 
 // const machine = new Machine()
