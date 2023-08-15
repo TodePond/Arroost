@@ -28,14 +28,15 @@ export const getPointer = () => {
 			return
 		}
 
+		let firstUpdate = false
 		if (equals(previousPosition, [undefined, undefined])) {
+			firstUpdate = true
 			previousPosition = [...position]
-			return
 		}
 
 		// Update position if it has changed
 		const displacement = subtract(position, previousPosition)
-		if (!equals(displacement, [0, 0])) {
+		if (firstUpdate || !equals(displacement, [0, 0])) {
 			transform.position.set(position)
 		}
 
