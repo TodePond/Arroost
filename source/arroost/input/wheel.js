@@ -1,11 +1,11 @@
-import { subtract } from "../../libraries/habitat-import.js"
-import { shared } from "../main.js"
+import { subtract } from "../../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
 
 const ZOOM_MOUSE_SPEED = 0.00075
 const ZOOM_TRACKPAD_SPEED = 0.01
 export const registerWheel = () => {
 	const { scene, pointer } = shared
-	const { transform } = scene
+	const { transform } = scene.dom
 
 	addEventListener(
 		"wheel",

@@ -6,7 +6,7 @@ import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
 // import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
-import { registerWheel } from "./old/wheel.js"
+import { registerWheel } from "./arroost/input/wheel.js"
 
 //===============//
 // Setup Habitat //
