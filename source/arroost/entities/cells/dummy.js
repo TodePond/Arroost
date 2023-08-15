@@ -1,4 +1,7 @@
 import { BLUE, GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
+import { shared } from "../../../main.js"
+import { createCell, getCell } from "../../../nogan/nogan.js"
+import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Style } from "../../components/style.js"
 import { Transform } from "../../components/transform.js"
@@ -7,9 +10,14 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 
 export class Dummy extends Entity {
-	constructor() {
+	/**
+	 * @param {CellId} id
+	 */
+	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
 		super()
 		this.dom = this.attach(new Dom({ id: "dummy", type: "html" }))
+		this.cell = this.attach(new Tunnel({ id, dom: this.dom }))
+
 		this.back = new Ellipse()
 		this.front = new Ellipse()
 

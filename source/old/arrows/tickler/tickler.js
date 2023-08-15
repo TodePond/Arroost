@@ -1,7 +1,7 @@
 import { GREY, WHITE, angleBetween, glue, subtract } from "../../../../libraries/habitat-import.js"
 import { INNER_ATOM_UNIT, MAGNET_UNIT } from "../../../arroost/unit.js"
 import { shared } from "../../../main.js"
-import { Cell } from "../../cell.js"
+import { Cell } from "../../../arroost/components/tunnel.js"
 import { Curve } from "../../shapes/curve.js"
 import { State } from "../../state.js"
 import { Dragging, Idle } from "../../states.js"
