@@ -1,10 +1,10 @@
-import { shared } from "../main.js"
-import { Transform } from "./components/transform.js"
-import { Entity } from "./entities/entity.js"
-import { Ellipse } from "./entities/shapes/ellipse.js"
-import { Dom } from "./components/dom.js"
-import { Dummy } from "./entities/cells/dummy.js"
-import { BLACK, GREY, equals, fireEvent } from "../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
+import { Transform } from "../components/transform.js"
+import { Entity } from "./entity.js"
+import { Ellipse } from "./shapes/ellipse.js"
+import { Dom } from "../components/dom.js"
+import { Dummy } from "./cells/dummy.js"
+import { BLACK, GREY, equals, fireEvent } from "../../../libraries/habitat-import.js"
 
 // const ZOOM_FRICTION = 0.75
 

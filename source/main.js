@@ -1,7 +1,7 @@
 import { Habitat, Stage, print, registerMethods } from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
-import { Scene } from "./arroost/scene.js"
+import { Scene } from "./arroost/entities/scene.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
 // import { createPhantom } from "./nogan/nogan.js"
