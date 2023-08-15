@@ -2,6 +2,8 @@ import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 import { Entity } from "../entities/entity.js"
 import { Style } from "./style.js"
+import { Input } from "./input.js"
+import { shared } from "../../main.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -19,14 +21,16 @@ export class Dom extends Component {
 	 * 	transform?: Transform
 	 * 	type: "html" | "svg"
 	 * 	style?: Style
+	 * 	input?: Input
 	 * }} options
 	 */
-	constructor({ id, transform = new Transform(), type, style = new Style() }) {
+	constructor({ id, type, transform = new Transform(), style = new Style(), input }) {
 		super()
 		this.id = id
 		this.transform = transform
 		this.type = type
 		this.style = style
+		this.input = input ?? shared.scene.input
 	}
 
 	getElement() {
@@ -52,6 +56,7 @@ export class Dom extends Component {
 		container.style["height"] = "1"
 		container.style["overflow"] = "visible"
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
+		container["input"] = this.input
 
 		this.use(() => {
 			const [x, y] = this.transform.absolutePosition.get()

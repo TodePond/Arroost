@@ -1,13 +1,11 @@
-import { BLUE, GREY, SILVER, WHITE } from "../../../../libraries/habitat-import.js"
+import { SILVER } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, getCell } from "../../../nogan/nogan.js"
+import { createCell } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
-import { Style } from "../../components/style.js"
-import { Transform } from "../../components/transform.js"
-import { THIRD } from "../../unit.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
+import { Input } from "../../../old/input.js"
 
 export class Dummy extends Entity {
 	/**
@@ -15,11 +13,12 @@ export class Dummy extends Entity {
 	 */
 	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
 		super()
-		this.dom = this.attach(new Dom({ id: "dummy", type: "html" }))
-		this.cell = this.attach(new Tunnel({ id, dom: this.dom }))
+		this.input = this.attach(new Input())
+		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
+		this.nog = this.attach(new Tunnel({ id, dom: this.dom }))
 
-		this.back = new Ellipse()
-		this.front = new Ellipse()
+		this.back = new Ellipse({ input: this.input })
+		this.front = new Ellipse({ input: this.input })
 
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 

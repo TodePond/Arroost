@@ -5,13 +5,15 @@ import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
 import { BLACK, GREY, equals, fireEvent } from "../../../libraries/habitat-import.js"
+import { Input } from "../components/input.js"
 
 // const ZOOM_FRICTION = 0.75
 
 export class Scene extends Entity {
 	constructor() {
 		super()
-		this.dom = this.attach(new Dom({ id: "scene", type: "html" }))
+		this.input = this.attach(new Input())
+		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 	}
 
 	start({ html }) {
