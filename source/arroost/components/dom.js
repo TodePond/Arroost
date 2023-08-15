@@ -1,6 +1,7 @@
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 import { Entity } from "../entities/entity.js"
+import { Style } from "./style.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -14,20 +15,28 @@ export class Dom extends Component {
 
 	/**
 	 * @param {{
+	 * 	id: string
 	 * 	transform?: Transform
-	 * 	type?: "html" | "svg"
+	 * 	type: "html" | "svg"
+	 * 	style?: Style
 	 * }} options
 	 */
-	constructor({ transform = Transform.Root, type = "svg" } = {}) {
+	constructor({ id, transform = new Transform(), type, style = new Style() }) {
 		super()
+		this.id = id
 		this.transform = transform
 		this.type = type
+		this.style = style
 	}
 
 	getElement() {
 		if (this.#element) return this.#element
 		const element = this.render()
 		this.#element = element
+		if (element) {
+			element.setAttribute("class", `${this.id}${this.id ? "-" : ""}element`)
+			this.style.applyElement(element)
+		}
 		return element
 	}
 
@@ -42,6 +51,7 @@ export class Dom extends Component {
 		container.style["width"] = "1"
 		container.style["height"] = "1"
 		container.style["overflow"] = "visible"
+		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
 		this.use(() => {
 			const [x, y] = this.transform.absolutePosition.get()
@@ -53,6 +63,7 @@ export class Dom extends Component {
 		if (element) container.append(element)
 
 		this.#container = container
+		this.style.applyContainer(container)
 		return container
 	}
 

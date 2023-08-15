@@ -11,15 +11,14 @@ import { BLACK, GREY, equals, fireEvent } from "../../libraries/habitat-import.j
 export class Scene extends Entity {
 	constructor() {
 		super()
-		this.transform = this.attach(new Transform())
-		this.dom = this.attach(new Dom({ transform: this.transform, type: "html" }))
+		this.dom = this.attach(new Dom({ id: "scene", type: "html" }))
 	}
 
 	start({ html }) {
 		const container = this.dom.getContainer()
 		html.append(container)
 
-		this.transform.position.set([innerWidth / 2, innerHeight / 2])
+		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
 
 		const dummy = new Dummy()
 		this.dom.append(dummy.dom)

@@ -7,19 +7,15 @@ import { HALF } from "../../unit.js"
 import { Entity } from "../entity.js"
 
 export class Ellipse extends Entity {
-	/** @param {Transform} parent */
-	constructor(parent = Transform.Root, colour = GREY) {
+	constructor() {
 		super()
-		this.transform = this.attach(new Transform(parent))
-		this.dom = this.attach(new Dom({ transform: this.transform, type: "svg" }))
-
-		this.dom.render = this.render.bind(this)
+		this.dom = this.attach(new Dom({ type: "svg", id: "ellipse" }))
+		this.dom.render = () => this.render()
 	}
 
 	render() {
 		const element = SVG("ellipse")
 		element.setAttribute("rx", HALF)
-		element.setAttribute("fill", GREY)
 		return element
 	}
 }
