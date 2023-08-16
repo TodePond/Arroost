@@ -5,7 +5,7 @@ import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
-import { Input } from "../../../old/input.js"
+import { Input } from "../../components/input.js"
 
 export class Dummy extends Entity {
 	/**

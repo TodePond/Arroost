@@ -1713,14 +1713,14 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			state = use(undefined)
 
 			constructor(initial) {
-				glue(this)
+				// glue(this)
 				if (initial) {
 					this.set(initial)
 				}
 			}
 
 			set(state) {
-				const previous = this.state
+				const previous = this.state.get()
 				const next = state
 
 				if (previous !== undefined) {
@@ -1733,7 +1733,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 					}
 				}
 
-				this.state = next
+				this.state.set(next)
 				const enterResult = next.fire("enter", [previous, next])
 				if (enterResult === null) {
 					this.set(previous)
@@ -1745,11 +1745,12 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 
 			// Fire a method, and resolve any state changes
 			fire(name, args) {
-				if (this.state === undefined) {
+				const state = this.state.get()
+				if (state === undefined) {
 					return
 				}
 
-				const result = this.state.fire(name, args)
+				const result = state.fire(name, args)
 
 				if (result instanceof State) {
 					const setResult = this.set(result)

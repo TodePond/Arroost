@@ -1,4 +1,4 @@
-import { Habitat, Stage, print, registerMethods } from "../libraries/habitat-import.js"
+import { Habitat, Machine, Stage, print, registerMethods } from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
 import { Scene } from "./arroost/entities/scene.js"
@@ -7,6 +7,8 @@ import * as Nogan from "./nogan/nogan.js"
 // import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 import { registerWheel } from "./arroost/input/wheel.js"
+import { registerMachine } from "./arroost/input/machine.js"
+import { getHoverState } from "./arroost/input/machines/hover.js"
 
 //===============//
 // Setup Habitat //
@@ -35,15 +37,10 @@ stage.start = scene.start.bind(scene)
 stage.tick = scene.tick.bind(scene)
 shared.pointer = getPointer()
 
-// const machine = new Machine()
-// const hover = getHover()
-
-// Register inputs
-// connectMachine(machine)
-// machine.set(Idle)
 registerWheel()
 registerPreventDefaults()
-// registerDebugs(false)
+
+registerMachine(new Machine(getHoverState()))
 
 //=======//
 // Tools //
