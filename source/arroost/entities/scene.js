@@ -6,6 +6,7 @@ import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
 import { BLACK, GREY, equals, fireEvent } from "../../../libraries/habitat-import.js"
 import { Input } from "../components/input.js"
+import { Dragging } from "../input/machines/point.js"
 
 // const ZOOM_FRICTION = 0.75
 
@@ -14,6 +15,8 @@ export class Scene extends Entity {
 		super()
 		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
+
+		this.input.pointerdown = this.pointerdown.bind(this)
 	}
 
 	start({ html }) {
@@ -29,6 +32,13 @@ export class Scene extends Entity {
 	tick() {
 		shared.pointer.tick()
 		fireEvent("tick")
+	}
+
+	pointerdown(e) {
+		e.default()
+		if (this.input.hovering.get()) {
+			return new Dragging()
+		}
 	}
 
 	// zoomSpeed = this.use(0.0)

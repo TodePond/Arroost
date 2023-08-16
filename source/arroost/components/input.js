@@ -37,4 +37,5 @@ export class Input extends Component {
 	hovering = this.use(false)
 	pointing = this.use(false)
 	dragging = this.use(false)
+	debugging = this.use(false)
 }

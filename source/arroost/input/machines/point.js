@@ -3,11 +3,12 @@ import { shared } from "../../../main.js"
 import { Input } from "../../components/input.js"
 import { setCursor } from "../cursor.js"
 
-class PointState extends State {
+export class PointState extends State {
 	/** @type {Input} */
 	input = shared.hovering.input.get()
 
 	name = "point-state"
+	cursor = "default"
 
 	/** @param {Input} [input] */
 	constructor(input) {
@@ -17,6 +18,7 @@ class PointState extends State {
 
 	enter() {
 		this.input[this.name].set(true)
+		setCursor(this.cursor)
 	}
 
 	exit() {
@@ -35,14 +37,14 @@ class PointState extends State {
 	}
 }
 
-class Hovering extends PointState {
+export class Hovering extends PointState {
 	name = "hovering"
+	cursor = "pointer"
+
 	enter() {
 		super.enter()
 		if (this.input.entity === shared.scene) {
 			setCursor("default")
-		} else {
-			setCursor("pointer")
 		}
 	}
 
@@ -54,17 +56,48 @@ class Hovering extends PointState {
 	pointerdown() {
 		return new Pointing(this.input)
 	}
+
+	keydown({ key }) {
+		if (key.toLowerCase() === "d") {
+			return new Debugging()
+		}
+	}
 }
 
-class Pointing extends PointState {
+export class Pointing extends PointState {
 	name = "pointing"
-	enter() {
-		super.enter()
-		setCursor("crosshair")
-	}
+	cursor = "pointer"
 
 	pointerup() {
 		return new Hovering()
+	}
+
+	pointermove() {
+		return new Dragging()
+	}
+}
+
+export class Dragging extends PointState {
+	name = "dragging"
+	cursor = "grabbing"
+
+	pointerup() {
+		return new Hovering()
+	}
+}
+
+export class Debugging extends PointState {
+	name = "debugging"
+	cursor = "help"
+
+	keyup({ key }) {
+		if (key.toLowerCase() === "d") {
+			return new Hovering()
+		}
+	}
+
+	pointerdown() {
+		print(shared.hovering.input.get().entity)
 	}
 }
 

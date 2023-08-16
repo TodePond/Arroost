@@ -28,12 +28,5 @@ export class Dummy extends Entity {
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
-
-		this.input.pointerover = (v) => this.pointerover(v)
-	}
-
-	/** @type {InputEventHandler} */
-	pointerover(event) {
-		return event.default()
 	}
 }
