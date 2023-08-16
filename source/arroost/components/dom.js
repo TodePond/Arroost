@@ -30,7 +30,7 @@ export class Dom extends Component {
 		this.transform = transform
 		this.type = type
 		this.style = style
-		this.input = input ?? shared.scene.input
+		this.input = input ?? shared.scene?.input
 	}
 
 	getElement() {

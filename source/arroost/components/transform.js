@@ -19,7 +19,7 @@ export class Transform extends Component {
 		return [x + px, y + py]
 	}
 
-	static Root = new Transform(null)
+	static Root = new Transform()
 	static Inverse = class extends Transform {
 		/** @returns {[number, number]} */
 		getAbsolutePosition() {

@@ -15,7 +15,7 @@ export const getPointer = () => {
 	if (done) throw new Error("getPointer called after pointer already initialized")
 	done = true
 
-	const transform = new Transform.Inverse(shared.scene.transform)
+	const transform = new Transform.Inverse(shared.scene?.dom.transform)
 
 	/** @type {Signal<[number, number]>} */
 	const velocity = use([0, 0])
@@ -52,6 +52,10 @@ export const getPointer = () => {
 	})
 
 	addEventListener("pointerdown", (e) => {
+		updatePosition([e.clientX, e.clientY])
+	})
+
+	addEventListener("wheel", (e) => {
 		updatePosition([e.clientX, e.clientY])
 	})
 

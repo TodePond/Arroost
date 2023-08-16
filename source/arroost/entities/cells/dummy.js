@@ -6,6 +6,7 @@ import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Input } from "../../components/input.js"
+import { Movement } from "../../components/movement.js"
 
 export class Dummy extends Entity {
 	/**
@@ -14,13 +15,17 @@ export class Dummy extends Entity {
 	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
 		super()
 		this.input = this.attach(new Input(this))
-		this.nog = this.attach(new Tunnel(id))
+		this.tunnel = this.attach(new Tunnel(id))
+		this.movement = this.attach(new Movement())
 		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
+
+		this.listen("tick", () => this.movement.tick(this.dom.transform))
 
 		this.back = new Ellipse({ input: this.input })
 		this.front = new Ellipse({ input: this.input })
 
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.back.dom.style.pointerEvents.set("none")
 
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.front.dom.style.fill.set(SILVER)
@@ -28,5 +33,9 @@ export class Dummy extends Entity {
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+
+		this.movement.velocity.set([0, -10])
+		this.movement.friction.set([0.95, 0.95])
+		this.movement.scaleVelocity.set([0.95, 0.97])
 	}
 }

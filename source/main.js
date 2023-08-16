@@ -25,6 +25,8 @@ export const shared = {
 	nogan: Nogan.createNogan(),
 	level: Nogan.getRoot(Nogan.createNogan()).id,
 	debug: { validate: true },
+	/** @type {Scene | undefined} */
+	scene: undefined,
 }
 
 const stage = new Stage({ context: { html: "html" } })
@@ -44,9 +46,9 @@ shared.hovering = hover.state.get()
 const point = new Machine(new Point())
 
 registerWheel()
-registerPreventDefaults()
 registerMachine(hover)
 registerMachine(point)
+registerPreventDefaults()
 
 frame()
 

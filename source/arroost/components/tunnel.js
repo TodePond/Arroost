@@ -1,9 +1,19 @@
+import { applyOperations } from "../../nogan/nogan.js"
 import { Component } from "./component.js"
 
 export const Tunnel = class extends Component {
-	/**
-	 * @param {CellId | WireId} id
-	 */
+	//==========//
+	// INSTANCE //
+	//==========//
+	fire = {
+		red: this.use(false),
+		green: this.use(false),
+		blue: this.use(false),
+	}
+
+	isFiring = this.use(() => this.fire.red.get() || this.fire.green.get() || this.fire.blue.get())
+
+	/** @param {CellId | WireId} id */
 	constructor(id) {
 		super()
 		this.id = id
@@ -15,6 +25,9 @@ export const Tunnel = class extends Component {
 		Tunnel.tunnels.delete(this.id)
 	}
 
+	//========//
+	// STATIC //
+	//========//
 	static tunnels = new Map()
 
 	/**

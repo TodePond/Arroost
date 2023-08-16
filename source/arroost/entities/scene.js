@@ -23,7 +23,7 @@ export class Scene extends Entity {
 		const container = this.dom.getContainer()
 		html.append(container)
 
-		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
+		// this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
 
 		const dummy = new Dummy()
 		this.dom.append(dummy.dom)
@@ -35,10 +35,13 @@ export class Scene extends Entity {
 	}
 
 	pointerdown(e) {
-		e.default()
-		if (this.input.hovering.get()) {
-			return new Dragging()
-		}
+		const dummy = new Dummy()
+		this.dom.append(dummy.dom)
+		dummy.dom.transform.position.set(shared.pointer.transform.getAbsolutePosition())
+		// e.default()
+		// if (this.input.hovering.get()) {
+		// 	return new Dragging()
+		// }
 	}
 
 	// zoomSpeed = this.use(0.0)
