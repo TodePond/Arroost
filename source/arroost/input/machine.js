@@ -17,6 +17,7 @@ export const registerMachine = (machine) => {
 			{ passive: false },
 		)
 	}
+	return machine
 }
 
 const EVENTS = [

@@ -1689,18 +1689,6 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		HabitatFrogasaurus["./state.js"] = {}
 
 		const State = class {
-			static options = {
-				default: "name",
-				isDefault: (v) => typeof v === "string",
-				name: () => "state",
-			}
-
-			constructor(head, tail = {}) {
-				// @ts-ignore
-				const options = new Options(this.constructor.options)(head, tail)
-				Object.assign(this, options)
-			}
-
 			fire(name, args) {
 				const method = this[name]
 				if (method) {

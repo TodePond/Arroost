@@ -4,11 +4,11 @@ import { registerPreventDefaults } from "./arroost/input/prevent.js"
 import { Scene } from "./arroost/entities/scene.js"
 import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
-// import { createPhantom } from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 import { registerWheel } from "./arroost/input/wheel.js"
 import { registerMachine } from "./arroost/input/machine.js"
-import { getHoverState } from "./arroost/input/machines/hover.js"
+import { Hover } from "./arroost/input/machines/hover.js"
+import { Point } from "./arroost/input/machines/point.js"
 
 //===============//
 // Setup Habitat //
@@ -38,7 +38,10 @@ shared.pointer = getPointer()
 
 registerWheel()
 registerPreventDefaults()
-registerMachine(new Machine(getHoverState()))
+
+const hover = registerMachine(new Machine(new Hover()))
+shared.hovering = hover.state.get()
+shared.point = registerMachine(new Machine(new Point()))
 
 frame()
 

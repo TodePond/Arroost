@@ -24,6 +24,7 @@ export class Dummy extends Entity {
 
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.front.dom.style.fill.set(SILVER)
+		this.front.dom.style.pointerEvents.set("none")
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
