@@ -13,9 +13,8 @@ import { getHoverState } from "./arroost/input/machines/hover.js"
 //===============//
 // Setup Habitat //
 //===============//
-window.print = print
-// @ts-expect-error
-window.dir = console.dir.bind(console)
+window["print"] = print
+window["dir"] = console.dir.bind(console)
 registerMethods()
 
 //==============//
@@ -39,52 +38,13 @@ shared.pointer = getPointer()
 
 registerWheel()
 registerPreventDefaults()
-
 registerMachine(new Machine(getHoverState()))
-
-//=======//
-// Tools //
-//=======//
-// const arrowOfCreation = new ArrowOfCreation()
-// camera.add(arrowOfCreation)
-// arrowOfCreation.transform.position = [0, 0]
-
-// const dummy = new Dummy()
-// camera.add(dummy)
-// dummy.transform.position = [100, 100]
-
-// camera.transform.position = [innerWidth / 2, innerHeight / 2]
-
-let arrowOfConnection
-let arrowOfDestruction
-export const unlockTool = (source, target, angle) => {
-	// switch (target) {
-	// 	case "connection": {
-	// 		if (arrowOfConnection) return
-	// 		arrowOfConnection = new ArrowOfConnection()
-	// 		camera.add(arrowOfConnection)
-	// 		arrowOfConnection.transform.position = source.transform.position
-	// 		arrowOfConnection.movement.velocity = rotate([2, 0], angle)
-	// 		source.bringToFront()
-	// 		return
-	// 	}
-	// 	case "destruction": {
-	// 		if (arrowOfDestruction) return
-	// 		arrowOfDestruction = new ArrowOfDestruction()
-	// 		camera.add(arrowOfDestruction)
-	// 		arrowOfDestruction.transform.position = source.transform.position
-	// 		arrowOfDestruction.movement.velocity = rotate([2, 0], angle)
-	// 		source.bringToFront()
-	// 		return
-	// 	}
-	// }
-}
 
 frame()
 
-//=================//
-// Setup Debugging //
-//=================//
+//=========================//
+// Setup Console Debugging //
+//=========================//
 Object.assign(window, { Nogan, shared, NoganSchema })
 Object.assign(window, shared)
 Object.assign(window, Habitat)
