@@ -1689,10 +1689,10 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		HabitatFrogasaurus["./state.js"] = {}
 
 		const State = class {
-			fire(name, args) {
+			fire(name, arg) {
 				const method = this[name]
 				if (method) {
-					return method.apply(this, args)
+					return method.apply(this, [arg])
 				}
 			}
 		}
@@ -1732,18 +1732,18 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			// Fire a method, and resolve any state changes
-			fire(name, args) {
+			fire(name, arg) {
 				const state = this.state.get()
 				if (state === undefined) {
 					return
 				}
 
-				const result = state.fire(name, args)
+				const result = state.fire(name, arg)
 
 				if (result instanceof State) {
 					const setResult = this.set(result)
 					if (setResult !== null) {
-						return this.fire(name, args)
+						return this.fire(name, arg)
 					}
 				}
 

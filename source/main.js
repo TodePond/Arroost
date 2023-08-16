@@ -34,14 +34,19 @@ const scene = new Scene()
 shared.scene = scene
 stage.start = scene.start.bind(scene)
 stage.tick = scene.tick.bind(scene)
-shared.pointer = getPointer()
+
+const pointer = getPointer()
+shared.pointer = pointer
+
+const hover = new Machine(new Hover())
+shared.hovering = hover.state.get()
+
+const point = new Machine(new Point())
 
 registerWheel()
 registerPreventDefaults()
-
-const hover = registerMachine(new Machine(new Hover()))
-shared.hovering = hover.state.get()
-shared.point = registerMachine(new Machine(new Point()))
+registerMachine(hover)
+registerMachine(point)
 
 frame()
 

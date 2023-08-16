@@ -10,9 +10,8 @@ export const registerMachine = (machine) => {
 		addEventListener(
 			eventName,
 			(event) => {
-				const input = event.target?.["input"]
-				event["input"] = input
-				machine.fire(eventName, [event, machine.state])
+				event["state"] = machine.state.get()
+				machine.fire(eventName, event)
 			},
 			{ passive: false },
 		)

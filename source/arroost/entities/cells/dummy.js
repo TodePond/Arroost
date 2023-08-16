@@ -13,9 +13,9 @@ export class Dummy extends Entity {
 	 */
 	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
 		super()
-		this.input = this.attach(new Input())
+		this.input = this.attach(new Input(this))
+		this.nog = this.attach(new Tunnel(id))
 		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
-		this.nog = this.attach(new Tunnel({ id, dom: this.dom }))
 
 		this.back = new Ellipse({ input: this.input })
 		this.front = new Ellipse({ input: this.input })
@@ -28,5 +28,12 @@ export class Dummy extends Entity {
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+
+		this.input.pointerover = (v) => this.pointerover(v)
+	}
+
+	/** @type {InputEventHandler} */
+	pointerover(event) {
+		return event.default()
 	}
 }

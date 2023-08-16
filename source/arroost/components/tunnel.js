@@ -1,19 +1,12 @@
 import { Component } from "./component.js"
-import { shared } from "../../main.js"
-import { c, createCell } from "../../nogan/nogan.js"
-import { Dom } from "./dom.js"
 
 export const Tunnel = class extends Component {
 	/**
-	 * @param {{
-	 * 	id: CellId | WireId
-	 * 	dom: Dom
-	 * }} options
+	 * @param {CellId | WireId} id
 	 */
-	constructor({ id, dom }) {
+	constructor(id) {
 		super()
 		this.id = id
-		this.dom = dom
 		Tunnel.tunnels.set(id, this)
 	}
 

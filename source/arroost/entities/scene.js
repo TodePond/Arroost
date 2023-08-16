@@ -12,7 +12,7 @@ import { Input } from "../components/input.js"
 export class Scene extends Entity {
 	constructor() {
 		super()
-		this.input = this.attach(new Input())
+		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 	}
 
