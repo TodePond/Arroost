@@ -4,7 +4,7 @@ import { Entity } from "./entity.js"
 import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
-import { BLACK, GREY, equals, fireEvent } from "../../../libraries/habitat-import.js"
+import { fireEvent } from "../../../libraries/habitat-import.js"
 import { Input } from "../components/input.js"
 import { Dragging } from "../input/machines/point.js"
 
@@ -16,17 +16,16 @@ export class Scene extends Entity {
 		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 
-		this.input.pointerdown = this.pointerdown.bind(this)
+		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
+		const dummy = new Dummy()
+		this.dom.append(dummy.dom)
+
+		this.input.state("hovering").pointerdown = this.pointerdownHovering.bind(this)
 	}
 
 	start({ html }) {
 		const container = this.dom.getContainer()
 		html.append(container)
-
-		// this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
-
-		const dummy = new Dummy()
-		this.dom.append(dummy.dom)
 	}
 
 	tick() {
@@ -34,14 +33,8 @@ export class Scene extends Entity {
 		fireEvent("tick")
 	}
 
-	pointerdown(e) {
-		const dummy = new Dummy()
-		this.dom.append(dummy.dom)
-		dummy.dom.transform.position.set(shared.pointer.transform.getAbsolutePosition())
-		// e.default()
-		// if (this.input.hovering.get()) {
-		// 	return new Dragging()
-		// }
+	pointerdownHovering() {
+		return new Dragging()
 	}
 
 	// zoomSpeed = this.use(0.0)

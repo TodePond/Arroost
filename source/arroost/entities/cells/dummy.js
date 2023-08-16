@@ -1,4 +1,4 @@
-import { SILVER } from "../../../../libraries/habitat-import.js"
+import { SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
 import { createCell } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
@@ -25,7 +25,6 @@ export class Dummy extends Entity {
 		this.front = new Ellipse({ input: this.input })
 
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.back.dom.style.pointerEvents.set("none")
 
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.front.dom.style.fill.set(SILVER)
@@ -34,8 +33,8 @@ export class Dummy extends Entity {
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
-		this.movement.velocity.set([0, -10])
-		this.movement.friction.set([0.95, 0.95])
-		this.movement.scaleVelocity.set([0.95, 0.97])
+		this.use(() => {
+			this.front.dom.style.fill.set(this.input.state("hovering").active.get() ? WHITE : SILVER)
+		})
 	}
 }

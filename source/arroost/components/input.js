@@ -34,8 +34,17 @@ export class Input extends Component {
 	/** @type {null | InputEventHandler} */
 	keyup = null
 
-	hovering = this.use(false)
-	pointing = this.use(false)
-	dragging = this.use(false)
-	debugging = this.use(false)
+	state = (name) => {
+		if (this[name]) {
+			return this[name]
+		}
+
+		const active = this.current.get()?.name === name
+		const info = { active: this.use(active) }
+		this[name] = info
+		return info
+	}
+
+	/** @type {Signal<any>} */
+	current = this.use(null)
 }

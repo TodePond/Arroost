@@ -17,23 +17,24 @@ export class PointState extends State {
 	}
 
 	enter() {
-		this.input[this.name].set(true)
+		this.input.state(this.name).active.set(true)
+		this.input.current.set(this)
 		setCursor(this.cursor)
 	}
 
 	exit() {
-		this.input[this.name].set(false)
+		this.input.state(this.name).active.set(false)
 	}
 
 	fire(eventName, arg) {
 		const stateMethod = this[eventName]
-		const inputMethod = this.input[eventName]
+		const inputMethod = this.input.state(this.name)[eventName]
 		if (!inputMethod) {
 			return stateMethod?.call(this, arg)
 		}
 
 		arg["default"] = () => stateMethod?.call(this, arg)
-		return inputMethod.call(this.input, arg)
+		return inputMethod.call(this.input.entity, arg)
 	}
 }
 

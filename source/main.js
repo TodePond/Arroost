@@ -25,7 +25,8 @@ export const shared = {
 	nogan: Nogan.createNogan(),
 	level: Nogan.getRoot(Nogan.createNogan()).id,
 	debug: { validate: true },
-	/** @type {Scene | undefined} */
+	/** @type {Scene} */
+	// @ts-expect-error
 	scene: undefined,
 }
 
