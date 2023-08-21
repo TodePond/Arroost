@@ -28,4 +28,5 @@ const EVENTS = [
 	"wheel",
 	"keydown",
 	"keyup",
+	"tick",
 ]

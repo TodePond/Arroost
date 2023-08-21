@@ -22,21 +22,15 @@ export const getPointer = () => {
 
 	let previousPosition = [undefined, undefined]
 
-	const updatePosition = (position) => {
-		// Do nothing if the pointer hasn't moved yet
-		if (equals(position, [undefined, undefined])) {
-			return
-		}
-
-		let firstUpdate = false
+	const updatePosition = (position, force = false) => {
 		if (equals(previousPosition, [undefined, undefined])) {
-			firstUpdate = true
+			force = true
 			previousPosition = [...position]
 		}
 
 		// Update position if it has changed
 		const displacement = subtract(position, previousPosition)
-		if (firstUpdate || !equals(displacement, [0, 0])) {
+		if (force || !equals(displacement, [0, 0])) {
 			transform.position.set(position)
 		}
 
@@ -44,7 +38,8 @@ export const getPointer = () => {
 	}
 
 	addEventListener("pointermove", (e) => {
-		updatePosition([e.clientX, e.clientY])
+		const force = e.pointerId < 0
+		updatePosition([e.clientX, e.clientY], force)
 	})
 
 	addEventListener("pointerup", (e) => {

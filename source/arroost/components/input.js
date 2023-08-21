@@ -34,7 +34,8 @@ export class Input extends Component {
 	/** @type {null | InputEventHandler} */
 	keyup = null
 
-	state = (name) => {
+	/** @param {string} name */
+	state(name) {
 		if (this[name]) {
 			return this[name]
 		}

@@ -20,7 +20,7 @@ export class Scene extends Entity {
 		const dummy = new Dummy()
 		this.dom.append(dummy.dom)
 
-		this.input.state("hovering").pointerdown = this.pointerdownHovering.bind(this)
+		this.input.state("hovering").pointerdown = this.onHoveringPointerDown.bind(this)
 	}
 
 	start({ html }) {
@@ -33,7 +33,7 @@ export class Scene extends Entity {
 		fireEvent("tick")
 	}
 
-	pointerdownHovering() {
+	onHoveringPointerDown() {
 		return new Dragging()
 	}
 
