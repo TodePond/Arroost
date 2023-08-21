@@ -26,11 +26,9 @@ class Hovering extends State {
 
 	pointerover(event) {
 		const { input = shared.scene.input } = event.target
-		// console.log(event.target)
 		const oldInput = this.input.get()
 		if (oldInput === input) return
 		this.input.set(input)
-		// console.log(input.entity)
 	}
 }
 
