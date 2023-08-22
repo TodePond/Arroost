@@ -40,10 +40,17 @@ export class Input extends Component {
 			return this[name]
 		}
 
+		// Find out the initial state
 		const active = this.current.get()?.name === name
+
 		const info = { active: this.use(active) }
 		this[name] = info
 		return info
+	}
+
+	/** @param {string} name */
+	is(name) {
+		return this.state(name).active.get()
 	}
 
 	/** @type {Signal<any>} */

@@ -27,14 +27,15 @@ export class PointState extends State {
 	}
 
 	fire(eventName, arg) {
+		// We call events in order from most specific to least specific
+		const inputStateMethod = this.input.state(this.name)[eventName]
+		const inputMethod = this.input[eventName]
 		const stateMethod = this[eventName]
-		const inputMethod = this.input.state(this.name)[eventName]
-		if (!inputMethod) {
-			return stateMethod?.call(this, arg)
-		}
-
-		arg["default"] = () => stateMethod?.call(this, arg)
-		return inputMethod.call(this.input.entity, arg)
+		const inputStateResult = inputStateMethod?.call(this, arg)
+		if (inputStateResult !== undefined) return inputStateResult
+		const inputResult = inputMethod?.call(this, arg)
+		if (inputResult !== undefined) return inputResult
+		return stateMethod?.call(this, arg)
 	}
 }
 

@@ -7,6 +7,7 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Input } from "../../components/input.js"
 import { Movement } from "../../components/movement.js"
+import { Carry } from "../../components/carry.js"
 
 export class Dummy extends Entity {
 	/**
@@ -18,6 +19,9 @@ export class Dummy extends Entity {
 		this.tunnel = this.attach(new Tunnel(id))
 		this.movement = this.attach(new Movement())
 		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
+		this.carry = this.attach(
+			new Carry({ movement: this.movement, input: this.input, transform: this.dom.transform }),
+		)
 
 		this.listen("tick", () => this.movement.tick(this.dom.transform))
 
@@ -34,7 +38,11 @@ export class Dummy extends Entity {
 		this.dom.append(this.front.dom)
 
 		this.use(() => {
-			this.front.dom.style.fill.set(this.input.state("hovering").active.get() ? WHITE : SILVER)
+			this.front.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})
+
+		this.input.pointerdown = (e) => {
+			print(this.input.current.get()?.name)
+		}
 	}
 }
