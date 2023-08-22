@@ -42,7 +42,15 @@ export class Dummy extends Entity {
 		})
 
 		this.input.pointerdown = (e) => {
-			print(this.input.current.get()?.name)
+			print("hi from... uh let me check... hi from " + this.input.current.get()?.name)
+		}
+
+		this.input.state("hovering").pointerdown = (e) => {
+			print("hi from hovering I can tell without looking")
+		}
+
+		this.input.state("pointing").pointerdown = (e) => {
+			print("hi from pointing I can tell without looking")
 		}
 	}
 }
