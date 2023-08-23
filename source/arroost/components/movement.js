@@ -3,7 +3,7 @@ import { c, t } from "../../nogan/nogan.js"
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 
-export const Movement = class extends Component {
+export class Movement extends Component {
 	/** @param {Transform} transform */
 	constructor(transform) {
 		super()
@@ -120,5 +120,17 @@ export const Movement = class extends Component {
 			oldScaleVelocity.y * scaleAcceleration.y,
 		])
 		this.scaleVelocity.set(newScaleVelocity)
+	}
+
+	static Inverse = class extends Movement {
+		/**
+		 * Get the velocity, scaled by the parent's scale.
+		 * @returns {[number, number]}
+		 */
+		getAbsoluteVelocity() {
+			const [x, y] = this.velocity.get()
+			const [sx, sy] = this.transform.parent?.scale.get() ?? [1, 1]
+			return [x / sx, y / sy]
+		}
 	}
 }

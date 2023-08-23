@@ -78,7 +78,7 @@ export class Carry extends Component {
 	onPointingPointerMove(e) {
 		const pointerNow = shared.pointer.transform.displacedPosition.get()
 		const distance = distanceBetween(e.state.pointerStart, pointerNow)
-		if (distance < 10) {
+		if (distance < 5) {
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)
@@ -93,7 +93,11 @@ export class Carry extends Component {
 		const pointerNow = shared.pointer.transform.displacedPosition.get()
 		const offsetNow = subtract(pointerNow, this.transform.displacedPosition.get())
 		const distance = distanceBetween(e.state.offset, offsetNow)
-		if (distance >= 10) {
+		if (distance >= 5) {
+			const pointerPosition = shared.pointer.transform.absolutePosition.get()
+			const position = subtract(pointerPosition, e.state.absoluteOffset)
+			const dampened = lerp([e.state.absoluteStart, position], 0.5)
+			this.transform.setAbsolutePosition(dampened)
 			return new Dragging(this.input)
 		}
 	}
@@ -110,7 +114,7 @@ export class Carry extends Component {
 	}
 
 	onDraggingPointerUp(e) {
-		const pointerVelocity = shared.pointer.movement.velocity.get()
+		const pointerVelocity = shared.pointer.movement.absoluteVelocity.get()
 		this.movement.setAbsoluteVelocity(pointerVelocity)
 	}
 }
