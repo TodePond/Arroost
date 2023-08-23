@@ -1,6 +1,6 @@
 import { SILVER, WHITE } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell } from "../../../nogan/nogan.js"
+import { createCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -41,5 +41,19 @@ export class Dummy extends Entity {
 		this.use(() => {
 			this.front.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})
+
+		// Custom behaviours
+		const pointing = this.input.state("pointing")
+		pointing.pointerup = this.onClick.bind(this)
+	}
+
+	onClick(e) {
+		const dummy = new Dummy()
+		shared.scene.dom.append(dummy.dom)
+		const angle = Math.random() * Math.PI * 2
+		const speed = 15
+		const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+		dummy.dom.transform.position.set(this.dom.transform.position.get())
+		dummy.carry.movement.velocity.set(velocity)
 	}
 }
