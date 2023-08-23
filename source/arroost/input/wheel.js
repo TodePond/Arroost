@@ -1,4 +1,4 @@
-import { repeatArray, subtract } from "../../../libraries/habitat-import.js"
+import { fireEvent, repeatArray, subtract } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 
 const ZOOM_MOUSE_SPEED = 0.00075
@@ -20,6 +20,12 @@ export const registerWheel = () => {
 
 			const position = subtract(transform.position.get(), [event.deltaX, event.deltaY])
 			transform.position.set(position)
+			fireEvent("pointermove", {
+				clientX: event.clientX,
+				clientY: event.clientY,
+				pointerId: -1,
+				target: window, //maybe needs to be more specific?
+			})
 		},
 		{ passive: false },
 	)
