@@ -1,11 +1,18 @@
-import { SILVER, WHITE } from "../../../../libraries/habitat-import.js"
+import {
+	BLACK,
+	BLUE,
+	CYAN,
+	GREY,
+	SILVER,
+	Splash,
+	WHITE,
+} from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
-import { Movement } from "../../components/movement.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 
@@ -37,9 +44,20 @@ export class Dummy extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.front.dom.style.fill.set(SILVER)
 		this.use(() => {
+			if (this.tunnel.isFiring.get()) {
+				this.front.dom.style.fill.set(GREY)
+				return
+			}
 			this.front.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
+		})
+
+		this.use(() => {
+			if (!this.tunnel.isFiring.get()) {
+				this.back.dom.style.fill.set(GREY)
+				return
+			}
+			this.back.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})
 
 		// Custom behaviours
@@ -48,12 +66,16 @@ export class Dummy extends Entity {
 	}
 
 	onClick(e) {
-		const dummy = new Dummy()
-		shared.scene.dom.append(dummy.dom)
-		const angle = Math.random() * Math.PI * 2
-		const speed = 15
-		const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-		dummy.dom.transform.position.set(this.dom.transform.position.get())
-		dummy.carry.movement.velocity.set(velocity)
+		const operations = fireCell(shared.nogan, { id: this.tunnel.id })
+		Tunnel.applyOperations(operations)
+
+		// === Debug ===
+		// const dummy = new Dummy()
+		// shared.scene.dom.append(dummy.dom)
+		// const angle = Math.random() * Math.PI * 2
+		// const speed = 15
+		// const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+		// dummy.dom.transform.position.set(this.dom.transform.position.get())
+		// dummy.carry.movement.velocity.set(velocity)
 	}
 }

@@ -5,13 +5,8 @@ export const Tunnel = class extends Component {
 	//==========//
 	// INSTANCE //
 	//==========//
-	fire = {
-		red: this.use(false),
-		green: this.use(false),
-		blue: this.use(false),
-	}
-
-	isFiring = this.use(() => this.fire.red.get() || this.fire.green.get() || this.fire.blue.get())
+	// todo: initialise to what the cell/wire currently is
+	isFiring = this.use(false)
 
 	/** @param {CellId | WireId} id */
 	constructor(id) {
@@ -45,7 +40,8 @@ export const Tunnel = class extends Component {
 	static applyOperation(operation) {
 		switch (operation.type) {
 			case "fired": {
-				// ...
+				const tunnel = Tunnel.tunnels.get(operation.id)
+				tunnel.isFiring.set(true)
 				return
 			}
 			case "modify": {
