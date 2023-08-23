@@ -15,6 +15,7 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
+import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
 
 export class Dummy extends Entity {
 	/**
@@ -24,42 +25,27 @@ export class Dummy extends Entity {
 		super()
 
 		// Attach components
-		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id))
-		this.dom = this.attach(
+		const input = (this.input = this.attach(new Input(this)))
+		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
+		const dom = (this.dom = this.attach(
 			new Dom({
 				id: "dummy",
 				type: "html",
 				input: this.input,
 			}),
-		)
-		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		))
+		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
-		this.back = new Ellipse({ input: this.input })
-		this.front = new Ellipse({ input: this.input })
+		const back = (this.back = new Ellipse({ input: this.input }))
+		const front = (this.front = new Ellipse({ input: this.input }))
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.use(() => {
-			if (this.tunnel.isFiring.get()) {
-				this.front.dom.style.fill.set(WHITE)
-				return
-			}
-			this.front.dom.style.fill.set(this.input.is("hovering") ? BLACK : BLACK)
-		})
-
-		this.use(() => {
-			// if (this.tunnel.isFiring.get()) {
-			// 	this.back.dom.style.fill.set(WHITE)
-			// 	return
-			// }
-
-			this.back.dom.style.fill.set(this.input.is("hovering") ? GREY_SILVER : GREY)
-		})
+		setCellColours({ back, front, input, tunnel })
 
 		// Custom behaviours
 		const pointing = this.input.state("pointing")

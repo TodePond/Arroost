@@ -9,6 +9,7 @@ import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
 import { Carry } from "../components/carry.js"
 import { Movement } from "../components/movement.js"
+import { CreationDummy } from "./cells/creation-dummy.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -21,7 +22,7 @@ export class Scene extends Entity {
 		this.movement.friction.set([0.9, 0.9])
 
 		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
-		const dummy = new Dummy()
+		const dummy = new CreationDummy()
 		this.dom.append(dummy.dom)
 		this.dummy = dummy
 
