@@ -1,4 +1,11 @@
-import { Habitat, Machine, Stage, print, registerMethods } from "../libraries/habitat-import.js"
+import {
+	BLACK,
+	Habitat,
+	Machine,
+	Stage,
+	print,
+	registerMethods,
+} from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
 import { Scene } from "./arroost/entities/scene.js"
@@ -30,6 +37,12 @@ export const shared = {
 	/** @type {Scene} */
 	// @ts-expect-error
 	scene: undefined,
+	clock: {
+		time: 0,
+		lastBeatTime: 0,
+		beatCount: 0,
+		bpm: 240,
+	},
 }
 
 const stage = new Stage({ context: { html: "html" } })

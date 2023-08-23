@@ -1,4 +1,6 @@
-import { applyOperations } from "../../nogan/nogan.js"
+import { msPerBeat, nextBeatQueue } from "../../link.js"
+import { shared } from "../../main.js"
+import { applyOperations, fireCell } from "../../nogan/nogan.js"
 import { Component } from "./component.js"
 
 export const Tunnel = class extends Component {
@@ -44,6 +46,11 @@ export const Tunnel = class extends Component {
 				tunnel.isFiring.set(true)
 				return
 			}
+			case "unfired": {
+				const tunnel = Tunnel.tunnels.get(operation.id)
+				tunnel.isFiring.set(false)
+				return
+			}
 			case "modify": {
 				// ...
 				return
@@ -52,6 +59,21 @@ export const Tunnel = class extends Component {
 				// ...
 				return
 			}
+		}
+	}
+
+	fire() {
+		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
+		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
+		if (fractionOfBeat < 0.5) {
+			const operations = fireCell(shared.nogan, { id: this.id })
+			Tunnel.applyOperations(operations)
+		} else {
+			nextBeatQueue.push(() => {
+				const operations = fireCell(shared.nogan, { id: this.id })
+				Tunnel.applyOperations(operations)
+			})
+			Tunnel.applyOperations([{ type: "fired", id: this.id }])
 		}
 	}
 }

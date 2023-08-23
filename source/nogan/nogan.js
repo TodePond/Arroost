@@ -839,7 +839,7 @@ export const getProjection = (nogan) => {
 		const { parent } = cell
 
 		// No need to unfire if it's not firing
-		// if (!isFiring(nogan, { id: cell.id })) continue
+		if (!cell.fire.blue && !cell.fire.red && !cell.fire.green) continue
 
 		// Don't unfire the cell if its parent isn't firing
 		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue

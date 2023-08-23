@@ -66,8 +66,7 @@ export class Dummy extends Entity {
 	}
 
 	onClick(e) {
-		const operations = fireCell(shared.nogan, { id: this.tunnel.id })
-		Tunnel.applyOperations(operations)
+		this.tunnel.fire()
 
 		// === Debug ===
 		// const dummy = new Dummy()
