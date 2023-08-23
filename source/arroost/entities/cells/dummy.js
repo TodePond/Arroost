@@ -22,6 +22,7 @@ export class Dummy extends Entity {
 		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
 
 		this.listen("tick", () => this.movement.tick(this.dom.transform))
+		this.carry.addEvents({ input: this.input, dom: this.dom })
 
 		this.back = new Ellipse({ input: this.input })
 		this.front = new Ellipse({ input: this.input })

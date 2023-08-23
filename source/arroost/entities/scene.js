@@ -7,6 +7,7 @@ import { Dummy } from "./cells/dummy.js"
 import { fireEvent } from "../../../libraries/habitat-import.js"
 import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
+import { Carry } from "../components/carry.js"
 
 // const ZOOM_FRICTION = 0.75
 
@@ -14,6 +15,7 @@ export class Scene extends Entity {
 	constructor() {
 		super()
 		this.input = this.attach(new Input(this))
+		this.carry = this.attach(new Carry())
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 
 		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])

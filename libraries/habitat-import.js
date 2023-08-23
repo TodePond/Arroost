@@ -1716,7 +1716,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				const next = state
 
 				if (previous !== undefined) {
-					const result = previous.fire("exit", [next, previous])
+					const result = previous.fire("exit", { next, state: previous })
 					if (result === null) {
 						this.set(previous)
 						return null
@@ -1726,7 +1726,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				}
 
 				this.state.set(next)
-				const enterResult = next.fire("enter", [previous, next])
+				const enterResult = next.fire("enter", { previous, state: next })
 				if (enterResult === null) {
 					this.set(previous)
 					return null
