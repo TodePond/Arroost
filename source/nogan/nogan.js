@@ -15,7 +15,7 @@ export const t = (v) => v
 // Validating //
 //============//
 /** @type {boolean | undefined} */
-const SHOULD_VALIDATE_OVERRIDE = undefined
+const SHOULD_VALIDATE_OVERRIDE = false
 
 /** @type {boolean | null} */
 let _shouldValidate = null
