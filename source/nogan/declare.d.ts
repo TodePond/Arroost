@@ -103,7 +103,7 @@ declare type BehaviourMap = {
 //===========//
 // Operation //
 //===========//
-declare type Operation = FiredOperation | CustomOperation
+declare type Operation = FiredOperation | UnfiredOperation | CustomOperation
 declare type Operate<T extends Operation> = (nogan: Nogan, operation: T) => Operation[]
 declare type OperationMap = {
 	[key in OperationType]: Operate<Extract<Operation, { type: key }>>
@@ -111,6 +111,11 @@ declare type OperationMap = {
 
 declare type FiredOperation = {
 	type: "fired"
+	id: CellId
+}
+
+declare type UnfiredOperation = {
+	type: "unfired"
 	id: CellId
 }
 

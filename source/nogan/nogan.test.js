@@ -26,7 +26,7 @@ import {
 	getCells,
 	getClone,
 	getPeak,
-	getProjected,
+	getProjection,
 	getRoot,
 	getTemplate,
 	getWire,
@@ -420,7 +420,7 @@ describe("firing", () => {
 describe("projecting", () => {
 	it("clones a nogan", () => {
 		const nogan = createNogan()
-		const projection = getProjected(nogan)
+		const { projection } = getProjection(nogan)
 		assertEquals(projection, { ...nogan, json: projection.json })
 		assert(projection !== nogan)
 	})
@@ -431,7 +431,7 @@ describe("projecting", () => {
 		fireCell(nogan, { id: cell.id })
 		assertEquals(cell.fire.blue, { type: "raw" })
 
-		const projection = getProjected(nogan)
+		const { projection } = getProjection(nogan)
 		const projectedCell = getCell(projection, cell.id)
 		assertEquals(projectedCell.fire.blue, null)
 	})
@@ -445,7 +445,7 @@ describe("projecting", () => {
 		assertEquals(parent.fire.blue, { type: "raw" })
 		assertEquals(child.fire.blue, { type: "raw" })
 
-		const projection = getProjected(nogan)
+		const { projection } = getProjection(nogan)
 		const projectedParent = getCell(projection, parent.id)
 		const projectedChild = getCell(projection, child.id)
 		assertEquals(projectedParent.fire.blue, null)
@@ -460,7 +460,7 @@ describe("projecting", () => {
 		assertEquals(parent.fire.blue, null)
 		assertEquals(child.fire.blue, { type: "raw" })
 
-		const projection = getProjected(nogan)
+		const { projection } = getProjection(nogan)
 		const projectedParent = getCell(projection, parent.id)
 		const projectedChild = getCell(projection, child.id)
 		assertEquals(projectedParent.fire.blue, null)
@@ -472,7 +472,7 @@ describe("projecting", () => {
 		const cell = createCell(nogan)
 		modifyCell(nogan, { id: cell.id, tag: { foo: "bar" } })
 		assertEquals(cell.tag, { foo: "bar" })
-		const projection = getProjected(nogan)
+		const { projection } = getProjection(nogan)
 		const projectedCell = getCell(projection, cell.id)
 		assertEquals(projectedCell.tag, {})
 	})

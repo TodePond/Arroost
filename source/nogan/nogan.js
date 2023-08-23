@@ -825,20 +825,32 @@ export const fireCell = (
 /**
  * Clone a nogan, ending all fires of cells whose parents are firing.
  * @param {Nogan} nogan
- * @returns {Nogan}
+ * @returns {{
+ * 	projection: Nogan,
+ * 	operations: Operation[],
+ * }}
  */
-export const getProjected = (nogan) => {
+export const getProjection = (nogan) => {
 	const projection = getClone(nogan)
+	const operations = []
 
 	for (const cell of iterateCells(projection)) {
 		cell.tag = {}
 		const { parent } = cell
+
+		// No need to unfire if it's not firing
+		// if (!isFiring(nogan, { id: cell.id })) continue
+
+		// Don't unfire the cell if its parent isn't firing
 		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
+
 		cell.fire = createFire()
+		const unfiredOperation = c({ type: "unfired", id: cell.id })
+		operations.push(unfiredOperation)
 	}
 
 	validate(projection, N.Nogan)
-	return projection
+	return { projection, operations }
 }
 
 //======//
@@ -954,7 +966,7 @@ export const getPeak = (
 	}
 
 	// Otherwise, let's prepare to imagine the future/past
-	const projectedNext = getProjected(nogan)
+	const { projection } = getProjection(nogan)
 
 	// But wait!
 	// Are we stuck in a loop?
@@ -963,7 +975,7 @@ export const getPeak = (
 	}
 
 	// If not, let's imagine the future/past!
-	const peak = getPeakNow(projectedNext, {
+	const peak = getPeakNow(projection, {
 		id,
 		colour,
 		past: timing === 1 ? [nogan, ...past] : [],
@@ -1134,13 +1146,13 @@ export const refresh = (
  * @param {{
  * 	past?: Nogan[],
  * }} options
- * @returns {{advanced: Nogan, operations: Operation[]}}
+ * @returns {{advanced: Nogan, operations: Operation[], unfiredOperations: Operation[]}}
  */
 export const getAdvanced = (nogan, { past = [] } = {}) => {
-	const projection = getProjected(nogan)
+	const { projection, operations: unfiredOperations } = getProjection(nogan)
 	const operations = refresh(projection, { past: [nogan, ...past] })
 	validate(projection, N.Nogan)
-	return { advanced: projection, operations }
+	return { advanced: projection, operations, unfiredOperations }
 }
 
 //===========//

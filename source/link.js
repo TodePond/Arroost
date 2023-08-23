@@ -1,4 +1,5 @@
 import { shared } from "./main.js"
+import { getAdvanced } from "./nogan/nogan.js"
 
 const BPM = 120 //240
 
@@ -17,4 +18,6 @@ export const frame = (time = 0) => {
 
 const beat = () => {
 	const { nogan } = shared
+	const { advanced, operations } = getAdvanced(nogan)
+	print(operations)
 }
