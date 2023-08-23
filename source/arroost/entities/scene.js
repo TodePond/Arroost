@@ -25,6 +25,7 @@ export class Scene extends Entity {
 		this.dummy = dummy
 
 		this.input.state("hovering").pointerdown = this.onHoveringPointerDown.bind(this)
+		this.input.state("dragging").pointerdown = this.onDraggingPointerMove.bind(this)
 	}
 
 	start({ html }) {
@@ -35,6 +36,8 @@ export class Scene extends Entity {
 	onHoveringPointerDown() {
 		return new Dragging()
 	}
+
+	onDraggingPointerMove() {}
 
 	zoomSpeed = this.use(0.0)
 

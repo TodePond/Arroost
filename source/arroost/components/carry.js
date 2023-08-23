@@ -1,4 +1,11 @@
-import { add, distanceBetween, subtract } from "../../../libraries/habitat-import.js"
+import {
+	add,
+	distanceBetween,
+	lerp,
+	normalise,
+	scale,
+	subtract,
+} from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dragging } from "../input/machines/input.js"
 import { Component } from "./component.js"
@@ -54,12 +61,28 @@ export class Carry extends Component {
 		const offset = subtract(pointerStart, this.transform.displacedPosition.get())
 		e.state.pointerStart = pointerStart
 		e.state.offset = offset
+
+		const absolutePointerStart = shared.pointer.transform.absolutePosition.get()
+		const absoluteOffset = subtract(absolutePointerStart, this.transform.absolutePosition.get())
+		e.state.absoluteOffset = absoluteOffset
+		e.state.absoluteStart = subtract(absolutePointerStart, absoluteOffset)
+	}
+
+	onPointingPointerDown(e) {
+		const pointerPosition = shared.pointer.transform.absolutePosition.get()
+		const position = subtract(pointerPosition, e.state.absoluteOffset)
+		const dampened = lerp([e.state.absoluteStart, position], 0.5)
+		this.transform.setAbsolutePosition(dampened)
 	}
 
 	onPointingPointerMove(e) {
 		const pointerNow = shared.pointer.transform.displacedPosition.get()
 		const distance = distanceBetween(e.state.pointerStart, pointerNow)
 		if (distance < 10) {
+			const pointerPosition = shared.pointer.transform.absolutePosition.get()
+			const position = subtract(pointerPosition, e.state.absoluteOffset)
+			const dampened = lerp([e.state.absoluteStart, position], 0.5)
+			this.transform.setAbsolutePosition(dampened)
 			return null
 		}
 
@@ -77,11 +100,13 @@ export class Carry extends Component {
 
 	onDraggingEnter(e) {
 		this.movement.velocity.set([0, 0])
+		e.state.absoluteOffset = e.previous.absoluteOffset
 	}
 
 	onDraggingPointerMove(e) {
-		this.transform.position.get()
-		this.transform.setAbsolutePosition(shared.pointer.transform.absolutePosition.get())
+		const pointerPosition = shared.pointer.transform.absolutePosition.get()
+		const position = subtract(pointerPosition, e.state.absoluteOffset)
+		this.transform.setAbsolutePosition(position)
 	}
 
 	onDraggingPointerUp(e) {
