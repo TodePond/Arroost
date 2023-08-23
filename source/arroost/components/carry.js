@@ -40,7 +40,6 @@ export class Carry extends Component {
 		this.transform = transform
 		this.movement = movement ?? new Movement(transform)
 		if (!movement) {
-			this.listen("tick", () => this.movement.tick())
 			this.movement.friction.set([0.9, 0.9])
 		}
 

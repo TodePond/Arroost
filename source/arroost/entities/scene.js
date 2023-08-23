@@ -4,7 +4,7 @@ import { Entity } from "./entity.js"
 import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
-import { Habitat, equals, fireEvent, subtract } from "../../../libraries/habitat-import.js"
+import { Habitat, add, equals, fireEvent, subtract } from "../../../libraries/habitat-import.js"
 import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
 import { Carry } from "../components/carry.js"
@@ -18,14 +18,20 @@ export class Scene extends Entity {
 		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 		this.movement = this.attach(new Movement(this.dom.transform))
+		this.movement.friction.set([0.9, 0.9])
 
 		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
 		const dummy = new Dummy()
 		this.dom.append(dummy.dom)
 		this.dummy = dummy
 
-		this.input.state("hovering").pointerdown = this.onHoveringPointerDown.bind(this)
-		this.input.state("dragging").pointerdown = this.onDraggingPointerMove.bind(this)
+		const hovering = this.input.state("hovering")
+		hovering.pointerdown = this.onHoveringPointerDown.bind(this)
+
+		const dragging = this.input.state("dragging")
+		dragging.pointerdown = this.onDraggingPointerDown.bind(this)
+		dragging.pointermove = this.onDraggingPointerMove.bind(this)
+		dragging.pointerup = this.onDraggingPointerUp.bind(this)
 	}
 
 	start({ html }) {
@@ -33,11 +39,30 @@ export class Scene extends Entity {
 		html.append(container)
 	}
 
-	onHoveringPointerDown() {
+	onHoveringPointerDown(e) {
 		return new Dragging()
 	}
 
-	onDraggingPointerMove() {}
+	onDraggingPointerDown(e) {
+		this.movement.velocity.set([0, 0])
+		const pointerPosition = shared.pointer.transform.position.get()
+		const position = this.dom.transform.position.get()
+		e.state.pointerStart = pointerPosition
+		e.state.start = position
+	}
+
+	onDraggingPointerMove(e) {
+		const pointerPosition = shared.pointer.transform.position.get()
+		const pointerStart = e.state.pointerStart
+		const start = e.state.start
+		const newPosition = add(pointerPosition, subtract(start, pointerStart))
+		this.dom.transform.setAbsolutePosition(newPosition)
+	}
+
+	onDraggingPointerUp(e) {
+		const velocity = shared.pointer.velocity.get()
+		this.movement.velocity.set(velocity)
+	}
 
 	zoomSpeed = this.use(0.0)
 

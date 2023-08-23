@@ -21,6 +21,8 @@ export class Movement extends Component {
 		this.maxVelocity = this.use(t([Infinity, Infinity]))
 		this.minVelocityThreshold = this.use(t([0.05, 0.05]))
 		this.maxVelocityThreshold = this.use(t([Infinity, Infinity]))
+
+		this.listen("tick", this.tick.bind(this))
 	}
 
 	/**
