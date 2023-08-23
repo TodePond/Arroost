@@ -15,27 +15,29 @@ export class Dummy extends Entity {
 	 */
 	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
 		super()
+
+		// Attach components
 		this.input = this.attach(new Input(this))
-		this.carry = this.attach(new Carry())
 		this.tunnel = this.attach(new Tunnel(id))
-		this.movement = this.attach(new Movement())
-		this.dom = this.attach(new Dom({ id: "dummy", type: "html", input: this.input }))
+		this.dom = this.attach(
+			new Dom({
+				id: "dummy",
+				type: "html",
+				input: this.input,
+			}),
+		)
+		this.carry = this.attach(new Carry({ input: this.input, transform: this.dom.transform }))
 
-		this.listen("tick", () => this.movement.tick(this.dom.transform))
-		this.carry.addEvents({ input: this.input, dom: this.dom })
-
+		// Render elements
 		this.back = new Ellipse({ input: this.input })
 		this.front = new Ellipse({ input: this.input })
-
-		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-
-		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.front.dom.style.fill.set(SILVER)
-		this.front.dom.style.pointerEvents.set("none")
-
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
+		// Style elements
+		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.front.dom.style.fill.set(SILVER)
 		this.use(() => {
 			this.front.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})

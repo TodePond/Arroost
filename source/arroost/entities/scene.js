@@ -16,13 +16,12 @@ export class Scene extends Entity {
 	constructor() {
 		super()
 		this.input = this.attach(new Input(this))
-		this.movement = this.attach(new Movement())
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
+		this.movement = this.attach(new Movement(this.dom.transform))
 
 		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
 		const dummy = new Dummy()
 		this.dom.append(dummy.dom)
-		dummy.dom.style.pointerEvents.set("none")
 		this.dummy = dummy
 
 		this.input.state("hovering").pointerdown = this.onHoveringPointerDown.bind(this)
@@ -34,9 +33,6 @@ export class Scene extends Entity {
 	}
 
 	onHoveringPointerDown() {
-		const dummy = new Dummy()
-		this.dom.append(dummy.dom)
-		dummy.dom.transform.position.set(shared.pointer.transform.absolutePosition.get())
 		return new Dragging()
 	}
 
@@ -45,7 +41,6 @@ export class Scene extends Entity {
 	tick() {
 		fireEvent("tick")
 		shared.pointer.tick()
-		this.movement.tick(this.dom.transform)
 
 		const velocity = this.movement.velocity.get()
 		const pointerPosition = shared.pointer.transform.position.get()

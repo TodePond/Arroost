@@ -4,11 +4,15 @@ import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 
 export const Movement = class extends Component {
-	constructor() {
+	/** @param {Transform} transform */
+	constructor(transform) {
 		super()
+		this.transform = transform
 		this.velocity = this.use(t([0, 0]))
 		this.acceleration = this.use(t([0, 0]))
 		this.friction = this.use(t([1, 1]))
+
+		this.absoluteVelocity = this.use(() => this.getAbsoluteVelocity())
 
 		this.scaleVelocity = this.use(t([1, 1]))
 		this.scaleAcceleration = this.use(t([1, 1]))
@@ -17,6 +21,25 @@ export const Movement = class extends Component {
 		this.maxVelocity = this.use(t([Infinity, Infinity]))
 		this.minVelocityThreshold = this.use(t([0.05, 0.05]))
 		this.maxVelocityThreshold = this.use(t([Infinity, Infinity]))
+	}
+
+	/**
+	 * Get the velocity, scaled by the parent's scale.
+	 * @returns {[number, number]}
+	 */
+	getAbsoluteVelocity() {
+		const [x, y] = this.velocity.get()
+		const [sx, sy] = this.transform.parent?.scale.get() ?? [1, 1]
+		return [x * sx, y * sy]
+	}
+
+	/**
+	 * Set the velocity, scaled by the parent's scale.
+	 * @param {[number, number]} vector
+	 */
+	setAbsoluteVelocity([x, y]) {
+		const [sx, sy] = this.transform.parent?.scale.get() ?? [1, 1]
+		this.velocity.set([x / sx, y / sy])
 	}
 
 	/**
@@ -35,23 +58,21 @@ export const Movement = class extends Component {
 		])
 	}
 
-	/** @param {Transform} transform */
-	tick(transform) {
+	tick() {
 		this.tickVelocity()
 		this.tickVelocityFriction()
-		this.tickPosition(transform)
+		this.tickPosition()
 
 		this.tickScaleVelocity()
-		this.tickScale(transform)
+		this.tickScale()
 	}
 
-	/** @param {Transform} transform */
-	tickPosition(transform) {
+	tickPosition() {
 		const velocity = this.velocity.get()
 		if (equals(velocity, [0, 0])) return
-		const oldPosition = transform.position.get()
+		const oldPosition = this.transform.position.get()
 		const newPosition = add(oldPosition, velocity)
-		transform.position.set(newPosition)
+		this.transform.position.set(newPosition)
 	}
 
 	tickVelocity() {
@@ -82,13 +103,12 @@ export const Movement = class extends Component {
 		)
 	}
 
-	/** @param {Transform} transform */
-	tickScale(transform) {
+	tickScale() {
 		const scaleVelocity = this.scaleVelocity.get()
 		if (equals(scaleVelocity, [0, 0])) return
-		const oldScale = transform.scale.get()
+		const oldScale = this.transform.scale.get()
 		const newScale = c([oldScale.x * scaleVelocity.x, oldScale.y * scaleVelocity.y])
-		transform.scale.set(newScale)
+		this.transform.scale.set(newScale)
 	}
 
 	tickScaleVelocity() {

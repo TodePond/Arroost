@@ -10,7 +10,6 @@ export const registerMachine = (machine) => {
 		addEventListener(
 			eventName,
 			(event) => {
-				event["state"] = machine.state.get()
 				machine.fire(eventName, event)
 			},
 			{ passive: false },

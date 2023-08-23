@@ -1,27 +1,41 @@
-import { distanceBetween, subtract } from "../../../libraries/habitat-import.js"
+import { add, distanceBetween, subtract } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { Dragging } from "../input/machines/input.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"
+import { Transform } from "./transform.js"
+import { Movement } from "./movement.js"
 
 export class Carry extends Component {
 	/** @type {Input} */
 	// @ts-ignore
 	input = null
 
-	/** @type {Dom} */
+	/** @type {Transform} */
 	// @ts-ignore
-	dom = null
+	transform = null
+
+	/** @type {Movement} */
+	// @ts-ignore
+	movement = null
 
 	/**
 	 * @param {{
 	 * 	input: Input
-	 * 	dom: Dom
+	 * 	transform: Transform
+	 * 	movement?: Movement
 	 * }} options
 	 */
-	addEvents({ input, dom }) {
+	constructor({ input, transform, movement }) {
+		super()
 		this.input = input
-		this.dom = dom
+		this.transform = transform
+		this.movement = movement ?? new Movement(transform)
+		if (!movement) {
+			this.listen("tick", () => this.movement.tick())
+			this.movement.friction.set([0.9, 0.9])
+		}
 
 		const pointing = input.state("pointing")
 		pointing.enter = this.onPointingEnter.bind(this)
@@ -29,16 +43,17 @@ export class Carry extends Component {
 		pointing.tick = this.onPointingTick.bind(this)
 
 		const dragging = input.state("dragging")
-		// dragging.enter = this.onDraggingEnter.bind(this)
-		// dragging.pointermove = this.onDraggingPointerMove.bind(this)
-		// dragging.pointerup = this.onDraggingPointerUp.bind(this)
+		dragging.enter = this.onDraggingEnter.bind(this)
+		dragging.pointermove = this.onDraggingPointerMove.bind(this)
+		dragging.pointerup = this.onDraggingPointerUp.bind(this)
 	}
 
 	onPointingEnter(e) {
 		// this.dom.bringToFront()
 		const pointerStart = shared.pointer.transform.displacedPosition.get()
-		// const offset = subtract(pointerStart, this.dom.transform.displacedPosition.get())
+		const offset = subtract(pointerStart, this.transform.displacedPosition.get())
 		e.state.pointerStart = pointerStart
+		e.state.offset = offset
 	}
 
 	onPointingPointerMove(e) {
@@ -47,9 +62,30 @@ export class Carry extends Component {
 		if (distance < 10) {
 			return null
 		}
+
+		return new Dragging(this.input)
 	}
 
 	onPointingTick(e) {
-		// if offset is too big, grab it!
+		const pointerNow = shared.pointer.transform.displacedPosition.get()
+		const offsetNow = subtract(pointerNow, this.transform.displacedPosition.get())
+		const distance = distanceBetween(e.state.offset, offsetNow)
+		if (distance >= 10) {
+			return new Dragging(this.input)
+		}
+	}
+
+	onDraggingEnter(e) {
+		this.movement.velocity.set([0, 0])
+	}
+
+	onDraggingPointerMove(e) {
+		this.transform.position.get()
+		this.transform.setAbsolutePosition(shared.pointer.transform.absolutePosition.get())
+	}
+
+	onDraggingPointerUp(e) {
+		const pointerVelocity = shared.pointer.movement.velocity.get()
+		this.movement.setAbsoluteVelocity(pointerVelocity)
 	}
 }

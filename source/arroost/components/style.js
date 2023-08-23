@@ -8,7 +8,7 @@ export const Style = class extends Component {
 	strokeWidth = this.use(1)
 
 	/** @type {Signal<string | null>} */
-	pointerEvents = this.use(null)
+	pointerEvents = this.use("all")
 
 	visibility = this.use("visible")
 

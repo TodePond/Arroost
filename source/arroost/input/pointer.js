@@ -7,6 +7,7 @@ import {
 	use,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { Movement } from "../components/movement.js"
 import { Transform } from "../components/transform.js"
 
 let done = false
@@ -16,9 +17,9 @@ export const getPointer = () => {
 	done = true
 
 	const transform = new Transform.Inverse(shared.scene?.dom.transform)
+	const movement = new Movement(transform)
 
-	/** @type {Signal<[number, number]>} */
-	const velocity = use([0, 0])
+	const velocity = movement.velocity
 
 	let previousPosition = [undefined, undefined]
 
@@ -88,6 +89,7 @@ export const getPointer = () => {
 	return {
 		tick,
 		transform,
+		movement,
 		velocity,
 	}
 }

@@ -28,6 +28,13 @@ export class Transform extends Component {
 		return [x * spx + px, y * spy + py]
 	}
 
+	/** @param {[number, number]} position */
+	setAbsolutePosition([x, y]) {
+		const [px, py] = this.parent?.absolutePosition.get() ?? [0, 0]
+		const [spx, spy] = this.parent?.scale.get() ?? [1, 1]
+		this.position.set([(x - px) / spx, (y - py) / spy])
+	}
+
 	static Root = new Transform()
 	static Inverse = class extends Transform {
 		/** @returns {[number, number]} */

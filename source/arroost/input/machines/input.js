@@ -98,8 +98,12 @@ export class Debugging extends InputState {
 		}
 	}
 
-	pointerdown() {
-		print(shared.hovering.input.get().entity)
+	pointerdown(e) {
+		if (e.ctrlKey) {
+			print(shared.hovering.input.get())
+		} else {
+			print(shared.hovering.input.get().entity)
+		}
 	}
 }
 
