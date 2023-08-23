@@ -64,11 +64,10 @@ export class Scene extends Entity {
 		this.movement.velocity.set(velocity)
 	}
 
-	zoomSpeed = this.use(0.0)
-
 	tick() {
 		fireEvent("tick")
 		shared.pointer.tick()
+		shared.zoomer.tick()
 
 		const velocity = this.movement.velocity.get()
 		const pointerPosition = shared.pointer.transform.position.get()
@@ -87,17 +86,15 @@ export class Scene extends Entity {
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
-		this.zoom(zoomSpeed)
 		this.zoomSpeed.set(zoomSpeed * ZOOM_FRICTION)
-		if (Math.abs(zoomSpeed) < 0.5) {
-			this.zoomSpeed.set(0)
-		}
+		this.zoom(shared.zoomer.speed + zoomSpeed)
 	}
 
-	zoom(delta) {
+	zoomSpeed = this.use(0.0)
+	zoom(speed) {
 		const scale = this.dom.transform.scale.get()
 		const oldZoom = scale.x
-		const newZoom = oldZoom * (1 - delta)
+		const newZoom = oldZoom * (1 - speed)
 		this.dom.transform.scale.set([newZoom, newZoom])
 
 		const position = this.dom.transform.position.get()

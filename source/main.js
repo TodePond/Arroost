@@ -9,6 +9,7 @@ import { registerWheel } from "./arroost/input/wheel.js"
 import { registerMachine } from "./arroost/input/machine.js"
 import { HoverMachine } from "./arroost/input/machines/hover.js"
 import { InputMachine } from "./arroost/input/machines/input.js"
+import { getZoomer } from "./arroost/input/zoomer.js"
 
 //===============//
 // Setup Habitat //
@@ -25,6 +26,7 @@ export const shared = {
 	nogan: Nogan.createNogan(),
 	level: Nogan.getRoot(Nogan.createNogan()).id,
 	debug: { validate: true },
+	zoomer: getZoomer(),
 	/** @type {Scene} */
 	// @ts-expect-error
 	scene: undefined,
