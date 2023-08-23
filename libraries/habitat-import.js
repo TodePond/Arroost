@@ -1575,7 +1575,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			fireStart = () => {
-				document.body.style["background-color"] = BLACK
+				// document.body.style["background-color"] = BLACK
 				document.body.style["margin"] = "0px"
 				document.body.style["overflow"] = "hidden"
 

@@ -35,6 +35,7 @@ const beat = () => {
 	Tunnel.applyOperations(operations)
 	shared.nogan = advanced
 
+	// document.body.style["background-color"] = VOID
 	// document.body.style["background-color"] = ping ? VOID : BLACK
 	ping = !ping
 

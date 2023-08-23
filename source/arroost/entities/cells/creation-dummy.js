@@ -7,7 +7,7 @@ import {
 	Splash,
 	WHITE,
 } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER, shared } from "../../../main.js"
+import { shared } from "../../../main.js"
 import { createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
@@ -16,7 +16,7 @@ import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 
-export class Dummy extends Entity {
+export class CreationDummy extends Entity {
 	/**
 	 * @param {CellId} id
 	 */
@@ -46,19 +46,18 @@ export class Dummy extends Entity {
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.use(() => {
 			if (this.tunnel.isFiring.get()) {
-				this.front.dom.style.fill.set(WHITE)
+				this.front.dom.style.fill.set(GREY)
 				return
 			}
-			this.front.dom.style.fill.set(this.input.is("hovering") ? BLACK : BLACK)
+			this.front.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})
 
 		this.use(() => {
-			// if (this.tunnel.isFiring.get()) {
-			// 	this.back.dom.style.fill.set(WHITE)
-			// 	return
-			// }
-
-			this.back.dom.style.fill.set(this.input.is("hovering") ? GREY_SILVER : GREY)
+			if (!this.tunnel.isFiring.get()) {
+				this.back.dom.style.fill.set(GREY)
+				return
+			}
+			this.back.dom.style.fill.set(this.input.is("hovering") ? WHITE : SILVER)
 		})
 
 		// Custom behaviours

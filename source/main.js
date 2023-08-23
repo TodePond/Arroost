@@ -2,9 +2,12 @@ import {
 	BLACK,
 	Habitat,
 	Machine,
+	Splash,
 	Stage,
+	VOID,
 	print,
 	registerMethods,
+	Colour,
 } from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
@@ -25,6 +28,8 @@ window["print"] = print
 window["dir"] = console.dir.bind(console)
 registerMethods()
 
+export const GREY_SILVER = new Colour(83, 101, 147)
+
 //==============//
 // Setup Engine //
 //==============//
@@ -44,7 +49,7 @@ export const shared = {
 		bpm: 240,
 	},
 }
-
+document.body.style["background-color"] = BLACK
 const stage = new Stage({ context: { html: "html" } })
 shared.stage = stage
 
