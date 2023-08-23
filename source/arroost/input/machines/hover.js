@@ -3,7 +3,8 @@ import { shared } from "../../../main.js"
 
 class Hovering extends State {
 	input = use(shared.scene.input)
-	tick() {
+
+	update() {
 		const point = shared.pointer.transform.position.get()
 		const element = document.elementFromPoint(point.x, point.y)
 		if (!element) return
@@ -17,11 +18,14 @@ class Hovering extends State {
 					clientY: point.y,
 					target: element,
 					pointerId: -1,
-					bubbles: false,
 				},
 				PointerEvent,
 			)
 		}
+	}
+
+	tick() {
+		this.update()
 	}
 
 	pointerover(event) {

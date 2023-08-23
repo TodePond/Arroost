@@ -35,7 +35,7 @@ export class Transform extends Component {
 			const [x, y] = this.position.get()
 			const [px, py] = this.parent?.absolutePosition.get() ?? [0, 0]
 			const [spx, spy] = this.parent?.scale.get() ?? [1, 1]
-			return [x * spx - px, y * spy - py]
+			return [x / spx - px / spx, y / spy - py / spy]
 		}
 	}
 }

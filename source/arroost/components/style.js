@@ -6,8 +6,12 @@ export const Style = class extends Component {
 	fill = this.use(GREY, { store: false })
 	stroke = this.use("none", { store: false })
 	strokeWidth = this.use(1)
-	pointerEvents = this.use("all")
+
+	/** @type {Signal<string | null>} */
+	pointerEvents = this.use(null)
+
 	visibility = this.use("visible")
+
 	zIndex = this.use(0)
 
 	/**

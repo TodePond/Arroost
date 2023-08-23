@@ -1,4 +1,4 @@
-import { subtract } from "../../../libraries/habitat-import.js"
+import { repeatArray, subtract } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 
 const ZOOM_MOUSE_SPEED = 0.00075
@@ -8,12 +8,12 @@ export const registerWheel = () => {
 		"wheel",
 		(event) => {
 			// const isTrackpad = true // Math.abs(event.deltaY) < 20
-			// if (!isTrackpad || event.ctrlKey) {
-			// 	const isTrackpad = Math.abs(event.deltaY) < 20
-			// 	const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
-			// 	scene.zoomSpeed = delta
-			// 	return
-			// }
+			if (event.ctrlKey) {
+				const isTrackpad = Math.abs(event.deltaY) < 20
+				const delta = event.deltaY * (isTrackpad ? ZOOM_TRACKPAD_SPEED : ZOOM_MOUSE_SPEED)
+				shared.scene.zoomSpeed.set(delta)
+				return
+			}
 
 			const transform = shared.scene?.dom.transform
 			if (!transform) return

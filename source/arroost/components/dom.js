@@ -55,6 +55,7 @@ export class Dom extends Component {
 		container.style["width"] = "1"
 		container.style["height"] = "1"
 		container.style["overflow"] = "visible"
+		container.style["pointer-events"] = "none"
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
 		this.use(() => {
