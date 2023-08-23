@@ -1,9 +1,6 @@
-import { GREY, SVG } from "../../../../libraries/habitat-import.js"
-import { shared } from "../../../main.js"
-import { Bounds } from "../../components/bounds.js"
+import { SVG } from "../../../../libraries/habitat-import.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
-import { Transform } from "../../components/transform.js"
 import { HALF } from "../../unit.js"
 import { Entity } from "../entity.js"
 

@@ -32,4 +32,4 @@ class Hovering extends State {
 	}
 }
 
-export const Hover = Hovering
+export const HoverMachine = Hovering

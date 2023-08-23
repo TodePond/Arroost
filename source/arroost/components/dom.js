@@ -1,9 +1,8 @@
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
-import { Entity } from "../entities/entity.js"
 import { Style } from "./style.js"
-import { Input } from "./input.js"
 import { shared } from "../../main.js"
+import { Input } from "./input.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */

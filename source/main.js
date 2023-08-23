@@ -7,8 +7,8 @@ import * as Nogan from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 import { registerWheel } from "./arroost/input/wheel.js"
 import { registerMachine } from "./arroost/input/machine.js"
-import { Hover } from "./arroost/input/machines/hover.js"
-import { Point } from "./arroost/input/machines/point.js"
+import { HoverMachine } from "./arroost/input/machines/hover.js"
+import { InputMachine } from "./arroost/input/machines/input.js"
 
 //===============//
 // Setup Habitat //
@@ -41,14 +41,17 @@ stage.tick = scene.tick.bind(scene)
 const pointer = getPointer()
 shared.pointer = pointer
 
-const hover = new Machine(new Hover())
+// The hover machine just keeps track of the currently hovered element
+const hover = new Machine(new HoverMachine())
 shared.hovering = hover.state.get()
 
-const point = new Machine(new Point())
+// The input machine handles the core interaction for entities
+// ie: hovering, pointing, dragging
+const input = new Machine(new InputMachine())
 
 registerWheel()
 registerMachine(hover)
-registerMachine(point)
+registerMachine(input)
 registerPreventDefaults()
 
 frame()

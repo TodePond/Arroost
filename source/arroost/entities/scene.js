@@ -5,8 +5,8 @@ import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
 import { fireEvent } from "../../../libraries/habitat-import.js"
+import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
-import { Dragging } from "../input/machines/point.js"
 
 // const ZOOM_FRICTION = 0.75
 

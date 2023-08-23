@@ -3,7 +3,7 @@ import { shared } from "../../../main.js"
 import { Input } from "../../components/input.js"
 import { setCursor } from "../cursor.js"
 
-export class PointState extends State {
+export class InputState extends State {
 	/** @type {Input} */
 	input = shared.hovering.input.get()
 
@@ -39,7 +39,7 @@ export class PointState extends State {
 	}
 }
 
-export class Hovering extends PointState {
+export class Hovering extends InputState {
 	name = "hovering"
 	cursor = "pointer"
 
@@ -66,7 +66,7 @@ export class Hovering extends PointState {
 	}
 }
 
-export class Pointing extends PointState {
+export class Pointing extends InputState {
 	name = "pointing"
 	cursor = "pointer"
 
@@ -79,7 +79,7 @@ export class Pointing extends PointState {
 	}
 }
 
-export class Dragging extends PointState {
+export class Dragging extends InputState {
 	name = "dragging"
 	cursor = "grabbing"
 
@@ -88,7 +88,7 @@ export class Dragging extends PointState {
 	}
 }
 
-export class Debugging extends PointState {
+export class Debugging extends InputState {
 	name = "debugging"
 	cursor = "help"
 
@@ -103,4 +103,4 @@ export class Debugging extends PointState {
 	}
 }
 
-export const Point = Hovering
+export const InputMachine = Hovering
