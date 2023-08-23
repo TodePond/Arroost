@@ -26,7 +26,7 @@ export class Dummy extends Entity {
 				input: this.input,
 			}),
 		)
-		this.carry = this.attach(new Carry({ input: this.input, transform: this.dom.transform }))
+		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
 		this.back = new Ellipse({ input: this.input })

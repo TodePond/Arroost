@@ -2,6 +2,9 @@ import { glue, GREY, use } from "../../../libraries/habitat-import.js"
 import { Component } from "./component.js"
 
 export const Style = class extends Component {
+	static highestZIndex = 0
+	static lowestZIndex = 0
+
 	name = "style"
 	fill = this.use(GREY, { store: false })
 	stroke = this.use("none", { store: false })
@@ -30,5 +33,21 @@ export const Style = class extends Component {
 	applyContainer(container) {
 		this.use(() => container.setAttribute("visibility", this.visibility.get()))
 		this.use(() => (container.style["z-index"] = this.zIndex.get()))
+	}
+
+	/**
+	 * Bring to front
+	 */
+	bringToFront() {
+		const zIndex = ++Style.highestZIndex
+		this.zIndex.set(zIndex)
+	}
+
+	/**
+	 * Send to back
+	 */
+	sendToBack() {
+		const zIndex = --Style.lowestZIndex
+		this.zIndex.set(zIndex)
 	}
 }

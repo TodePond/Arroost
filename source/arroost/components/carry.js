@@ -13,6 +13,7 @@ import { Dom } from "./dom.js"
 import { Input } from "./input.js"
 import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
+import { Style } from "./style.js"
 
 export class Carry extends Component {
 	/** @type {Input} */
@@ -27,18 +28,23 @@ export class Carry extends Component {
 	// @ts-ignore
 	movement = null
 
+	/** @type {Style} */
+	// @ts-ignore
+	style = null
+
 	/**
 	 * @param {{
 	 * 	input: Input
-	 * 	transform: Transform
+	 * 	dom: Dom
 	 * 	movement?: Movement
 	 * }} options
 	 */
-	constructor({ input, transform, movement }) {
+	constructor({ input, dom, movement }) {
 		super()
 		this.input = input
-		this.transform = transform
-		this.movement = movement ?? new Movement(transform)
+		this.transform = dom.transform
+		this.style = dom.style
+		this.movement = movement ?? new Movement(this.transform)
 		if (!movement) {
 			this.movement.friction.set([0.9, 0.9])
 		}
@@ -55,7 +61,7 @@ export class Carry extends Component {
 	}
 
 	onPointingEnter(e) {
-		// this.dom.bringToFront()
+		this.style.bringToFront()
 		const pointerStart = shared.pointer.transform.displacedPosition.get()
 		const offset = subtract(pointerStart, this.transform.displacedPosition.get())
 		e.state.pointerStart = pointerStart
