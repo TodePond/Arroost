@@ -66,9 +66,9 @@ export class Scene extends Entity {
 		const zoomSpeed = this.zoomSpeed.get()
 		this.zoom(zoomSpeed)
 		this.zoomSpeed.set(zoomSpeed * ZOOM_FRICTION)
-		// // if (Math.abs(this.zoomSpeed).d < 0.5) {
-		// // 	this.zoomSpeed = 0
-		// // }
+		if (Math.abs(zoomSpeed) < 0.5) {
+			this.zoomSpeed.set(0)
+		}
 	}
 
 	zoom(delta) {
@@ -85,26 +85,4 @@ export class Scene extends Entity {
 		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
 		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
 	}
-
-	// onHoveringEnter() {
-	// 	setCursor("default")
-	// }
-
-	// onHoveringPointerDown() {
-	// 	return Dragging
-	// }
-
-	// onDraggingEnter(previous, state) {
-	// 	this.movement.velocity = [0, 0]
-	// 	setCursor("move")
-	// }
-
-	// onDraggingPointerUp() {
-	// 	this.movement.velocity = [...shared.pointer.velocity]
-	// }
-
-	// onDraggingPointerMove(event, state) {
-	// 	const pointerDisplacement = subtract(shared.pointer.absolutePosition, state.pointerStart)
-	// 	this.transform.position = add(state.inputStart, pointerDisplacement)
-	// }
 }
