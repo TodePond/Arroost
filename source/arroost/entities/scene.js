@@ -4,7 +4,7 @@ import { Entity } from "./entity.js"
 import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
 import { Dummy } from "./cells/dummy.js"
-import { equals, fireEvent } from "../../../libraries/habitat-import.js"
+import { Habitat, equals, fireEvent, subtract } from "../../../libraries/habitat-import.js"
 import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
 import { Carry } from "../components/carry.js"
@@ -77,10 +77,13 @@ export class Scene extends Entity {
 		const newZoom = oldZoom * (1 - delta)
 		this.dom.transform.scale.set([newZoom, newZoom])
 
-		// const pointerOffset = subtract(pointer.position, transform.position)
-		// const scaleRatio = newZoom / oldZoom
-		// const scaledPointerOffset = scale(pointerOffset, scaleRatio)
-		// transform.position = subtract(pointer.position, scaledPointerOffset)
+		const position = this.dom.transform.position.get()
+		const pointerPosition = shared.pointer.transform.position.get()
+
+		const pointerOffset = subtract(pointerPosition, position)
+		const scaleRatio = newZoom / oldZoom
+		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
+		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
 	}
 
 	// onHoveringEnter() {
