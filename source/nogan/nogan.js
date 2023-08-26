@@ -64,11 +64,10 @@ export const unimplemented = () => {
 const Cache = class {
 	static RESERVED = Symbol("reserved")
 	static NEW = Symbol("new")
-	entries = new Map()
+	entries = new DeepMap()
 
-	/** @param {any} args */
 	encode(args) {
-		return JSON.stringify(args)
+		return args
 	}
 
 	/** @param {any} key */
@@ -86,6 +85,67 @@ const Cache = class {
 	 */
 	store(key, value) {
 		this.entries.set(key, value)
+	}
+}
+
+class DeepMap extends Map {
+	constructor() {
+		super()
+	}
+
+	_has(key) {
+		return super.has(key)
+	}
+
+	_get(key) {
+		return super.get(key)
+	}
+
+	_set(key, value) {
+		return super.set(key, value)
+	}
+
+	set(keys, value) {
+		/** @type {DeepMap} */
+		let map = this
+		for (let i = 0; i < keys.length - 1; i++) {
+			const key = keys[i]
+			if (!map._has(key)) {
+				const submap = new DeepMap()
+				map._set(key, submap)
+				map = submap
+				continue
+			}
+			map = map._get(key)
+		}
+
+		const key = keys[keys.length - 1]
+		map._set(key, value)
+		return this
+	}
+
+	get(keys) {
+		let map = this
+		for (let i = 0; i < keys.length - 1; i++) {
+			const key = keys[i]
+			if (!map._has(key)) return undefined
+			map = map._get(key)
+		}
+
+		const key = keys[keys.length - 1]
+		return map._get(key)
+	}
+
+	has(keys) {
+		let map = this
+		for (let i = 0; i < keys.length - 1; i++) {
+			const key = keys[i]
+			if (!map._has(key)) return false
+			map = map._get(key)
+		}
+
+		const key = keys[keys.length - 1]
+		return map._has(key)
 	}
 }
 
@@ -108,9 +168,22 @@ export const createNogan = () => {
  * @returns {string}
  */
 export const getJSON = (nogan) => {
-	if (!nogan.json) nogan.json = JSON.stringify(nogan)
+	if (!nogan.json) {
+		nogan.json = JSON.stringify(nogan)
+	}
 	validate(nogan, N.Nogan)
 	return nogan.json
+}
+
+/**
+ * Get a JSON string of an array of nogans.
+ * @param {Nogan[]} nogans
+ * @returns {string}
+ */
+export const getArrayJSON = (nogans) => {
+	if (nogans.length === 0) return "[]"
+	if (nogans.length === 1) return getJSON(nogans[0])
+	return nogans.map(getJSON).join()
 }
 
 /**
@@ -127,8 +200,11 @@ const clearCache = (nogan) => {
  * @returns {Nogan}
  */
 export const getClone = (nogan) => {
+	// Parsing was faster!
 	const json = getJSON(nogan)
 	return JSON.parse(json)
+
+	// return structuredClone(nogan)
 }
 
 /**
@@ -551,6 +627,7 @@ export const modifyCell = (
 	clearCache(nogan)
 
 	if (propogate) {
+		// TODO: Only refresh cells that could be affected by this change
 		return refresh(nogan, { past, future })
 	}
 
@@ -903,15 +980,9 @@ const getFlippedTiming = (timing) => {
 /** @implements {Memo<Peak, string, GetPeakOptions>} */
 const GetPeakMemo = class extends Cache {
 	/** @param {GetPeakOptions} options */
+	// @ts-expect-error
 	encode({ nogan, id, colour, timing, past, future }) {
-		return [
-			getJSON(nogan),
-			id,
-			colour,
-			timing,
-			past.map((v) => getJSON(v)),
-			future.map((v) => getJSON(v)),
-		].join("|")
+		return [getJSON(nogan), id, colour, timing, getArrayJSON(past), getArrayJSON(future)]
 	}
 }
 
@@ -934,7 +1005,6 @@ export const getPeak = (
 ) => {
 	const key = memo.encode({ nogan, id, colour, timing, past, future })
 	const cached = memo.query(key)
-
 	if (cached === Cache.RESERVED) {
 		// Infinite wire loop detected!
 		return createPeak()

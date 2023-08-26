@@ -6,6 +6,7 @@ import {
 	SILVER,
 	Splash,
 	WHITE,
+	randomBetween,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
 import { createCell, fireCell, t } from "../../../nogan/nogan.js"
@@ -18,7 +19,7 @@ import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
 import { Dummy } from "./dummy.js"
 
-export class CreationDummy extends Entity {
+export class DummyCreation extends Entity {
 	/**
 	 * @param {CellId} id
 	 */
@@ -54,14 +55,22 @@ export class CreationDummy extends Entity {
 	}
 
 	onClick(e) {
-		this.tunnel.fire()
+		this.tunnel.perform(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
 
-		const dummy = new Dummy()
-		shared.scene.dom.append(dummy.dom)
-		const angle = Math.random() * Math.PI * 2
-		const speed = 15
-		const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-		dummy.dom.transform.position.set(this.dom.transform.position.get())
-		dummy.carry.movement.velocity.set(velocity)
+		const count = e.button === 0 ? 1 : 50
+
+		for (let i = 0; i < count; i++) {
+			setTimeout(() => {
+				const dummy = new Dummy()
+				shared.scene.dom.append(dummy.dom)
+				const angle = Math.random() * Math.PI * 2
+				const speed = e.button === 0 ? 15 : randomBetween(15, 100)
+				const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+				dummy.dom.transform.position.set(this.dom.transform.position.get())
+				dummy.carry.movement.velocity.set(velocity)
+			}, i * 3)
+		}
 	}
 }

@@ -6,9 +6,10 @@ import {
 	SILVER,
 	Splash,
 	WHITE,
+	equals,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, modifyCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -50,10 +51,24 @@ export class Dummy extends Entity {
 		// Custom behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
+
+		this.use(() => {
+			const position = this.dom.transform.position.get()
+			const velocity = this.carry.movement.velocity.get()
+			this.tunnel.apply(() => {
+				return modifyCell(shared.nogan, {
+					id: this.tunnel.id,
+					position,
+					propogate: equals(velocity, [0, 0]),
+				})
+			})
+		})
 	}
 
 	onClick(e) {
-		this.tunnel.fire()
+		this.tunnel.perform(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
 
 		// === Debug ===
 		// const dummy = new Dummy()

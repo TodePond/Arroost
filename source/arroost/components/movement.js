@@ -22,7 +22,52 @@ export class Movement extends Component {
 		this.minVelocityThreshold = this.use(t([0.05, 0.05]))
 		this.maxVelocityThreshold = this.use(t([Infinity, Infinity]))
 
-		this.listen("tick", this.tick.bind(this))
+		this.use(() => {
+			const velocity = this.velocity.get()
+			if (!equals(velocity, [0, 0])) {
+				return this.addTickListener()
+			}
+
+			const acceleration = this.acceleration.get()
+			if (!equals(acceleration, [0, 0])) {
+				return this.addTickListener()
+			}
+
+			const scaleVelocity = this.scaleVelocity.get()
+			if (!equals(scaleVelocity, [1, 1])) {
+				return this.addTickListener()
+			}
+
+			const scaleAcceleration = this.scaleAcceleration.get()
+			if (!equals(scaleAcceleration, [1, 1])) {
+				return this.addTickListener()
+			}
+
+			return this.removeTickListener()
+		})
+	}
+
+	/** @type {EventListener | null} */
+	tickListener = null
+
+	addTickListener() {
+		if (this.tickListener) return
+		this.tickListener = this.listen("tick", this.tick.bind(this))
+	}
+
+	removeTickListener() {
+		if (!this.tickListener) return
+		this.unlisten("tick", this.tickListener)
+		this.tickListener = null
+	}
+
+	tick() {
+		this.tickVelocity()
+		this.tickVelocityFriction()
+		this.tickPosition()
+
+		this.tickScaleVelocity()
+		this.tickScale()
 	}
 
 	/**
@@ -60,15 +105,6 @@ export class Movement extends Component {
 		])
 	}
 
-	tick() {
-		this.tickVelocity()
-		this.tickVelocityFriction()
-		this.tickPosition()
-
-		this.tickScaleVelocity()
-		this.tickScale()
-	}
-
 	tickPosition() {
 		const velocity = this.velocity.get()
 		if (equals(velocity, [0, 0])) return
@@ -90,6 +126,7 @@ export class Movement extends Component {
 		const friction = this.friction.get()
 		if (equals(friction, [1, 1])) return
 		const oldVelocity = this.velocity.get()
+		if (equals(oldVelocity, [0, 0])) return
 		const newVelocity = c([oldVelocity.x * friction.x, oldVelocity.y * friction.y])
 		this.velocity.set(this.snapVelocity(newVelocity))
 	}

@@ -46,7 +46,7 @@ export const shared = {
 		time: 0,
 		lastBeatTime: 0,
 		beatCount: 0,
-		bpm: 240,
+		bpm: 120,
 	},
 }
 document.body.style["background-color"] = BLACK

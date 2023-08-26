@@ -63,4 +63,13 @@ export const Entity = class {
 		this.listeners.add({ type, listener })
 		return listener
 	}
+
+	/**
+	 * @param {string} type
+	 * @param {EventListener} listener
+	 */
+	unlisten(type, listener) {
+		removeEventListener(type, listener)
+		this.listeners.delete({ type, listener })
+	}
 }
