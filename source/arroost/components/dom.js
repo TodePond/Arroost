@@ -44,6 +44,11 @@ export class Dom extends Component {
 		return element
 	}
 
+	outOfView = this.use(false)
+
+	/** @type {Signal<[number, number] | null>} */
+	cullBounds = this.use(null)
+
 	getContainer() {
 		if (this.#container) return this.#container
 
@@ -62,6 +67,34 @@ export class Dom extends Component {
 			const [x, y] = this.transform.absolutePosition.get()
 			const [sx, sy] = this.transform.scale.get()
 			container.style["transform"] = `translate(${x}px, ${y}px) scale(${sx}, ${sy})`
+		})
+
+		this.use(() => {
+			const cullbounds = this.cullBounds.get()
+			if (cullbounds === null) return
+			const [x, y] = this.transform.absolutePosition.get()
+			const [sx, sy] = shared.scene?.dom.transform.position.get() ?? [0, 0]
+			const [ssx, ssy] = shared.scene?.dom.transform.scale.get() ?? [1, 1]
+
+			const screenLeft = -sx / ssx
+			const screenTop = -sy / ssy
+			const screenRight = (innerWidth - sx) / ssx
+			const screenBottom = (innerHeight - sy) / ssy
+
+			const left = x - cullbounds.x
+			const top = y - cullbounds.y
+			const right = x + cullbounds.x
+			const bottom = y + cullbounds.y
+
+			const outOfView =
+				right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
+
+			this.outOfView.set(outOfView)
+		})
+
+		this.use(() => {
+			const outOfView = this.outOfView.get()
+			container.style["display"] = outOfView ? "none" : "block"
 		})
 
 		const element = this.getElement()

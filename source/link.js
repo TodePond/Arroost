@@ -34,6 +34,8 @@ const beat = () => {
 	Tunnel.applyOperations(unfiredOperations)
 	Tunnel.applyOperations(operations)
 	shared.nogan = advanced
+	// @ts-expect-error
+	window.nogan = advanced
 
 	// document.body.style["background-color"] = VOID
 	// document.body.style["background-color"] = ping ? VOID : BLACK

@@ -17,6 +17,7 @@ import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
+import { FULL, HALF } from "../../unit.js"
 
 export class Dummy extends Entity {
 	/**
@@ -35,6 +36,7 @@ export class Dummy extends Entity {
 				input: this.input,
 			}),
 		))
+
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
@@ -47,6 +49,8 @@ export class Dummy extends Entity {
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		setCellColours({ back, front, input, tunnel })
+
+		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
 
 		// Custom behaviours
 		const pointing = this.input.state("pointing")

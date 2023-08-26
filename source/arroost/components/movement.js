@@ -1,4 +1,4 @@
-import { add, clamp, equals } from "../../../libraries/habitat-import.js"
+import { add, clamp, equals, print } from "../../../libraries/habitat-import.js"
 import { c, t } from "../../nogan/nogan.js"
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
