@@ -18,7 +18,7 @@ import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
 import { Dummy } from "./dummy.js"
-import { FULL } from "../../unit.js"
+import { FULL, HALF } from "../../unit.js"
 
 export class DummyCreation extends Entity {
 	/**
@@ -40,7 +40,7 @@ export class DummyCreation extends Entity {
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
-		this.dom.cullBounds.set([FULL, FULL])
+		this.dom.cullBounds.set([HALF, HALF])
 		const back = (this.back = new Ellipse({ input: this.input }))
 		const front = (this.front = new Ellipse({ input: this.input }))
 		this.dom.append(this.back.dom)
