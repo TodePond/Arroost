@@ -50,6 +50,7 @@ export const shared = {
 	},
 }
 document.body.style["background-color"] = BLACK
+document.body.style["-webkit-tap-highlight-color"] = "transparent"
 const stage = new Stage({ context: { html: "html" } })
 shared.stage = stage
 
