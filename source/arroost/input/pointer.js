@@ -55,6 +55,10 @@ export const getPointer = () => {
 		updatePosition([e.clientX, e.clientY])
 	})
 
+	addEventListener("touchstart", (e) => {
+		velocityHistory.length = 0
+	})
+
 	const HISTORY_LENGTH = 4
 	const velocityHistory = []
 	let lastTickPosition = [undefined, undefined]
