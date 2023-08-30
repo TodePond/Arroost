@@ -1,7 +1,10 @@
+import { equals } from "../../../libraries/habitat-import.js"
 import { msPerBeat, nextBeatQueue } from "../../link.js"
 import { shared } from "../../main.js"
-import { applyOperations, fireCell, modifyCell, modifyWire } from "../../nogan/nogan.js"
+import { applyOperations, fireCell, getCell, modifyCell, modifyWire } from "../../nogan/nogan.js"
+import { Carry } from "./carry.js"
 import { Component } from "./component.js"
+import { Dom } from "./dom.js"
 
 export const Tunnel = class extends Component {
 	//========//
@@ -79,6 +82,29 @@ export const Tunnel = class extends Component {
 			nextBeatQueue.push(() => {
 				const operations = this.apply(func)
 				resolve(operations)
+			})
+		})
+	}
+
+	/**
+	 * Helper function for cells
+	 * @param {{
+	 * 	dom: Dom
+	 * 	carry: Carry
+	 * }} option
+	 */
+	useCell({ dom, carry }) {
+		this.use(() => {
+			const position = dom.transform.position.get()
+			const velocity = carry.movement.velocity.get()
+			const cell = getCell(shared.nogan, this.id)
+			if (equals(cell.position, position)) return
+			this.apply(() => {
+				return modifyCell(shared.nogan, {
+					id: this.id,
+					position,
+					propogate: equals(velocity, [0, 0]),
+				})
 			})
 		})
 	}

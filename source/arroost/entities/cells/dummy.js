@@ -55,20 +55,7 @@ export class Dummy extends Entity {
 		// Custom behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-
-		this.use(() => {
-			const position = this.dom.transform.position.get()
-			const velocity = this.carry.movement.velocity.get()
-			const cell = getCell(shared.nogan, this.tunnel.id)
-			if (equals(cell.position, position)) return
-			this.tunnel.apply(() => {
-				return modifyCell(shared.nogan, {
-					id: this.tunnel.id,
-					position,
-					propogate: equals(velocity, [0, 0]),
-				})
-			})
-		})
+		this.tunnel.useCell({ dom, carry })
 	}
 
 	onClick(e) {
