@@ -63,7 +63,7 @@ export const getPointer = () => {
 	const velocityHistory = []
 	let lastTickPosition = [undefined, undefined]
 
-	const tick = () => {
+	addEventListener("tick", () => {
 		// Do nothing if the pointer hasn't moved yet
 		if (equals(previousPosition, [undefined, undefined])) {
 			return
@@ -88,10 +88,9 @@ export const getPointer = () => {
 		if (!equals(average, velocity.get())) {
 			velocity.set(average)
 		}
-	}
+	})
 
 	return {
-		tick,
 		transform,
 		movement,
 		velocity,

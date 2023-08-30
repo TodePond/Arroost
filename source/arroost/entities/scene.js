@@ -67,7 +67,6 @@ export class Scene extends Entity {
 
 	tick() {
 		fireEvent("tick")
-		// shared.pointer.tick()
 
 		const velocity = this.movement.velocity.get()
 		const pointerPosition = shared.pointer.transform.position.get()
