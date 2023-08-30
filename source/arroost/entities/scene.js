@@ -88,7 +88,7 @@ export class Scene extends Entity {
 
 		const zoomSpeed = this.zoomSpeed.get()
 		this.zoomSpeed.set(zoomSpeed * ZOOM_FRICTION)
-		if (Math.abs(zoomSpeed) < 0.001) {
+		if (zoomSpeed !== 0 && Math.abs(zoomSpeed) < 0.001) {
 			this.zoomSpeed.set(0)
 		} else {
 			this.zoom(shared.zoomer.speed + zoomSpeed)
