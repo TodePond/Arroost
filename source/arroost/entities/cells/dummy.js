@@ -9,7 +9,7 @@ import {
 	equals,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
-import { createCell, fireCell, modifyCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -59,6 +59,8 @@ export class Dummy extends Entity {
 		this.use(() => {
 			const position = this.dom.transform.position.get()
 			const velocity = this.carry.movement.velocity.get()
+			const cell = getCell(shared.nogan, this.tunnel.id)
+			if (equals(cell.position, position)) return
 			this.tunnel.apply(() => {
 				return modifyCell(shared.nogan, {
 					id: this.tunnel.id,
