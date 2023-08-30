@@ -108,3 +108,5 @@ export class Debugging extends InputState {
 }
 
 export const InputMachine = Hovering
+
+//foo
