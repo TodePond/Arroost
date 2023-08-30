@@ -83,7 +83,7 @@ export class Carry extends Component {
 	onPointingPointerMove(e) {
 		const pointerNow = shared.pointer.transform.displacedPosition.get()
 		const distance = distanceBetween(e.state.pointerStart, pointerNow)
-		if (distance < 5) {
+		if (distance < 10) {
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)

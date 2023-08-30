@@ -1,4 +1,11 @@
+let done = false
+
 export const getZoomer = () => {
+	if (done) throw new Error("getZoomer called after zoomer already initialized")
+	done = true
+
+	addEventListener("tick", () => zoomer.tick())
+
 	const zoomer = {
 		speed: 0.0,
 		desiredSpeed: 0.0,

@@ -67,23 +67,24 @@ export class Scene extends Entity {
 
 	tick() {
 		fireEvent("tick")
-		shared.pointer.tick()
-		shared.zoomer.tick()
+		// shared.pointer.tick()
 
 		const velocity = this.movement.velocity.get()
 		const pointerPosition = shared.pointer.transform.position.get()
 
 		if (!equals(velocity, [0, 0])) {
-			fireEvent(
-				"pointermove",
-				{
-					clientX: pointerPosition.x,
-					clientY: pointerPosition.y,
-					target: document.elementFromPoint(pointerPosition.x, pointerPosition.y),
-					pointerId: -1,
-				},
-				PointerEvent,
-			)
+			// TODO: Fix this.
+			// This was causing jitters when grabbing because its out of sync with the tick event or something
+			// fireEvent(
+			// 	"pointermove",
+			// 	{
+			// 		clientX: pointerPosition.x,
+			// 		clientY: pointerPosition.y,
+			// 		target: document.elementFromPoint(pointerPosition.x, pointerPosition.y),
+			// 		pointerId: -1,
+			// 	},
+			// 	PointerEvent,
+			// )
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
