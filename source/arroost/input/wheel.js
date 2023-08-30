@@ -7,7 +7,7 @@ export const registerWheel = () => {
 	addEventListener(
 		"wheel",
 		(event) => {
-			if (event.ctrlKey) {
+			if (event.ctrlKey || event.metaKey) {
 				const isTrackpad = Math.abs(event.deltaY) < 16
 				if (isTrackpad) {
 					const delta = event.deltaY * ZOOM_TRACKPAD_SPEED

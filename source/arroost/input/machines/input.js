@@ -99,7 +99,7 @@ export class Debugging extends InputState {
 	}
 
 	pointerdown(e) {
-		if (e.ctrlKey) {
+		if (e.ctrlKey || e.metaKey) {
 			print(shared.hovering.input.get())
 		} else {
 			print(shared.hovering.input.get().entity)
