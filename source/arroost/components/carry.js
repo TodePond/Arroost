@@ -71,6 +71,9 @@ export class Carry extends Component {
 		const absoluteOffset = subtract(absolutePointerStart, this.transform.absolutePosition.get())
 		e.state.absoluteOffset = absoluteOffset
 		e.state.absoluteStart = subtract(absolutePointerStart, absoluteOffset)
+
+		e.state.scenePointerStart = shared.pointer.transform.position.get()
+		e.state.sceneStart = shared.scene.dom.transform.position.get()
 	}
 
 	onPointingPointerDown(e) {
@@ -83,7 +86,7 @@ export class Carry extends Component {
 	onPointingPointerMove(e) {
 		const pointerNow = shared.pointer.transform.displacedPosition.get()
 		const distance = distanceBetween(e.state.pointerStart, pointerNow)
-		if (distance < 10) {
+		if (distance < 5) {
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)
@@ -91,6 +94,13 @@ export class Carry extends Component {
 			return null
 		}
 
+		if (e.state.button === 2) {
+			const dragging = new Dragging(shared.scene.input)
+			dragging.pointerStart = e.state.scenePointerStart
+			dragging.start = e.state.sceneStart
+			this.transform.setAbsolutePosition(e.state.absoluteStart)
+			return dragging
+		}
 		return new Dragging(this.input)
 	}
 
@@ -99,6 +109,14 @@ export class Carry extends Component {
 		const offsetNow = subtract(pointerNow, this.transform.displacedPosition.get())
 		const distance = distanceBetween(e.state.offset, offsetNow)
 		if (distance >= 5) {
+			if (e.state.button === 2) {
+				const dragging = new Dragging(shared.scene.input)
+				dragging.pointerStart = e.state.scenePointerStart
+				dragging.start = e.state.sceneStart
+				this.transform.setAbsolutePosition(e.state.absoluteStart)
+				return dragging
+			}
+
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)

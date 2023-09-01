@@ -94,6 +94,10 @@ export class Pointing extends InputState {
 		return new Hovering()
 	}
 
+	pointerdown(e) {
+		this.button = e.button
+	}
+
 	pointermove() {
 		return new Dragging()
 	}
