@@ -4,10 +4,11 @@ import { shared } from "../../../main.js"
 class Hovering extends State {
 	input = use(shared.scene.input)
 
-	update() {
+	tick() {
 		const point = shared.pointer.transform.position.get()
 		if (point.x === undefined || point.y === undefined) return
 		const element = document.elementFromPoint(point.x, point.y)
+		print(point)
 		if (!element) return
 		const oldInput = this.input.get()
 		const newInput = element["input"] ?? shared.scene.input
@@ -23,10 +24,6 @@ class Hovering extends State {
 				PointerEvent,
 			)
 		}
-	}
-
-	tick() {
-		this.update()
 	}
 
 	pointerover(event) {

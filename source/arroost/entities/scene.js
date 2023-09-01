@@ -81,7 +81,7 @@ export class Scene extends Entity {
 				{
 					clientX: pointerPosition.x,
 					clientY: pointerPosition.y,
-					//target: document.elementFromPoint(pointerPosition.x, pointerPosition.y),
+					target: document.elementFromPoint(pointerPosition.x, pointerPosition.y),
 					pointerId: -1,
 				},
 				PointerEvent,
