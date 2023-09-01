@@ -59,6 +59,11 @@ export const getPointer = () => {
 		velocityHistory.length = 0
 	})
 
+	addEventListener("touchend", (e) => {
+		velocityHistory.length = 0
+		updatePosition([undefined, undefined])
+	})
+
 	const HISTORY_LENGTH = 4
 	const velocityHistory = []
 	let lastTickPosition = [undefined, undefined]

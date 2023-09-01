@@ -28,4 +28,8 @@ const EVENTS = [
 	"keydown",
 	"keyup",
 	"tick",
+	"touchend",
+	"touchstart",
+	"touchmove",
+	"touchcancel",
 ]

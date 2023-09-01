@@ -71,9 +71,11 @@ export class Scene extends Entity {
 		const velocity = this.movement.velocity.get()
 		const pointerPosition = shared.pointer.transform.position.get()
 
-		if (!equals(velocity, [0, 0])) {
-			// TODO: Fix this.
-			// This has been causing jitters when grabbing because its out of sync with the tick event or something idk
+		if (
+			!equals(velocity, [0, 0]) &&
+			pointerPosition.x !== undefined &&
+			pointerPosition.y !== undefined
+		) {
 			fireEvent(
 				"pointermove",
 				{

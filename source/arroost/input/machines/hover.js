@@ -6,6 +6,7 @@ class Hovering extends State {
 
 	update() {
 		const point = shared.pointer.transform.position.get()
+		if (point.x === undefined || point.y === undefined) return
 		const element = document.elementFromPoint(point.x, point.y)
 		if (!element) return
 		const oldInput = this.input.get()
