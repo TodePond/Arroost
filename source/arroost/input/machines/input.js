@@ -60,8 +60,28 @@ export class Hovering extends InputState {
 	}
 
 	keydown({ key }) {
-		if (key.toLowerCase() === "d") {
-			return new Debugging()
+		switch (key.toLowerCase()) {
+			case "d": {
+				return new Debugging()
+			}
+			case " ": {
+				return new Handing()
+			}
+		}
+	}
+}
+
+export class Handing extends InputState {
+	name = "handing"
+	cursor = "grab"
+
+	pointerdown() {
+		return new Dragging(shared.scene.input)
+	}
+
+	keyup({ key }) {
+		if (key.toLowerCase() === " ") {
+			return new Hovering()
 		}
 	}
 }
@@ -84,6 +104,9 @@ export class Dragging extends InputState {
 	cursor = "grabbing"
 
 	pointerup() {
+		if (shared.keyboard[" "]) {
+			return new Handing()
+		}
 		return new Hovering()
 	}
 }

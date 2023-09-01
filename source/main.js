@@ -8,6 +8,7 @@ import {
 	print,
 	registerMethods,
 	Colour,
+	getKeyboard,
 } from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
@@ -39,6 +40,7 @@ export const shared = {
 	level: Nogan.getRoot(Nogan.createNogan()).id,
 	debug: { validate: true },
 	zoomer: getZoomer(),
+	keyboard: getKeyboard(),
 	/** @type {Scene} */
 	// @ts-expect-error
 	scene: undefined,
