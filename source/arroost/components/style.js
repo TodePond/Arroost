@@ -6,7 +6,7 @@ export const Style = class extends Component {
 	static lowestZIndex = 0
 
 	name = "style"
-	fill = this.use(GREY, { store: false })
+	fill = this.use(GREY.toString(), { store: false })
 	stroke = this.use("none", { store: false })
 	strokeWidth = this.use(1)
 

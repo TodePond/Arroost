@@ -17,7 +17,11 @@ export const getPointer = () => {
 	done = true
 
 	const transform = new Transform.Inverse(shared.scene?.dom.transform)
-	const movement = new Movement.Inverse(transform)
+
+	const movement = new Movement.Inverse({
+		transform,
+		static: true,
+	})
 
 	const velocity = movement.velocity
 

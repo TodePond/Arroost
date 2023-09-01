@@ -4,8 +4,12 @@ import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 
 export class Movement extends Component {
-	/** @param {Transform} transform */
-	constructor(transform) {
+	/** @param {{
+	 * 	transform: Transform
+	 * 	static?: boolean
+	 * }} options
+	 */
+	constructor({ transform, static: _static = false }) {
 		super()
 		this.transform = transform
 		this.velocity = this.use(t([0, 0]))
@@ -22,6 +26,7 @@ export class Movement extends Component {
 		this.minVelocityThreshold = this.use(t([0.05, 0.05]))
 		this.maxVelocityThreshold = this.use(t([Infinity, Infinity]))
 
+		if (_static) return
 		this.use(() => {
 			const velocity = this.velocity.get()
 			if (!equals(velocity, [0, 0])) {

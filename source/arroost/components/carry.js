@@ -44,7 +44,7 @@ export class Carry extends Component {
 		this.input = input
 		this.transform = dom.transform
 		this.style = dom.style
-		this.movement = movement ?? new Movement(this.transform)
+		this.movement = movement ?? new Movement({ transform: this.transform })
 		if (!movement) {
 			this.movement.friction.set([0.9, 0.9])
 		}

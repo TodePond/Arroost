@@ -1,15 +1,12 @@
 import { shared } from "../../main.js"
-import { Transform } from "../components/transform.js"
 import { Entity } from "./entity.js"
-import { Ellipse } from "./shapes/ellipse.js"
 import { Dom } from "../components/dom.js"
-import { Dummy } from "./cells/dummy.js"
 import { Habitat, add, equals, fireEvent, subtract } from "../../../libraries/habitat-import.js"
 import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
-import { Carry } from "../components/carry.js"
 import { Movement } from "../components/movement.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
+import { Ghost } from "./ghost.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -18,13 +15,10 @@ export class Scene extends Entity {
 		super()
 		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
-		this.movement = this.attach(new Movement(this.dom.transform))
+		this.movement = this.attach(new Movement({ transform: this.dom.transform }))
 		this.movement.friction.set([0.9, 0.9])
 
 		this.dom.transform.position.set([innerWidth / 2, innerHeight / 2])
-		const dummy = new DummyCreation()
-		this.dom.append(dummy.dom)
-		this.dummy = dummy
 
 		const hovering = this.input.state("hovering")
 		hovering.pointerdown = this.onHoveringPointerDown.bind(this)
@@ -33,6 +27,20 @@ export class Scene extends Entity {
 		dragging.pointerdown = this.onDraggingPointerDown.bind(this)
 		dragging.pointermove = this.onDraggingPointerMove.bind(this)
 		dragging.pointerup = this.onDraggingPointerUp.bind(this)
+
+		const layer = (this.layer = {
+			cell: new Dom({ id: "cell-layer", type: "html" }),
+			ghost: new Dom({ id: "ghost-layer", type: "html" }),
+		})
+
+		this.dom.append(layer.cell)
+		this.dom.append(layer.ghost)
+
+		const dummy = new DummyCreation()
+		layer.cell.append(dummy.dom)
+
+		const ghost = new Ghost()
+		layer.ghost.append(ghost.dom)
 	}
 
 	start({ html }) {

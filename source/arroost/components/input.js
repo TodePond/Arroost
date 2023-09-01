@@ -34,6 +34,21 @@ export class Input extends Component {
 	/** @type {null | InputEventHandler} */
 	keyup = null
 
+	/** @type {null | InputEventHandler} */
+	tick = null
+
+	/** @type {null | InputEventHandler} */
+	touchend = null
+
+	/** @type {null | InputEventHandler} */
+	touchstart = null
+
+	/** @type {null | InputEventHandler} */
+	touchmove = null
+
+	/** @type {null | InputEventHandler} */
+	touchcancel = null
+
 	/** @param {string} name */
 	state(name) {
 		if (this[name]) {
