@@ -21,6 +21,7 @@ import { registerMachine } from "./arroost/input/machine.js"
 import { HoverMachine } from "./arroost/input/machines/hover.js"
 import { InputMachine } from "./arroost/input/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
+import { registerCursor } from "./arroost/input/cursor.js"
 
 //===============//
 // Setup Habitat //
@@ -51,6 +52,9 @@ export const shared = {
 		bpm: 120,
 	},
 }
+
+registerCursor()
+
 document.body.style["background-color"] = BLACK
 document.body.style["-webkit-tap-highlight-color"] = "transparent"
 const stage = new Stage({ context: { html: "html" } })

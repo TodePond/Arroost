@@ -59,6 +59,14 @@ export class Dummy extends Entity {
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		setCellColours({ back, front, input, tunnel })
+		this.front.dom.style.pointerEvents.set("none")
+		this.use(() => {
+			if (this.input.state("dragging").active.get()) {
+				this.back.dom.style.cursor.set("grabbing")
+			} else {
+				this.back.dom.style.cursor.set("pointer")
+			}
+		})
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
 

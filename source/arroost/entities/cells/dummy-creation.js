@@ -50,6 +50,14 @@ export class DummyCreation extends Entity {
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellColours({ back, front, input, tunnel })
+		this.front.dom.style.pointerEvents.set("none")
+		this.use(() => {
+			if (this.input.state("dragging").active.get()) {
+				this.back.dom.style.cursor.set("grabbing")
+			} else {
+				this.back.dom.style.cursor.set("pointer")
+			}
+		})
 
 		// Custom behaviours
 		const pointing = this.input.state("pointing")
@@ -62,20 +70,20 @@ export class DummyCreation extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		const count = e.button === 0 ? 1 : 10
+		const count = e.button === 0 ? 1 : 100
 
 		for (let i = 0; i < count; i++) {
-			setTimeout(() => {
-				const dummy = new Dummy({
-					position: this.dom.transform.position.get(),
-				})
+			// setTimeout(() => {
+			const dummy = new Dummy({
+				position: this.dom.transform.position.get(),
+			})
 
-				shared.scene.layer.cell.append(dummy.dom)
-				const angle = Math.random() * Math.PI * 2
-				const speed = e.button === 0 ? 15 : randomBetween(10, 20)
-				const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-				dummy.carry.movement.velocity.set(velocity)
-			}, i * 1)
+			shared.scene.layer.cell.append(dummy.dom)
+			const angle = Math.random() * Math.PI * 2
+			const speed = e.button === 0 ? 15 : randomBetween(10, 20)
+			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+			dummy.carry.movement.velocity.set(velocity)
+			// }, i * 0)
 		}
 	}
 }

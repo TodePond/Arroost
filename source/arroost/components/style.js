@@ -9,6 +9,7 @@ export const Style = class extends Component {
 	fill = this.use(GREY.toString(), { store: false })
 	stroke = this.use("none", { store: false })
 	strokeWidth = this.use(1)
+	cursor = this.use("default")
 
 	/** @type {Signal<string | null>} */
 	pointerEvents = this.use("all")
@@ -35,6 +36,7 @@ export const Style = class extends Component {
 	applyContainer(container) {
 		this.use(() => container.setAttribute("visibility", this.visibility.get()))
 		this.use(() => (container.style["z-index"] = this.zIndex.get()))
+		this.use(() => (container.style["cursor"] = this.cursor.get()))
 	}
 
 	/**

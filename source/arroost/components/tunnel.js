@@ -97,7 +97,7 @@ export const Tunnel = class extends Component {
 	 */
 	useCell({ dom, carry, input }) {
 		this.use(() => {
-			if (input.state("dragging").active) return
+			if (input.state("dragging").active.get()) return
 
 			const position = dom.transform.position.get()
 			const velocity = carry.movement.velocity.get()
