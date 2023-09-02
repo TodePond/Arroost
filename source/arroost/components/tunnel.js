@@ -5,6 +5,7 @@ import { applyOperations, fireCell, getCell, modifyCell, modifyWire } from "../.
 import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
+import { Input } from "./input.js"
 
 export const Tunnel = class extends Component {
 	//========//
@@ -91,10 +92,13 @@ export const Tunnel = class extends Component {
 	 * @param {{
 	 * 	dom: Dom
 	 * 	carry: Carry
+	 * 	input: Input
 	 * }} option
 	 */
-	useCell({ dom, carry }) {
+	useCell({ dom, carry, input }) {
 		this.use(() => {
+			if (input.state("dragging").active) return
+
 			const position = dom.transform.position.get()
 			const velocity = carry.movement.velocity.get()
 			const cell = getCell(shared.nogan, this.id)

@@ -54,7 +54,7 @@ export class DummyCreation extends Entity {
 		// Custom behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom, carry })
+		this.tunnel.useCell({ dom, carry, input })
 	}
 
 	onClick(e) {
