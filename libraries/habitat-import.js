@@ -1182,6 +1182,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				Object.assign(self, {
 					dynamic: false,
 					lazy: false,
+					// eq: (a, b) => a === b,
 					...options,
 					store: false,
 				})
