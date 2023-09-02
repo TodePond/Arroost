@@ -1,7 +1,6 @@
 import { State } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
 import { Input } from "../../components/input.js"
-import { setCursor } from "../cursor.js"
 import { triggerRightClickPity } from "../wheel.js"
 
 export class InputState extends State {
@@ -9,7 +8,6 @@ export class InputState extends State {
 	input = shared.hovering.input.get()
 
 	name = "point-state"
-	cursor = "default"
 
 	/** @param {Input} [input] */
 	constructor(input) {
@@ -20,7 +18,6 @@ export class InputState extends State {
 	enter() {
 		this.input.state(this.name).active.set(true)
 		this.input.current.set(this)
-		setCursor(this.cursor)
 	}
 
 	exit() {
@@ -42,13 +39,9 @@ export class InputState extends State {
 
 export class Hovering extends InputState {
 	name = "hovering"
-	cursor = "pointer"
 
 	enter() {
 		super.enter()
-		if (this.input.entity === shared.scene) {
-			setCursor("default")
-		}
 	}
 
 	pointerover() {
@@ -74,7 +67,6 @@ export class Hovering extends InputState {
 
 export class Handing extends InputState {
 	name = "handing"
-	cursor = "grab"
 
 	pointerdown() {
 		return new Dragging(shared.scene.input)

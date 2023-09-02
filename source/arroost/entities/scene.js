@@ -48,6 +48,17 @@ export class Scene extends Entity {
 		dragging.pointerup = this.onDraggingPointerUp.bind(this)
 
 		this.use(() => {
+			const _dragging = dragging.active.get()
+
+			if (!shared.stage.context.html) return
+			if (_dragging) {
+				shared.stage.context.html.style["cursor"] = "grabbing"
+			} else {
+				shared.stage.context.html.style["cursor"] = "default"
+			}
+		})
+
+		this.use(() => {
 			const [sx, sy] = this.dom.transform.position.get() ?? [0, 0]
 			const [ssx, ssy] = this.dom.transform.scale.get() ?? [1, 1]
 
