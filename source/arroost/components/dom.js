@@ -4,6 +4,7 @@ import { Style } from "./style.js"
 import { shared } from "../../main.js"
 import { Input } from "./input.js"
 import { c, t } from "../../nogan/nogan.js"
+import { distanceBetween } from "../../../libraries/habitat-import.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -39,6 +40,11 @@ export class Dom extends Component {
 		this.type = type
 		this.style = style
 		this.input = input ?? shared.scene?.input
+
+		this.cullBoundsToCorner = this.use(() => {
+			const [x, y] = this.cullBounds.get() ?? [0, 0]
+			return distanceBetween([0, 0], [x, y])
+		})
 	}
 
 	getElement() {
@@ -88,6 +94,21 @@ export class Dom extends Component {
 				top: -Infinity,
 				right: Infinity,
 				bottom: Infinity,
+				center: 0,
+			}
+
+			const screenCenter = bounds.center
+			const distance = distanceBetween(screenCenter, [x, y])
+			if (distance > bounds.centerToCorner + this.cullBoundsToCorner.get()) {
+				if (this.outOfView.get()) return
+				this.outOfView.set(true)
+				return
+			}
+
+			if (distance < bounds.centerToEdge) {
+				if (!this.outOfView.get()) return
+				this.outOfView.set(false)
+				return
 			}
 
 			const screenLeft = bounds.left

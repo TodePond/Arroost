@@ -5,6 +5,7 @@ import {
 	Habitat,
 	WHITE,
 	add,
+	distanceBetween,
 	equals,
 	fireEvent,
 	subtract,
@@ -28,6 +29,15 @@ export class Scene extends Entity {
 		top: 0,
 		right: innerWidth,
 		bottom: innerHeight,
+		center: [innerWidth / 2, innerHeight / 2],
+		centerToCorner: distanceBetween(
+			[innerWidth / 2, innerHeight / 2],
+			[innerWidth, innerHeight],
+		),
+		centerToEdge: distanceBetween(
+			[innerWidth / 2, innerHeight / 2],
+			[innerWidth, innerHeight / 2],
+		),
 	})
 
 	constructor() {
@@ -66,12 +76,22 @@ export class Scene extends Entity {
 			const screenTop = -sy / ssy
 			const screenRight = (this.width.get() - sx) / ssx
 			const screenBottom = (this.height.get() - sy) / ssy
+			const screenCenter = [
+				screenLeft + (screenRight - screenLeft) / 2,
+				screenTop + (screenBottom - screenTop) / 2,
+			]
+
+			const screenCenterToCorner = distanceBetween(screenCenter, [screenRight, screenBottom])
+			const screenCenterToEdge = distanceBetween(screenCenter, [screenRight, screenCenter.x])
 
 			this.bounds.set({
 				left: screenLeft,
 				top: screenTop,
 				right: screenRight,
 				bottom: screenBottom,
+				center: screenCenter,
+				centerToCorner: screenCenterToCorner,
+				centerToEdge: screenCenterToEdge,
 			})
 		})
 
