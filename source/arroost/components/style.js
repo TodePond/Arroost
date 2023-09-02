@@ -25,6 +25,7 @@ export const Style = class extends Component {
 		this.use(() => element.setAttribute("stroke", this.stroke.get().toString()))
 		this.use(() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
+		element.style["content-visibility"] = "auto"
 	}
 
 	/**

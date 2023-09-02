@@ -89,6 +89,7 @@ export class Dom extends Component {
 			const outOfView =
 				right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
 
+			if (outOfView === this.outOfView.get()) return
 			this.outOfView.set(outOfView)
 		})
 
