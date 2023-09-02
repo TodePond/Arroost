@@ -3,6 +3,14 @@ import { shared } from "../../main.js"
 
 const ZOOM_MOUSE_SPEED = 0.025
 const ZOOM_TRACKPAD_SPEED = 0.01
+
+const RIGHT_CLICK_PITY_EASE_DURATION = 700
+
+let pityTime = -Infinity
+export const triggerRightClickPity = () => {
+	pityTime = shared.clock.time
+}
+
 export const registerWheel = () => {
 	addEventListener(
 		"wheel",
@@ -32,7 +40,16 @@ export const registerWheel = () => {
 			const transform = shared.scene?.dom.transform
 			if (!transform) return
 
-			const position = subtract(transform.position.get(), [event.deltaX, event.deltaY])
+			let [dx, dy] = [event.deltaX, event.deltaY]
+
+			const timeSincePity = shared.clock.time - pityTime
+			if (timeSincePity < RIGHT_CLICK_PITY_EASE_DURATION) {
+				const t = timeSincePity / RIGHT_CLICK_PITY_EASE_DURATION
+				dx = dx * t ** 4
+				dy = dy * t ** 4
+			}
+
+			const position = subtract(transform.position.get(), [dx, dy])
 			transform.position.set(position)
 			fireEvent("pointermove", {
 				clientX: event.clientX,

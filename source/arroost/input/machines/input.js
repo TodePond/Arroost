@@ -2,6 +2,7 @@ import { State } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
 import { Input } from "../../components/input.js"
 import { setCursor } from "../cursor.js"
+import { triggerRightClickPity } from "../wheel.js"
 
 export class InputState extends State {
 	/** @type {Input} */
@@ -107,7 +108,10 @@ export class Dragging extends InputState {
 	name = "dragging"
 	cursor = "grabbing"
 
-	pointerup() {
+	pointerup(e) {
+		if (e.button === 2) {
+			triggerRightClickPity()
+		}
 		if (shared.keyboard[" "]) {
 			return new Handing()
 		}
