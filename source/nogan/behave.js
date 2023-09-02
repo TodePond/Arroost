@@ -1,4 +1,5 @@
-import { c, createPeak, getCell, getTemplate } from "./nogan.js"
+import { randomBetween, add } from "../../libraries/habitat-import.js"
+import { c, createPeak, getCell, getTemplate, t } from "./nogan.js"
 
 /**
  * The ping pulse is for testing purposes.
@@ -55,6 +56,22 @@ const raw = (args) => {
 				},
 				...rest,
 			})
+		case "dummy-creation": {
+			const angle = Math.random() * Math.PI * 2
+			const distance = randomBetween(15, 30)
+			const displacement = t([Math.cos(angle) * distance, Math.sin(angle) * distance])
+			const position = add(sourceCell.position, displacement)
+			return {
+				...next,
+				operations: [
+					// c({
+					// 	type: "create",
+					// 	template: c({ type: "dummy" }),
+					// 	position,
+					// }),
+				],
+			}
+		}
 	}
 	return previous.result ? previous : next
 }

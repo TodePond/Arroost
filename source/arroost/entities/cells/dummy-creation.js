@@ -24,7 +24,7 @@ export class DummyCreation extends Entity {
 	/**
 	 * @param {CellId} id
 	 */
-	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
+	constructor(id = createCell(shared.nogan, { type: "dummy-creation" }).id) {
 		super()
 
 		// Attach components
