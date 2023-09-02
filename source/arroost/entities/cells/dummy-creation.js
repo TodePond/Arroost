@@ -66,12 +66,14 @@ export class DummyCreation extends Entity {
 
 		for (let i = 0; i < count; i++) {
 			setTimeout(() => {
-				const dummy = new Dummy()
+				const dummy = new Dummy({
+					position: this.dom.transform.position.get(),
+				})
+
 				shared.scene.layer.cell.append(dummy.dom)
 				const angle = Math.random() * Math.PI * 2
 				const speed = e.button === 0 ? 15 : randomBetween(15, 30)
 				const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-				dummy.dom.transform.position.set(this.dom.transform.position.get())
 				dummy.carry.movement.velocity.set(velocity)
 			}, i * 1)
 		}

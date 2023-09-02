@@ -3,6 +3,7 @@ import { Transform } from "./transform.js"
 import { Style } from "./style.js"
 import { shared } from "../../main.js"
 import { Input } from "./input.js"
+import { c, t } from "../../nogan/nogan.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -19,11 +20,19 @@ export class Dom extends Component {
 	 * 	id: string
 	 * 	transform?: Transform
 	 * 	type: "html" | "svg"
+	 * 	position?: [number, number]
 	 * 	style?: Style
 	 * 	input?: Input
 	 * }} options
 	 */
-	constructor({ id, type, transform = new Transform(), style = new Style(), input }) {
+	constructor({
+		id,
+		type,
+		position = c([0, 0]),
+		transform = new Transform({ position }),
+		style = new Style(),
+		input,
+	}) {
 		super()
 		this.id = id
 		this.transform = transform

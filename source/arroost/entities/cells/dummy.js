@@ -21,9 +21,15 @@ import { FULL, HALF } from "../../unit.js"
 
 export class Dummy extends Entity {
 	/**
-	 * @param {CellId} id
+	 * @param {{
+	 * 	id?: CellId
+	 * 	position?: [number, number]
+	 * }} options
 	 */
-	constructor(id = createCell(shared.nogan, { type: "dummy" }).id) {
+	constructor({
+		position = t([0, 0]),
+		id = createCell(shared.nogan, { type: "dummy", position }).id,
+	} = {}) {
 		super()
 
 		// Attach components
@@ -34,6 +40,7 @@ export class Dummy extends Entity {
 				id: "dummy",
 				type: "html",
 				input: this.input,
+				position,
 			}),
 		))
 

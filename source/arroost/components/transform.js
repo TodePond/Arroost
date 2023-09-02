@@ -4,12 +4,17 @@ import { shared } from "../../main.js"
 import { equals } from "../../../libraries/habitat-import.js"
 
 export class Transform extends Component {
-	/** @param {Transform | null} parent */
-	constructor(parent = Transform.Root) {
+	/**
+	 * @param {{
+	 * 	parent?: Transform
+	 * 	position?: [number, number]
+	 * }} options
+	 */
+	constructor({ parent = Transform.Root, position = t([0, 0]) } = {}) {
 		super()
 		this.parent = parent
 
-		this.position = this.use(t([0, 0]), { eq: equals })
+		this.position = this.use(position, { eq: equals })
 		this.scale = this.use(t([1, 1]), { eq: equals })
 
 		this.absolutePosition = this.use(() => this.getAbsolutePosition(), { eq: equals })
