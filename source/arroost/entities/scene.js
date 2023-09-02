@@ -20,6 +20,16 @@ import { Counter } from "./counter.js"
 const ZOOM_FRICTION = 0.75
 
 export class Scene extends Entity {
+	width = this.use(innerWidth)
+	height = this.use(innerHeight)
+
+	bounds = this.use({
+		left: 0,
+		top: 0,
+		right: innerWidth,
+		bottom: innerHeight,
+	})
+
 	constructor() {
 		super()
 		this.input = this.attach(new Input(this))
@@ -36,6 +46,23 @@ export class Scene extends Entity {
 		dragging.pointerdown = this.onDraggingPointerDown.bind(this)
 		dragging.pointermove = this.onDraggingPointerMove.bind(this)
 		dragging.pointerup = this.onDraggingPointerUp.bind(this)
+
+		this.use(() => {
+			const [sx, sy] = this.dom.transform.position.get() ?? [0, 0]
+			const [ssx, ssy] = this.dom.transform.scale.get() ?? [1, 1]
+
+			const screenLeft = -sx / ssx
+			const screenTop = -sy / ssy
+			const screenRight = (this.width.get() - sx) / ssx
+			const screenBottom = (this.height.get() - sy) / ssy
+
+			this.bounds.set({
+				left: screenLeft,
+				top: screenTop,
+				right: screenRight,
+				bottom: screenBottom,
+			})
+		})
 
 		const layer = (this.layer = {
 			cell: new Dom({ id: "cell-layer", type: "html" }),
@@ -58,6 +85,11 @@ export class Scene extends Entity {
 	start({ html }) {
 		const container = this.dom.getContainer()
 		html.append(container)
+	}
+
+	resize() {
+		this.height.set(innerHeight)
+		this.width.set(innerWidth)
 	}
 
 	onHoveringPointerDown(e) {

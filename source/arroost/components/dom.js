@@ -82,13 +82,18 @@ export class Dom extends Component {
 			const cullbounds = this.cullBounds.get()
 			if (cullbounds === null) return
 			const [x, y] = this.transform.absolutePosition.get()
-			const [sx, sy] = shared.scene?.dom.transform.position.get() ?? [0, 0]
-			const [ssx, ssy] = shared.scene?.dom.transform.scale.get() ?? [1, 1]
 
-			const screenLeft = -sx / ssx
-			const screenTop = -sy / ssy
-			const screenRight = (innerWidth - sx) / ssx
-			const screenBottom = (innerHeight - sy) / ssy
+			const bounds = shared.scene?.bounds.get() ?? {
+				left: -Infinity,
+				top: -Infinity,
+				right: Infinity,
+				bottom: Infinity,
+			}
+
+			const screenLeft = bounds.left
+			const screenTop = bounds.top
+			const screenRight = bounds.right
+			const screenBottom = bounds.bottom
 
 			const left = x - cullbounds.x
 			const top = y - cullbounds.y
