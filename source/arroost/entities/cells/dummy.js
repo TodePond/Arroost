@@ -18,6 +18,7 @@ import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
 import { FULL, HALF } from "../../unit.js"
+import { triggerCounter } from "../counter.js"
 
 export class Dummy extends Entity {
 	/**
@@ -31,6 +32,8 @@ export class Dummy extends Entity {
 		id = createCell(shared.nogan, { type: "dummy", position }).id,
 	} = {}) {
 		super()
+
+		triggerCounter()
 
 		// Attach components
 		const input = (this.input = this.attach(new Input(this)))

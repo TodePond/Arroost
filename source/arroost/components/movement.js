@@ -1,5 +1,6 @@
 import { add, clamp, equals, print } from "../../../libraries/habitat-import.js"
 import { c, t } from "../../nogan/nogan.js"
+import { triggerSomethingHasMoved } from "../input/machines/hover.js"
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 
@@ -116,6 +117,7 @@ export class Movement extends Component {
 		const oldPosition = this.transform.position.get()
 		const newPosition = add(oldPosition, velocity)
 		this.transform.position.set(newPosition)
+		triggerSomethingHasMoved()
 	}
 
 	tickVelocity() {
@@ -153,6 +155,7 @@ export class Movement extends Component {
 		const oldScale = this.transform.scale.get()
 		const newScale = c([oldScale.x * scaleVelocity.x, oldScale.y * scaleVelocity.y])
 		this.transform.scale.set(newScale)
+		triggerSomethingHasMoved()
 	}
 
 	tickScaleVelocity() {
