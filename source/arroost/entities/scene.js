@@ -1,7 +1,14 @@
 import { shared } from "../../main.js"
 import { Entity } from "./entity.js"
 import { Dom } from "../components/dom.js"
-import { Habitat, add, equals, fireEvent, subtract } from "../../../libraries/habitat-import.js"
+import {
+	Habitat,
+	WHITE,
+	add,
+	equals,
+	fireEvent,
+	subtract,
+} from "../../../libraries/habitat-import.js"
 import { Dragging } from "../input/machines/input.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
@@ -9,6 +16,34 @@ import { DummyCreation } from "./cells/dummy-creation.js"
 import { Ghost } from "./ghost.js"
 
 const ZOOM_FRICTION = 0.75
+
+class Counter extends Entity {
+	constructor() {
+		super()
+		this.dom = this.attach(new Dom({ id: "counter", type: "html" }))
+		this.dom.render = this.render.bind(this)
+	}
+
+	render() {
+		this.div = document.createElement("div")
+		this.listen("tick", this.onTick.bind(this))
+		this.div.style["color"] = WHITE.toString()
+		this.div.style["width"] = "100vw"
+		this.div.style["height"] = "100vh"
+		this.div.style["font-size"] = "50px"
+		this.div.style["font-family"] = "Rosario"
+		this.dom.style.pointerEvents.set("none")
+		return this.div
+	}
+
+	onTick() {
+		if (!this.div) return
+		this.div.innerText = Object.values(shared.nogan.items).length.toString()
+		this.dom.transform.position.set(
+			add(shared.pointer.transform.absolutePosition.get(), [20, 20]),
+		)
+	}
+}
 
 export class Scene extends Entity {
 	constructor() {
@@ -37,10 +72,14 @@ export class Scene extends Entity {
 		this.dom.append(layer.ghost)
 
 		const dummy = new DummyCreation()
-		layer.cell.append(dummy.dom)
+		// layer.cell.append(dummy.dom)
+		this.dom.append(dummy.dom)
 
 		const ghost = new Ghost()
 		layer.ghost.append(ghost.dom)
+
+		const counter = new Counter()
+		layer.ghost.append(counter.dom)
 	}
 
 	start({ html }) {
