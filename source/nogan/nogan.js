@@ -627,8 +627,9 @@ export const modifyCell = (
 	clearCache(nogan)
 
 	if (propogate) {
-		// TODO: Only refresh cells that could be affected by this change
-		return refresh(nogan, { past, future })
+		/** @param {Cell} cell */
+		const filter = (cell) => cell.type === "magnet"
+		return refresh(nogan, { past, future, filter })
 	}
 
 	validate(cell, N.Cell)
@@ -1165,15 +1166,20 @@ const MAX_OPERATION_STACK = 1000
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * 	operate?: boolean,
+ * 	filter?: (cell: Cell) => boolean,
  * }} options
  * @return {Operation[]}
  */
 export const refresh = (
 	nogan,
-	{ snapshot = getClone(nogan), past = [], future = [], operate = true } = {},
+	{ snapshot = getClone(nogan), past = [], future = [], operate = true, filter } = {},
 ) => {
 	const operations = []
 	for (const id of iterateCellIds(snapshot)) {
+		if (filter) {
+			const cell = getCell(snapshot, id)
+			if (!filter(cell)) continue
+		}
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, { id, colour, past, future })
 			operations.push(...peak.operations)

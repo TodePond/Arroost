@@ -80,7 +80,7 @@ export class DummyCreation extends Entity {
 
 			shared.scene.layer.cell.append(dummy.dom)
 			const angle = Math.random() * Math.PI * 2
-			const speed = e.button === 0 ? 15 : randomBetween(10, 20)
+			const speed = e.button === 0 ? 15 : randomBetween(10, 100)
 			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
 			dummy.carry.movement.velocity.set(velocity)
 			// }, i * 0)
