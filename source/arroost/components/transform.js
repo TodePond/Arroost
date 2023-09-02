@@ -1,16 +1,19 @@
 import { t } from "../../nogan/nogan.js"
 import { Component } from "./component.js"
 import { shared } from "../../main.js"
+import { equals } from "../../../libraries/habitat-import.js"
 
 export class Transform extends Component {
 	/** @param {Transform | null} parent */
 	constructor(parent = Transform.Root) {
 		super()
 		this.parent = parent
-		this.position = this.use(t([0, 0]))
-		this.scale = this.use(t([1, 1]))
-		this.absolutePosition = this.use(() => this.getAbsolutePosition())
-		this.displacedPosition = this.use(() => this.getDisplacedPosition())
+
+		this.position = this.use(t([0, 0]), { eq: equals })
+		this.scale = this.use(t([1, 1]), { eq: equals })
+
+		this.absolutePosition = this.use(() => this.getAbsolutePosition(), { eq: equals })
+		this.displacedPosition = this.use(() => this.getDisplacedPosition(), { eq: equals })
 	}
 
 	/** @returns {[number, number]} */

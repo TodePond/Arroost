@@ -1238,6 +1238,12 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 					}
 				}
 
+				if (this.eq && this._current !== undefined) {
+					if (this.eq(this._current, value)) {
+						return
+					}
+				}
+
 				// Update our value
 				this._previous = this._current
 				this._birth = shared.clock++
