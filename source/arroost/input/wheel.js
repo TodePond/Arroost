@@ -1,5 +1,6 @@
 import { fireEvent, repeatArray, subtract } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { triggerSomethingHasMoved } from "./machines/hover.js"
 
 const ZOOM_MOUSE_SPEED = 0.025
 const ZOOM_TRACKPAD_SPEED = 0.01
@@ -51,6 +52,7 @@ export const registerWheel = () => {
 
 			const position = subtract(transform.position.get(), [dx, dy])
 			transform.position.set(position)
+			triggerSomethingHasMoved()
 			fireEvent("pointermove", {
 				clientX: event.clientX,
 				clientY: event.clientY,
