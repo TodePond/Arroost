@@ -16,7 +16,7 @@ export const getPointer = () => {
 	if (done) throw new Error("getPointer called after pointer already initialized")
 	done = true
 
-	const transform = new Transform.Inverse(shared.scene?.dom.transform)
+	const transform = new Transform.Inverse({ parent: shared.scene?.dom.transform })
 
 	const movement = new Movement.Inverse({
 		transform,
