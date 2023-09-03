@@ -11,7 +11,7 @@ import {
 	subtract,
 	use,
 } from "../../../libraries/habitat-import.js"
-import { Dragging } from "../input/machines/input.js"
+import { Dragging } from "../machines/input.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
 import { DummyCreation } from "./cells/dummy-creation.js"

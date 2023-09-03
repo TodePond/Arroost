@@ -62,7 +62,7 @@ export class Dummy extends Entity {
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
 
-		// Custom behaviours
+		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })

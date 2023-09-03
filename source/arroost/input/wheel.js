@@ -1,6 +1,6 @@
 import { fireEvent, repeatArray, subtract } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { triggerSomethingHasMoved } from "./machines/hover.js"
+import { triggerSomethingHasMoved } from "../machines/hover.js"
 
 const ZOOM_MOUSE_SPEED = 0.025
 const ZOOM_TRACKPAD_SPEED = 0.01

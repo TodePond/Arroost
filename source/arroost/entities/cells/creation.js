@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -11,6 +11,7 @@ import { Ellipse } from "../shapes/ellipse.js"
 import { setCellStyles } from "./util.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
+import { Pulling } from "../../machines/pulling.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -41,5 +42,14 @@ export class Creation extends Entity {
 		// front.dom.transform.scale.set([2 / 3, 2 / 3])
 		// front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
+
+		// Nogan behaviours
+		const pointing = this.input.state("pointing")
+		pointing.pointerup = this.onClick.bind(this)
+		this.tunnel.useCell({ dom, carry, input })
+	}
+
+	onClick(e) {
+		return new Pulling()
 	}
 }

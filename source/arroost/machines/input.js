@@ -1,13 +1,13 @@
-import { State } from "../../../../libraries/habitat-import.js"
-import { shared } from "../../../main.js"
-import { Input } from "../../components/input.js"
-import { triggerRightClickPity } from "../wheel.js"
+import { State } from "../../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
+import { Input } from "../components/input.js"
+import { triggerRightClickPity } from "../input/wheel.js"
 
 export class InputState extends State {
 	/** @type {Input} */
 	input = shared.hovering.input.get()
 
-	name = "point-state"
+	name = "input-state"
 
 	/** @param {Input} [input] */
 	constructor(input) {

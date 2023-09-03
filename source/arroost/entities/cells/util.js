@@ -19,7 +19,7 @@ import { Entity } from "../entity.js"
 export const setCellStyles = ({ back, front, input, tunnel }) => {
 	front.style.pointerEvents.set("none")
 	input.use(() => {
-		front.style.fill.set(getCellForegroundColour({ tunnel }).toString())
+		front.style.fill.set(getCellForegroundColour({ tunnel, input }).toString())
 	})
 
 	input.use(() => {
@@ -37,8 +37,10 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 	})
 }
 
-export const getCellForegroundColour = ({ tunnel }) => {
+export const getCellForegroundColour = ({ tunnel, input }) => {
 	if (tunnel.isFiring.get()) {
+		return WHITE
+	} else if (input.is("pulling")) {
 		return WHITE
 	}
 	return BLACK

@@ -1,5 +1,5 @@
-import { State, fireEvent, use } from "../../../../libraries/habitat-import.js"
-import { shared } from "../../../main.js"
+import { State, fireEvent, use } from "../../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
 
 let somethingHasMoved = false
 export const triggerSomethingHasMoved = () => {

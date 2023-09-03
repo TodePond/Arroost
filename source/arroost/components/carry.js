@@ -7,7 +7,7 @@ import {
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { Dragging } from "../input/machines/input.js"
+import { Dragging } from "../machines/input.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"

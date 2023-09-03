@@ -1,6 +1,6 @@
 import { add, clamp, equals, print } from "../../../libraries/habitat-import.js"
 import { c, t } from "../../nogan/nogan.js"
-import { triggerSomethingHasMoved } from "../input/machines/hover.js"
+import { triggerSomethingHasMoved } from "../machines/hover.js"
 import { Component } from "./component.js"
 import { Transform } from "./transform.js"
 

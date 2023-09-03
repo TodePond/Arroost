@@ -60,7 +60,7 @@ export class DummyCreation extends Entity {
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
-		// Custom behaviours
+		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })

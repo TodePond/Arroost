@@ -17,9 +17,9 @@ import { frame } from "./link.js"
 import * as Nogan from "./nogan/nogan.js"
 import { NoganSchema } from "./nogan/schema.js"
 import { registerWheel } from "./arroost/input/wheel.js"
-import { registerMachine } from "./arroost/input/machine.js"
-import { HoverMachine } from "./arroost/input/machines/hover.js"
-import { InputMachine } from "./arroost/input/machines/input.js"
+import { registerMachine } from "./arroost/machines/machine.js"
+import { HoverMachine } from "./arroost/machines/hover.js"
+import { InputMachine } from "./arroost/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
 
 //===============//
