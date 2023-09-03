@@ -1,7 +1,8 @@
 import { shared } from "../../main.js"
-import { c, iterateCells } from "../../nogan/nogan.js"
-import { Dom } from "../components/dom.js"
+import { c, iterateCells, t } from "../../nogan/nogan.js"
+import { Entity } from "./entity.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
+import { equals, randomBetween } from "../../../libraries/habitat-import.js"
 
 const unlocks = {
 	"dummy-creation": {
@@ -15,7 +16,7 @@ const unlocks = {
 }
 
 /**
- * @param {Dom} [source]
+ * @param {Entity} [source]
  */
 export function replenishUnlocks(source) {
 	unlocks: for (const key in unlocks) {
@@ -27,8 +28,23 @@ export function replenishUnlocks(source) {
 			if (cell.type === key) continue unlocks
 		}
 
-		const position = source ? source.transform.position.get() : [0, 0]
+		const dom = source ? source["dom"] : shared.scene.layer.cell
+		const position = dom.transform.position.get().d
 		const entity = new unlock.entity({ position })
+
+		// just in case it doesn't take the position arg
+		if (!equals(entity.dom.transform.position.get(), position)) {
+			entity.dom.transform.position.set(position)
+		}
+
+		const movement = entity.carry?.movement ?? entity.movement
+		if (movement) {
+			const angle = Math.random() * Math.PI * 2
+			const speed = 15
+			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+			movement.velocity.set(velocity)
+		}
+
 		shared.scene.layer.cell.append(entity.dom)
 	}
 }
