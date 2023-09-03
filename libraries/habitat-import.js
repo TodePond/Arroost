@@ -1146,46 +1146,38 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		const Signal = class {
 			constructor(value, options = {}) {
 				const self = this
-				this.setInternalProperty("_self", self)
-				Object.assign(self, this)
-				self.setInternalProperty("_func", (value) => {
-					if (value === undefined) {
-						return self.get()
-					} else {
-						self.set(value)
-					}
-				})
 
-				self.setInternalProperty("_isSignal", true)
-				self.setInternalProperty("dynamic", false)
-				self.setInternalProperty("lazy", false)
-				self.setInternalProperty("store", false)
-				self.setInternalProperty("_birth", -Infinity)
-				self.setInternalProperty("_children", new Set())
-				self.setInternalProperty("_parents", new Set())
-				self.setInternalProperty("_properties", new Map())
-				self.setInternalProperty("_store", undefined)
-				self.setInternalProperty("_current", undefined)
-				self.setInternalProperty("_previous", undefined)
-				self.setInternalProperty("_evaluate", () => self._current)
-				// Reflect.defineProperty(self, "length", {
-				// 	get: () => {
-				// 		if (Array.isArray(self._current)) {
-				// 			return self._current.length
-				// 		}
+				// Defaults
+				self._isSignal = true
+				self.dynamic = false
+				self.lazy = false
+				self._birth = -Infinity
+				self._children = new Set() //implicit children
+				self.children = new Set() //explicit children
+				self._parents = new Set() //implicit parents
+				self.parents = new Set() //explicit parents
+				self.explicit = options.parents !== undefined
+				self._current = undefined
+				self._previous = undefined
+				self._evaluate = () => self._current
 
-				// 		return 1
-				// 	},
-				// })
-
-				// Apply options
+				// Apply user-provided options
+				const { parents, ...rest } = options
 				Object.assign(self, {
 					dynamic: false,
 					lazy: false,
 					eq: (a, b) => a === b,
-					...options,
-					store: false,
+					...rest,
 				})
+
+				// Join with static parents
+				if (parents) {
+					for (const parent of parents) {
+						// if (!parent) continue
+						parent.children.add(self)
+						self.parents.add(parent)
+					}
+				}
 
 				// Initialise our value
 				if (self.dynamic) {
@@ -1202,43 +1194,8 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				return self
 			}
 
-			setInternalProperty(key, value) {
-				this[key] = value
-				// Reflect.defineProperty(this, key, {
-				// 	value,
-				// 	writable: true,
-				// })
-			}
-
 			set(value) {
-				// If we're a store, update our properties
-				if (this.store) {
-					if (!this.storeInitialised) {
-						// Add new properties
-						for (const key in value) {
-							if (this._properties.has(key)) continue
-							const property = use(value[key], { lazy: this.lazy })
-							property._store = use(() => {
-								this._current[key] = property.get()
-							})
-							this._properties.set(key, property)
-							property.glueTo(this, key)
-						}
-						this.storeInitialised = true
-					}
-
-					// Update existing properties
-					for (const [key, property] of this._properties) {
-						// if (key in value) {
-						property.set(value[key])
-						// } else {
-						// 	property.dispose()
-						// 	this._properties.delete(key)
-						// 	Reflect.deleteProperty(this, key)
-						// }
-					}
-				}
-
+				// Don't bother doing anything if our value hasn't changed
 				if (this.eq && this._current !== undefined) {
 					if (this.eq(this._current, value)) {
 						return
@@ -1248,26 +1205,33 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				// Update our value
 				this._previous = this._current
 				this._birth = shared.clock++
-				if (!this.store) {
-					this._current = value
-				}
+				this._current = value
 
-				// Update our eager children
+				// Update our implicit children
 				const children = [...this._children]
 				for (const child of children) {
 					child.update()
 				}
+
+				// Update our static children
+				for (const child of this.children) {
+					child.update()
+				}
 			}
 
+			// Check if the signal is out-of-date
 			_isDirty() {
+				// Eager signals are never dirty
 				if (!this.lazy) {
 					return false
 				}
 
+				// If we don't have a value yet, we're dirty
 				if (this._birth < 0) {
 					return true
 				}
 
+				// If any of our parents are newer than us, we're dirty
 				for (const parent of this._parents) {
 					if (parent._birth > this._birth) {
 						return true
@@ -1304,26 +1268,36 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			update() {
-				// If we're not dynamic, just pointlessly update our value
+				// If we're not dynamic, just pointlessly update our value to what it already is
+				// Note: This probably won't do anything
+				// This is only really used for when you've set a custom eq function
 				if (!this.dynamic) {
 					this.set(this._current)
 					return
 				}
 
-				// If we're dynamic, run away from our parents
-				// because we might not need them this time
-				if (!this.lazy) {
-					for (const parent of this._parents) {
-						parent._children.delete(this)
-					}
-				}
-				this._parents.clear()
-
-				// Keep hold of the active signal
-				// It's our turn! We're the active signal now!
-				// but we need to give it back afterwards
 				const paused = shared.active
-				shared.active = this
+
+				// If we're implicit, we'll need to reset and figure out our new implicit parents
+				// Because they might change after this!
+				if (!this.explicit) {
+					// Run away from our parents
+					// because we might not need them this time
+					// Note: Don't need to do this if we're lazy, because our parents don't need to know about us
+					if (!this.lazy) {
+						for (const parent of this._parents) {
+							parent._children.delete(this)
+						}
+					}
+					this._parents.clear()
+
+					// Keep hold of the active signal
+					// It's our turn! We're the active signal now!
+					// but we need to give it back afterwards
+					shared.active = this
+				} else {
+					shared.active = null
+				}
 
 				// Evaluate our function
 				const value = this._evaluate()
@@ -1336,158 +1310,159 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			dispose() {
-				// Remove ourselves from our parents
-				const parents = [...this._parents]
-				for (const parent of parents) {
-					parent._children.delete(this)
+				if (!this.explicit) {
+					// Remove ourselves from our implicit parents
+					const parents = [...this._parents]
+					for (const parent of parents) {
+						parent._children.delete(this)
+					}
+					this._parents.clear()
+				} else {
+					// Remove ourselves from our explicit parents
+					for (const parent of this.parents) {
+						parent.children.delete(this)
+					}
+					this.parents.clear()
 				}
-				this._parents.clear()
 
-				// Remove ourselves from our children
+				// Remove ourselves from our implicit children
 				const children = [...this._children]
 				for (const child of children) {
 					child._parents.delete(this)
 				}
 				this._children.clear()
 
-				// Remove properties
-				const properties = [...this._properties]
-				for (const [, property] of properties) {
-					property.dispose()
+				// Remove ourselves from our explicit children
+				for (const child of this.children) {
+					child.parents.delete(this)
 				}
-				this._properties.clear()
-
-				if (this._store !== undefined) {
-					this._store.dispose()
-				}
-
-				this._children.clear()
+				this.children.clear()
 			}
 
-			glueTo(object, key) {
-				if (this.store) {
-					Reflect.defineProperty(object, key, {
-						get: () => this,
-						set: (value) => this.set(value),
-						enumerable: true,
-						configurable: true,
-					})
-					return
-				}
+			// glueTo(object, key) {
+			// 	if (this.store) {
+			// 		Reflect.defineProperty(object, key, {
+			// 			get: () => this,
+			// 			set: (value) => this.set(value),
+			// 			enumerable: true,
+			// 			configurable: true,
+			// 		})
+			// 		return
+			// 	}
 
-				Reflect.defineProperty(object, key, {
-					get: () => this.get(),
-					set: (value) => this.set(value),
-					enumerable: true,
-					configurable: true,
-				})
-			}
+			// 	Reflect.defineProperty(object, key, {
+			// 		get: () => this.get(),
+			// 		set: (value) => this.set(value),
+			// 		enumerable: true,
+			// 		configurable: true,
+			// 	})
+			// }
 
-			get value() {
-				return this.get()
-			}
+			// get value() {
+			// 	return this.get()
+			// }
 
-			set value(value) {
-				this.set(value)
-			}
+			// set value(value) {
+			// 	this.set(value)
+			// }
 
-			*[Symbol.iterator]() {
-				if (this.store) {
-					if (Array.isArray(this._current)) {
-						for (const [key] of this._properties) {
-							yield this[key]
-						}
-					} else {
-						for (const [key] of this._properties) {
-							yield [key, this[key]]
-						}
-					}
-					return
-				}
+			// *[Symbol.iterator]() {
+			// 	if (this.store) {
+			// 		if (Array.isArray(this._current)) {
+			// 			for (const [key] of this._properties) {
+			// 				yield this[key]
+			// 			}
+			// 		} else {
+			// 			for (const [key] of this._properties) {
+			// 				yield [key, this[key]]
+			// 			}
+			// 		}
+			// 		return
+			// 	}
 
-				yield this
-				yield (value) => this.set(value)
-			}
+			// 	yield this
+			// 	yield (value) => this.set(value)
+			// }
 
-			[Symbol.toPrimitive](hint) {
-				if (hint === "string") {
-					return this.get().toString()
-				}
-				return this.get()
-			}
+			// [Symbol.toPrimitive](hint) {
+			// 	if (hint === "string") {
+			// 		return this.get().toString()
+			// 	}
+			// 	return this.get()
+			// }
 
-			valueOf() {
-				return this.get()
-			}
+			// valueOf() {
+			// 	return this.get()
+			// }
 
-			toString() {
-				return this.get().toString()
-			}
+			// toString() {
+			// 	return this.get().toString()
+			// }
 		}
 
-		const ArrayView = class extends Array {
-			constructor(signal) {
-				if (typeof signal === "number") {
-					return new Array(signal)
-				}
-				super()
-				Reflect.defineProperty(this, "_isSignal", { value: true })
-				Reflect.defineProperty(this, "_signal", { value: signal })
-				for (const [key, property] of signal._properties) {
-					Reflect.defineProperty(this, key, {
-						get: () => property.get(),
-						set: (value) => property.set(value),
-					})
-				}
-			}
+		// const ArrayView = class extends Array {
+		// 	constructor(signal) {
+		// 		if (typeof signal === "number") {
+		// 			return new Array(signal)
+		// 		}
+		// 		super()
+		// 		Reflect.defineProperty(this, "_isSignal", { value: true })
+		// 		Reflect.defineProperty(this, "_signal", { value: signal })
+		// 		for (const [key, property] of signal._properties) {
+		// 			Reflect.defineProperty(this, key, {
+		// 				get: () => property.get(),
+		// 				set: (value) => property.set(value),
+		// 			})
+		// 		}
+		// 	}
 
-			dispose() {
-				this._signal.dispose()
-			}
+		// 	dispose() {
+		// 		this._signal.dispose()
+		// 	}
 
-			set(value) {
-				this._signal.set(value)
-			}
+		// 	set(value) {
+		// 		this._signal.set(value)
+		// 	}
 
-			get() {
-				return this._signal.get()
-			}
+		// 	get() {
+		// 		return this._signal.get()
+		// 	}
 
-			update() {
-				this._signal.update()
-			}
+		// 	update() {
+		// 		this._signal.update()
+		// 	}
 
-			get value() {
-				return this._signal.get()
-			}
+		// 	get value() {
+		// 		return this._signal.get()
+		// 	}
 
-			set value(value) {
-				this._signal.value = value
-			}
+		// 	set value(value) {
+		// 		this._signal.value = value
+		// 	}
 
-			glueTo(object, key) {
-				Reflect.defineProperty(object, key, {
-					get: () => this,
-					set: (value) => this.set(value),
-					enumerable: true,
-					configurable: true,
-				})
-				return
-			}
-		}
+		// 	// glueTo(object, key) {
+		// 	// 	Reflect.defineProperty(object, key, {
+		// 	// 		get: () => this,
+		// 	// 		set: (value) => this.set(value),
+		// 	// 		enumerable: true,
+		// 	// 		configurable: true,
+		// 	// 	})
+		// 	// 	return
+		// 	// }
+		// }
 
 		const use = (value, options = {}) => {
 			const properties = {
 				dynamic: typeof value === "function",
 				lazy: false,
-				store: Array.isArray(value) || value?.constructor === Object,
+				// store: Array.isArray(value) || value?.constructor === Object,
 				...options,
 			}
 
 			const signal = new Signal(value, properties)
-			if (Array.isArray(value) && properties.store) {
-				return new ArrayView(signal)
-			}
+			// if (Array.isArray(value) && properties.store) {
+			// 	return new ArrayView(signal)
+			// }
 			return signal
 		}
 
@@ -1495,16 +1470,16 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			return use(value, { lazy: true, ...options })
 		}
 
-		const glue = (source, target = source) => {
-			for (const key in source) {
-				const value = source[key]
-				if (value?._isSignal) {
-					value.glueTo(target, key)
-				}
-			}
-		}
+		// const glue = (source, target = source) => {
+		// 	for (const key in source) {
+		// 		const value = source[key]
+		// 		if (value?._isSignal) {
+		// 			value.glueTo(target, key)
+		// 		}
+		// 	}
+		// }
 
-		HabitatFrogasaurus["./signal.js"].ArrayView = ArrayView
+		// HabitatFrogasaurus["./signal.js"].ArrayView = ArrayView
 
 		/**
 		 * @template {any} T
@@ -1521,7 +1496,7 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		 * @returns {Signal<T>}
 		 */
 		HabitatFrogasaurus["./signal.js"].snuse = snuse
-		HabitatFrogasaurus["./signal.js"].glue = glue
+		// HabitatFrogasaurus["./signal.js"].glue = glue
 	}
 
 	//====== ./stage.js ======

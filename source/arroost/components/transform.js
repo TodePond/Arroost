@@ -6,7 +6,7 @@ import { equals } from "../../../libraries/habitat-import.js"
 export class Transform extends Component {
 	/**
 	 * @param {{
-	 * 	parent?: Transform
+	 * 	parent?: Transform | null
 	 * 	position?: [number, number]
 	 * }} options
 	 */
@@ -17,8 +17,16 @@ export class Transform extends Component {
 		this.position = this.use(position, { eq: equals })
 		this.scale = this.use(t([1, 1]), { eq: equals })
 
-		this.absolutePosition = this.use(() => this.getAbsolutePosition(), { eq: equals })
-		this.displacedPosition = this.use(() => this.getDisplacedPosition(), { eq: equals })
+		this.absolutePosition = this.use(() => this.getAbsolutePosition(), {
+			eq: equals,
+			parents: this.parent
+				? [this.position, this.parent.absolutePosition, this.parent.scale]
+				: [this.position],
+		})
+		this.displacedPosition = this.use(() => this.getDisplacedPosition(), {
+			eq: equals,
+			parents: this.parent ? [this.position, this.parent.displacedPosition] : [this.position],
+		})
 	}
 
 	/** @returns {[number, number]} */

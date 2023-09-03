@@ -78,60 +78,73 @@ export class Dom extends Component {
 		container.style["pointer-events"] = "none"
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
-		this.use(() => {
-			const [x, y] = this.transform.absolutePosition.get()
-			const [sx, sy] = this.transform.scale.get()
-			container.style["transform"] = `translate(${x}px, ${y}px) scale(${sx}, ${sy})`
-		})
+		this.use(
+			() => {
+				const [x, y] = this.transform.absolutePosition.get()
+				const [sx, sy] = this.transform.scale.get()
+				container.style["transform"] = `translate(${x}px, ${y}px) scale(${sx}, ${sy})`
+			},
+			{ parents: [this.transform.absolutePosition, this.transform.scale] },
+		)
 
-		this.use(() => {
-			const cullbounds = this.cullBounds.get()
-			if (cullbounds === null) return
-			const [x, y] = this.transform.absolutePosition.get()
+		this.use(
+			() => {
+				const cullbounds = this.cullBounds.get()
+				if (cullbounds === null) return
+				const [x, y] = this.transform.absolutePosition.get()
 
-			const bounds = shared.scene?.bounds.get() ?? {
-				left: -Infinity,
-				top: -Infinity,
-				right: Infinity,
-				bottom: Infinity,
-				center: 0,
-			}
+				const bounds = shared.scene?.bounds.get() ?? {
+					left: -Infinity,
+					top: -Infinity,
+					right: Infinity,
+					bottom: Infinity,
+					center: 0,
+				}
 
-			const screenCenter = bounds.center
-			const distance = distanceBetween(screenCenter, [x, y])
-			if (distance > bounds.centerToCorner + this.cullBoundsToCorner.get()) {
-				if (this.outOfView.get()) return
-				this.outOfView.set(true)
-				return
-			}
+				const screenCenter = bounds.center
+				const distance = distanceBetween(screenCenter, [x, y])
+				if (distance > bounds.centerToCorner + this.cullBoundsToCorner.get()) {
+					if (this.outOfView.get()) return
+					this.outOfView.set(true)
+					return
+				}
 
-			if (distance < bounds.centerToEdge) {
-				if (!this.outOfView.get()) return
-				this.outOfView.set(false)
-				return
-			}
+				if (distance < bounds.centerToEdge) {
+					if (!this.outOfView.get()) return
+					this.outOfView.set(false)
+					return
+				}
 
-			const screenLeft = bounds.left
-			const screenTop = bounds.top
-			const screenRight = bounds.right
-			const screenBottom = bounds.bottom
+				const screenLeft = bounds.left
+				const screenTop = bounds.top
+				const screenRight = bounds.right
+				const screenBottom = bounds.bottom
 
-			const left = x - cullbounds.x
-			const top = y - cullbounds.y
-			const right = x + cullbounds.x
-			const bottom = y + cullbounds.y
+				const left = x - cullbounds.x
+				const top = y - cullbounds.y
+				const right = x + cullbounds.x
+				const bottom = y + cullbounds.y
 
-			const outOfView =
-				right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
+				const outOfView =
+					right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
 
-			if (outOfView === this.outOfView.get()) return
-			this.outOfView.set(outOfView)
-		})
+				// if (outOfView === this.outOfView.get()) return
+				this.outOfView.set(outOfView)
+			},
+			{
+				parents: [this.transform.absolutePosition, shared.scene?.bounds],
+			},
+		)
 
-		this.use(() => {
-			const outOfView = this.outOfView.get()
-			container.style["display"] = outOfView ? "none" : "block"
-		})
+		this.use(
+			() => {
+				const outOfView = this.outOfView.get()
+				container.style["display"] = outOfView ? "none" : "block"
+			},
+			{
+				parents: [this.outOfView],
+			},
+		)
 
 		const element = this.getElement()
 		if (element) container.append(element)

@@ -42,6 +42,7 @@ export class Scene extends Entity {
 
 	constructor() {
 		super()
+		shared.scene = this
 		this.input = this.attach(new Input(this))
 		this.dom = this.attach(new Dom({ id: "scene", type: "html", input: this.input }))
 		this.movement = this.attach(new Movement({ transform: this.dom.transform }))
