@@ -35,8 +35,10 @@ export const getPointer = () => {
 
 		// Update position if it has changed
 		const displacement = subtract(position, previousPosition)
-		if (first || !equals(displacement, [0, 0])) {
-			transform.position.set(position)
+		if (!isNaN(displacement.x) && !isNaN(displacement.x)) {
+			if (first || !equals(displacement, [0, 0])) {
+				transform.position.set(position)
+			}
 		}
 
 		previousPosition = [...position]
