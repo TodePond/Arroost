@@ -19,13 +19,22 @@ import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
 import { Dummy } from "./dummy.js"
 import { FULL, HALF } from "../../unit.js"
+import { triggerCounter } from "../counter.js"
 
 export class DummyCreation extends Entity {
 	/**
-	 * @param {CellId} id
+	 * @param {{
+	 * 	id?: CellId
+	 * 	position?: [number, number]
+	 * }} options
 	 */
-	constructor(id = createCell(shared.nogan, { type: "dummy-creation" }).id) {
+	constructor({
+		id = createCell(shared.nogan, { type: "dummy-creation" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
+
+		triggerCounter()
 
 		// Attach components
 		const input = (this.input = this.attach(new Input(this)))

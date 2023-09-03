@@ -1,4 +1,4 @@
-import { WHITE } from "../../../libraries/habitat-import.js"
+import { WHITE, equals } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dom } from "../components/dom.js"
 import { Entity } from "./entity.js"
@@ -16,8 +16,18 @@ export class Ghost extends Entity {
 		this.ellipse.dom.style.fill.set("none")
 		this.ellipse.dom.style.stroke.set(WHITE.toString())
 		this.ellipse.dom.style.pointerEvents.set("none")
+		this.ellipse.dom.style.visibility.set("hidden")
 
+		let started = false
 		this.listen("tick", () => {
+			if (!started) {
+				if (equals(shared.pointer.transform.position.get(), [0, 0])) {
+					return
+				} else {
+					this.ellipse.dom.style.visibility.set("visible")
+					started = true
+				}
+			}
 			this.dom.transform.position.set(shared.pointer.transform.absolutePosition.get())
 		})
 	}

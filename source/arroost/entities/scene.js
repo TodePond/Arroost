@@ -17,6 +17,7 @@ import { Movement } from "../components/movement.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
 import { Ghost } from "./ghost.js"
 import { Counter } from "./counter.js"
+import { replenishUnlocks } from "./unlock.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -104,14 +105,13 @@ export class Scene extends Entity {
 		this.dom.append(layer.cell)
 		this.dom.append(layer.ghost)
 
-		const dummy = new DummyCreation()
-		layer.cell.append(dummy.dom)
-
 		const ghost = new Ghost()
 		layer.ghost.append(ghost.dom)
 
 		const counter = new Counter()
 		layer.ghost.append(counter.dom)
+
+		replenishUnlocks()
 	}
 
 	start({ html }) {

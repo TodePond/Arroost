@@ -1,9 +1,9 @@
-import { add, use, WHITE } from "../../../libraries/habitat-import.js"
+import { add, equals, use, WHITE } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dom } from "../components/dom.js"
 import { Entity } from "./entity.js"
 
-const count = use(1)
+const count = use(0)
 export const triggerCounter = () => {
 	count.set(count.get() + 1)
 }
@@ -24,15 +24,26 @@ export class Counter extends Entity {
 		this.div.style["font-family"] = "Rosario"
 		this.div.style["user-select"] = "none"
 		this.dom.style.pointerEvents.set("none")
+		this.div.style["visibility"] = "hidden"
 		this.use(() => {
 			if (!this.div) return
 			this.div.innerText = count.get().toString()
 		})
+		this.started = false
 		this.tickListener = this.listen("tick", this.tick.bind(this))
 		return this.div
 	}
 
 	tick() {
+		if (!this.started) {
+			if (equals(shared.pointer.transform.position.get(), [0, 0])) {
+				return
+			} else {
+				if (this.div) this.div.style["visibility"] = "visible"
+				this.started = true
+			}
+		}
+
 		this.dom.transform.position.set(
 			add(shared.pointer.transform.absolutePosition.get(), [20, 20]),
 		)

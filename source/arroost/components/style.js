@@ -14,6 +14,7 @@ export const Style = class extends Component {
 	/** @type {Signal<string | null>} */
 	pointerEvents = this.use("all")
 
+	/** @type {Signal<"hidden" | "visible">} */
 	visibility = this.use("visible")
 
 	zIndex = this.use(0)
