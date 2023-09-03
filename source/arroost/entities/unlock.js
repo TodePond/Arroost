@@ -7,11 +7,11 @@ import { Creation } from "./cells/creation.js"
 
 export const unlocks = {
 	"dummy-creation": {
-		status: "unlocked",
+		unlocked: true,
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		status: "unlocked",
+		unlocked: false,
 		remaining: 5,
 		create: (arg) => new Creation(arg),
 	},
@@ -23,7 +23,7 @@ export const unlocks = {
 export function replenishUnlocks(source) {
 	unlocks: for (const key in unlocks) {
 		const unlock = unlocks[key]
-		if (unlock.status === "locked") continue unlocks
+		if (!unlock.unlocked) continue unlocks
 
 		cells: for (const cell of iterateCells(shared.nogan)) {
 			if (cell.parent !== shared.level) continue cells

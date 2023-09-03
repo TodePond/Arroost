@@ -12,6 +12,7 @@ import { setCellStyles } from "./util.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
 import { Pulling } from "../../machines/pulling.js"
+import { Line } from "../shapes/line.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -36,6 +37,29 @@ export class Creation extends Entity {
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+
+		this.arrow = new Line({ parent: this.dom.transform })
+		this.dom.append(this.arrow.dom)
+
+		const pulling = this.input.state("pulling")
+		this.use(() => {
+			if (pulling.active.get()) {
+				this.arrow.dom.style.visibility.set("visible")
+			} else {
+				this.arrow.dom.style.visibility.set("hidden")
+			}
+		}, [pulling.active])
+
+		this.use(
+			() => {
+				const pointerPosition = shared.pointer.transform.absolutePosition.get()
+				this.arrow.target.setAbsolutePosition(pointerPosition)
+				// this.arrow.target.position.get()
+			},
+			{
+				parents: [shared.pointer.transform.absolutePosition],
+			},
+		)
 
 		// Styles!
 		front.dom.transform.scale.set([3 / 4, 3 / 4])

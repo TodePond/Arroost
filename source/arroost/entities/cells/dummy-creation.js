@@ -67,10 +67,10 @@ export class DummyCreation extends Entity {
 	}
 
 	onClick(e) {
-		if (unlocks["creation"].status === "locked") {
+		if (!unlocks["creation"].unlocked) {
 			unlocks["creation"].remaining--
 			if (unlocks["creation"].remaining <= 0) {
-				unlocks["creation"].status = "unlocked"
+				unlocks["creation"].unlocked = true
 				replenishUnlocks(this)
 			}
 		}

@@ -111,7 +111,7 @@ export class Scene extends Entity {
 		const counter = new Counter()
 		layer.ghost.append(counter.dom)
 
-		replenishUnlocks()
+		requestAnimationFrame(() => replenishUnlocks())
 	}
 
 	start({ html }) {

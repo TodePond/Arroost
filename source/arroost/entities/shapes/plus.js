@@ -16,7 +16,7 @@ export class Plus extends Entity {
 		this.dom.render = () => this.render()
 	}
 
-	static WIDTH = (FULL * 1) / 3
+	static WIDTH = THIRD
 	static LENGTH = FULL
 
 	render() {

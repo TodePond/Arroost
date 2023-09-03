@@ -1698,14 +1698,14 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 				const next = state
 
 				if (previous !== undefined) {
-					const result = previous.fire("exit", { next, state: previous })
+					const result = previous.fire("exit", { previous, next, state: previous })
 					if (result !== undefined) {
 						throw new Error("Cannot set state during exit")
 					}
 				}
 
 				this.state.set(next)
-				const enterResult = next.fire("enter", { previous, state: next })
+				const enterResult = next.fire("enter", { previous, next, state: next })
 
 				if (enterResult === null) {
 					this.set(previous)
@@ -1716,20 +1716,22 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 			}
 
 			// Fire a method, and resolve any state changes
-			fire(name, event) {
+			fire(name, event, previous) {
 				const state = this.state.get()
+				previous = previous ?? state
 
 				if (state === undefined) {
 					return
 				}
 
 				event.state = state
+				event.previous = previous
 				const result = state.fire(name, event)
 
 				if (result instanceof State) {
 					const setResult = this.set(result)
 					if (setResult !== null) {
-						return this.fire(name, event)
+						return this.fire(name, event, state)
 					}
 				}
 
