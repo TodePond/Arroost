@@ -16,7 +16,7 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
-import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
+import { setCellStyles } from "./util.js"
 import { FULL, HALF } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 
@@ -58,15 +58,7 @@ export class Dummy extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		setCellColours({ back, front, input, tunnel })
-		this.front.dom.style.pointerEvents.set("none")
-		this.use(() => {
-			if (this.input.state("dragging").active.get()) {
-				this.back.dom.style.cursor.set("grabbing")
-			} else {
-				this.back.dom.style.cursor.set("pointer")
-			}
-		})
+		setCellStyles({ back, front, input, tunnel })
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
 

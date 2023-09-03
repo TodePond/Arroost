@@ -3,15 +3,17 @@ import { c, iterateCells, t } from "../../nogan/nogan.js"
 import { Entity } from "./entity.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
 import { equals, randomBetween } from "../../../libraries/habitat-import.js"
+import { Creation } from "./cells/creation.js"
 
-const unlocks = {
+export const unlocks = {
 	"dummy-creation": {
 		status: "unlocked",
-		entity: DummyCreation,
+		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
 		status: "locked",
 		remaining: 5,
+		create: (arg) => new Creation(arg),
 	},
 }
 
@@ -29,8 +31,8 @@ export function replenishUnlocks(source) {
 		}
 
 		const dom = source ? source["dom"] : shared.scene.layer.cell
-		const position = dom.transform.position.get().d
-		const entity = new unlock.entity({ position })
+		const position = dom.transform.position.get()
+		const entity = unlock.create({ position })
 
 		// just in case it doesn't take the position arg
 		if (!equals(entity.dom.transform.position.get(), position)) {

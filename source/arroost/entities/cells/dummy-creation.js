@@ -16,10 +16,11 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
-import { getCellBackgroundColour, getCellForegroundColour, setCellColours } from "./util.js"
+import { getCellBackgroundColour, getCellForegroundColour, setCellStyles } from "./util.js"
 import { Dummy } from "./dummy.js"
 import { FULL, HALF } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
+import { replenishUnlocks, unlocks } from "../unlock.js"
 
 export class DummyCreation extends Entity {
 	/**
@@ -33,7 +34,6 @@ export class DummyCreation extends Entity {
 		position = t([0, 0]),
 	}) {
 		super()
-
 		triggerCounter()
 
 		// Attach components
@@ -58,15 +58,7 @@ export class DummyCreation extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
-		setCellColours({ back, front, input, tunnel })
-		this.front.dom.style.pointerEvents.set("none")
-		this.use(() => {
-			if (this.input.state("dragging").active.get()) {
-				this.back.dom.style.cursor.set("grabbing")
-			} else {
-				this.back.dom.style.cursor.set("pointer")
-			}
-		})
+		setCellStyles({ back, front, input, tunnel })
 
 		// Custom behaviours
 		const pointing = this.input.state("pointing")
@@ -75,6 +67,14 @@ export class DummyCreation extends Entity {
 	}
 
 	onClick(e) {
+		if (unlocks["creation"].status === "locked") {
+			unlocks["creation"].remaining--
+			if (unlocks["creation"].remaining <= 0) {
+				unlocks["creation"].status = "unlocked"
+				replenishUnlocks(this)
+			}
+		}
+
 		this.tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
