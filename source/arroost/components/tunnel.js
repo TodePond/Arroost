@@ -108,6 +108,10 @@ export const Tunnel = class extends Component {
 					id: this.id,
 					position,
 					propogate: equals(velocity, [0, 0]),
+					filter: (id) => {
+						const cell = getCell(shared.nogan, id)
+						return cell.type === "magnet"
+					},
 				})
 			})
 		})

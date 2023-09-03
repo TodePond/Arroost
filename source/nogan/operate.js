@@ -41,6 +41,7 @@ const tag = (nogan, { id, key, value = true }) => {
 export const OPERATIONS = {
 	modify,
 	fired: noop,
+	unfired: noop,
 	pong,
 	tag,
 }

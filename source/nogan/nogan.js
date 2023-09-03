@@ -613,12 +613,13 @@ export const archiveCell = (nogan, id) => {
  * 	propogate?: boolean,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
+ * 	filter?: (id: CellId) => boolean,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, position, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
+	{ id, type, tag, position, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
@@ -627,8 +628,6 @@ export const modifyCell = (
 	clearCache(nogan)
 
 	if (propogate) {
-		/** @param {Cell} cell */
-		const filter = (cell) => cell.type === "magnet"
 		return refresh(nogan, { past, future, filter })
 	}
 
@@ -1166,7 +1165,7 @@ const MAX_OPERATION_STACK = 1000
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * 	operate?: boolean,
- * 	filter?: (cell: Cell) => boolean,
+ * 	filter?: (id: CellId) => boolean,
  * }} options
  * @return {Operation[]}
  */
@@ -1176,10 +1175,7 @@ export const refresh = (
 ) => {
 	const operations = []
 	for (const id of iterateCellIds(snapshot)) {
-		if (filter) {
-			const cell = getCell(snapshot, id)
-			if (!filter(cell)) continue
-		}
+		if (filter && !filter(id)) continue
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, { id, colour, past, future })
 			operations.push(...peak.operations)
