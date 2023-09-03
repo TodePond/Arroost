@@ -48,6 +48,16 @@ To run the tests, run:
 deno test --watch .
 ```
 
+## Can I contribute?
+
+Yeah! This project is organised a bit more than some of my others. Nogan is very clean. Arroost is quite messy, but still *mostly* organised.
+
+Check out the [issues](https://github.com/TodePond/Arroost/issues) for ideas on what to explore. I have no immediate plans to do anything marked as [stretch goal](https://github.com/TodePond/Arroost/issues?q=is%3Aopen+is%3Aissue+label%3A%22stretch+goal%22), so feel free to dive into one of those!
+
+Another way to get involved is by [testing out Arroost](https://github.com/TodePond/Arroost/issues?q=is%3Aopen+is%3Aissue+label%3Aqa) on different devices, and letting me know what bugs it has (by [making an issue](https://github.com/TodePond/Arroost/issues/new)).
+
+I'm very happy to help you with any of this, as I'm actively working on Arroost! Contact me in the [fediverse](https://elk.zone/universeodon.com/@TodePond). (Sorry, I don't use X anymore).
+
 ## How does it all work?
 
 It's a secret.
