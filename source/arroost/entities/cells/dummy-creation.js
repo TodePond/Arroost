@@ -51,14 +51,14 @@ export class DummyCreation extends Entity {
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
 		const back = (this.back = new Ellipse({ input: this.input }))
-		const front = (this.front = new Ellipse({ input: this.input }))
+		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
-		setCellStyles({ back, front, input, tunnel })
+		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		// Custom behaviours
 		const pointing = this.input.state("pointing")

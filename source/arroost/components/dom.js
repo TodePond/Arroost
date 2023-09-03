@@ -18,9 +18,9 @@ export class Dom extends Component {
 
 	/**
 	 * @param {{
-	 * 	id: string
+	 * 	id?: string
 	 * 	transform?: Transform
-	 * 	type: "html" | "svg"
+	 * 	type?: "html" | "svg"
 	 * 	position?: [number, number]
 	 * 	style?: Style
 	 * 	input?: Input
@@ -28,7 +28,7 @@ export class Dom extends Component {
 	 */
 	constructor({
 		id,
-		type,
+		type = "html",
 		position = c([0, 0]),
 		transform = new Transform({ position }),
 		style = new Style(),

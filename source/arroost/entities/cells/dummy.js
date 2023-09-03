@@ -51,14 +51,14 @@ export class Dummy extends Entity {
 
 		// Render elements
 		const back = (this.back = new Ellipse({ input: this.input }))
-		const front = (this.front = new Ellipse({ input: this.input }))
+		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		setCellStyles({ back, front, input, tunnel })
+		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
 

@@ -11,7 +11,7 @@ export const unlocks = {
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		status: "locked",
+		status: "unlocked",
 		remaining: 5,
 		create: (arg) => new Creation(arg),
 	},

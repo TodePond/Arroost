@@ -1,24 +1,38 @@
 import { WHITE, BLACK, GREY, SILVER } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER } from "../../../main.js"
+import { Dom } from "../../components/dom.js"
+import { Input } from "../../components/input.js"
+import { Tunnel } from "../../components/tunnel.js"
+import { Entity } from "../entity.js"
 
 // This is a joint effort from many different entities/components
 // So I didn't know where to put it
 // So it has ended up here
+/**
+ * @param {{
+ * 	back: Dom
+ * 	front: Dom
+ * 	input: Input
+ * 	tunnel: Tunnel
+ * }} options
+ */
 export const setCellStyles = ({ back, front, input, tunnel }) => {
+	front.style.pointerEvents.set("none")
 	input.use(() => {
-		front.dom.style.fill.set(getCellForegroundColour({ tunnel }))
+		front.style.fill.set(getCellForegroundColour({ tunnel }).toString())
 	})
 
 	input.use(() => {
-		back.dom.style.fill.set(getCellBackgroundColour({ input }))
+		back.style.fill.set(getCellBackgroundColour({ input }))
 	})
 
-	front.dom.style.pointerEvents.set("none")
+	back.style.pointerEvents.set("all")
+
 	input.use(() => {
 		if (input.state("dragging").active.get()) {
-			back.dom.style.cursor.set("grabbing")
+			back.style.cursor.set("grabbing")
 		} else {
-			back.dom.style.cursor.set("pointer")
+			back.style.cursor.set("pointer")
 		}
 	})
 }

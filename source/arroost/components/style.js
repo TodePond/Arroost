@@ -11,11 +11,11 @@ export const Style = class extends Component {
 	strokeWidth = this.use(1)
 	cursor = this.use("default")
 
-	/** @type {Signal<string | null>} */
-	pointerEvents = this.use("all")
+	/** @type {Signal<"none" | "all" | "inherit">} */
+	pointerEvents = this.use("inherit")
 
-	/** @type {Signal<"hidden" | "visible">} */
-	visibility = this.use("visible")
+	/** @type {Signal<"hidden" | "visible" | "inherit">} */
+	visibility = this.use("inherit")
 
 	zIndex = this.use(0)
 
@@ -28,7 +28,7 @@ export const Style = class extends Component {
 		this.use(() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
 
-		element.style["content-visibility"] = "auto"
+		// element.style["content-visibility"] = "auto"
 	}
 
 	/**

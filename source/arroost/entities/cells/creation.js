@@ -9,6 +9,7 @@ import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { setCellStyles } from "./util.js"
+import { Rectangle } from "../shapes/rectangle.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -20,7 +21,7 @@ export class Creation extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "dummy",
+				id: "creation",
 				type: "html",
 				input: this.input,
 			}),
@@ -30,11 +31,12 @@ export class Creation extends Entity {
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
 		const back = (this.back = new Ellipse({ input: this.input }))
-		const front = (this.front = new Ellipse({ input: this.input }))
+		const front = (this.front = new Rectangle())
 		this.dom.append(this.back.dom)
-		// this.dom.append(this.front.dom)
+		this.dom.append(this.front.dom)
 
 		// Styles!
-		setCellStyles({ front, back, input, tunnel })
+		front.dom.transform.scale.set([1 / 2, 1 / 2])
+		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
 	}
 }
