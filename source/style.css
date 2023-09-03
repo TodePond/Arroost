@@ -1,1 +1,4 @@
-/* Can put utility classes here to dynamically add to entities */
+@font-face {
+	font-family: "Rosario";
+	src: url("/assets/Rosario-VariableFont_wght.ttf") format("truetype");
+}

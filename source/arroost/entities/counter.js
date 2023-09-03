@@ -3,7 +3,7 @@ import { shared } from "../../main.js"
 import { Dom } from "../components/dom.js"
 import { Entity } from "./entity.js"
 
-const count = use(2)
+const count = use(1)
 export const triggerCounter = () => {
 	count.set(count.get() + 1)
 }
