@@ -45,7 +45,7 @@ export class Counter extends Entity {
 		}
 
 		this.dom.transform.position.set(
-			add(shared.pointer.transform.absolutePosition.get().d, [20, 20]),
+			add(shared.pointer.transform.absolutePosition.get(), [20, 20]),
 		)
 	}
 }
