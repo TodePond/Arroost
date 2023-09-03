@@ -27,9 +27,9 @@ This repo has two parts.
 1. The user-interface is in the [arroost](https://github.com/TodePond/Arroost/tree/main/source/arroost) folder.
 2. The inner-engine is in the [nogan](https://github.com/TodePond/Arroost/tree/main/source/nogan) folder.
 
-## How can I help develop it?
+## Can I run it locally?
 
-To run it locally, clone this repo, then run a local file server.<br>
+Yes! To run it locally, clone this repo, then run a local file server.<br>
 I recommend installing [deno](https://deno.com/runtime)'s [file server](https://deno.com/manual@v1.13.2/examples/file_server):
 
 ```
