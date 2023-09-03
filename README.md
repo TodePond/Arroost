@@ -39,7 +39,7 @@ deno install --allow-net --allow-read https://deno.land/std/http/file_server.ts
 Then run it with:
 
 ```
-file_server .
+file_server
 ```
 
 To run the tests, run:
