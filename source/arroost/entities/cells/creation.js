@@ -11,7 +11,7 @@ import { Ellipse } from "../shapes/ellipse.js"
 import { setCellStyles } from "./util.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
-import { Pulling } from "../../machines/pulling.js"
+import { Targeting } from "../../machines/targeting.js"
 import { Line } from "../shapes/line.js"
 
 export class Creation extends Entity {
@@ -41,14 +41,14 @@ export class Creation extends Entity {
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)
 
-		const pulling = this.input.state("pulling")
+		const targeting = this.input.state("pulling")
 		this.use(() => {
-			if (pulling.active.get()) {
+			if (targeting.active.get()) {
 				this.arrow.dom.style.visibility.set("visible")
 			} else {
 				this.arrow.dom.style.visibility.set("hidden")
 			}
-		}, [pulling.active])
+		}, [targeting.active])
 
 		this.use(
 			() => {
@@ -71,9 +71,15 @@ export class Creation extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })
+
+		targeting.pointerdown = this.onTarget.bind(this)
 	}
 
 	onClick(e) {
-		return new Pulling()
+		return new Targeting()
+	}
+
+	onTarget(e) {
+		print("target")
 	}
 }

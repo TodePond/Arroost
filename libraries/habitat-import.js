@@ -1452,6 +1452,10 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 		// }
 
 		const use = (value, options = {}) => {
+			if (Array.isArray(options)) {
+				options = { parents: options }
+			}
+
 			const properties = {
 				dynamic: typeof value === "function",
 				lazy: false,
