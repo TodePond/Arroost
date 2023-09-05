@@ -60,4 +60,11 @@ I'm very happy to help you with any of this, as I'm actively working on Arroost!
 
 ## How does it all work?
 
-It's a secret.
+It's a secret (for now).
+
+## Special thanks
+
+Thank you to everyone who has contributed to Arroost!
+
+- [@jessiejs](https://github.com/jessiejs)
+- [@loglot](https://github.com/loglot)
