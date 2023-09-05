@@ -4,7 +4,7 @@ import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { HALF } from "../../unit.js"
+import { HALF, QUARTER } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
@@ -37,6 +37,7 @@ export class Creation extends Entity {
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+		front.dom.transform.position.set([HALF, HALF])
 
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)

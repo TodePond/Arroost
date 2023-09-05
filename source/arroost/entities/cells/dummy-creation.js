@@ -18,7 +18,7 @@ import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 import { getCellBackgroundColour, getCellForegroundColour, setCellStyles } from "./util.js"
 import { Dummy } from "./dummy.js"
-import { FULL, HALF } from "../../unit.js"
+import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
 
@@ -58,6 +58,7 @@ export class DummyCreation extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
+		this.front.dom.transform.position.set([QUARTER, QUARTER])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		// Nogan behaviours

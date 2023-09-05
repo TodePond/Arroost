@@ -5,6 +5,7 @@ import { shared } from "../../main.js"
 import { Input } from "./input.js"
 import { c, t } from "../../nogan/nogan.js"
 import { distanceBetween } from "../../../libraries/habitat-import.js"
+import { FULL } from "../unit.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -72,10 +73,14 @@ export class Dom extends Component {
 				? document.createElementNS("http://www.w3.org/2000/svg", "svg")
 				: document.createElement("div")
 		container.style["position"] = "absolute"
-		container.style["width"] = "1"
-		container.style["height"] = "1"
+		container.style["width"] = "1px"
+		container.style["height"] = "1px"
 		container.style["overflow"] = "visible"
 		container.style["pointer-events"] = "none"
+		container.style["transform-origin"] = "top left"
+		container.style["height"] = FULL + "px"
+		container.style["width"] = FULL + "px"
+
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
 		this.use(

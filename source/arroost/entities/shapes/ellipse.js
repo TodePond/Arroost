@@ -19,6 +19,8 @@ export class Ellipse extends Entity {
 	render() {
 		const element = SVG("ellipse")
 		element.setAttribute("rx", HALF)
+		element.setAttribute("cx", HALF)
+		element.setAttribute("cy", HALF)
 		return element
 	}
 }
