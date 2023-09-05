@@ -6,6 +6,7 @@ import {
 	SILVER,
 	Splash,
 	WHITE,
+	add,
 	randomBetween,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
@@ -87,7 +88,7 @@ export class DummyCreation extends Entity {
 			if (i % 1 === 0) n++
 			// setTimeout(() => {
 			const dummy = new Dummy({
-				position: this.dom.transform.position.get(),
+				position: add(this.dom.transform.position.get(), [SIXTH, SIXTH]),
 			})
 
 			shared.scene.layer.cell.append(dummy.dom)
