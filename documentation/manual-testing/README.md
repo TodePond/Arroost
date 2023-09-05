@@ -15,7 +15,7 @@ It's really helpful if you tell me your browser and operating system too!
 **Note:** I'm not actively working on touch controls, so some functionality is missing (eg: pinch zooming). However, I don't want it to get completely broken! I've fixed a few crashes with it already.
 
 
-## Camera Controls
+## Camera controls
 
 * Can you move around the camera?
 * Can you zoom in and out?
