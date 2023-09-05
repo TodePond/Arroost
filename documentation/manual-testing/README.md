@@ -8,7 +8,7 @@ However, some things can still be tested already!
 ---
 
 Below are some very basic tests you could try out, if you want to help.<br>
-Please only do so if it's something you might enjoy though :)
+Please only do so if it's something you might enjoy, or find interesting :)
 
 It's really helpful if you tell me your browser and operating system too!
 
