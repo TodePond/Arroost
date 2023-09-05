@@ -29,13 +29,6 @@ export const Style = class extends Component {
 		this.use(() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
 
-		// this.use(
-		// 	() =>
-		// 		(element.style.filter = this.shadow.get()
-		// 			? "drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.15))"
-		// 			: "none"),
-		// )
-
 		// element.style["content-visibility"] = "auto"
 	}
 
@@ -49,7 +42,7 @@ export const Style = class extends Component {
 		this.use(
 			() =>
 				(container.style["box-shadow"] = this.shadow.get()
-					? "0px 4px 8px rgba(0, 0, 0, 0.25)"
+					? "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
 					: "none"),
 		)
 		container.style["border-radius"] = "100%"
