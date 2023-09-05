@@ -4,14 +4,14 @@ import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { HALF } from "../../unit.js"
+import { HALF, QUARTER } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { setCellStyles } from "./util.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
-import { Pulling } from "../../machines/pulling.js"
+import { Targeting } from "../../machines/targeting.js"
 import { Line } from "../shapes/line.js"
 
 export class Creation extends Entity {
@@ -37,18 +37,19 @@ export class Creation extends Entity {
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+		front.dom.transform.position.set([HALF, HALF])
 
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)
 
-		const pulling = this.input.state("pulling")
+		const targeting = this.input.state("pulling")
 		this.use(() => {
-			if (pulling.active.get()) {
+			if (targeting.active.get()) {
 				this.arrow.dom.style.visibility.set("visible")
 			} else {
 				this.arrow.dom.style.visibility.set("hidden")
 			}
-		}, [pulling.active])
+		}, [targeting.active])
 
 		this.use(
 			() => {
@@ -71,9 +72,15 @@ export class Creation extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })
+
+		targeting.pointerdown = this.onTarget.bind(this)
 	}
 
 	onClick(e) {
-		return new Pulling()
+		return new Targeting()
+	}
+
+	onTarget(e) {
+		print("target")
 	}
 }
