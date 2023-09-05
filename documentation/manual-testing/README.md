@@ -5,12 +5,15 @@ Hello, thank you for thinking about contributing to Arroost!
 Arroost is in a very early stage, and you can't do much (yet).<br>
 However, some things can still be tested already!
 
-Note: I'm not actively working on touch controls, so some functionality is missing (eg: pinch zooming). However, I don't want it to get completely broken! I've fixed a few crashes with it already.
+---
 
 Below are some very basic tests you could try out, if you want to help.<br>
 Please only do so if it's something you might enjoy though :)
 
 It's really helpful if you tell me your browser and operating system too!
+
+**Note:** I'm not actively working on touch controls, so some functionality is missing (eg: pinch zooming). However, I don't want it to get completely broken! I've fixed a few crashes with it already.
+
 
 ## Camera Controls
 
