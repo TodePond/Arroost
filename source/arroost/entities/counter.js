@@ -18,6 +18,7 @@ export class Counter extends Entity {
 	render() {
 		this.div = document.createElement("div")
 		this.div.style["color"] = WHITE.toString()
+		this.dom.style.fill.set("transparent")
 		this.div.style["width"] = "100vw"
 		this.div.style["height"] = "100vh"
 		this.div.style["font-size"] = "50px"

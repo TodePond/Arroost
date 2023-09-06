@@ -13,6 +13,7 @@ import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
 import { Targeting } from "../../machines/targeting.js"
 import { Line } from "../shapes/line.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -33,16 +34,15 @@ export class Creation extends Entity {
 
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
-		const back = (this.back = new Ellipse({ input: this.input }))
+		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
-		front.dom.transform.position.set([HALF, HALF])
 
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)
 
-		const targeting = this.input.state("pulling")
+		const targeting = this.input.state("targeting")
 		this.use(() => {
 			if (targeting.active.get()) {
 				this.arrow.dom.style.visibility.set("visible")
@@ -51,21 +51,14 @@ export class Creation extends Entity {
 			}
 		}, [targeting.active])
 
-		this.use(
-			() => {
-				const pointerPosition = shared.pointer.transform.absolutePosition.get()
-				this.arrow.target.setAbsolutePosition(pointerPosition)
-				// this.arrow.target.position.get()
-			},
-			{
-				parents: [shared.pointer.transform.absolutePosition],
-			},
-		)
+		this.use(() => {
+			if (this.arrow.dom.style.visibility.get() === "hidden") return
+			const pointerPosition = shared.pointer.transform.absolutePosition.get()
+			this.arrow.target.setAbsolutePosition(pointerPosition)
+		}, [shared.pointer.transform.absolutePosition, this.arrow.dom.style.visibility])
 
 		// Styles!
 		front.dom.transform.scale.set([3 / 4, 3 / 4])
-		// front.dom.transform.scale.set([2 / 3, 2 / 3])
-		// front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
 
 		// Nogan behaviours
@@ -73,7 +66,7 @@ export class Creation extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })
 
-		targeting.pointerdown = this.onTarget.bind(this)
+		// targeting.pointerdown = this.onTarget.bind(this)
 	}
 
 	onClick(e) {

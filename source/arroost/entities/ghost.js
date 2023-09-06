@@ -24,7 +24,7 @@ export class Ghost extends Entity {
 				if (equals(shared.pointer.transform.position.get(), [0, 0])) {
 					return
 				} else {
-					// this.ellipse.dom.style.visibility.set("visible")
+					this.ellipse.dom.style.visibility.set("visible")
 					started = true
 				}
 			}

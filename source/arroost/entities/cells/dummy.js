@@ -19,6 +19,7 @@ import { Input } from "../../components/input.js"
 import { setCellStyles } from "./util.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class Dummy extends Entity {
 	/**
@@ -50,7 +51,7 @@ export class Dummy extends Entity {
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
-		const back = (this.back = new Ellipse({ input: this.input }))
+		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
@@ -58,7 +59,6 @@ export class Dummy extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.front.dom.transform.position.set([SIXTH, SIXTH])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])

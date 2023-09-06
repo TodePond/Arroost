@@ -19,7 +19,7 @@ export class Dom extends Component {
 
 	/**
 	 * @param {{
-	 * 	id?: string
+	 * 	id: string
 	 * 	transform?: Transform
 	 * 	type?: "html" | "svg"
 	 * 	position?: [number, number]
@@ -54,7 +54,13 @@ export class Dom extends Component {
 		this.#element = element
 		if (element) {
 			element.setAttribute("class", `${this.id}${this.id ? "-" : ""}element`)
-			this.style.applyElement(element)
+			element.style["draggable"] = "false"
+			this.type === "svg"
+				? // @ts-expect-error - can't be bothered to get it to figure out the types here
+				  this.style.applySvgElement(element)
+				: // @ts-expect-error
+				  this.style.applyHtmlElement(element)
+
 			element["input"] = this.input
 		}
 		return element
@@ -77,9 +83,12 @@ export class Dom extends Component {
 		container.style["height"] = "1px"
 		container.style["overflow"] = "visible"
 		container.style["pointer-events"] = "none"
-		container.style["transform-origin"] = "top left"
-		container.style["height"] = FULL + "px"
-		container.style["width"] = FULL + "px"
+		container.style["draggable"] = "false"
+		// container.style["box-sizing"] = "border-box"
+		container.style["contain"] = "size layout style content"
+		// container.style["transform-origin"] = "top left"
+		// container.style["height"] = FULL + "px"
+		// container.style["width"] = FULL + "px"
 
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 

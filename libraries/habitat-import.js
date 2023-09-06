@@ -585,14 +585,15 @@ const requestAnimationFrame = window.requestAnimationFrame || ((v) => setTimeout
 	//====== ./html.js ======
 	{
 		HabitatFrogasaurus["./html.js"] = {}
-		const HTML = (source) => {
-			const template = document.createElement("template")
-			template.innerHTML = source
-			const { content } = template
-			if (content.childElementCount === 1) {
-				return content.firstChild
-			}
-			return template.content
+		const HTML = (tag) => {
+			return document.createElement(tag)
+			// const template = document.createElement("template")
+			// template.innerHTML = source
+			// const { content } = template
+			// if (content.childElementCount === 1) {
+			// 	return content.firstChild
+			// }
+			// return template.content
 		}
 
 		HabitatFrogasaurus["./html.js"].HTML = HTML

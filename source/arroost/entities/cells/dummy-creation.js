@@ -22,6 +22,7 @@ import { Dummy } from "./dummy.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class DummyCreation extends Entity {
 	/**
@@ -42,7 +43,7 @@ export class DummyCreation extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "dummy",
+				id: "dummy-creation",
 				type: "html",
 				input: this.input,
 			}),
@@ -51,7 +52,7 @@ export class DummyCreation extends Entity {
 
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
-		const back = (this.back = new Ellipse({ input: this.input }))
+		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
@@ -59,7 +60,6 @@ export class DummyCreation extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
-		this.front.dom.transform.position.set([QUARTER, QUARTER])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		// Nogan behaviours
@@ -81,14 +81,14 @@ export class DummyCreation extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		const count = e.button === 0 ? 1 : 10
+		const count = e.button === 0 ? 1 : 100
 
 		let n = 0
 		for (let i = 0; i < count; i++) {
 			if (i % 1 === 0) n++
 			// setTimeout(() => {
 			const dummy = new Dummy({
-				position: add(this.dom.transform.position.get(), [SIXTH, SIXTH]),
+				position: this.dom.transform.position.get(),
 			})
 
 			shared.scene.layer.cell.append(dummy.dom)
