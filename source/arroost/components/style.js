@@ -51,14 +51,17 @@ export const Style = class extends Component {
 		this.use(() => (element.style["background-color"] = this.fill.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
 		this.use(() => {
-			if (!this.shadow.get() || this.stroke.get() === "none" || this.strokeWidth.get() === 0)
+			const hasStroke = this.stroke.get() !== "none" && this.strokeWidth.get() !== 0
+			const hasShadow = this.shadow.get()
+			if (!hasStroke && !hasShadow) {
 				return
-			const shadow = this.shadow.get() ? Style.SHADOW : ""
-			const stroke = this.stroke.get()
+			}
+			const shadow = hasShadow ? Style.SHADOW : ""
+			const stroke = hasStroke
 				? `inset 0 0 0 ${this.strokeWidth.get()}px ${this.stroke.get()}`
 				: ""
 
-			const divider = stroke && shadow ? ", " : ""
+			const divider = hasShadow && hasStroke ? ", " : ""
 			element.style["box-shadow"] = shadow + divider + stroke ?? "none"
 		})
 	}
