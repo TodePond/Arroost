@@ -17,7 +17,7 @@ export class Line extends Entity {
 	constructor({ input, parent = Transform.Root } = {}) {
 		super()
 		this.dom = this.attach(new Dom({ type: "svg", id: "line", input }))
-		this.target = this.attach(new Transform({ parent }))
+		this.target = this.attach(new Transform({ parent: this.dom.transform }))
 		this.dom.style.stroke.set(WHITE.toString())
 		this.dom.style.strokeWidth.set(QUARTER)
 		this.dom.render = () => this.render()

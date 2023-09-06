@@ -44,7 +44,7 @@ export class Creation extends Entity {
 		this.dom.append(this.front.dom)
 
 		this.arrow = new Line({ parent: this.dom.transform })
-		this.dom.append(this.arrow.dom)
+		shared.scene.layer.ghost.append(this.arrow.dom)
 
 		const pulling = this.input.state("pulling")
 		const targeting = this.input.state("targeting")
@@ -56,11 +56,19 @@ export class Creation extends Entity {
 			}
 		}, [pulling.active, targeting.active])
 
+		this.source = this.input
 		this.use(() => {
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
+			this.arrow.dom.transform.setAbsolutePosition(
+				this.source.entity.dom.transform.absolutePosition.get(),
+			)
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			this.arrow.target.setAbsolutePosition(pointerPosition)
-		}, [shared.pointer.transform.absolutePosition, this.arrow.dom.style.visibility])
+		}, [
+			shared.pointer.transform.absolutePosition,
+			this.source.entity.dom.transform.absolutePosition,
+			this.arrow.dom.style.visibility,
+		])
 
 		// Styles!
 		front.dom.transform.scale.set([3 / 4, 3 / 4])
@@ -78,6 +86,7 @@ export class Creation extends Entity {
 
 	onClick(e) {
 		this.template = Dummy
+		this.source = this.input
 		return new Pulling()
 	}
 
@@ -92,6 +101,7 @@ export class Creation extends Entity {
 		}
 
 		this.template = DummyCreation
+		this.source = e.state.target
 		return new Pulling(this.input)
 	}
 }
