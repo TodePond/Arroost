@@ -54,7 +54,12 @@ export class Dom extends Component {
 		this.#element = element
 		if (element) {
 			element.setAttribute("class", `${this.id}${this.id ? "-" : ""}element`)
-			this.style.applyElement(element)
+			this.type === "svg"
+				? // @ts-expect-error - can't be bothered to get it to figure out the types here
+				  this.style.applySvgElement(element)
+				: // @ts-expect-error
+				  this.style.applyHtmlElement(element)
+
 			element["input"] = this.input
 		}
 		return element

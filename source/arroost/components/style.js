@@ -21,19 +21,42 @@ export const Style = class extends Component {
 
 	zIndex = this.use(0)
 
+	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
+	static SHADOW_FILTER =
+		"drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.15))"
+
 	/**
-	 * @param {HTMLElement | SVGElement} element
+	 * @param {SVGElement} element
 	 */
-	applyElement(element) {
+	applySvgElement(element) {
 		this.use(() => element.setAttribute("fill", this.fill.get().toString()))
 		this.use(() => element.setAttribute("stroke", this.stroke.get().toString()))
 		this.use(() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
-
-		// element.style["content-visibility"] = "auto"
+		this.use(() => {
+			if (!this.shadow.get()) return
+			console.warn(
+				"You are applying a shadow to an SVG element.",
+				"This is quite slow.",
+				"Consider changing the element type to HTML :)",
+			)
+			element.style.filter = this.shadow.get() ? Style.SHADOW_FILTER : "none"
+		})
 	}
 
-	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
+	/**
+	 * @param {SVGElement} element
+	 */
+	applyHtmlElement(element) {
+		this.use(() => (element.style["background-color"] = this.fill.get().toString()))
+		this.use(() => (element.style["border-color"] = this.stroke.get().toString()))
+		this.use(() => (element.style["border-width"] = this.strokeWidth.get().toString()))
+		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
+		this.use(() => {
+			if (!this.shadow.get()) return
+			element.style["box-shadow"] = this.shadow.get() ? Style.SHADOW : "none"
+		})
+	}
 
 	/**
 	 * @param {HTMLElement | SVGElement} container
