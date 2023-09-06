@@ -3,11 +3,7 @@ import { GREY_SILVER } from "../../../main.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { Entity } from "../entity.js"
 
-// This is a joint effort from many different entities/components
-// So I didn't know where to put it
-// So it has ended up here
 /**
  * @param {{
  * 	back: Dom
@@ -44,7 +40,7 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 export const getCellForegroundColour = ({ tunnel, input }) => {
 	if (tunnel.isFiring.get()) {
 		return WHITE
-	} else if (input.is("targeting")) {
+	} else if (input.is("pulling") || input.is("targeting")) {
 		return WHITE
 	}
 	return BLACK
