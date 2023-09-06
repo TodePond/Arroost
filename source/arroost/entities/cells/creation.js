@@ -13,6 +13,7 @@ import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
 import { Targeting } from "../../machines/targeting.js"
 import { Line } from "../shapes/line.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -33,33 +34,32 @@ export class Creation extends Entity {
 
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
-		const back = (this.back = new Ellipse({ input: this.input }))
+		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
-		this.arrow = new Line({ parent: this.dom.transform })
-		this.dom.append(this.arrow.dom)
+		// this.arrow = new Line({ parent: this.dom.transform })
+		// this.dom.append(this.arrow.dom)
 
-		const targeting = this.input.state("targeting")
-		this.use(() => {
-			if (targeting.active.get()) {
-				this.arrow.dom.style.visibility.set("visible")
-			} else {
-				this.arrow.dom.style.visibility.set("hidden")
-			}
-		}, [targeting.active])
+		// const targeting = this.input.state("targeting")
+		// this.use(() => {
+		// 	if (targeting.active.get()) {
+		// 		this.arrow.dom.style.visibility.set("visible")
+		// 	} else {
+		// 		this.arrow.dom.style.visibility.set("hidden")
+		// 	}
+		// }, [targeting.active])
 
-		this.use(
-			() => {
-				const pointerPosition = shared.pointer.transform.absolutePosition.get()
-				this.arrow.target.setAbsolutePosition(pointerPosition)
-				// this.arrow.target.position.get()
-			},
-			{
-				parents: [shared.pointer.transform.absolutePosition],
-			},
-		)
+		// this.use(
+		// 	() => {
+		// 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
+		// 		this.arrow.target.setAbsolutePosition(pointerPosition)
+		// 	},
+		// 	{
+		// 		parents: [shared.pointer.transform.absolutePosition],
+		// 	},
+		// )
 
 		// Styles!
 		front.dom.transform.scale.set([3 / 4, 3 / 4])
@@ -72,7 +72,7 @@ export class Creation extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })
 
-		targeting.pointerdown = this.onTarget.bind(this)
+		// targeting.pointerdown = this.onTarget.bind(this)
 	}
 
 	onClick(e) {
