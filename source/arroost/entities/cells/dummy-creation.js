@@ -17,7 +17,7 @@ import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
-import { getCellBackgroundColour, getCellForegroundColour, setCellStyles } from "./util.js"
+import { getCellBackgroundColour, getCellForegroundColour, setCellStyles } from "./shared.js"
 import { Dummy } from "./dummy.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
@@ -47,6 +47,7 @@ export class DummyCreation extends Entity {
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
+				position,
 			}),
 		))
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
@@ -81,7 +82,7 @@ export class DummyCreation extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		const count = e.button === 0 ? 1 : 10
+		const count = e.button === 0 ? 1 : 5
 
 		let n = 0
 		for (let i = 0; i < count; i++) {
@@ -93,7 +94,7 @@ export class DummyCreation extends Entity {
 
 			shared.scene.layer.cell.append(dummy.dom)
 			const angle = Math.random() * Math.PI * 2
-			const speed = e.button === 0 ? 15 : randomBetween(10, 30)
+			const speed = e.button === 0 ? 15 : randomBetween(10, 18)
 			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
 			dummy.carry.movement.velocity.set(velocity)
 			// }, n * 1)
