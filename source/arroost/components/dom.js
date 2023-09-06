@@ -44,11 +44,6 @@ export class Dom extends Component {
 		this.style = style
 		this.input = input ?? shared.scene?.input
 		this.cullBounds = this.use(cullBounds)
-
-		// this.cullBoundsToCorner = this.use(() => {
-		// 	const [x, y] = this.cullBounds.get() ?? [0, 0]
-		// 	return distanceBetween([0, 0], [x, y])
-		// }, [this.cullBounds])
 	}
 
 	getElement() {
@@ -107,15 +102,7 @@ export class Dom extends Component {
 			this.use(() => {
 				const [x, y] = this.transform.absolutePosition.get()
 
-				const bounds = shared.scene.bounds.get() ?? {
-					left: -Infinity,
-					top: -Infinity,
-					right: Infinity,
-					bottom: Infinity,
-					// center: [0, 0],
-					// centerToCorner: Infinity,
-				}
-
+				const bounds = shared.scene.bounds.get()
 				if (!this.outOfView.get()) {
 					const xPlacement = x - bounds.left
 					if (xPlacement <= 0) {
@@ -159,84 +146,6 @@ export class Dom extends Component {
 
 					this.outOfView.set(false)
 				}
-
-				// if (this.outOfView.get()) {
-				// 	const xPlacement = x - bounds.left
-				// 	if (xPlacement > 0) {
-				// 		this.outOfView.set(false)
-				// 		return
-				// 	}
-
-				// 	const yPlacement = y - bounds.top
-				// 	if (yPlacement > 0) {
-				// 		this.outOfView.set(false)
-				// 		return
-				// 	}
-
-				// 	// if (xPlacement < bounds.right) {
-				// 	// 	this.outOfView.set(false)
-				// 	// 	return
-				// 	// }
-
-				// 	// if (yPlacement < bounds.bottom) {
-				// 	// 	this.outOfView.set(false)
-				// 	// 	return
-				// 	// }
-				// } else {
-				// 	const xPlacement = x - bounds.left
-				// 	if (xPlacement <= 0) {
-				// 		this.outOfView.set(true)
-				// 		return
-				// 	}
-
-				// 	const yPlacement = y - bounds.top
-				// 	if (yPlacement <= 0) {
-				// 		this.outOfView.set(true)
-				// 		return
-				// 	}
-
-				// 	// if (xPlacement >= bounds.right) {
-				// 	// 	this.outOfView.set(true)
-				// 	// 	return
-				// 	// }
-
-				// 	// if (yPlacement >= bounds.bottom) {
-				// 	// 	this.outOfView.set(true)
-				// 	// 	return
-				// 	// }
-				// }
-
-				// const screenCenter = bounds.center
-				// const distance = distanceBetween(screenCenter, [x, y])
-				// if (distance > bounds.centerToCorner) {
-				// 	if (this.outOfView.get()) return
-				// 	this.outOfView.set(true)
-				// 	return
-				// }
-
-				// if (distance > bounds.centerToEdge) {
-				// 	// if (!this.outOfView.get()) return
-				// 	this.outOfView.set(true)
-				// 	return
-				// }
-
-				// if (!this.outOfView.get()) return
-				// this.outOfView.set(false)
-
-				// const screenLeft = bounds.left
-				// const screenTop = bounds.top
-				// const screenRight = bounds.right
-				// const screenBottom = bounds.bottom
-
-				// const left = x - cullbounds.x
-				// const top = y - cullbounds.y
-				// const right = x + cullbounds.x
-				// const bottom = y + cullbounds.y
-
-				// const outOfView =
-				// 	right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
-
-				// this.outOfView.set(outOfView)
 			}, [this.transform.absolutePosition, shared.scene.bounds])
 		}
 
