@@ -39,13 +39,13 @@ export const Style = class extends Component {
 		this.use(() => container.setAttribute("visibility", this.visibility.get()))
 		this.use(() => (container.style["z-index"] = this.zIndex.get()))
 		this.use(() => (container.style["cursor"] = this.cursor.get()))
-		this.use(
-			() =>
-				(container.style["box-shadow"] = this.shadow.get()
-					? "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
-					: "none"),
-		)
-		container.style["border-radius"] = "100%"
+		// this.use(
+		// 	() =>
+		// 		(container.style["box-shadow"] = this.shadow.get()
+		// 			? "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
+		// 			: "none"),
+		// )
+		// container.style["border-radius"] = "100%"
 	}
 
 	/**

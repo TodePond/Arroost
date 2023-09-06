@@ -37,12 +37,11 @@ export class Creation extends Entity {
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
-		front.dom.transform.position.set([HALF, HALF])
 
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)
 
-		const targeting = this.input.state("pulling")
+		const targeting = this.input.state("targeting")
 		this.use(() => {
 			if (targeting.active.get()) {
 				this.arrow.dom.style.visibility.set("visible")

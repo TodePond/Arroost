@@ -59,7 +59,6 @@ export class DummyCreation extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
-		this.front.dom.transform.position.set([QUARTER, QUARTER])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		// Nogan behaviours
@@ -88,7 +87,7 @@ export class DummyCreation extends Entity {
 			if (i % 1 === 0) n++
 			// setTimeout(() => {
 			const dummy = new Dummy({
-				position: add(this.dom.transform.position.get(), [SIXTH, SIXTH]),
+				position: this.dom.transform.position.get(),
 			})
 
 			shared.scene.layer.cell.append(dummy.dom)

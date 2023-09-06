@@ -58,7 +58,6 @@ export class Dummy extends Entity {
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.front.dom.transform.position.set([SIXTH, SIXTH])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		this.dom.cullBounds.set([(FULL * 2) / 3, (FULL * 2) / 3])
