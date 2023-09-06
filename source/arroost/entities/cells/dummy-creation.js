@@ -46,12 +46,12 @@ export class DummyCreation extends Entity {
 				id: "dummy-creation",
 				type: "html",
 				input: this.input,
+				cullBounds: [HALF, HALF],
 			}),
 		))
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
-		this.dom.cullBounds.set([HALF, HALF])
 		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
@@ -96,7 +96,7 @@ export class DummyCreation extends Entity {
 			const speed = e.button === 0 ? 15 : randomBetween(10, 30)
 			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
 			dummy.carry.movement.velocity.set(velocity)
-			// }, n * 20)
+			// }, n * 1)
 		}
 	}
 }

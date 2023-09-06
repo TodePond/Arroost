@@ -25,6 +25,7 @@ export class Dom extends Component {
 	 * 	position?: [number, number]
 	 * 	style?: Style
 	 * 	input?: Input
+	 * 	cullBounds?: [number, number] | null
 	 * }} options
 	 */
 	constructor({
@@ -34,6 +35,7 @@ export class Dom extends Component {
 		transform = new Transform({ position }),
 		style = new Style(),
 		input,
+		cullBounds = null,
 	}) {
 		super()
 		this.id = id
@@ -41,11 +43,7 @@ export class Dom extends Component {
 		this.type = type
 		this.style = style
 		this.input = input ?? shared.scene?.input
-
-		this.cullBoundsToCorner = this.use(() => {
-			const [x, y] = this.cullBounds.get() ?? [0, 0]
-			return distanceBetween([0, 0], [x, y])
-		})
+		this.cullBounds = this.use(cullBounds)
 	}
 
 	getElement() {
@@ -68,9 +66,6 @@ export class Dom extends Component {
 
 	outOfView = this.use(false)
 
-	/** @type {Signal<[number, number] | null>} */
-	cullBounds = this.use(null)
-
 	getContainer() {
 		if (this.#container) return this.#container
 
@@ -78,77 +73,81 @@ export class Dom extends Component {
 			this.type === "svg"
 				? document.createElementNS("http://www.w3.org/2000/svg", "svg")
 				: document.createElement("div")
-		container.style["position"] = "absolute"
-		container.style["width"] = "1px"
-		container.style["height"] = "1px"
-		container.style["overflow"] = "visible"
-		container.style["pointer-events"] = "none"
-		container.style["draggable"] = "false"
-		// container.style["box-sizing"] = "border-box"
-		container.style["contain"] = "size layout style content"
-		// container.style["transform-origin"] = "top left"
-		// container.style["height"] = FULL + "px"
-		// container.style["width"] = FULL + "px"
+		container.style.position = "absolute"
+		// @ts-expect-error - more performant if I just pass a number
+		container.style.width = 1
+		// @ts-expect-error
+		container.style.height = 1
+		container.style.overflow = "visible"
+		container.style.pointerEvents = "none"
+		container.style.userSelect = "none"
+		container.style.contain = "size layout style"
 
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
-		this.use(
-			() => {
+		this.use(() => {
+			const [x, y] = this.transform.absolutePosition.get()
+			// @ts-expect-error - more performant if I just pass a number
+			container.style.left = x
+			// @ts-expect-error
+			container.style.top = y
+		}, [this.transform.absolutePosition])
+
+		this.use(() => {
+			const [sx, sy] = this.transform.scale.get()
+			container.style.transform = `scale(${sx}, ${sy})`
+		}, [this.transform.scale])
+
+		if (this.cullBounds.get()) {
+			this.use(() => {
 				const [x, y] = this.transform.absolutePosition.get()
-				const [sx, sy] = this.transform.scale.get()
-				container.style["transform"] = `translate(${x}px, ${y}px) scale(${sx}, ${sy})`
-			},
-			{ parents: [this.transform.absolutePosition, this.transform.scale] },
-		)
 
-		this.use(
-			() => {
-				const cullbounds = this.cullBounds.get()
-				if (cullbounds === null) return
-				const [x, y] = this.transform.absolutePosition.get()
+				const bounds = shared.scene.bounds.get()
+				if (!this.outOfView.get()) {
+					const xPlacement = x - bounds.left
+					if (xPlacement <= 0) {
+						this.outOfView.set(true)
+						return
+					}
 
-				const bounds = shared.scene?.bounds.get() ?? {
-					left: -Infinity,
-					top: -Infinity,
-					right: Infinity,
-					bottom: Infinity,
-					center: 0,
-				}
+					const yPlacement = y - bounds.top
+					if (yPlacement <= 0) {
+						this.outOfView.set(true)
+						return
+					}
 
-				const screenCenter = bounds.center
-				const distance = distanceBetween(screenCenter, [x, y])
-				if (distance > bounds.centerToCorner + this.cullBoundsToCorner.get()) {
-					if (this.outOfView.get()) return
-					this.outOfView.set(true)
-					return
-				}
+					if (xPlacement >= bounds.right) {
+						this.outOfView.set(true)
+						return
+					}
 
-				if (distance < bounds.centerToEdge) {
-					if (!this.outOfView.get()) return
+					if (yPlacement >= bounds.bottom) {
+						this.outOfView.set(true)
+						return
+					}
+				} else {
+					const xPlacement = x - bounds.left
+					if (xPlacement <= 0) {
+						return
+					}
+
+					const yPlacement = y - bounds.top
+					if (yPlacement <= 0) {
+						return
+					}
+
+					if (xPlacement >= bounds.right) {
+						return
+					}
+
+					if (yPlacement >= bounds.bottom) {
+						return
+					}
+
 					this.outOfView.set(false)
-					return
 				}
-
-				const screenLeft = bounds.left
-				const screenTop = bounds.top
-				const screenRight = bounds.right
-				const screenBottom = bounds.bottom
-
-				const left = x - cullbounds.x
-				const top = y - cullbounds.y
-				const right = x + cullbounds.x
-				const bottom = y + cullbounds.y
-
-				const outOfView =
-					right < screenLeft || left > screenRight || bottom < screenTop || top > screenBottom
-
-				// if (outOfView === this.outOfView.get()) return
-				this.outOfView.set(outOfView)
-			},
-			{
-				parents: [this.transform.absolutePosition, shared.scene?.bounds],
-			},
-		)
+			}, [this.transform.absolutePosition, shared.scene.bounds])
+		}
 
 		this.use(
 			() => {
