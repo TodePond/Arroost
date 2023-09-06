@@ -39,32 +39,26 @@ export class Creation extends Entity {
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
-		// this.arrow = new Line({ parent: this.dom.transform })
-		// this.dom.append(this.arrow.dom)
+		this.arrow = new Line({ parent: this.dom.transform })
+		this.dom.append(this.arrow.dom)
 
-		// const targeting = this.input.state("targeting")
-		// this.use(() => {
-		// 	if (targeting.active.get()) {
-		// 		this.arrow.dom.style.visibility.set("visible")
-		// 	} else {
-		// 		this.arrow.dom.style.visibility.set("hidden")
-		// 	}
-		// }, [targeting.active])
+		const targeting = this.input.state("targeting")
+		this.use(() => {
+			if (targeting.active.get()) {
+				this.arrow.dom.style.visibility.set("visible")
+			} else {
+				this.arrow.dom.style.visibility.set("hidden")
+			}
+		}, [targeting.active])
 
-		// this.use(
-		// 	() => {
-		// 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
-		// 		this.arrow.target.setAbsolutePosition(pointerPosition)
-		// 	},
-		// 	{
-		// 		parents: [shared.pointer.transform.absolutePosition],
-		// 	},
-		// )
+		this.use(() => {
+			if (this.arrow.dom.style.visibility.get() === "hidden") return
+			const pointerPosition = shared.pointer.transform.absolutePosition.get()
+			this.arrow.target.setAbsolutePosition(pointerPosition)
+		}, [shared.pointer.transform.absolutePosition, this.arrow.dom.style.visibility])
 
 		// Styles!
 		front.dom.transform.scale.set([3 / 4, 3 / 4])
-		// front.dom.transform.scale.set([2 / 3, 2 / 3])
-		// front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
 
 		// Nogan behaviours
