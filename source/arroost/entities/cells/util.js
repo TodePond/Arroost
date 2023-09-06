@@ -25,10 +25,10 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 	input.use(() => {
 		back.style.fill.set(getCellBackgroundColour({ input }))
 	})
-	
-	back.style.shadow.set(true);
-	back.style.stroke.set('rgba(0, 0, 0, 0.25)');
-	back.style.strokeWidth.set(2);
+
+	back.style.shadow.set(true)
+	back.style.stroke.set("rgba(0, 0, 0, 0.25)")
+	back.style.strokeWidth.set(2)
 
 	back.style.pointerEvents.set("all")
 
@@ -44,7 +44,7 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 export const getCellForegroundColour = ({ tunnel, input }) => {
 	if (tunnel.isFiring.get()) {
 		return WHITE
-	} else if (input.is("pulling")) {
+	} else if (input.is("targeting")) {
 		return WHITE
 	}
 	return BLACK
