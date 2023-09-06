@@ -81,7 +81,7 @@ export class DummyCreation extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		const count = e.button === 0 ? 1 : 10
+		const count = e.button === 0 ? 1 : 100
 
 		let n = 0
 		for (let i = 0; i < count; i++) {

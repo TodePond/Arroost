@@ -49,12 +49,17 @@ export const Style = class extends Component {
 	 */
 	applyHtmlElement(element) {
 		this.use(() => (element.style["background-color"] = this.fill.get().toString()))
-		this.use(() => (element.style["border-color"] = this.stroke.get().toString()))
-		this.use(() => (element.style["border-width"] = this.strokeWidth.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
 		this.use(() => {
-			if (!this.shadow.get()) return
-			element.style["box-shadow"] = this.shadow.get() ? Style.SHADOW : "none"
+			if (!this.shadow.get() || this.stroke.get() === "none" || this.strokeWidth.get() === 0)
+				return
+			const shadow = this.shadow.get() ? Style.SHADOW : ""
+			const stroke = this.stroke.get()
+				? `inset 0 0 0 ${this.strokeWidth.get()}px ${this.stroke.get()}`
+				: ""
+
+			const divider = stroke && shadow ? ", " : ""
+			element.style["box-shadow"] = shadow + divider + stroke ?? "none"
 		})
 	}
 
