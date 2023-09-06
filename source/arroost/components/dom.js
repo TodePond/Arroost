@@ -19,7 +19,7 @@ export class Dom extends Component {
 
 	/**
 	 * @param {{
-	 * 	id?: string
+	 * 	id: string
 	 * 	transform?: Transform
 	 * 	type?: "html" | "svg"
 	 * 	position?: [number, number]

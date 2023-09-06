@@ -27,8 +27,8 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 	})
 
 	back.style.shadow.set(true)
-	back.style.stroke.set("rgba(0, 0, 0, 0.25)")
-	back.style.strokeWidth.set(2)
+	// back.style.stroke.set("rgba(0, 0, 0, 0.25)")
+	// back.style.strokeWidth.set(2)
 
 	back.style.pointerEvents.set("all")
 

@@ -1,5 +1,6 @@
 import { glue, GREY, use } from "../../../libraries/habitat-import.js"
 import { Component } from "./component.js"
+import { Dom } from "./dom.js"
 
 export const Style = class extends Component {
 	static highestZIndex = 0
@@ -32,6 +33,8 @@ export const Style = class extends Component {
 		// element.style["content-visibility"] = "auto"
 	}
 
+	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
+
 	/**
 	 * @param {HTMLElement | SVGElement} container
 	 */
@@ -39,13 +42,12 @@ export const Style = class extends Component {
 		this.use(() => container.setAttribute("visibility", this.visibility.get()))
 		this.use(() => (container.style["z-index"] = this.zIndex.get()))
 		this.use(() => (container.style["cursor"] = this.cursor.get()))
-		// this.use(
-		// 	() =>
-		// 		(container.style["box-shadow"] = this.shadow.get()
-		// 			? "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
-		// 			: "none"),
-		// )
-		// container.style["border-radius"] = "100%"
+		this.use(() => (container.style.filter = this.shadow.get() ? Style.SHADOW : "none"))
+
+		this.use(() => {
+			this.shadowElement = this.attach(new Dom({ id: "shadow" }))
+			container.style["box-shadow"] = this.shadow.get() ? Style.SHADOW : "none"
+		})
 	}
 
 	/**

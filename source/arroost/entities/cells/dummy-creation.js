@@ -22,6 +22,7 @@ import { Dummy } from "./dummy.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class DummyCreation extends Entity {
 	/**
@@ -42,7 +43,7 @@ export class DummyCreation extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "dummy",
+				id: "dummy-creation",
 				type: "html",
 				input: this.input,
 			}),
@@ -51,7 +52,7 @@ export class DummyCreation extends Entity {
 
 		// Render elements
 		this.dom.cullBounds.set([HALF, HALF])
-		const back = (this.back = new Ellipse({ input: this.input }))
+		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
