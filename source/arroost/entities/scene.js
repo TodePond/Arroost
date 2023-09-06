@@ -30,15 +30,6 @@ export class Scene extends Entity {
 		top: 0,
 		right: innerWidth,
 		bottom: innerHeight,
-		// center: [innerWidth / 2, innerHeight / 2],
-		// centerToCorner: distanceBetween(
-		// 	[innerWidth / 2, innerHeight / 2],
-		// 	[innerWidth, innerHeight],
-		// ),
-		// centerToEdge: distanceBetween(
-		// 	[innerWidth / 2, innerHeight / 2],
-		// 	[innerWidth, innerHeight / 2],
-		// ),
 	})
 
 	constructor() {
