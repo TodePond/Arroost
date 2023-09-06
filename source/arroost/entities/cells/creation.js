@@ -15,8 +15,11 @@ import { Pulling } from "../../machines/pulling.js"
 import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
+import { Dummy } from "./dummy.js"
 
 export class Creation extends Entity {
+	pulling = this.use(false)
+
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
 		super()
 		triggerCounter()
@@ -71,15 +74,24 @@ export class Creation extends Entity {
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
+	template = Dummy
+
 	onClick(e) {
+		this.template = Dummy
 		return new Pulling()
 	}
 
 	onTargetingPointerUp(e) {
-		const dummy = new DummyCreation({
-			position: shared.pointer.transform.absolutePosition.get(),
-		})
+		if (e.state.target === shared.scene.input) {
+			const dummy = new this.template({
+				position: shared.pointer.transform.absolutePosition.get(),
+			})
 
-		shared.scene.layer.cell.append(dummy.dom)
+			shared.scene.layer.cell.append(dummy.dom)
+			return
+		}
+
+		this.template = DummyCreation
+		return new Pulling(this.input)
 	}
 }

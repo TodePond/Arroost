@@ -10,6 +10,8 @@ export class Input extends Component {
 		this.entity = entity
 	}
 
+	highlighted = this.use(false)
+
 	/** @type {null | InputEventHandler} */
 	pointerover = null
 

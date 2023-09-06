@@ -47,7 +47,10 @@ export const getCellForegroundColour = ({ tunnel, input }) => {
 }
 
 export const getCellBackgroundColour = ({ input }) => {
-	if (input.is("hovering") || input.is("pulling")) {
+	if (input.is("hovering")) {
+		return GREY_SILVER
+	}
+	if (input.highlighted.get()) {
 		return GREY_SILVER
 	}
 	return GREY
