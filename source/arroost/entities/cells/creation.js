@@ -28,12 +28,12 @@ export class Creation extends Entity {
 				id: "creation",
 				type: "html",
 				input: this.input,
+				cullBounds: [HALF, HALF],
 			}),
 		))
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
 
 		// Render elements
-		this.dom.cullBounds.set([HALF, HALF])
 		const back = (this.back = new EllipseHtml({ input: this.input }))
 		const front = (this.front = new Plus())
 		this.dom.append(this.back.dom)

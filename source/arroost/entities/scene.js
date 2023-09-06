@@ -30,15 +30,15 @@ export class Scene extends Entity {
 		top: 0,
 		right: innerWidth,
 		bottom: innerHeight,
-		center: [innerWidth / 2, innerHeight / 2],
-		centerToCorner: distanceBetween(
-			[innerWidth / 2, innerHeight / 2],
-			[innerWidth, innerHeight],
-		),
-		centerToEdge: distanceBetween(
-			[innerWidth / 2, innerHeight / 2],
-			[innerWidth, innerHeight / 2],
-		),
+		// center: [innerWidth / 2, innerHeight / 2],
+		// centerToCorner: distanceBetween(
+		// 	[innerWidth / 2, innerHeight / 2],
+		// 	[innerWidth, innerHeight],
+		// ),
+		// centerToEdge: distanceBetween(
+		// 	[innerWidth / 2, innerHeight / 2],
+		// 	[innerWidth, innerHeight / 2],
+		// ),
 	})
 
 	constructor() {
@@ -76,26 +76,16 @@ export class Scene extends Entity {
 
 			const screenLeft = -sx / ssx
 			const screenTop = -sy / ssy
-			const screenRight = (this.width.get() - sx) / ssx
-			const screenBottom = (this.height.get() - sy) / ssy
-			const screenCenter = [
-				screenLeft + (screenRight - screenLeft) / 2,
-				screenTop + (screenBottom - screenTop) / 2,
-			]
-
-			const screenCenterToCorner = distanceBetween(screenCenter, [screenRight, screenBottom])
-			const screenCenterToEdge = distanceBetween(screenCenter, [screenRight, screenCenter.x])
+			const screenRight = this.width.get() / ssx
+			const screenBottom = this.height.get() / ssy
 
 			this.bounds.set({
 				left: screenLeft,
 				top: screenTop,
 				right: screenRight,
 				bottom: screenBottom,
-				center: screenCenter,
-				centerToCorner: screenCenterToCorner,
-				centerToEdge: screenCenterToEdge,
 			})
-		})
+		}, [this.dom.transform.position, this.dom.transform.scale, this.width, this.height])
 
 		const layer = (this.layer = {
 			cell: new Dom({ id: "cell-layer", type: "html" }),
