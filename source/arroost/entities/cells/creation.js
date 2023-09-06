@@ -8,12 +8,13 @@ import { HALF, QUARTER } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
 import { Ellipse } from "../shapes/ellipse.js"
-import { setCellStyles } from "./util.js"
+import { setCellStyles } from "./shared.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { Plus } from "../shapes/plus.js"
-import { Targeting } from "../../machines/targeting.js"
+import { Pulling } from "../../machines/pulling.js"
 import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { DummyCreation } from "./dummy-creation.js"
 
 export class Creation extends Entity {
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -42,14 +43,15 @@ export class Creation extends Entity {
 		this.arrow = new Line({ parent: this.dom.transform })
 		this.dom.append(this.arrow.dom)
 
+		const pulling = this.input.state("pulling")
 		const targeting = this.input.state("targeting")
 		this.use(() => {
-			if (targeting.active.get()) {
+			if (pulling.active.get() || targeting.active.get()) {
 				this.arrow.dom.style.visibility.set("visible")
 			} else {
 				this.arrow.dom.style.visibility.set("hidden")
 			}
-		}, [targeting.active])
+		}, [pulling.active, targeting.active])
 
 		this.use(() => {
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
@@ -66,14 +68,18 @@ export class Creation extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom, carry, input })
 
-		// targeting.pointerdown = this.onTarget.bind(this)
+		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
 	onClick(e) {
-		return new Targeting()
+		return new Pulling()
 	}
 
-	onTarget(e) {
-		print("target")
+	onTargetingPointerUp(e) {
+		const dummy = new DummyCreation({
+			position: shared.pointer.transform.absolutePosition.get(),
+		})
+
+		shared.scene.layer.cell.append(dummy.dom)
 	}
 }
