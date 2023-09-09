@@ -98,6 +98,7 @@ export class Creation extends Entity {
 			})
 
 			shared.scene.layer.cell.append(dummy.dom)
+			this.tunnel.isFiring.set(true)
 			this.tunnel.perform(() => {
 				return fireCell(shared.nogan, { id: this.tunnel.id })
 			})
