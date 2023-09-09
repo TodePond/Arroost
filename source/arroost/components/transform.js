@@ -16,6 +16,11 @@ export class Transform extends Component {
 
 		this.position = this.use(position, { eq: equals })
 		this.scale = this.use(t([1, 1]), { eq: equals })
+		/**
+		 * Rotation is visual only. It doesn't affect layout.
+		 * @type {Signal<number>}
+		 */
+		this.rotation = this.use(0)
 
 		this.absolutePosition = this.use(() => this.getAbsolutePosition(), {
 			eq: equals,

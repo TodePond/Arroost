@@ -26,14 +26,11 @@ export class Line extends Entity {
 	render() {
 		const element = SVG("line")
 
-		this.use(
-			() => {
-				const end = this.target.position.get()
-				element.setAttribute("x2", end.x)
-				element.setAttribute("y2", end.y)
-			},
-			// { parents: [this.target.absolutePosition] },
-		)
+		this.use(() => {
+			const end = this.target.position.get()
+			element.setAttribute("x2", end.x)
+			element.setAttribute("y2", end.y)
+		}, [this.target.position])
 
 		return element
 	}

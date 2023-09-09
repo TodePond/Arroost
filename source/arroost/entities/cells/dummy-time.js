@@ -1,11 +1,13 @@
 import { shared } from "../../../main.js"
 import { createWire } from "../../../nogan/nogan.js"
+import { Triangle } from "../shapes/triangle.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { HALF } from "../../unit.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
+import { WHITE, add, angleBetween, scale } from "../../../../libraries/habitat-import.js"
 
 export class DummyTime extends Entity {
 	/**
@@ -44,16 +46,24 @@ export class DummyTime extends Entity {
 
 		// Render elements
 		const line = (this.line = this.attach(new Line()))
+		const flaps = (this.flaps = this.attach(new Triangle()))
 		this.dom.append(line.dom)
+		this.dom.append(flaps.dom)
+
+		// Style elements
+		flaps.dom.style.fill.set(WHITE.toString())
+		flaps.dom.transform.scale.set([2 / 3, 2 / 3])
 
 		this.use(() => {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
-			this.line.dom.transform.setAbsolutePosition(sourcePosition)
-		}, [this.source.dom.transform.absolutePosition])
-
-		this.use(() => {
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
+			const middle = scale(add(sourcePosition, targetPosition), 1 / 2)
+			const angle = angleBetween(sourcePosition, targetPosition)
+
+			this.line.dom.transform.setAbsolutePosition(sourcePosition)
 			this.line.target.setAbsolutePosition(targetPosition)
+			this.flaps.dom.transform.setAbsolutePosition(middle)
+			this.flaps.dom.transform.rotation.set(angle + Math.PI / 2)
 		}, [this.target.dom.transform.absolutePosition, this.source.dom.transform.absolutePosition])
 	}
 }
