@@ -83,3 +83,14 @@ When you spawn enough circles, a "plus" circle should spawn.
 -  Does a line come out of it when you do?
 -  Can you create something with it?
 -  Can you duplicate something with it?
+
+## Connecting
+
+When you spawn enough circles with the 'plus' circle, a 'ring' circle should appear.
+
+- Can you connect two circles together with it?
+
+## Open questions
+
+- When you're 'targeting' (ie: when a line is pointing out of a circle to where your cursor is), what do you expect to happen if you click-and-drag something?
+- When you're 'targeting' with a cell, should you be able to 'cancel' or 'leave' the targeting? How would you try to do that?
