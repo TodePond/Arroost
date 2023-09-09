@@ -24,13 +24,13 @@ export const unlocks = {
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlocked: true,
-		remaining: 2,
+		unlocked: false,
+		remaining: 3,
 		create: (arg) => new Creation(arg),
 	},
 	"dummy-connection": {
-		unlocked: true,
-		remaining: 2,
+		unlocked: false,
+		remaining: 3,
 		create: (arg) => new DummyConnection(arg),
 	},
 }
@@ -81,6 +81,11 @@ export function replenishUnlocks(source) {
  */
 export function progressUnlock(name, source) {
 	const unlock = unlocks[name]
+	if (!unlock.unlocked) {
+		replenishUnlocks(source)
+		return
+	}
+
 	unlock.remaining--
 	replenishUnlocks(source)
 }
