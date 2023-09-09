@@ -33,7 +33,7 @@ Yeah!
 
 Check out the [issues](https://github.com/TodePond/Arroost/issues) for ideas on what to explore. I have no immediate plans to do anything marked as [stretch goal](https://github.com/TodePond/Arroost/issues?q=is%3Aopen+is%3Aissue+label%3A%22stretch+goal%22), but you're welcome to have a go at any issue!
 
-> If you aren't sure what an issue means, or you want some pointers, feel free to leave a comment :)
+> If you aren't sure what something means, or you want some pointers, feel free to leave a comment :)
 
 Another way to get involved is by **testing out Arroost** on different devices, and letting me know how it goes (by [making an issue](https://github.com/TodePond/Arroost/issues/new)). If you're interested, check out the [guide](https://github.com/TodePond/Arroost/blob/main/documentation/manual-testing)!
 
