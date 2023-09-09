@@ -12,6 +12,7 @@ export class Input extends Component {
 	}
 
 	highlighted = this.use(false)
+	targeted = this.use(false)
 
 	/** @type {null | InputEventHandler} */
 	pointerover = null

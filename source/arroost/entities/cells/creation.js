@@ -59,6 +59,7 @@ export class Creation extends Entity {
 
 		this.source = this.input
 		this.use(() => {
+			if (!this.source) return
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
 			this.arrow.dom.transform.setAbsolutePosition(
 				this.source.entity.dom.transform.absolutePosition.get(),
@@ -83,7 +84,14 @@ export class Creation extends Entity {
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
+	// Type isn't correct here, but it works out ok
 	template = Dummy
+
+	/** @type {null | Input} */
+	source = null
+
+	/** @type {Set<Input & {entity: Entity & {tunnel: Tunnel}}>} */
+	targets = new Set()
 
 	onClick(e) {
 		this.template = Dummy
@@ -102,11 +110,22 @@ export class Creation extends Entity {
 			this.tunnel.perform(() => {
 				return fireCell(shared.nogan, { id: this.tunnel.id })
 			})
+
+			for (const target of this.targets) {
+				target.targeted.set(false)
+				target.entity.tunnel.isFiring.set(true)
+				target.entity.tunnel.perform(() => {
+					return fireCell(shared.nogan, { id: target.entity.tunnel.id })
+				})
+			}
 			return
 		}
 
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
+		this.targets.add(e.state.target)
+		e.state.target.targeted.set(true)
+
 		return new Pulling(this.input, e.state.target)
 	}
 }

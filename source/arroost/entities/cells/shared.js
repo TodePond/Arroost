@@ -41,7 +41,7 @@ export const getCellForegroundColour = ({ tunnel, input }) => {
 	if (tunnel.isFiring.get()) {
 		return WHITE
 	}
-	if (input.is("pulling") || input.is("targeting")) {
+	if (input.is("pulling") || input.is("targeting") || input.targeted.get()) {
 		return WHITE
 	}
 	return BLACK
