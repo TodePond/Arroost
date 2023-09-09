@@ -67,12 +67,22 @@ export const Tunnel = class extends Component {
 		Tunnel.tunnels.delete(this.id)
 	}
 
+	/**
+	 * Run a function on the nogan - right now
+	 * @param {() => Operation[]} func
+	 * @returns {Operation[]}
+	 */
 	apply(func) {
 		const operations = func()
 		Tunnel.applyOperations(operations)
 		return operations
 	}
 
+	/**
+	 * Run a function on the nogan - at the nearest beat
+	 * @param {() => Operation[]} func
+	 * @returns {Promise<Operation[]>}
+	 */
 	async perform(func) {
 		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
 		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
