@@ -111,9 +111,8 @@ export class DummyConnection extends Entity {
 		}
 
 		if (this.source) {
-			print("CONNECT")
+			alert("Unimplemented")
 			this.source.targeted.set(false)
-
 			return
 		}
 
