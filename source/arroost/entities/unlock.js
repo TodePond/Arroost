@@ -6,10 +6,21 @@ import { equals, randomBetween } from "../../../libraries/habitat-import.js"
 import { Creation } from "./cells/creation.js"
 import { DummyConnection } from "./cells/dummy-connection.js"
 import { Dom } from "../components/dom.js"
+import { Carry } from "../components/carry.js"
 
+/**
+ * @typedef {{
+ *   unlocked: boolean
+ *   remaining: number
+ *   create: (arg) => Entity & {dom: Dom, carry: Carry}
+ * }} Unlock
+ */
+
+/** @type {Object<string, Unlock>} */
 export const unlocks = {
 	"dummy-creation": {
 		unlocked: true,
+		remaining: 0,
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
@@ -19,6 +30,7 @@ export const unlocks = {
 	},
 	"dummy-connection": {
 		unlocked: false,
+		remaining: 2,
 		create: (arg) => new DummyConnection(arg),
 	},
 }
@@ -51,7 +63,7 @@ export function replenishUnlocks(source) {
 			entity.dom.transform.position.set(position)
 		}
 
-		const movement = entity.carry?.movement ?? entity.movement
+		const movement = entity.carry.movement
 		if (movement) {
 			const angle = Math.random() * Math.PI * 2
 			const speed = 15
