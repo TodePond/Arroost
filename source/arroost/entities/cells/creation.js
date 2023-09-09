@@ -101,7 +101,7 @@ export class Creation extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
-		if (e.state.target === shared.scene.input) {
+		if (!e.state.target.isCloneable()) {
 			const dummy = new this.template({
 				position: shared.pointer.transform.absolutePosition.get(),
 			})

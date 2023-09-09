@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, createWire, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -16,6 +16,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
+import { DummyWire } from "./dummy-wire.js"
 
 export class DummyConnection extends Entity {
 	pulling = this.use(false)
@@ -105,20 +106,29 @@ export class DummyConnection extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
-		if (e.state.target === shared.scene.input) {
+		if (!e.state.target.isConnectable()) {
 			this.source?.targeted.set(false)
 			return
 		}
 
 		if (this.source) {
-			alert("Unimplemented")
 			this.source.targeted.set(false)
+			this.tunnel.apply(() => {
+				const { wire, operations } = createWire(shared.nogan, {
+					source: this.source?.entity.tunnel?.id ?? 0,
+					target: e.state.target.entity.tunnel.id,
+				})
+
+				const dummyWire = new DummyWire(wire.id)
+				shared.scene.layer.cell.append(dummyWire.dom)
+
+				return operations
+			})
 			return
 		}
 
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
-
 		this.source?.targeted.set(true)
 
 		return new Pulling(this.input, e.state.target)
