@@ -96,8 +96,8 @@ export class Dom extends Component {
 		this.use(() => {
 			const [sx, sy] = this.transform.scale.get()
 			const [x, y] = this.transform.absolutePosition.get()
-			container.style.transform = `translate(${x}px,${y}px) scale(${sx}, ${sy})`
-		}, [this.transform.scale, this.transform.absolutePosition])
+			container.style.transform = `translate(${x}px,${y}px) scale(${sx}, ${sy}) rotate(${this.transform.rotation.get()}rad)`
+		}, [this.transform.scale, this.transform.absolutePosition, this.transform.rotation])
 
 		if (this.cullBounds.get()) {
 			this.use(() => {
