@@ -63,6 +63,18 @@ When you load, there's a circle on the screen.
 -  Does it spawn smaller circles?
 -  How does it feel?
 
+<details>
+<summary >Click here for more detailed testing.</summary>
+
+## Right-click
+
+-  Can you right-click it to make multiple circles?
+
+## Keyboard
+
+-  Can you hold ctrl and click it to make multiple circles?
+</details>
+
 ## Targeting
 
 When you spawn enough circles, a "plus" circle should spawn.
