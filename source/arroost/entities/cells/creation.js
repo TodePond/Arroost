@@ -16,6 +16,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
+import { progressUnlock, unlocks } from "../unlock.js"
 
 export class Creation extends Entity {
 	pulling = this.use(false)
@@ -119,6 +120,9 @@ export class Creation extends Entity {
 				})
 			}
 			this.targets.clear()
+
+			progressUnlock("dummy-connection", this)
+
 			return
 		}
 
