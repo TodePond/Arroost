@@ -113,17 +113,16 @@ export class DummyConnection extends Entity {
 
 		if (this.source) {
 			this.source.targeted.set(false)
-			this.tunnel.apply(() => {
-				const { wire, operations } = createWire(shared.nogan, {
-					source: this.source?.entity.tunnel?.id ?? 0,
-					target: e.state.target.entity.tunnel.id,
-				})
-
-				const dummyWire = new DummyWire(wire.id)
-				shared.scene.layer.cell.append(dummyWire.dom)
-
-				return operations
+			const sourceEntity = this.source.entity
+			if (!sourceEntity.tunnel) {
+				throw new Error("Can't connect from an entity with no tunnel")
+			}
+			const dummyWire = new DummyWire({
+				// @ts-expect-error - don't know why it isn't figuring out its type here
+				source: sourceEntity,
+				target: e.state.target.entity,
 			})
+			shared.scene.layer.cell.append(dummyWire.dom)
 			return
 		}
 

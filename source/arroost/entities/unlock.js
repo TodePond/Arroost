@@ -24,8 +24,8 @@ export const unlocks = {
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlocked: true,
-		remaining: 2,
+		unlocked: false,
+		remaining: Infinity,
 		create: (arg) => new Creation(arg),
 	},
 	"dummy-connection": {
