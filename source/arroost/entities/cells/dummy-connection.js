@@ -122,7 +122,7 @@ export class DummyConnection extends Entity {
 				source: sourceEntity,
 				target: e.state.target.entity,
 			})
-			shared.scene.layer.cell.append(dummyWire.dom)
+			shared.scene.layer.wire.append(dummyWire.dom)
 			return
 		}
 
