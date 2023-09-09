@@ -17,7 +17,6 @@ export class Pulling extends InputState {
 	}
 
 	pointerdown() {
-		// this.target.highlighted.set(false)
 		return new Targeting({ input: this.input, target: this.target })
 	}
 

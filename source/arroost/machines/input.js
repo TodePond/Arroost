@@ -4,15 +4,12 @@ import { Input } from "../components/input.js"
 import { triggerRightClickPity } from "../input/wheel.js"
 
 export class InputState extends State {
-	/** @type {Input} */
-	input = shared.hovering.input.get()
-
 	name = "input-state"
 
 	/** @param {Input} [input] */
 	constructor(input) {
 		super()
-		if (input) this.input = input
+		this.input = input ?? shared.hovering.input.get()
 	}
 
 	enter() {

@@ -9,6 +9,7 @@ export class Targeting extends InputState {
 	}
 
 	pointerup() {
+		this.target.highlighted.set(false)
 		return new Hovering()
 	}
 }
