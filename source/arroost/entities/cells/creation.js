@@ -33,6 +33,7 @@ export class Creation extends Entity {
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
+				position,
 			}),
 		))
 		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
@@ -100,7 +101,7 @@ export class Creation extends Entity {
 			return
 		}
 
-		this.template = DummyCreation
+		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
 		return new Pulling(this.input)
 	}
