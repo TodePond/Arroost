@@ -17,10 +17,13 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
 
-export class Creation extends Entity {
+export class DummyConnection extends Entity {
 	pulling = this.use(false)
 
-	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
+	constructor({
+		id = createCell(shared.nogan, { type: "dummy-connection" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
 		triggerCounter()
 
@@ -29,7 +32,7 @@ export class Creation extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "creation",
+				id: "dummy-connection",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
@@ -40,9 +43,11 @@ export class Creation extends Entity {
 
 		// Render elements
 		const back = (this.back = new EllipseHtml({ input: this.input }))
-		const front = (this.front = new Plus())
+		const front = (this.front = new Ellipse())
+		const backFront = (this.backFront = new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
+		this.dom.append(this.backFront.dom)
 
 		this.arrow = new Line({ parent: this.dom.transform })
 		shared.scene.layer.ghost.append(this.arrow.dom)
@@ -59,11 +64,14 @@ export class Creation extends Entity {
 
 		this.source = this.input
 		this.use(() => {
-			if (!this.source) return
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
-			this.arrow.dom.transform.setAbsolutePosition(
-				this.source.entity.dom.transform.absolutePosition.get(),
-			)
+			if (!this.source) {
+				this.arrow.dom.transform.setAbsolutePosition(this.dom.transform.absolutePosition.get())
+			} else {
+				this.arrow.dom.transform.setAbsolutePosition(
+					this.source.entity.dom.transform.absolutePosition.get(),
+				)
+			}
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			this.arrow.target.setAbsolutePosition(pointerPosition)
 		}, [
@@ -73,8 +81,12 @@ export class Creation extends Entity {
 		])
 
 		// Styles!
-		front.dom.transform.scale.set([3 / 4, 3 / 4])
+		front.dom.transform.scale.set([2 / 3, 2 / 3])
+		backFront.dom.transform.scale.set([1 / 3, 1 / 3])
 		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
+		this.use(() => {
+			backFront.dom.style.fill.set(back.dom.style.fill.get())
+		}, [back.dom.style.fill])
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
@@ -84,48 +96,31 @@ export class Creation extends Entity {
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
-	// Type isn't correct here, but it works out ok
-	template = Dummy
-
 	/** @type {null | Input} */
 	source = null
 
-	/** @type {Set<Input & {entity: Entity & {tunnel: Tunnel}}>} */
-	targets = new Set()
-
 	onClick(e) {
-		this.template = Dummy
-		this.source = this.input
+		this.source = null
 		return new Pulling()
 	}
 
 	onTargetingPointerUp(e) {
 		if (e.state.target === shared.scene.input) {
-			const dummy = new this.template({
-				position: shared.pointer.transform.absolutePosition.get(),
-			})
+			this.source?.targeted.set(false)
+			return
+		}
 
-			shared.scene.layer.cell.append(dummy.dom)
-			this.tunnel.isFiring.set(true)
-			this.tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: this.tunnel.id })
-			})
+		if (this.source) {
+			print("CONNECT")
+			this.source.targeted.set(false)
 
-			for (const target of this.targets) {
-				target.targeted.set(false)
-				target.entity.tunnel.isFiring.set(true)
-				target.entity.tunnel.perform(() => {
-					return fireCell(shared.nogan, { id: target.entity.tunnel.id })
-				})
-			}
-			this.targets.clear()
 			return
 		}
 
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
-		this.targets.add(e.state.target)
-		e.state.target.targeted.set(true)
+
+		this.source?.targeted.set(true)
 
 		return new Pulling(this.input, e.state.target)
 	}

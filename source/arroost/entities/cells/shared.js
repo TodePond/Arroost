@@ -13,7 +13,7 @@ import { Tunnel } from "../../components/tunnel.js"
  * }} options
  */
 export const setCellStyles = ({ back, front, input, tunnel }) => {
-	front.style.pointerEvents.set("none")
+	// front.style.pointerEvents.set("none")
 	input.use(() => {
 		front.style.fill.set(getCellForegroundColour({ tunnel, input }).toString())
 	})

@@ -4,6 +4,7 @@ import { Entity } from "./entity.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
 import { equals, randomBetween } from "../../../libraries/habitat-import.js"
 import { Creation } from "./cells/creation.js"
+import { DummyConnection } from "./cells/dummy-connection.js"
 
 export const unlocks = {
 	"dummy-creation": {
@@ -14,6 +15,10 @@ export const unlocks = {
 		unlocked: true,
 		remaining: 5,
 		create: (arg) => new Creation(arg),
+	},
+	"dummy-connection": {
+		unlocked: true,
+		create: (arg) => new DummyConnection(arg),
 	},
 }
 
