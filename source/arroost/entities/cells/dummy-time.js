@@ -7,7 +7,7 @@ import { HALF } from "../../unit.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 
-export class DummyWire extends Entity {
+export class DummyTime extends Entity {
 	/**
 	 *
 	 * @param {{
@@ -35,7 +35,7 @@ export class DummyWire extends Entity {
 		// Attach components
 		this.dom = this.attach(
 			new Dom({
-				id: "dummy-wire",
+				id: "dummy-time",
 				type: "html",
 			}),
 		)

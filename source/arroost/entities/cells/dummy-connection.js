@@ -16,7 +16,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
-import { DummyWire } from "./dummy-wire.js"
+import { DummyTime } from "./dummy-time.js"
 
 export class DummyConnection extends Entity {
 	pulling = this.use(false)
@@ -117,7 +117,7 @@ export class DummyConnection extends Entity {
 			if (!sourceEntity.tunnel) {
 				throw new Error("Can't connect from an entity with no tunnel")
 			}
-			const dummyWire = new DummyWire({
+			const dummyWire = new DummyTime({
 				// @ts-expect-error - don't know why it isn't figuring out its type here
 				source: sourceEntity,
 				target: e.state.target.entity,
@@ -129,6 +129,7 @@ export class DummyConnection extends Entity {
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
 		this.source?.targeted.set(true)
+		e.state.target.entity.dom.style.bringToFront()
 
 		return new Pulling(this.input, e.state.target)
 	}

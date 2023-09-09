@@ -129,6 +129,7 @@ export class Creation extends Entity {
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
 		this.targets.add(e.state.target)
+		e.state.target.entity.dom.style.bringToFront()
 		e.state.target.targeted.set(true)
 
 		return new Pulling(this.input, e.state.target)

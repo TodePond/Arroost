@@ -81,7 +81,7 @@ export function replenishUnlocks(source) {
  */
 export function progressUnlock(name, source) {
 	const unlock = unlocks[name]
-	if (!unlock.unlocked) {
+	if (unlock.unlocked) {
 		replenishUnlocks(source)
 		return
 	}
