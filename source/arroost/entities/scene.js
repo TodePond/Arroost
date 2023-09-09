@@ -86,11 +86,11 @@ export class Scene extends Entity {
 		this.dom.append(layer.cell)
 		this.dom.append(layer.ghost)
 
-		const ghost = new Ghost()
-		layer.ghost.append(ghost.dom)
+		// const ghost = new Ghost()
+		// layer.ghost.append(ghost.dom)
 
-		const counter = new Counter()
-		layer.ghost.append(counter.dom)
+		// const counter = new Counter()
+		// layer.ghost.append(counter.dom)
 
 		requestAnimationFrame(() => replenishUnlocks())
 	}

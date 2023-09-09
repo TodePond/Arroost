@@ -73,6 +73,7 @@ shared.hovering = hover.state.get()
 // The input machine handles the core interaction for entities
 // ie: hovering, pointing, dragging
 const input = new Machine(new InputMachine())
+shared.input = input
 
 registerWheel()
 registerMachine(hover)

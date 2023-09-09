@@ -1,14 +1,18 @@
 import { Component } from "./component.js"
 import { Entity } from "../entities/entity.js"
+import { Dom } from "./dom.js"
 
 export class Input extends Component {
 	/**
-	 * @param {Entity} entity
+	 * @param {Entity & {dom: Dom}} entity
 	 */
 	constructor(entity) {
 		super()
 		this.entity = entity
 	}
+
+	highlighted = this.use(false)
+	targeted = this.use(false)
 
 	/** @type {null | InputEventHandler} */
 	pointerover = null

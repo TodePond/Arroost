@@ -11,7 +11,7 @@ export const unlocks = {
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlocked: false,
+		unlocked: true,
 		remaining: 5,
 		create: (arg) => new Creation(arg),
 	},

@@ -40,14 +40,18 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 export const getCellForegroundColour = ({ tunnel, input }) => {
 	if (tunnel.isFiring.get()) {
 		return WHITE
-	} else if (input.is("pulling") || input.is("targeting")) {
+	}
+	if (input.is("pulling") || input.is("targeting") || input.targeted.get()) {
 		return WHITE
 	}
 	return BLACK
 }
 
 export const getCellBackgroundColour = ({ input }) => {
-	if (input.is("hovering") || input.is("pulling")) {
+	if (input.is("hovering")) {
+		return GREY_SILVER
+	}
+	if (input.highlighted.get()) {
 		return GREY_SILVER
 	}
 	return GREY
