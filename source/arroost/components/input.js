@@ -1,10 +1,11 @@
 import { Component } from "./component.js"
 import { Entity } from "../entities/entity.js"
 import { Dom } from "./dom.js"
+import { Tunnel } from "./tunnel.js"
 
 export class Input extends Component {
 	/**
-	 * @param {Entity & {dom: Dom}} entity
+	 * @param {Entity & {dom: Dom, tunnel?: Tunnel}} entity
 	 */
 	constructor(entity) {
 		super()
@@ -74,4 +75,18 @@ export class Input extends Component {
 
 	/** @type {Signal<any>} */
 	current = this.use(null)
+
+	isConnectable() {
+		const { tunnel } = this.entity
+		if (!tunnel) return false
+		if (tunnel.type === "wire") return false
+		return true
+	}
+
+	isCloneable() {
+		const { tunnel } = this.entity
+		if (!tunnel) return false
+		if (tunnel.type === "wire") return false
+		return true
+	}
 }

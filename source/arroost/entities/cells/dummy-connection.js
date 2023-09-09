@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, createWire, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -16,6 +16,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
+import { DummyTime } from "./dummy-time.js"
 
 export class DummyConnection extends Entity {
 	pulling = this.use(false)
@@ -105,21 +106,30 @@ export class DummyConnection extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
-		if (e.state.target === shared.scene.input) {
+		if (!e.state.target.isConnectable()) {
 			this.source?.targeted.set(false)
 			return
 		}
 
 		if (this.source) {
-			alert("Unimplemented")
 			this.source.targeted.set(false)
+			const sourceEntity = this.source.entity
+			if (!sourceEntity.tunnel) {
+				throw new Error("Can't connect from an entity with no tunnel")
+			}
+			const dummyWire = new DummyTime({
+				// @ts-expect-error - don't know why it isn't figuring out its type here
+				source: sourceEntity,
+				target: e.state.target.entity,
+			})
+			shared.scene.layer.wire.append(dummyWire.dom)
 			return
 		}
 
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
-
 		this.source?.targeted.set(true)
+		e.state.target.entity.dom.style.bringToFront()
 
 		return new Pulling(this.input, e.state.target)
 	}

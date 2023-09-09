@@ -58,7 +58,7 @@ export const Tunnel = class extends Component {
 	constructor(id) {
 		super()
 		this.id = id
-		this.isCell = id >= 0
+		this.type = id >= 0 ? "cell" : "wire"
 		Tunnel.tunnels.set(id, this)
 	}
 
