@@ -82,7 +82,7 @@ export class DummyCreation extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		const count = e.button === 0 ? 1 : 5
+		const count = e.button === 0 && !e.ctrlKey ? 1 : 5
 
 		let n = 0
 		for (let i = 0; i < count; i++) {
@@ -94,7 +94,7 @@ export class DummyCreation extends Entity {
 
 			shared.scene.layer.cell.append(dummy.dom)
 			const angle = Math.random() * Math.PI * 2
-			const speed = e.button === 0 ? 15 : randomBetween(10, 18)
+			const speed = e.button === 0 && !e.ctrlKey ? 15 : randomBetween(10, 18)
 			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
 			dummy.carry.movement.velocity.set(velocity)
 			// }, n * 1)
