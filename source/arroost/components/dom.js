@@ -85,18 +85,19 @@ export class Dom extends Component {
 
 		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
 
-		this.use(() => {
-			const [x, y] = this.transform.absolutePosition.get()
-			// @ts-expect-error - more performant if I just pass a number
-			container.style.left = x
-			// @ts-expect-error
-			container.style.top = y
-		}, [this.transform.absolutePosition])
+		// this.use(() => {
+		// 	const [x, y] = this.transform.absolutePosition.get()
+		// 	// @ts-expect-error - more performant if I just pass a number
+		// 	// container.style.left = x.toString() + "px"
+		// 	// @ts-expect-error
+		// 	// container.style.top = y
+		// }, [this.transform.absolutePosition])
 
 		this.use(() => {
 			const [sx, sy] = this.transform.scale.get()
-			container.style.transform = `scale(${sx}, ${sy})`
-		}, [this.transform.scale])
+			const [x, y] = this.transform.absolutePosition.get()
+			container.style.transform = `translate(${x}px,${y}px) scale(${sx}, ${sy})`
+		}, [this.transform.scale, this.transform.absolutePosition])
 
 		if (this.cullBounds.get()) {
 			this.use(() => {
