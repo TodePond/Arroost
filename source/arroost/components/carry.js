@@ -94,7 +94,7 @@ export class Carry extends Component {
 			return null
 		}
 
-		if (e.state.button === 2) {
+		if (e.state.button === 2 || (e.state.button === 0 && e.ctrlKey)) {
 			const dragging = new Dragging(shared.scene.input)
 			dragging.pointerStart = e.state.scenePointerStart
 			dragging.start = e.state.sceneStart
@@ -109,7 +109,7 @@ export class Carry extends Component {
 		const offsetNow = subtract(pointerNow, this.transform.displacedPosition.get())
 		const distance = distanceBetween(e.state.offset, offsetNow)
 		if (distance >= 5) {
-			if (e.state.button === 2) {
+			if (e.state.button === 2 || (e.state.button === 0 && e.ctrlKey)) {
 				const dragging = new Dragging(shared.scene.input)
 				dragging.pointerStart = e.state.scenePointerStart
 				dragging.start = e.state.sceneStart
