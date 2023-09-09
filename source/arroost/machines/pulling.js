@@ -10,14 +10,14 @@ export class Pulling extends InputState {
 	/**
 	 * @param {Input} [input]
 	 */
-	constructor(input = undefined) {
+	constructor(input = undefined, target = undefined) {
 		super(input)
-		this.target = this.input
+		this.target = target ?? this.input
 		this.target.highlighted.set(true)
 	}
 
 	pointerdown() {
-		this.target.highlighted.set(false)
+		// this.target.highlighted.set(false)
 		return new Targeting({ input: this.input, target: this.target })
 	}
 

@@ -107,6 +107,6 @@ export class Creation extends Entity {
 
 		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
-		return new Pulling(this.input)
+		return new Pulling(this.input, e.state.target)
 	}
 }
