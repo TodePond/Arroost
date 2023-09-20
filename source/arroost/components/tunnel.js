@@ -54,11 +54,17 @@ export const Tunnel = class extends Component {
 	// todo: initialise to what the cell/wire currently is
 	isFiring = this.use(false)
 
-	/** @param {CellId | WireId} id */
-	constructor(id) {
+	/**
+	 * @param {CellId | WireId} id
+	 * @param {{
+	 *   concrete?: boolean
+	 * }} options
+	 **/
+	constructor(id, { concrete = true } = {}) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
+		this.concrete = concrete
 		Tunnel.tunnels.set(id, this)
 	}
 
@@ -101,7 +107,7 @@ export const Tunnel = class extends Component {
 	 * Helper function for cells
 	 * @param {{
 	 * 	dom: Dom
-	 * 	carry: Carry
+	 * 	carry?: Carry
 	 * 	input: Input
 	 * }} option
 	 */
@@ -110,7 +116,7 @@ export const Tunnel = class extends Component {
 			if (input.state("dragging").active.get()) return
 
 			const position = dom.transform.position.get()
-			const velocity = carry.movement.velocity.get()
+			const velocity = carry?.movement.velocity.get() ?? [0, 0]
 			const cell = getCell(shared.nogan, this.id)
 			if (equals(cell.position, position)) return
 			this.apply(() => {

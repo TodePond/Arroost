@@ -9,8 +9,9 @@ export class Pulling extends InputState {
 
 	/**
 	 * @param {Input} [input]
+	 * @param {Input | null} [target]
 	 */
-	constructor(input = undefined, target = undefined) {
+	constructor(input, target) {
 		super(input)
 		this.target = target ?? this.input
 		this.target.highlighted.set(true)

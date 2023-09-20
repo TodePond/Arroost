@@ -80,6 +80,7 @@ export class Input extends Component {
 		const { tunnel } = this.entity
 		if (!tunnel) return false
 		if (tunnel.type === "wire") return false
+		if (!tunnel.concrete) return false
 		return true
 	}
 
@@ -87,6 +88,7 @@ export class Input extends Component {
 		const { tunnel } = this.entity
 		if (!tunnel) return false
 		if (tunnel.type === "wire") return false
+		if (!tunnel.concrete) return false
 		return true
 	}
 }

@@ -183,7 +183,6 @@ declare type ControlWireCell = { type: "control-wire" }
 declare type DummyCreationCell = { type: "dummy-creation" }
 declare type DummyConnectionCell = { type: "dummy-connection" }
 declare type DummyWiringCell = { type: "dummy-wiring" }
-declare type TimeCell = { type: "time"; groupStart: CellId; groupEnd: CellId }
 type CustomCell =
 	| SlotCell
 	| CreationCell
@@ -191,7 +190,6 @@ type CustomCell =
 	| RecordingCell
 	| StopperCell
 	| MagnetCell
-	| TimeCell
 	| DummyCreationCell
 	| DummyConnectionCell
 	| DummyWiringCell
