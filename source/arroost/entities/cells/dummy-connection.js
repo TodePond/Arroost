@@ -1,23 +1,19 @@
+import { angleBetween, subtract } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, createWire, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
+import { Pulling } from "../../machines/pulling.js"
 import { HALF, QUARTER } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
-import { Ellipse } from "../shapes/ellipse.js"
-import { setCellStyles } from "./shared.js"
-import { Rectangle } from "../shapes/rectangle.js"
-import { Plus } from "../shapes/plus.js"
-import { Pulling } from "../../machines/pulling.js"
-import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
-import { DummyCreation } from "./dummy-creation.js"
-import { Dummy } from "./dummy.js"
-import { DummyTime } from "./dummy-time.js"
-import { add, angleBetween, subtract } from "../../../../libraries/habitat-import.js"
+import { Ellipse } from "../shapes/ellipse.js"
+import { Line } from "../shapes/line.js"
+import { DummyWire } from "./dummy-wire.js"
+import { setCellStyles } from "./shared.js"
 
 export class DummyConnection extends Entity {
 	pulling = this.use(false)
@@ -125,7 +121,7 @@ export class DummyConnection extends Entity {
 			if (!sourceEntity.tunnel) {
 				throw new Error("Can't connect from an entity with no tunnel")
 			}
-			const dummyWire = new DummyTime({
+			const dummyWire = new DummyWire({
 				// @ts-expect-error - don't know why it isn't figuring out its type here
 				source: sourceEntity,
 				target: e.state.target.entity,

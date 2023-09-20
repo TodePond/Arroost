@@ -14,7 +14,7 @@ import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 import { Triangle } from "../shapes/triangle.js"
 
-export class DummyTime extends Entity {
+export class DummyWire extends Entity {
 	/**
 	 *
 	 * @param {{
@@ -62,7 +62,7 @@ export class DummyTime extends Entity {
 		this.use(() => {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
-			const distance = distanceBetween(sourcePosition, targetPosition).d
+			const distance = distanceBetween(sourcePosition, targetPosition)
 			const middleDistance = distance / 2 + QUARTER / 2
 
 			const angle = angleBetween(sourcePosition, targetPosition)
