@@ -60,17 +60,22 @@ export class ControlWire extends Entity {
 		const front = (this.front = new Triangle())
 		const delayFront = (this.delayFront = new Triangle())
 		const earlyFront = (this.earlyFront = new Ellipse())
+		const earlyFrontFront = (this.earlyFrontFront = new Triangle())
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 		this.dom.append(this.delayFront.dom)
 		this.dom.append(this.earlyFront.dom)
+		this.dom.append(this.earlyFrontFront.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.earlyFrontFront.dom.transform.scale.set([1 / 4, 1 / 4])
 		this.delayFront.dom.transform.scale.set([1 / 4, 1 / 4])
-		this.earlyFront.dom.transform.scale.set([1 / 7, 1 / 7])
+
+		this.earlyFront.dom.transform.scale.set([((2 / 3) * 2) / 3, ((2 / 3) * 2) / 3])
+		// this.earlyFront.dom.transform.scale.set([1 / 7, 1 / 7])
 		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 		this.use(() => {
@@ -80,7 +85,12 @@ export class ControlWire extends Entity {
 
 		this.use(() => {
 			if (this.timing.get() !== -1) return
-			this.earlyFront.dom.style.fill.set(this.back.dom.style.fill.get())
+			this.earlyFrontFront.dom.style.fill.set(this.back.dom.style.fill.get())
+		}, [this.timing, this.back.dom.style.fill])
+
+		this.use(() => {
+			if (this.timing.get() !== -1) return
+			this.earlyFront.dom.style.fill.set(this.front.dom.style.fill.get())
 		}, [this.timing, this.back.dom.style.fill])
 
 		this.use(() => {
@@ -96,8 +106,10 @@ export class ControlWire extends Entity {
 			const timing = this.timing.get()
 			if (timing === -1) {
 				this.earlyFront.dom.style.visibility.set("inherit")
+				this.earlyFrontFront.dom.style.visibility.set("inherit")
 			} else {
 				this.earlyFront.dom.style.visibility.set("hidden")
+				this.earlyFrontFront.dom.style.visibility.set("hidden")
 			}
 		}, [this.timing])
 
