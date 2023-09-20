@@ -51,7 +51,7 @@ export class DummyTime extends Entity {
 
 		// Render elements
 		const line = (this.line = this.attach(new Line()))
-		const flaps = (this.flaps = this.attach(new ControlWire()))
+		const flaps = (this.flaps = this.attach(new ControlWire({ wire: this.tunnel.id })))
 		this.dom.append(line.dom)
 		this.dom.append(flaps.dom)
 

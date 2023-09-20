@@ -26,7 +26,7 @@ export const unlocks = c({
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlockable: true,
+		unlockable: false,
 		unlocked: true,
 		remaining: 3,
 		create: (arg) => new Creation(arg),

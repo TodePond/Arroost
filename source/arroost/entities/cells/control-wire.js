@@ -9,7 +9,7 @@ import {
 	equals,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
-import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, getCell, modifyCell, modifyWire, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -23,16 +23,21 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Triangle } from "../shapes/triangle.js"
 
 export class ControlWire extends Entity {
+	/** @type {Signal<Timing>} */
+	timing = this.use(0)
+
 	/**
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 *  wire: WireId
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { type: "control-wire", position }).id,
-	} = {}) {
+		wire,
+	}) {
 		super()
 
 		triggerCounter()
@@ -42,7 +47,7 @@ export class ControlWire extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id, { concrete: false })))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "dummy",
+				id: "control-wire",
 				type: "html",
 				input: this.input,
 				position,
@@ -58,7 +63,7 @@ export class ControlWire extends Entity {
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
+		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
@@ -67,6 +72,7 @@ export class ControlWire extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
 		this.tunnel.useCell({ dom, input })
+		this.wire = wire
 	}
 
 	onPointingPointerMove() {
@@ -75,6 +81,25 @@ export class ControlWire extends Entity {
 	}
 
 	onClick(e) {
+		switch (this.timing.get()) {
+			case 0: {
+				this.timing.set(1)
+				break
+			}
+			case 1: {
+				this.timing.set(-1)
+				break
+			}
+			case -1: {
+				this.timing.set(0)
+				break
+			}
+		}
+
+		this.tunnel.apply(() => {
+			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
+		})
+
 		// this.tunnel.perform(() => {
 		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
 		// })
