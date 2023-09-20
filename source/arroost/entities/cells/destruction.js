@@ -157,7 +157,7 @@ export class Destruction extends Entity {
 				}
 				const operations = archiveCell(shared.nogan, id)
 				operations.push(...wireOperations)
-				return operations.d
+				return operations
 			}
 		})
 	}
