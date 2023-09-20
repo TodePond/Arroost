@@ -6,11 +6,15 @@ import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"
+import { Entity } from "../entities/entity.js"
 
-export const Tunnel = class extends Component {
+export class Tunnel extends Component {
 	//========//
 	// STATIC //
 	//========//
+	/**
+	 * @type {Map<number, Tunnel>}
+	 */
 	static tunnels = new Map()
 
 	/**
@@ -24,26 +28,39 @@ export const Tunnel = class extends Component {
 
 	/**
 	 * @param {Operation} operation
+	 * @returns {true}
 	 */
 	static applyOperation(operation) {
 		switch (operation.type) {
 			case "fired": {
 				const tunnel = Tunnel.tunnels.get(operation.id)
+				if (!tunnel) return true
 				tunnel.isFiring.set(true)
-				return
+				return true
 			}
 			case "unfired": {
 				const tunnel = Tunnel.tunnels.get(operation.id)
+				if (!tunnel) return true
 				tunnel.isFiring.set(false)
-				return
+				return true
 			}
 			case "modify": {
 				// ...
-				return
+				return true
 			}
 			case "pong": {
 				// ...
-				return
+				return true
+			}
+			case "tag": {
+				// noop
+				return true
+			}
+			case "binned": {
+				const tunnel = Tunnel.tunnels.get(operation.id)
+				if (!tunnel) return true
+				tunnel.entity.dispose()
+				return true
 			}
 		}
 	}
@@ -58,13 +75,17 @@ export const Tunnel = class extends Component {
 	 * @param {CellId | WireId} id
 	 * @param {{
 	 *   concrete?: boolean
+	 *   destroyable?: boolean | undefined
+	 *   entity: Entity
 	 * }} options
 	 **/
-	constructor(id, { concrete = true } = {}) {
+	constructor(id, { concrete = true, destroyable, entity }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.concrete = concrete
+		this.destroyable = destroyable
+		this.entity = entity
 		Tunnel.tunnels.set(id, this)
 	}
 
@@ -94,7 +115,15 @@ export const Tunnel = class extends Component {
 		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
 
 		if (fractionOfBeat < 0.5) return this.apply(func)
+		return this.schedule(func)
+	}
 
+	/**
+	 * Run a function on the nogan - on the next beat
+	 * @param {() => Operation[]} func
+	 * @returns {Promise<Operation[]>}
+	 */
+	async schedule(func) {
 		return new Promise((resolve) => {
 			nextBeatQueue.push(() => {
 				const operations = this.apply(func)

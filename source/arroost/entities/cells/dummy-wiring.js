@@ -26,9 +26,9 @@ export class DummyWiring extends Entity {
 		triggerCounter()
 
 		// Attach components
-		const input = (this.input = this.attach(new Input(this)))
-		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
-		const dom = (this.dom = this.attach(
+		this.input = this.attach(new Input(this))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.dom = this.attach(
 			new Dom({
 				id: "dummy-wiring",
 				type: "html",
@@ -36,18 +36,18 @@ export class DummyWiring extends Entity {
 				cullBounds: [HALF, HALF],
 				position,
 			}),
-		))
-		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
+		)
+		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
-		const back = (this.back = new EllipseHtml({ input: this.input }))
-		const front = (this.front = new Ellipse())
-		const backFront = (this.backFront = new Ellipse())
+		this.back = this.attach(new EllipseHtml({ input: this.input }))
+		this.front = this.attach(new Ellipse())
+		this.backFront = this.attach(new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 		this.dom.append(this.backFront.dom)
 
-		this.arrow = new Line({ parent: this.dom.transform })
+		this.arrow = this.attach(new Line({ parent: this.dom.transform }))
 		shared.scene.layer.ghost.append(this.arrow.dom)
 
 		const pulling = this.input.state("pulling")
@@ -86,17 +86,22 @@ export class DummyWiring extends Entity {
 		])
 
 		// Styles!
-		front.dom.transform.scale.set([2 / 3, 2 / 3])
-		backFront.dom.transform.scale.set([1 / 3, 1 / 3])
-		setCellStyles({ front: front.dom, back: back.dom, input, tunnel })
+		this.front.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.backFront.dom.transform.scale.set([1 / 3, 1 / 3])
+		setCellStyles({
+			front: this.front.dom,
+			back: this.back.dom,
+			input: this.input,
+			tunnel: this.tunnel,
+		})
 		this.use(() => {
-			backFront.dom.style.fill.set(back.dom.style.fill.get())
-		}, [back.dom.style.fill])
+			this.backFront.dom.style.fill.set(this.back.dom.style.fill.get())
+		}, [this.back.dom.style.fill])
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom, carry, input })
+		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}

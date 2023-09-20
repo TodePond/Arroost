@@ -39,9 +39,9 @@ export class DummyCreation extends Entity {
 		triggerCounter()
 
 		// Attach components
-		const input = (this.input = this.attach(new Input(this)))
-		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
-		const dom = (this.dom = this.attach(
+		this.input = this.attach(new Input(this))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.dom = this.attach(
 			new Dom({
 				id: "dummy-creation",
 				type: "html",
@@ -49,24 +49,29 @@ export class DummyCreation extends Entity {
 				cullBounds: [HALF, HALF],
 				position,
 			}),
-		))
-		const carry = (this.carry = this.attach(new Carry({ input: this.input, dom: this.dom })))
+		)
+		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
-		const back = (this.back = new EllipseHtml({ input: this.input }))
-		const front = (this.front = new Ellipse())
+		this.back = this.attach(new EllipseHtml({ input: this.input }))
+		this.front = this.attach(new Ellipse())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([1, 1])
 		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
-		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
+		setCellStyles({
+			back: this.back.dom,
+			front: this.front.dom,
+			input: this.input,
+			tunnel: this.tunnel,
+		})
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom, carry, input })
+		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 	}
 
 	onClick(e) {

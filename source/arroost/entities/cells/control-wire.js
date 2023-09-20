@@ -43,9 +43,11 @@ export class ControlWire extends Entity {
 		triggerCounter()
 
 		// Attach components
-		const input = (this.input = this.attach(new Input(this)))
-		const tunnel = (this.tunnel = this.attach(new Tunnel(id, { concrete: false })))
-		const dom = (this.dom = this.attach(
+		this.input = this.attach(new Input(this))
+		this.tunnel = this.attach(
+			new Tunnel(id, { concrete: false, destroyable: true, entity: this }),
+		)
+		this.dom = this.attach(
 			new Dom({
 				id: "control-wire",
 				type: "html",
@@ -53,14 +55,14 @@ export class ControlWire extends Entity {
 				position,
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
-		))
+		)
 
 		// Render elements
-		const back = (this.back = new EllipseHtml({ input: this.input }))
-		const front = (this.front = new Triangle())
-		const delayFront = (this.delayFront = new Triangle())
-		const earlyFront = (this.earlyFront = new Ellipse())
-		const earlyFrontFront = (this.earlyFrontFront = new Triangle())
+		this.back = this.attach(new EllipseHtml({ input: this.input }))
+		this.front = this.attach(new Triangle())
+		this.delayFront = this.attach(new Triangle())
+		this.earlyFront = this.attach(new Ellipse())
+		this.earlyFrontFront = this.attach(new Triangle())
 
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
@@ -77,7 +79,12 @@ export class ControlWire extends Entity {
 		this.earlyFront.dom.transform.scale.set([((2 / 3) * 2) / 3, ((2 / 3) * 2) / 3])
 		// this.earlyFront.dom.transform.scale.set([1 / 7, 1 / 7])
 		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
-		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
+		setCellStyles({
+			back: this.back.dom,
+			front: this.front.dom,
+			input: this.input,
+			tunnel: this.tunnel,
+		})
 		this.use(() => {
 			if (this.timing.get() !== 1) return
 			this.delayFront.dom.style.fill.set(this.back.dom.style.fill.get())
@@ -117,7 +124,7 @@ export class ControlWire extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
-		this.tunnel.useCell({ dom, input })
+		this.tunnel.useCell({ dom: this.dom, input: this.input })
 		this.wire = wire
 	}
 

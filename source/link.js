@@ -1,5 +1,6 @@
 import { BLACK, VOID } from "../libraries/habitat-import.js"
 import { Tunnel } from "./arroost/components/tunnel.js"
+import { replenishUnlocks } from "./arroost/entities/unlock.js"
 import { shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
@@ -44,5 +45,7 @@ const beat = () => {
 	for (const func of nextBeatQueue) {
 		func()
 	}
+
+	replenishUnlocks()
 	nextBeatQueue.length = 0
 }

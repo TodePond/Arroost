@@ -44,4 +44,5 @@ export const OPERATIONS = {
 	unfired: noop,
 	pong,
 	tag,
+	binned: noop,
 }

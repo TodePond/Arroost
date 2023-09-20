@@ -4,6 +4,7 @@ import { c, iterateCells, t } from "../../nogan/nogan.js"
 import { Carry } from "../components/carry.js"
 import { Dom } from "../components/dom.js"
 import { Creation } from "./cells/creation.js"
+import { Destruction } from "./cells/destruction.js"
 import { DummyConnection } from "./cells/dummy-connection.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
 import { DummyWiring } from "./cells/dummy-wiring.js"
@@ -43,6 +44,12 @@ export const unlocks = c({
 		remaining: 3,
 		create: (arg) => new DummyConnection(arg),
 	},
+	"destruction": {
+		unlockable: true,
+		unlocked: true,
+		remaining: 3,
+		create: (arg) => new Destruction(arg),
+	},
 })
 
 /**
@@ -71,8 +78,9 @@ export function replenishUnlocks(source) {
 			if (cell.type === key) continue unlocks
 		}
 
-		const dom = source ? source.dom : shared.scene.layer.cell
-		const position = dom.transform.position.get()
+		const dom = source ? source.dom : null
+		const position =
+			dom?.transform.position.get() ?? shared.pointer.transform.absolutePosition.get()
 		const entity = unlock.create({ position })
 
 		// just in case it doesn't take the position arg
@@ -99,10 +107,10 @@ export function replenishUnlocks(source) {
 export function progressUnlock(name, source) {
 	const unlock = unlocks[name]
 	if (unlock.unlocked) {
-		replenishUnlocks(source)
+		// replenishUnlocks(source)
 		return
 	}
 
 	unlock.remaining--
-	replenishUnlocks(source)
+	// replenishUnlocks(source)
 }

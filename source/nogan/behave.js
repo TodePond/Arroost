@@ -131,12 +131,6 @@ const creation = (args) => {
 const destruction = ({ nogan, target, next }) => {
 	const targetCell = getCell(nogan, target)
 
-	// If the pulse arrives at a time cell from outside its group, destroy it
-	// If the pulse arrives at a timing cell from inside its group, carry on
-	if (targetCell.type === "time") {
-		// todo
-	}
-
 	if (DESTROYABLE_CELLS.has(targetCell.type)) {
 		return createPeak({
 			operations: [

@@ -180,9 +180,9 @@ export class Dom extends Component {
 
 	dispose() {
 		super.dispose()
-		if (this._container) {
-			this._container.remove()
-			this._container = null
+		if (this.#container) {
+			this.#container.remove()
+			this.#container = null
 		}
 	}
 }

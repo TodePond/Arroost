@@ -32,10 +32,10 @@ export class DummyWire extends Entity {
 				target: target.tunnel.id,
 			})
 
-			this.tunnel = this.attach(new Tunnel(wire.id))
+			this.tunnel = this.attach(new Tunnel(wire.id, { entity: this }))
 			this.tunnel.apply(() => operations)
 		} else {
-			this.tunnel = this.attach(new Tunnel(id))
+			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		}
 
 		// Attach components
@@ -49,14 +49,14 @@ export class DummyWire extends Entity {
 		this.target = target
 
 		// Render elements
-		const line = (this.line = this.attach(new Line()))
-		const flaps = (this.flaps = this.attach(new Triangle()))
-		this.dom.append(line.dom)
-		this.dom.append(flaps.dom)
+		this.line = this.attach(new Line())
+		this.flaps = this.attach(new Triangle())
+		this.dom.append(this.line.dom)
+		this.dom.append(this.flaps.dom)
 
 		// Style elements
-		flaps.dom.style.fill.set(WHITE.toString())
-		flaps.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.flaps.dom.style.fill.set(WHITE.toString())
+		this.flaps.dom.transform.scale.set([2 / 3, 2 / 3])
 
 		this.use(() => {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()

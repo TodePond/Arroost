@@ -91,4 +91,15 @@ export class Input extends Component {
 		if (!tunnel.concrete) return false
 		return true
 	}
+
+	isDestroyable() {
+		const { tunnel } = this.entity
+		if (!tunnel) return false
+		if (tunnel.destroyable !== undefined) {
+			return tunnel.destroyable
+		}
+		if (tunnel.type === "wire") return false
+		if (!tunnel.concrete) return false
+		return true
+	}
 }

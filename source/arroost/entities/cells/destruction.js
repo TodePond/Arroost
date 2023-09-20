@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { archiveCell, archiveWire, createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -16,12 +16,15 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
-import { progressUnlock, unlocks } from "../unlock.js"
+import { progressUnlock, replenishUnlocks, unlocks } from "../unlock.js"
 
-export class Creation extends Entity {
+export class Destruction extends Entity {
 	pulling = this.use(false)
 
-	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
+	constructor({
+		id = createCell(shared.nogan, { type: "destruction" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
 		triggerCounter()
 
@@ -30,7 +33,7 @@ export class Creation extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "creation",
+				id: "destruction",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
@@ -81,6 +84,7 @@ export class Creation extends Entity {
 			input: this.input,
 			tunnel: this.tunnel,
 		})
+		this.front.dom.transform.rotation.set(Math.PI / 4)
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
@@ -106,37 +110,23 @@ export class Creation extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
-		if (!e.state.target.isCloneable()) {
-			const dummy = new this.template({
-				position: shared.pointer.transform.absolutePosition.get(),
-			})
-
-			shared.scene.layer.cell.append(dummy.dom)
-			this.tunnel.isFiring.set(true)
-			this.tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: this.tunnel.id })
-			})
-
-			for (const target of this.targets) {
-				target.targeted.set(false)
-				target.entity.tunnel.isFiring.set(true)
-				target.entity.tunnel.perform(() => {
-					return fireCell(shared.nogan, { id: target.entity.tunnel.id })
-				})
-			}
-			this.targets.clear()
-
-			progressUnlock("dummy-connection", this)
-
+		const target = e.state.target
+		if (!target.isDestroyable()) {
 			return
 		}
 
-		this.template = e.state.target.entity.constructor
-		this.source = e.state.target
-		this.targets.add(e.state.target)
-		e.state.target.entity.dom.style.bringToFront()
-		e.state.target.targeted.set(true)
+		this.tunnel.isFiring.set(true)
+		this.tunnel.apply(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
 
-		return new Pulling(this.input, e.state.target)
+		this.tunnel.perform(() => {
+			const id = target.entity.tunnel.id
+			if (id < 0) {
+				return archiveWire(shared.nogan, id)
+			} else {
+				return archiveCell(shared.nogan, id)
+			}
+		})
 	}
 }
