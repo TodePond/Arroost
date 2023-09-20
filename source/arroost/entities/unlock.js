@@ -6,6 +6,7 @@ import { Dom } from "../components/dom.js"
 import { Creation } from "./cells/creation.js"
 import { DummyCreation } from "./cells/dummy-creation.js"
 import { DummyWiring } from "./cells/dummy-wiring.js"
+import { Entity } from "./entity.js"
 
 /**
  * @typedef {{
