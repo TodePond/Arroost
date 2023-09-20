@@ -17,6 +17,7 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
 import { DummyTime } from "./dummy-time.js"
+import { add, angleBetween, subtract } from "../../../../libraries/habitat-import.js"
 
 export class DummyConnection extends Entity {
 	pulling = this.use(false)
@@ -66,14 +67,21 @@ export class DummyConnection extends Entity {
 		this.source = this.input
 		this.use(() => {
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
+
+			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			if (!this.source) {
-				this.arrow.dom.transform.setAbsolutePosition(this.dom.transform.absolutePosition.get())
+				const center = this.dom.transform.absolutePosition.get()
+				const angle = angleBetween(center, pointerPosition)
+				const distance = QUARTER
+				const displacement = [distance * Math.cos(angle), distance * Math.sin(angle)]
+				const position = subtract(center, displacement)
+				this.arrow.dom.transform.setAbsolutePosition(position)
 			} else {
 				this.arrow.dom.transform.setAbsolutePosition(
 					this.source.entity.dom.transform.absolutePosition.get(),
 				)
 			}
-			const pointerPosition = shared.pointer.transform.absolutePosition.get()
+
 			this.arrow.target.setAbsolutePosition(pointerPosition)
 		}, [
 			shared.pointer.transform.absolutePosition,

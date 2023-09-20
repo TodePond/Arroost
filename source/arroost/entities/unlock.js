@@ -24,12 +24,12 @@ export const unlocks = {
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlocked: false,
+		unlocked: true,
 		remaining: 3,
 		create: (arg) => new Creation(arg),
 	},
 	"dummy-connection": {
-		unlocked: false,
+		unlocked: true,
 		remaining: 3,
 		create: (arg) => new DummyConnection(arg),
 	},
