@@ -1,13 +1,18 @@
+import {
+	WHITE,
+	angleBetween,
+	distanceBetween,
+	rotate,
+	subtract,
+} from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
 import { createWire } from "../../../nogan/nogan.js"
-import { Triangle } from "../shapes/triangle.js"
-import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { HALF } from "../../unit.js"
+import { QUARTER } from "../../unit.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
-import { WHITE, add, angleBetween, scale } from "../../../../libraries/habitat-import.js"
+import { Triangle } from "../shapes/triangle.js"
 
 export class DummyTime extends Entity {
 	/**
@@ -57,11 +62,16 @@ export class DummyTime extends Entity {
 		this.use(() => {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
-			const middle = scale(add(sourcePosition, targetPosition), 1 / 2)
+			const distance = distanceBetween(sourcePosition, targetPosition).d
+			const middleDistance = distance / 2 + QUARTER / 2
+
 			const angle = angleBetween(sourcePosition, targetPosition)
+			const middleDisplacement = rotate([middleDistance, 0], angle)
+			const middle = subtract(sourcePosition, middleDisplacement)
 
 			this.line.dom.transform.setAbsolutePosition(sourcePosition)
 			this.line.target.setAbsolutePosition(targetPosition)
+
 			this.flaps.dom.transform.setAbsolutePosition(middle)
 			this.flaps.dom.transform.rotation.set(angle + Math.PI / 2)
 		}, [this.target.dom.transform.absolutePosition, this.source.dom.transform.absolutePosition])
