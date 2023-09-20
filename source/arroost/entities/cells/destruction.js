@@ -1,5 +1,13 @@
 import { shared } from "../../../main.js"
-import { archiveCell, archiveWire, createCell, fireCell, t } from "../../../nogan/nogan.js"
+import {
+	archiveCell,
+	archiveWire,
+	createCell,
+	fireCell,
+	getCell,
+	getWire,
+	t,
+} from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -120,16 +128,36 @@ export class Destruction extends Entity {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
+		replenishUnlocks()
+		if (unlocks["dummy-connection"].remaining > 3) {
+			unlocks["dummy-connection"].remaining = 3
+		}
+
 		Tunnel.apply(() => {
 			const id = target.entity.tunnel.id
-			replenishUnlocks()
-			if (unlocks["dummy-connection"].remaining > 3) {
-				unlocks["dummy-connection"].remaining = 3
-			}
 			if (id < 0) {
 				return archiveWire(shared.nogan, id)
 			} else {
-				return archiveCell(shared.nogan, id)
+				let wireOperations = []
+				const cell = getCell(shared.nogan, id)
+				if (cell.type === "control-wire") {
+					const [sourceWireId, targetWireId] = cell.outputs
+					const sourceWire = getWire(shared.nogan, sourceWireId)
+					const targetWire = getWire(shared.nogan, targetWireId)
+					const sourceId = sourceWire.target
+					const targetId = targetWire.target
+					const source = getCell(shared.nogan, sourceId)
+					for (const output of source.outputs) {
+						const wire = getWire(shared.nogan, output)
+						if (wire.target === targetId) {
+							wireOperations = archiveWire(shared.nogan, output)
+							break
+						}
+					}
+				}
+				const operations = archiveCell(shared.nogan, id)
+				operations.push(...wireOperations)
+				return operations.d
 			}
 		})
 	}

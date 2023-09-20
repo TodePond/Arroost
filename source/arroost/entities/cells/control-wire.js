@@ -9,7 +9,16 @@ import {
 	equals,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
-import { createCell, fireCell, getCell, modifyCell, modifyWire, t } from "../../../nogan/nogan.js"
+import {
+	createCell,
+	createWire,
+	fireCell,
+	getCell,
+	getWire,
+	modifyCell,
+	modifyWire,
+	t,
+} from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -126,6 +135,23 @@ export class ControlWire extends Entity {
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
 		this.tunnel.useCell({ dom: this.dom, input: this.input })
 		this.wire = wire
+		const _wire = getWire(shared.nogan, wire)
+		Tunnel.apply(() => {
+			const { wire: sourceWire, operations } = createWire(shared.nogan, {
+				target: _wire.source,
+				source: id,
+			})
+			this.sourceWire = sourceWire.id
+			return operations
+		})
+		Tunnel.apply(() => {
+			const { wire: targetWire, operations } = createWire(shared.nogan, {
+				target: _wire.target,
+				source: id,
+			})
+			this.sourceWire = targetWire.id
+			return operations
+		})
 	}
 
 	onPointingPointerMove() {

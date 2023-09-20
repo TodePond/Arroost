@@ -573,22 +573,27 @@ export const binCell = (
 
 	binCellId(nogan, { mode, id: cell.id, check: false })
 
+	/** @type {Operation[]} */
+	const operations = []
+
 	for (const child of cell.cells) {
-		binCell(nogan, { id: child, mode, check: false })
+		operations.push(...binCell(nogan, { id: child, mode, check: false }))
 	}
 
 	for (const input of cell.inputs) {
-		binWire(nogan, { id: input, mode, check: false })
+		operations.push(...binWire(nogan, { id: input, mode, check: false }))
 	}
 
 	for (const output of cell.outputs) {
-		binWire(nogan, { id: output, mode, check: false })
+		operations.push(...binWire(nogan, { id: output, mode, check: false }))
 	}
 
 	const binnedOperation = c({ type: "binned", id })
+	operations.push(binnedOperation)
+
 	if (propogate) {
-		const operations = refresh(nogan, { past, future })
-		operations.push(binnedOperation)
+		const refreshOperations = refresh(nogan, { past, future })
+		operations.push(...refreshOperations)
 		return operations
 	}
 
@@ -597,7 +602,7 @@ export const binCell = (
 		validate(nogan, N.Nogan)
 	}
 
-	return [binnedOperation]
+	return operations
 }
 
 /**
