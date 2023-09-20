@@ -179,6 +179,7 @@ declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
+declare type ControlWireCell = { type: "control-wire" }
 declare type DummyCreationCell = { type: "dummy-creation" }
 declare type DummyConnectionCell = { type: "dummy-connection" }
 declare type DummyWiringCell = { type: "dummy-wiring" }
@@ -194,6 +195,7 @@ type CustomCell =
 	| DummyCreationCell
 	| DummyConnectionCell
 	| DummyWiringCell
+	| ControlWireCell
 
 //==============//
 // Custom Pulse //
