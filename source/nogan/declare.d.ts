@@ -181,6 +181,7 @@ declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
 declare type DummyCreationCell = { type: "dummy-creation" }
 declare type DummyConnectionCell = { type: "dummy-connection" }
+declare type DummyWiringCell = { type: "dummy-wiring" }
 declare type TimeCell = { type: "time"; groupStart: CellId; groupEnd: CellId }
 type CustomCell =
 	| SlotCell
@@ -192,6 +193,7 @@ type CustomCell =
 	| TimeCell
 	| DummyCreationCell
 	| DummyConnectionCell
+	| DummyWiringCell
 
 //==============//
 // Custom Pulse //

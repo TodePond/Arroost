@@ -41,7 +41,7 @@ export class DummyWire extends Entity {
 		// Attach components
 		this.dom = this.attach(
 			new Dom({
-				id: "dummy-time",
+				id: "dummy-wire",
 				type: "html",
 			}),
 		)

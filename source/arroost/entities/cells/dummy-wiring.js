@@ -15,11 +15,11 @@ import { Line } from "../shapes/line.js"
 import { DummyWire } from "./dummy-wire.js"
 import { setCellStyles } from "./shared.js"
 
-export class DummyConnection extends Entity {
+export class DummyWiring extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { type: "dummy-connection" }).id,
+		id = createCell(shared.nogan, { type: "dummy-wiring" }).id,
 		position = t([0, 0]),
 	}) {
 		super()
@@ -30,7 +30,7 @@ export class DummyConnection extends Entity {
 		const tunnel = (this.tunnel = this.attach(new Tunnel(id)))
 		const dom = (this.dom = this.attach(
 			new Dom({
-				id: "dummy-connection",
+				id: "dummy-wiring",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],

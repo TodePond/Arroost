@@ -1,12 +1,11 @@
+import { equals } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { c, iterateCells, t } from "../../nogan/nogan.js"
-import { Entity } from "./entity.js"
-import { DummyCreation } from "./cells/dummy-creation.js"
-import { equals, randomBetween } from "../../../libraries/habitat-import.js"
-import { Creation } from "./cells/creation.js"
-import { DummyConnection } from "./cells/dummy-connection.js"
-import { Dom } from "../components/dom.js"
+import { iterateCells, t } from "../../nogan/nogan.js"
 import { Carry } from "../components/carry.js"
+import { Dom } from "../components/dom.js"
+import { Creation } from "./cells/creation.js"
+import { DummyCreation } from "./cells/dummy-creation.js"
+import { DummyWiring } from "./cells/dummy-wiring.js"
 
 /**
  * @typedef {{
@@ -28,10 +27,10 @@ export const unlocks = {
 		remaining: 3,
 		create: (arg) => new Creation(arg),
 	},
-	"dummy-connection": {
+	"dummy-wiring": {
 		unlocked: true,
 		remaining: 3,
-		create: (arg) => new DummyConnection(arg),
+		create: (arg) => new DummyWiring(arg),
 	},
 }
 
