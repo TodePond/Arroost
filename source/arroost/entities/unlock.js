@@ -61,8 +61,10 @@ export const unlocks = c({
  **/
 const _unlocksType = unlocks
 
-export function replenishUnlocks() {
-	Tunnel.schedule(() => {
+export function replenishUnlocks(immediately = false) {
+	const caller = immediately ? Tunnel.apply.bind(Tunnel) : Tunnel.schedule.bind(Tunnel)
+
+	caller(() => {
 		unlocks: for (const key in unlocks) {
 			const unlock = unlocks[key]
 			if (!unlock.unlockable) continue unlocks

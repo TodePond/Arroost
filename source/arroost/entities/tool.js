@@ -3,6 +3,7 @@ import { shared } from "../../main.js"
 import { iterateCells } from "../../nogan/nogan.js"
 import { Tunnel } from "../components/tunnel.js"
 import { Pulling } from "../machines/pulling.js"
+import { replenishUnlocks, unlocks } from "./unlock.js"
 
 /**
  * @param {Cell['type']} type
@@ -21,8 +22,10 @@ export function selectTool(type) {
 	}
 
 	if (!nearestCell) {
-		fireEvent("unlock", { key: type })
-		return
+		unlocks[type].unlocked = true
+		replenishUnlocks(true)
+		// fireEvent("unlock", { key: type })
+		return selectTool(type)
 	}
 
 	const cell = nearestCell
@@ -53,8 +56,10 @@ export function fireTool(type) {
 	}
 
 	if (!nearestCell) {
-		fireEvent("unlock", { key: type })
-		return
+		unlocks[type].unlocked = true
+		replenishUnlocks(true)
+		// fireEvent("unlock", { key: type })
+		return fireTool(type)
 	}
 
 	const cell = nearestCell
