@@ -9,7 +9,6 @@ import { shared } from "../../../main.js"
 import { createWire } from "../../../nogan/nogan.js"
 import { Dom } from "../../components/dom.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { QUARTER } from "../../unit.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 import { Triangle } from "../shapes/triangle.js"
@@ -63,7 +62,7 @@ export class DummyWire extends Entity {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
-			const middleDistance = distance / 2 + QUARTER / 2
+			const middleDistance = distance / 2 + Triangle.HEIGHT / 4
 
 			const angle = angleBetween(sourcePosition, targetPosition)
 			const middleDisplacement = rotate([middleDistance, 0], angle)
