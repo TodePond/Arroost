@@ -113,20 +113,20 @@ export class Creation extends Entity {
 
 			shared.scene.layer.cell.append(dummy.dom)
 			this.tunnel.isFiring.set(true)
-			this.tunnel.perform(() => {
+			Tunnel.perform(() => {
 				return fireCell(shared.nogan, { id: this.tunnel.id })
 			})
 
 			for (const target of this.targets) {
 				target.targeted.set(false)
 				target.entity.tunnel.isFiring.set(true)
-				target.entity.tunnel.perform(() => {
+				Tunnel.perform(() => {
 					return fireCell(shared.nogan, { id: target.entity.tunnel.id })
 				})
 			}
 			this.targets.clear()
 
-			progressUnlock("dummy-connection", this)
+			progressUnlock("dummy-connection")
 
 			return
 		}

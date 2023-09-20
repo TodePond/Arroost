@@ -34,7 +34,7 @@ export class DummyTime extends Entity {
 			})
 
 			this.tunnel = this.attach(new Tunnel(wire.id, { entity: this }))
-			this.tunnel.apply(() => operations)
+			Tunnel.apply(() => operations)
 		} else {
 			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		}

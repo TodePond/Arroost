@@ -73,7 +73,7 @@ export class Dummy extends Entity {
 	}
 
 	onClick(e) {
-		this.tunnel.perform(() => {
+		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 

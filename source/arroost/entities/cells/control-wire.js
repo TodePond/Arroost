@@ -149,11 +149,11 @@ export class ControlWire extends Entity {
 			}
 		}
 
-		this.tunnel.apply(() => {
+		Tunnel.apply(() => {
 			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
 		})
 
-		// this.tunnel.perform(() => {
+		// Tunnel.perform(() => {
 		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
 		// })
 		// === Debug ===

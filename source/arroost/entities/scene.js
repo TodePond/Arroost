@@ -28,8 +28,11 @@ export class Scene extends Entity {
 	bounds = this.use({
 		left: 0,
 		top: 0,
+		width: innerWidth,
+		height: innerHeight,
 		right: innerWidth,
 		bottom: innerHeight,
+		center: [innerWidth / 2, innerHeight / 2],
 	})
 
 	constructor() {
@@ -67,14 +70,20 @@ export class Scene extends Entity {
 
 			const screenLeft = -sx / ssx
 			const screenTop = -sy / ssy
-			const screenRight = this.width.get() / ssx
-			const screenBottom = this.height.get() / ssy
+			const screenWidth = this.width.get() / ssx
+			const screenHeight = this.height.get() / ssy
+
+			const screenRight = screenLeft + screenWidth
+			const screenBottom = screenTop + screenHeight
 
 			this.bounds.set({
 				left: screenLeft,
 				top: screenTop,
+				width: screenWidth,
+				height: screenHeight,
 				right: screenRight,
 				bottom: screenBottom,
+				center: [(screenLeft + screenRight) / 2, (screenTop + screenBottom) / 2],
 			})
 		}, [this.dom.transform.position, this.dom.transform.scale, this.width, this.height])
 
@@ -94,7 +103,7 @@ export class Scene extends Entity {
 		// const counter = new Counter()
 		// layer.ghost.append(counter.dom)
 
-		// requestAnimationFrame(() => replenishUnlocks())
+		replenishUnlocks()
 	}
 
 	start({ html }) {

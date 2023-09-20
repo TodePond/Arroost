@@ -1,8 +1,11 @@
-import { equals } from "../../../libraries/habitat-import.js"
+import { angleBetween, equals, oneIn, randomBetween } from "../../../libraries/habitat-import.js"
+import { msPerBeat } from "../../link.js"
 import { shared } from "../../main.js"
 import { c, iterateCells, t } from "../../nogan/nogan.js"
 import { Carry } from "../components/carry.js"
 import { Dom } from "../components/dom.js"
+import { Tunnel } from "../components/tunnel.js"
+import { HALF } from "../unit.js"
 import { Creation } from "./cells/creation.js"
 import { Destruction } from "./cells/destruction.js"
 import { DummyConnection } from "./cells/dummy-connection.js"
@@ -40,13 +43,13 @@ export const unlocks = c({
 	},
 	"dummy-connection": {
 		unlockable: true,
-		unlocked: true,
-		remaining: 3,
+		unlocked: false,
+		remaining: Infinity, // gets set to 3 by destruction
 		create: (arg) => new DummyConnection(arg),
 	},
 	"destruction": {
 		unlockable: true,
-		unlocked: true,
+		unlocked: false,
 		remaining: 3,
 		create: (arg) => new Destruction(arg),
 	},
@@ -58,59 +61,73 @@ export const unlocks = c({
  **/
 const _unlocksType = unlocks
 
-/**
- * @param {Entity & {dom: Dom}} [source]
- */
-export function replenishUnlocks(source) {
-	unlocks: for (const key in unlocks) {
-		const unlock = unlocks[key]
-		if (!unlock.unlockable) continue unlocks
-		if (!unlock.unlocked) {
-			if (unlock.remaining <= 0) {
-				unlock.unlocked = true
-			} else {
-				continue unlocks
+export function replenishUnlocks() {
+	Tunnel.schedule(() => {
+		unlocks: for (const key in unlocks) {
+			const unlock = unlocks[key]
+			if (!unlock.unlockable) continue unlocks
+			if (!unlock.unlocked) {
+				if (unlock.remaining <= 0) {
+					unlock.unlocked = true
+				} else {
+					continue unlocks
+				}
 			}
+
+			cells: for (const cell of iterateCells(shared.nogan)) {
+				if (cell.parent !== shared.level) continue cells
+				if (cell.type === key) continue unlocks
+			}
+
+			const { position } = getRandomSpawnPosition()
+			const entity = unlock.create({ position })
+
+			// just in case it doesn't take the position arg
+			// if (!equals(entity.dom.transform.position.get(), position)) {
+			entity.dom.transform.setAbsolutePosition(position)
+			// }
+
+			const movement = entity.carry.movement
+			if (movement) {
+				const angle = angleBetween(position, shared.scene.bounds.get().center)
+				// const angle = Math.random() * Math.PI * 2
+				const speed = -30
+				const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
+				// movement.velocity.set(velocity)
+				movement.setAbsoluteVelocity(velocity)
+			}
+
+			shared.scene.layer.cell.append(entity.dom)
 		}
+		return []
+	})
+}
 
-		cells: for (const cell of iterateCells(shared.nogan)) {
-			if (cell.parent !== shared.level) continue cells
-			if (cell.type === key) continue unlocks
-		}
+function getRandomSpawnPosition() {
+	const bounds = shared.scene.bounds.get()
+	const axis = oneIn(2) ? "y" : "x"
 
-		const dom = source ? source.dom : null
-		const position =
-			dom?.transform.position.get() ?? shared.pointer.transform.absolutePosition.get()
-		const entity = unlock.create({ position })
-
-		// just in case it doesn't take the position arg
-		if (!equals(entity.dom.transform.position.get(), position)) {
-			entity.dom.transform.position.set(position)
-		}
-
-		const movement = entity.carry.movement
-		if (movement) {
-			const angle = Math.random() * Math.PI * 2
-			const speed = 15
-			const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-			movement.velocity.set(velocity)
-		}
-
-		shared.scene.layer.cell.append(entity.dom)
+	if (axis === "y") {
+		const y = oneIn(2) ? bounds.top - HALF : bounds.bottom + HALF
+		const x = randomBetween(bounds.left, bounds.right)
+		return { position: [x, y] }
+	} else {
+		const x = oneIn(2) ? bounds.left - HALF : bounds.right + HALF
+		const y = randomBetween(bounds.top, bounds.bottom)
+		return { position: [x, y] }
 	}
 }
 
 /**
  * @param {keyof unlocks} name
- * @param {Entity & {dom: Dom}} source
  */
-export function progressUnlock(name, source) {
+export function progressUnlock(name) {
 	const unlock = unlocks[name]
 	if (unlock.unlocked) {
-		// replenishUnlocks(source)
+		// replenishUnlocks()
 		return
 	}
 
 	unlock.remaining--
-	// replenishUnlocks(source)
+	replenishUnlocks()
 }

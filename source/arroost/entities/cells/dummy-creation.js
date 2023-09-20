@@ -21,7 +21,7 @@ import { getCellBackgroundColour, getCellForegroundColour, setCellStyles } from 
 import { Dummy } from "./dummy.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
-import { progressUnlock, replenishUnlocks, unlocks } from "../unlock.js"
+import { progressUnlock, unlocks } from "../unlock.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class DummyCreation extends Entity {
@@ -75,9 +75,12 @@ export class DummyCreation extends Entity {
 	}
 
 	onClick(e) {
-		progressUnlock("creation", this)
+		if (unlocks.destruction.unlocked) {
+			progressUnlock("dummy-connection")
+		}
+		progressUnlock("destruction")
 
-		this.tunnel.perform(() => {
+		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 

@@ -65,6 +65,54 @@ export class Tunnel extends Component {
 		}
 	}
 
+	/**
+	 * Run a function on the nogan - right now
+	 * @param {() => Operation[]} func
+	 * @returns {Operation[]}
+	 */
+	static apply(func) {
+		const operations = func()
+		Tunnel.applyOperations(operations)
+		return operations
+	}
+
+	/**
+	 * Run a function on the nogan - at the nearest beat
+	 * @param {() => Operation[]} func
+	 * @returns {Promise<Operation[]>}
+	 */
+	static async perform(func) {
+		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
+		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
+
+		if (fractionOfBeat < 0.5) return this.apply(func)
+		return this.schedule(func)
+	}
+
+	/**
+	 * Run a function on the nogan - on the next beat
+	 * @param {() => Operation[]} func
+	 * @param {number} [beats] - How many beats to wait
+	 * @returns {Promise<Operation[]>}
+	 */
+	static async schedule(func, beats = 0) {
+		if (beats <= 0) {
+			return new Promise((resolve) => {
+				nextBeatQueue.current.push(() => {
+					const operations = this.apply(func)
+					resolve(operations)
+				})
+			})
+		}
+
+		return new Promise((resolve) => {
+			nextBeatQueue.current.push(() => {
+				this.schedule(func, beats - 1)
+				resolve([])
+			})
+		})
+	}
+
 	//==========//
 	// INSTANCE //
 	//==========//
@@ -95,44 +143,6 @@ export class Tunnel extends Component {
 	}
 
 	/**
-	 * Run a function on the nogan - right now
-	 * @param {() => Operation[]} func
-	 * @returns {Operation[]}
-	 */
-	apply(func) {
-		const operations = func()
-		Tunnel.applyOperations(operations)
-		return operations
-	}
-
-	/**
-	 * Run a function on the nogan - at the nearest beat
-	 * @param {() => Operation[]} func
-	 * @returns {Promise<Operation[]>}
-	 */
-	async perform(func) {
-		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
-		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
-
-		if (fractionOfBeat < 0.5) return this.apply(func)
-		return this.schedule(func)
-	}
-
-	/**
-	 * Run a function on the nogan - on the next beat
-	 * @param {() => Operation[]} func
-	 * @returns {Promise<Operation[]>}
-	 */
-	async schedule(func) {
-		return new Promise((resolve) => {
-			nextBeatQueue.push(() => {
-				const operations = this.apply(func)
-				resolve(operations)
-			})
-		})
-	}
-
-	/**
 	 * Helper function for cells
 	 * @param {{
 	 * 	dom: Dom
@@ -148,7 +158,7 @@ export class Tunnel extends Component {
 			const velocity = carry?.movement.velocity.get() ?? [0, 0]
 			const cell = getCell(shared.nogan, this.id)
 			if (equals(cell.position, position)) return
-			this.apply(() => {
+			Tunnel.apply(() => {
 				return modifyCell(shared.nogan, {
 					id: this.id,
 					position,

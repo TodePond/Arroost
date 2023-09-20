@@ -16,7 +16,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
-import { progressUnlock, replenishUnlocks, unlocks } from "../unlock.js"
+import { replenishUnlocks, unlocks } from "../unlock.js"
 
 export class Destruction extends Entity {
 	pulling = this.use(false)
@@ -116,12 +116,16 @@ export class Destruction extends Entity {
 		}
 
 		this.tunnel.isFiring.set(true)
-		this.tunnel.apply(() => {
+		Tunnel.apply(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		this.tunnel.perform(() => {
+		Tunnel.apply(() => {
 			const id = target.entity.tunnel.id
+			replenishUnlocks()
+			if (unlocks["dummy-connection"].remaining > 3) {
+				unlocks["dummy-connection"].remaining = 3
+			}
 			if (id < 0) {
 				return archiveWire(shared.nogan, id)
 			} else {

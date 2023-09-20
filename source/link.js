@@ -1,6 +1,5 @@
 import { BLACK, VOID } from "../libraries/habitat-import.js"
 import { Tunnel } from "./arroost/components/tunnel.js"
-import { replenishUnlocks } from "./arroost/entities/unlock.js"
 import { shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
@@ -25,7 +24,12 @@ export const frame = (time = 0) => {
 	requestAnimationFrame(frame)
 }
 
-export const nextBeatQueue = []
+export const nextBeatQueue = {
+	/** @type {(Function)[]} */
+	current: [],
+	/** @type {(Function)[]} */
+	previous: [],
+}
 
 let ping = true
 
@@ -42,10 +46,11 @@ const beat = () => {
 	// document.body.style["background-color"] = ping ? VOID : BLACK
 	ping = !ping
 
-	for (const func of nextBeatQueue) {
+	nextBeatQueue.previous = nextBeatQueue.current
+	nextBeatQueue.current = []
+	for (const func of nextBeatQueue.previous) {
 		func()
 	}
 
-	replenishUnlocks()
 	nextBeatQueue.length = 0
 }

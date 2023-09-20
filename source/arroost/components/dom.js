@@ -106,7 +106,7 @@ export class Dom extends Component {
 				const bounds = shared.scene.bounds.get()
 				if (!this.outOfView.get()) {
 					const xPlacement = x - bounds.left
-					if (xPlacement <= 0) {
+					if (xPlacement <= -HALF) {
 						this.outOfView.set(true)
 						return
 					}
@@ -117,12 +117,13 @@ export class Dom extends Component {
 						return
 					}
 
-					if (xPlacement >= bounds.right + HALF) {
+					if (xPlacement >= bounds.width + HALF) {
 						this.outOfView.set(true)
+
 						return
 					}
 
-					if (yPlacement >= bounds.bottom + HALF) {
+					if (yPlacement >= bounds.height + HALF) {
 						this.outOfView.set(true)
 						return
 					}
@@ -137,11 +138,11 @@ export class Dom extends Component {
 						return
 					}
 
-					if (xPlacement >= bounds.right + HALF) {
+					if (xPlacement >= bounds.width + HALF) {
 						return
 					}
 
-					if (yPlacement >= bounds.bottom + HALF) {
+					if (yPlacement >= bounds.height + HALF) {
 						return
 					}
 
