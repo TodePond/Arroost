@@ -20,6 +20,7 @@ import { setCellStyles } from "./shared.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { Triangle } from "../shapes/triangle.js"
 
 export class ControlWire extends Entity {
 	/**
@@ -51,13 +52,14 @@ export class ControlWire extends Entity {
 
 		// Render elements
 		const back = (this.back = new EllipseHtml({ input: this.input }))
-		const front = (this.front = new Ellipse())
+		const front = (this.front = new Triangle())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
+		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
 		setCellStyles({ back: back.dom, front: front.dom, input, tunnel })
 
 		// Nogan behaviours

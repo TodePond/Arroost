@@ -63,7 +63,7 @@ export class DummyTime extends Entity {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
-			const middleDistance = distance / 2 + Triangle.HEIGHT / 4
+			const middleDistance = distance / 2
 
 			const angle = angleBetween(sourcePosition, targetPosition)
 			const middleDisplacement = rotate([middleDistance, 0], angle)

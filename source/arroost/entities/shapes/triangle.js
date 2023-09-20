@@ -18,16 +18,17 @@ export class Triangle extends Entity {
 	}
 
 	static WIDTH = FULL
-	static HEIGHT = Math.sqrt(3 / 4) * FULL
+	static HEIGHT = Math.sqrt(FULL ** 2 - HALF ** 2)
 
 	render() {
 		const element = SVG("polygon")
+		const OFFSET = FULL - Triangle.HEIGHT
 		const HALF_WIDTH = Triangle.WIDTH / 2
 		const HALF_HEIGHT = Triangle.HEIGHT / 2
 		const points = [
-			[-HALF_WIDTH, -HALF_HEIGHT],
-			[HALF_WIDTH, -HALF_HEIGHT],
-			[0, HALF_HEIGHT],
+			[-HALF_WIDTH, -HALF_HEIGHT + OFFSET],
+			[HALF_WIDTH, -HALF_HEIGHT + OFFSET],
+			[0, HALF_HEIGHT + OFFSET],
 		]
 		element.setAttribute("points", points.map((point) => point.join()).join(" "))
 		return element
