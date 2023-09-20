@@ -124,7 +124,7 @@ export class Tunnel extends Component {
 	 * @param {{
 	 *   concrete?: boolean
 	 *   destroyable?: boolean | undefined
-	 *   entity: Entity
+	 *   entity: Entity & {dom: Dom; input?: Input}
 	 * }} options
 	 **/
 	constructor(id, { concrete = true, destroyable, entity }) {

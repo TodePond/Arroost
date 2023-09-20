@@ -1,38 +1,10 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Input } from "../components/input.js"
+import { fireTool, selectTool } from "../entities/tool.js"
 import { triggerRightClickPity } from "../input/wheel.js"
-
-export class InputState extends State {
-	name = "input-state"
-
-	/** @param {Input} [input] */
-	constructor(input) {
-		super()
-		this.input = input ?? shared.hovering.input.get()
-	}
-
-	enter() {
-		this.input.state(this.name).active.set(true)
-		this.input.current.set(this)
-	}
-
-	exit() {
-		this.input.state(this.name).active.set(false)
-	}
-
-	fire(eventName, arg) {
-		// We call events in order from most specific to least specific
-		const inputStateMethod = this.input.state(this.name)[eventName]
-		const inputMethod = this.input[eventName]
-		const stateMethod = this[eventName]
-		const inputStateResult = inputStateMethod?.call(this, arg)
-		if (inputStateResult !== undefined) return inputStateResult
-		const inputResult = inputMethod?.call(this, arg)
-		if (inputResult !== undefined) return inputResult
-		return stateMethod?.call(this, arg)
-	}
-}
+import { InputState } from "./input-state.js"
+// import { replenishUnlocks } from "../entities/unlock.js"
 
 export class Hovering extends InputState {
 	name = "hovering"
@@ -52,11 +24,25 @@ export class Hovering extends InputState {
 
 	keydown({ key }) {
 		switch (key.toLowerCase()) {
-			case "d": {
-				return new Debugging()
-			}
+			// case "d": {
+			// 	// return new Debugging()
+			// }
 			case " ": {
 				return new Handing()
+			}
+		}
+	}
+
+	keyup({ key }) {
+		switch (key.toLowerCase()) {
+			case "d": {
+				return selectTool("destruction")
+			}
+			case "c": {
+				return selectTool("dummy-connection")
+			}
+			case "s": {
+				return fireTool("dummy-creation")
 			}
 		}
 	}
@@ -108,23 +94,23 @@ export class Dragging extends InputState {
 	}
 }
 
-export class Debugging extends InputState {
-	name = "debugging"
-	cursor = "help"
+// export class Debugging extends InputState {
+// 	name = "debugging"
+// 	cursor = "help"
 
-	keyup({ key }) {
-		if (key.toLowerCase() === "d") {
-			return new Hovering()
-		}
-	}
+// 	keyup({ key }) {
+// 		if (key.toLowerCase() === "d") {
+// 			return new Hovering()
+// 		}
+// 	}
 
-	pointerdown(e) {
-		if (e.ctrlKey || e.metaKey) {
-			print(shared.hovering.input.get())
-		} else {
-			print(shared.hovering.input.get().entity)
-		}
-	}
-}
+// 	pointerdown(e) {
+// 		if (e.ctrlKey || e.metaKey) {
+// 			print(shared.hovering.input.get())
+// 		} else {
+// 			print(shared.hovering.input.get().entity)
+// 		}
+// 	}
+// }
 
 export const InputMachine = Hovering

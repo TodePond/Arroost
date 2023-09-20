@@ -1,6 +1,6 @@
 import { angleBetween, subtract } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -116,6 +116,9 @@ export class DummyConnection extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
+		if (this.source === this.input) {
+			this.source = null
+		}
 		const target = e.state.target
 		if (!target.isConnectable()) {
 			this.source?.targeted.set(false)
@@ -131,16 +134,24 @@ export class DummyConnection extends Entity {
 			if (!sourceEntity.tunnel) {
 				throw new Error("Can't connect from an entity with no tunnel")
 			}
+
+			const entity = e.state.target.entity
+
 			const dummyWire = new DummyTime({
 				// @ts-expect-error - don't know why it isn't figuring out its type here
 				source: sourceEntity,
-				target: e.state.target.entity,
+				target: entity,
 			})
 			shared.scene.layer.wire.append(dummyWire.dom)
+
+			this.tunnel.isFiring.set(true)
+			Tunnel.perform(() => {
+				return fireCell(shared.nogan, { id: this.tunnel.id })
+			})
+
 			return
 		}
 
-		this.template = e.state.target.entity.constructor
 		this.source = e.state.target
 		this.source?.targeted.set(true)
 		e.state.target.entity.dom.style.bringToFront()

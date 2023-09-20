@@ -26,6 +26,16 @@ export class DummyTime extends Entity {
 	constructor({ id, target, source }) {
 		super()
 
+		// Attach components
+		this.dom = this.attach(
+			new Dom({
+				id: "dummy-time",
+				type: "html",
+			}),
+		)
+		this.source = source
+		this.target = target
+
 		// Setup tunnel
 		if (id === undefined) {
 			const { wire, operations } = createWire(shared.nogan, {
@@ -38,16 +48,6 @@ export class DummyTime extends Entity {
 		} else {
 			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		}
-
-		// Attach components
-		this.dom = this.attach(
-			new Dom({
-				id: "dummy-time",
-				type: "html",
-			}),
-		)
-		this.source = source
-		this.target = target
 
 		// Render elements
 		this.line = this.attach(new Line())

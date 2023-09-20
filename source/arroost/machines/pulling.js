@@ -1,7 +1,8 @@
 import { use } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Input } from "../components/input.js"
-import { Hovering, InputState } from "./input.js"
+import { InputState } from "./input-state.js"
+// import {  } from "./input.js"
 import { Targeting } from "./targeting.js"
 
 export class Pulling extends InputState {

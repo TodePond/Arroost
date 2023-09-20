@@ -1,4 +1,7 @@
-import { Hovering, InputState } from "./input.js"
+// import { Hovering, InputState } from "./input.js"
+
+import { InputState } from "./input-state.js"
+import { Hovering } from "./input.js"
 
 export class Targeting extends InputState {
 	name = "targeting"

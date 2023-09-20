@@ -131,3 +131,9 @@ export function progressUnlock(name) {
 	unlock.remaining--
 	replenishUnlocks()
 }
+
+addEventListener("unlock", (e) => {
+	const unlock = unlocks[e["key"]]
+	unlock.unlocked = true
+	replenishUnlocks()
+})
