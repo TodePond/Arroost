@@ -20,10 +20,10 @@ export class EllipseHtml extends Entity {
 		const element = HTML("div")
 		element.style["border-radius"] = "100%"
 		element.style["position"] = "relative"
-		element.style["left"] = -HALF
-		element.style["top"] = -HALF
-		element.style["width"] = FULL
-		element.style["height"] = FULL
+		element.style["left"] = -HALF + "px"
+		element.style["top"] = -HALF + "px"
+		element.style["width"] = FULL + "px"
+		element.style["height"] = FULL + "px"
 		return element
 	}
 }

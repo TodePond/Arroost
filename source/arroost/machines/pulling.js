@@ -1,7 +1,8 @@
 import { use } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Input } from "../components/input.js"
-import { Hovering, InputState } from "./input.js"
+import { InputState } from "./input-state.js"
+// import {  } from "./input.js"
 import { Targeting } from "./targeting.js"
 
 export class Pulling extends InputState {
@@ -9,8 +10,9 @@ export class Pulling extends InputState {
 
 	/**
 	 * @param {Input} [input]
+	 * @param {Input | null} [target]
 	 */
-	constructor(input = undefined, target = undefined) {
+	constructor(input, target) {
 		super(input)
 		this.target = target ?? this.input
 		this.target.highlighted.set(true)

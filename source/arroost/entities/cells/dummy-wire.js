@@ -12,9 +12,8 @@ import { Tunnel } from "../../components/tunnel.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 import { Triangle } from "../shapes/triangle.js"
-import { ControlWire } from "./control-wire.js"
 
-export class DummyTime extends Entity {
+export class DummyWire extends Entity {
 	/**
 	 *
 	 * @param {{
@@ -25,16 +24,6 @@ export class DummyTime extends Entity {
 	 */
 	constructor({ id, target, source }) {
 		super()
-
-		// Attach components
-		this.dom = this.attach(
-			new Dom({
-				id: "dummy-time",
-				type: "html",
-			}),
-		)
-		this.source = source
-		this.target = target
 
 		// Setup tunnel
 		if (id === undefined) {
@@ -49,9 +38,19 @@ export class DummyTime extends Entity {
 			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		}
 
+		// Attach components
+		this.dom = this.attach(
+			new Dom({
+				id: "dummy-wire",
+				type: "html",
+			}),
+		)
+		this.source = source
+		this.target = target
+
 		// Render elements
 		this.line = this.attach(new Line())
-		this.flaps = this.attach(new ControlWire({ wire: this.tunnel.id }))
+		this.flaps = this.attach(new Triangle())
 		this.dom.append(this.line.dom)
 		this.dom.append(this.flaps.dom)
 
@@ -63,7 +62,7 @@ export class DummyTime extends Entity {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
-			const middleDistance = distance / 2
+			const middleDistance = distance / 2 + Triangle.HEIGHT / 4
 
 			const angle = angleBetween(sourcePosition, targetPosition)
 			const middleDisplacement = rotate([middleDistance, 0], angle)

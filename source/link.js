@@ -24,7 +24,12 @@ export const frame = (time = 0) => {
 	requestAnimationFrame(frame)
 }
 
-export const nextBeatQueue = []
+export const nextBeatQueue = {
+	/** @type {(Function)[]} */
+	current: [],
+	/** @type {(Function)[]} */
+	previous: [],
+}
 
 let ping = true
 
@@ -41,8 +46,11 @@ const beat = () => {
 	// document.body.style["background-color"] = ping ? VOID : BLACK
 	ping = !ping
 
-	for (const func of nextBeatQueue) {
+	nextBeatQueue.previous = nextBeatQueue.current
+	nextBeatQueue.current = []
+	for (const func of nextBeatQueue.previous) {
 		func()
 	}
+
 	nextBeatQueue.length = 0
 }

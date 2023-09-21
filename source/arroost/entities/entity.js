@@ -1,4 +1,5 @@
 import { snuse, use } from "../../../libraries/habitat-import.js"
+import { Component } from "../components/component.js"
 
 export const Entity = class {
 	components = new Set()
@@ -6,7 +7,7 @@ export const Entity = class {
 	listeners = new Set()
 
 	/**
-	 * @template {import("../components/component.js").Component} T
+	 * @template {Component} T
 	 * @param {T} component
 	 * @returns {T}
 	 */

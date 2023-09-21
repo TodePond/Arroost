@@ -5,7 +5,7 @@ import { shared } from "../../main.js"
 import { Input } from "./input.js"
 import { c, t } from "../../nogan/nogan.js"
 import { distanceBetween } from "../../../libraries/habitat-import.js"
-import { FULL } from "../unit.js"
+import { FULL, HALF } from "../unit.js"
 
 export class Dom extends Component {
 	/** @returns {SVGElement | HTMLElement | null} */
@@ -106,42 +106,43 @@ export class Dom extends Component {
 				const bounds = shared.scene.bounds.get()
 				if (!this.outOfView.get()) {
 					const xPlacement = x - bounds.left
-					if (xPlacement <= 0) {
+					if (xPlacement <= -HALF) {
 						this.outOfView.set(true)
 						return
 					}
 
 					const yPlacement = y - bounds.top
-					if (yPlacement <= 0) {
+					if (yPlacement <= -HALF) {
 						this.outOfView.set(true)
 						return
 					}
 
-					if (xPlacement >= bounds.right) {
+					if (xPlacement >= bounds.width + HALF) {
 						this.outOfView.set(true)
+
 						return
 					}
 
-					if (yPlacement >= bounds.bottom) {
+					if (yPlacement >= bounds.height + HALF) {
 						this.outOfView.set(true)
 						return
 					}
 				} else {
 					const xPlacement = x - bounds.left
-					if (xPlacement <= 0) {
+					if (xPlacement <= -HALF) {
 						return
 					}
 
 					const yPlacement = y - bounds.top
-					if (yPlacement <= 0) {
+					if (yPlacement <= -HALF) {
 						return
 					}
 
-					if (xPlacement >= bounds.right) {
+					if (xPlacement >= bounds.width + HALF) {
 						return
 					}
 
-					if (yPlacement >= bounds.bottom) {
+					if (yPlacement >= bounds.height + HALF) {
 						return
 					}
 
@@ -180,9 +181,9 @@ export class Dom extends Component {
 
 	dispose() {
 		super.dispose()
-		if (this._container) {
-			this._container.remove()
-			this._container = null
+		if (this.#container) {
+			this.#container.remove()
+			this.#container = null
 		}
 	}
 }

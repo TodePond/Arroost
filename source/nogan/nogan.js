@@ -15,7 +15,7 @@ export const t = (v) => v
 // Validating //
 //============//
 /** @type {boolean | undefined} */
-const SHOULD_VALIDATE_OVERRIDE = false
+let SHOULD_VALIDATE_OVERRIDE = false
 
 /** @type {boolean | null} */
 let _shouldValidate = null
@@ -554,9 +554,16 @@ export const getTemplate = ({ type = "dummy" } = {}) => {
  * 	id: CellId,
  * 	mode?: "delete" | "archive",
  * 	check?: boolean,
+ *  propogate?: boolean
+ *  past?: Nogan[]
+ *  future?: Nogan[]
  * }} options
+ * @returns {Operation[]}
  */
-export const binCell = (nogan, { id, mode = "delete", check = true }) => {
+export const binCell = (
+	nogan,
+	{ id, mode = "delete", check = true, propogate = false, past = [], future = [] },
+) => {
 	const cell = getCell(nogan, id, { check })
 	const parentCell = getCell(nogan, cell.parent, { check })
 	if (parentCell) {
@@ -566,22 +573,36 @@ export const binCell = (nogan, { id, mode = "delete", check = true }) => {
 
 	binCellId(nogan, { mode, id: cell.id, check: false })
 
+	/** @type {Operation[]} */
+	const operations = []
+
 	for (const child of cell.cells) {
-		binCell(nogan, { id: child, mode, check: false })
+		operations.push(...binCell(nogan, { id: child, mode, check: false }))
 	}
 
 	for (const input of cell.inputs) {
-		binWire(nogan, { id: input, mode, check: false })
+		operations.push(...binWire(nogan, { id: input, mode, check: false }))
 	}
 
 	for (const output of cell.outputs) {
-		binWire(nogan, { id: output, mode, check: false })
+		operations.push(...binWire(nogan, { id: output, mode, check: false }))
+	}
+
+	const binnedOperation = c({ type: "binned", id })
+	operations.push(binnedOperation)
+
+	if (propogate) {
+		const refreshOperations = refresh(nogan, { past, future })
+		operations.push(...refreshOperations)
+		return operations
 	}
 
 	if (check) {
 		validate(parentCell, N.Cell)
 		validate(nogan, N.Nogan)
 	}
+
+	return operations
 }
 
 /**
@@ -707,7 +728,7 @@ export const getWire = (nogan, id, { check = true } = {}) => {
  * @param {WireId} id
  */
 export const deleteWire = (nogan, id) => {
-	binWire(nogan, { id, mode: "delete" })
+	return binWire(nogan, { id, mode: "delete" })
 }
 
 /**
@@ -716,7 +737,7 @@ export const deleteWire = (nogan, id) => {
  * @param {WireId} id
  */
 export const archiveWire = (nogan, id) => {
-	binWire(nogan, { id, mode: "archive" })
+	return binWire(nogan, { id, mode: "archive" })
 }
 
 /**
@@ -726,9 +747,16 @@ export const archiveWire = (nogan, id) => {
  * 	id: WireId,
  * 	mode?: "delete" | "archive",
  * 	check?: boolean,
+ *  propogate?: boolean
+ *  past?: Nogan[]
+ *  future?: Nogan[]
  * }} options
+ * @returns {Operation[]}
  */
-export const binWire = (nogan, { id, mode = "delete", check = true }) => {
+export const binWire = (
+	nogan,
+	{ id, mode = "delete", check = true, propogate = false, past = [], future = [] },
+) => {
 	const wire = getWire(nogan, id, { check })
 
 	const sourceCell = getCell(nogan, wire.source, { check })
@@ -745,11 +773,20 @@ export const binWire = (nogan, { id, mode = "delete", check = true }) => {
 
 	binWireId(nogan, { mode, id: wire.id, check: false })
 
+	const binnedOperation = c({ type: "binned", id })
+	if (propogate) {
+		const operations = refresh(nogan, { past, future })
+		operations.push(binnedOperation)
+		return operations
+	}
+
 	if (check) {
 		validate(sourceCell, N.Cell)
 		validate(targetCell, N.Cell)
 		validate(nogan, N.Nogan)
 	}
+
+	return [binnedOperation]
 }
 
 /**
