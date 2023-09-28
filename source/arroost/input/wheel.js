@@ -65,7 +65,7 @@ export const registerWheel = () => {
 
 	addEventListener("keydown", (e) => {
 		if (e.key === "s") {
-			shared.zoomer.smoothMode = !shared.zoomer.smoothMode
+			// shared.zoomer.smoothMode = !shared.zoomer.smoothMode
 			shared.zoomer.desiredSpeed = 0
 		} else if (e.key === "r") {
 			shared.zoomer.desiredSpeed = 0
