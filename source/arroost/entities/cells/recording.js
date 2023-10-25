@@ -73,6 +73,9 @@ export class Recording extends Entity {
 	}
 
 	onClick(e) {
+		const synth = new Tone.Synth().toDestination()
+		synth.triggerAttackRelease("C4", "8n")
+
 		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})

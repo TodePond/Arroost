@@ -58,3 +58,5 @@ declare type EventHandler = (event: Event) => object | void | null
 declare type InputEventHandler = (
 	event: Event & { default: () => object | void | null },
 ) => State | void | null
+
+declare const Tone
