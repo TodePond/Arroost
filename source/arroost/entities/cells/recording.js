@@ -122,10 +122,11 @@ export class Recording extends Entity {
 				this.recorder.start()
 				this.isRecording.set(true)
 			}
+		} else {
+			Tunnel.perform(() => {
+				return fireCell(shared.nogan, { id: this.tunnel.id })
+			})
 		}
-		Tunnel.schedule(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
-		})
 	}
 
 	onFire() {
