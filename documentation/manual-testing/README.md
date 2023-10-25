@@ -55,29 +55,9 @@ When you load, there's a circle on the screen.
 -  Can you throw it around?
 -  How does it feel to move it around?
 
-## Clicking
-
-When you load, there's a circle on the screen.
-
--  Can you click it?
--  Does it spawn smaller circles?
--  How does it feel?
-
-<details>
-<summary >Click here for more detailed testing.</summary>
-
-## Right-click
-
--  Can you right-click it to make multiple circles?
-
-## Keyboard
-
--  Can you hold ctrl and click it to make multiple circles?
-</details>
-
 ## Targeting
 
-When you spawn enough circles, a "plus" circle should spawn.
+When you load, there should be a circle on the screen.
 
 -  Can you click it?
 -  Does a line come out of it when you do?

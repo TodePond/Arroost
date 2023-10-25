@@ -12,6 +12,7 @@ import { Entity } from "../entity.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Line } from "../shapes/line.js"
+import { progressUnlock } from "../unlock.js"
 import { DummyTime } from "./dummy-time.js"
 import { DummyWire } from "./dummy-wire.js"
 import { setCellStyles } from "./shared.js"
@@ -148,6 +149,8 @@ export class DummyConnection extends Entity {
 			Tunnel.perform(() => {
 				return fireCell(shared.nogan, { id: this.tunnel.id })
 			})
+
+			progressUnlock("destruction")
 
 			return
 		}

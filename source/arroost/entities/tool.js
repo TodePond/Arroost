@@ -42,7 +42,7 @@ export function selectTool(type) {
 	return new Pulling(input, shared.hovering.input.get())
 }
 
-export function fireTool(type) {
+export function fireTool(type, giveUp = false) {
 	const pointer = shared.pointer.transform.absolutePosition.get()
 	let nearestCell = undefined
 	let nearestDistance = Infinity
@@ -55,11 +55,13 @@ export function fireTool(type) {
 		}
 	}
 
+	if (giveUp) return
+
 	if (!nearestCell) {
 		unlocks[type].unlocked = true
 		replenishUnlocks(true)
 		// fireEvent("unlock", { key: type })
-		return fireTool(type)
+		return fireTool(type, true)
 	}
 
 	const cell = nearestCell

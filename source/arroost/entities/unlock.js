@@ -24,13 +24,13 @@ import { Entity } from "./entity.js"
 
 export const unlocks = c({
 	"dummy-creation": {
-		unlockable: true,
+		unlockable: false,
 		unlocked: true,
 		remaining: 0,
 		create: (arg) => new DummyCreation(arg),
 	},
 	"creation": {
-		unlockable: false,
+		unlockable: true,
 		unlocked: true,
 		remaining: 3,
 		create: (arg) => new Creation(arg),
@@ -44,7 +44,7 @@ export const unlocks = c({
 	"dummy-connection": {
 		unlockable: true,
 		unlocked: false,
-		remaining: Infinity, // gets set to 3 by destruction
+		remaining: 2,
 		create: (arg) => new DummyConnection(arg),
 	},
 	"destruction": {
