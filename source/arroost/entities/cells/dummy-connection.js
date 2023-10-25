@@ -116,6 +116,9 @@ export class DummyConnection extends Entity {
 		return new Pulling()
 	}
 
+	/** @type {Timing} */
+	static timing = 0
+
 	onTargetingPointerUp(e) {
 		if (this.source === this.input) {
 			this.source = null
@@ -156,6 +159,7 @@ export class DummyConnection extends Entity {
 			// @ts-expect-error - Don't know why it isn't figuring out its type here.
 			source: sourceEntity,
 			target: entity,
+			timing: DummyConnection.timing,
 		})
 
 		// Add it to the scene!
