@@ -49,6 +49,10 @@ export class Tunnel extends Component {
 				// ...
 				return true
 			}
+			case "modified": {
+				// TODO
+				return true
+			}
 			case "pong": {
 				// ...
 				return true
