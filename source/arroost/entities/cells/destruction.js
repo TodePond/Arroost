@@ -129,9 +129,6 @@ export class Destruction extends Entity {
 		})
 
 		replenishUnlocks()
-		if (unlocks["dummy-connection"].remaining > 3) {
-			unlocks["dummy-connection"].remaining = 3
-		}
 
 		Tunnel.apply(() => {
 			const id = target.entity.tunnel.id
