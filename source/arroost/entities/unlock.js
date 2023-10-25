@@ -43,6 +43,7 @@ export const unlocks = c({
 
 /**
  * This type checks the unlocks object.
+ * I know it doesn't look like it does. But it does.
  * @type {{ [key: string]: Unlock }}
  **/
 const _unlocksType = unlocks
