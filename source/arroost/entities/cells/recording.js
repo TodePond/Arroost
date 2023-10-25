@@ -73,19 +73,39 @@ export class Recording extends Entity {
 		this.tunnel.onFire = this.onFire.bind(this)
 
 		// MUSIC
-		this.synth = new Tone.PolySynth(Tone.Synth).toDestination()
-		const pitch =
-			this.pitch ?? ["A4", "B4", "C4", "D4", "E4", "F4", "G4"][Math.floor(Math.random() * 7)]
-		this.pitch = pitch
+		this.microphone.open()
 	}
 
-	onClick(e) {
+	recorder = new Tone.Recorder()
+	microphone = new Tone.UserMedia().connect(this.recorder)
+	hasSound = this.use(false)
+	isRecording = this.use(false)
+
+	onClick() {
+		this.onClickAsync()
 		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 	}
 
+	async onClickAsync() {
+		if (!this.hasSound.get()) {
+			if (this.isRecording.get()) {
+				const recording = await this.recorder.stop()
+				const url = URL.createObjectURL(recording)
+				const player = new Tone.Player(url).toDestination()
+				this.player = player
+
+				this.isRecording.set(false)
+				this.hasSound.set(true)
+			} else {
+				this.recorder.start()
+				this.isRecording.set(true)
+			}
+		}
+	}
+
 	onFire() {
-		this.synth.triggerAttackRelease(this.pitch, "16n")
+		this.player?.start()
 	}
 }
