@@ -73,8 +73,12 @@ export class Recording extends Entity {
 	}
 
 	onClick(e) {
-		const synth = new Tone.Synth().toDestination()
-		synth.triggerAttackRelease("C4", "8n")
+		const synth = new Tone.PolySynth(Tone.Synth).toDestination()
+		const pitch =
+			this.pitch ?? ["A4", "B4", "C4", "D4", "E4", "F4", "G4"][Math.floor(Math.random() * 7)]
+		this.pitch = pitch
+
+		synth.triggerAttackRelease(pitch, "16n")
 
 		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
