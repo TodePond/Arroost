@@ -91,7 +91,7 @@ export class Recording extends Entity {
 		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 		this.tunnel.onFire = this.onFire.bind(this)
 
-		// MUSIC
+		// Tone.js
 		this.microphone.open()
 	}
 
