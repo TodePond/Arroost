@@ -145,5 +145,6 @@ export class Creation extends Entity {
 
 		// We're done here.
 		this.targets.clear()
+		progressUnlock("dummy-connection")
 	}
 }
