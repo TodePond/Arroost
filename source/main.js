@@ -82,6 +82,14 @@ registerPreventDefaults()
 
 frame()
 
+addEventListener(
+	"click",
+	() => {
+		Tone.start()
+	},
+	{ once: true },
+)
+
 //=========================//
 // Setup Console Debugging //
 //=========================//

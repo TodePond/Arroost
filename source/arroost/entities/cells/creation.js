@@ -17,6 +17,7 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
 import { progressUnlock, unlocks } from "../unlock.js"
+import { Recording } from "./recording.js"
 
 export class Creation extends Entity {
 	pulling = this.use(false)
@@ -91,7 +92,7 @@ export class Creation extends Entity {
 	}
 
 	// Type isn't correct here, but it works out ok
-	template = Dummy
+	template = Recording
 
 	/** @type {null | Input} */
 	source = null
@@ -100,7 +101,7 @@ export class Creation extends Entity {
 	targets = new Set()
 
 	onClick(e) {
-		this.template = Dummy
+		this.template = Recording
 		this.source = this.input
 		return new Pulling()
 	}
