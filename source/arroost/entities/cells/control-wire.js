@@ -135,7 +135,6 @@ export class ControlWire extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
-		this.tunnel.useCell({ dom: this.dom, input: this.input })
 		this.wire = wire
 		const _wire = getWire(shared.nogan, wire)
 		Tunnel.apply(() => {

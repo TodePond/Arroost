@@ -7,6 +7,7 @@ import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"
 import { Entity } from "../entities/entity.js"
+import { Movement } from "./movement.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -153,29 +154,35 @@ export class Tunnel extends Component {
 	 * Helper function for cells
 	 * @param {{
 	 * 	dom: Dom
-	 * 	carry?: Carry
+	 * 	movement: Movement
 	 * 	input: Input
 	 * }} option
 	 */
-	useCell({ dom, carry, input }) {
+	useCell({ dom, movement, input }) {
 		this.use(() => {
-			if (input.state("dragging").active.get()) return
+			const interacting =
+				input.state("dragging").active.get() || input.state("pointing").active.get()
 
 			const position = dom.transform.position.get()
-			const velocity = carry?.movement.velocity.get() ?? [0, 0]
+			const velocity = movement.velocity.get() ?? [0, 0]
 			const cell = getCell(shared.nogan, this.id)
 			if (equals(cell.position, position)) return
 			Tunnel.apply(() => {
 				return modifyCell(shared.nogan, {
 					id: this.id,
 					position,
-					propogate: equals(velocity, [0, 0]),
+					propogate: interacting || equals(velocity, [0, 0]),
 					filter: (id) => {
 						const cell = getCell(shared.nogan, id)
 						return cell.type === "magnet"
 					},
 				})
 			})
-		})
+		}, [
+			input.state("dragging").active,
+			input.state("pointing").active,
+			dom.transform.position,
+			movement.velocity,
+		])
 	}
 }

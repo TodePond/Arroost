@@ -88,7 +88,7 @@ export class Recording extends Entity {
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
+		this.tunnel.useCell({ dom: this.dom, movement: this.carry.movement, input: this.input })
 		this.tunnel.onFire = this.onFire.bind(this)
 
 		// Tone.js
