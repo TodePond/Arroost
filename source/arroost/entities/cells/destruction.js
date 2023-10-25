@@ -22,7 +22,6 @@ import { Plus } from "../shapes/plus.js"
 import { Pulling } from "../../machines/pulling.js"
 import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
-import { DummyCreation } from "./dummy-creation.js"
 import { Dummy } from "./dummy.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
 

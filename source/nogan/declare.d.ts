@@ -103,7 +103,13 @@ declare type BehaviourMap = {
 //===========//
 // Operation //
 //===========//
-declare type Operation = FiredOperation | UnfiredOperation | CustomOperation | BinnedOperation
+declare type Operation =
+	| FiredOperation
+	| UnfiredOperation
+	| CustomOperation
+	| BinnedOperation
+	| ModifiedOperation
+
 declare type Operate<T extends Operation> = (nogan: Nogan, operation: T) => Operation[]
 declare type OperationMap = {
 	[key in OperationType]: Operate<Extract<Operation, { type: key }>>
@@ -122,6 +128,12 @@ declare type UnfiredOperation = {
 declare type BinnedOperation = {
 	type: "binned"
 	id: CellId | WireId
+}
+
+declare type ModifiedOperation = {
+	type: "modified"
+	id: CellId
+	template: CellTemplate
 }
 
 //======//
@@ -185,9 +197,7 @@ declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
 declare type ControlWireCell = { type: "control-wire" }
-declare type DummyCreationCell = { type: "dummy-creation" }
 declare type DummyConnectionCell = { type: "dummy-connection" }
-declare type DummyWiringCell = { type: "dummy-wiring" }
 type CustomCell =
 	| SlotCell
 	| CreationCell
@@ -195,9 +205,7 @@ type CustomCell =
 	| RecordingCell
 	| StopperCell
 	| MagnetCell
-	| DummyCreationCell
 	| DummyConnectionCell
-	| DummyWiringCell
 	| ControlWireCell
 
 //==============//

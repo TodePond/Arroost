@@ -9,8 +9,6 @@ import { HALF } from "../unit.js"
 import { Creation } from "./cells/creation.js"
 import { Destruction } from "./cells/destruction.js"
 import { DummyConnection } from "./cells/dummy-connection.js"
-import { DummyCreation } from "./cells/dummy-creation.js"
-import { DummyWiring } from "./cells/dummy-wiring.js"
 import { Entity } from "./entity.js"
 
 /**
@@ -23,23 +21,11 @@ import { Entity } from "./entity.js"
  */
 
 export const unlocks = c({
-	"dummy-creation": {
-		unlockable: false,
-		unlocked: true,
-		remaining: 0,
-		create: (arg) => new DummyCreation(arg),
-	},
 	"creation": {
 		unlockable: true,
 		unlocked: true,
 		remaining: 3,
 		create: (arg) => new Creation(arg),
-	},
-	"dummy-wiring": {
-		unlockable: false,
-		unlocked: false,
-		remaining: 3,
-		create: (arg) => new DummyWiring(arg),
 	},
 	"dummy-connection": {
 		unlockable: true,
