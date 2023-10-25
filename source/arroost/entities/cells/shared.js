@@ -10,16 +10,20 @@ import { Tunnel } from "../../components/tunnel.js"
  * 	front: Dom
  * 	input: Input
  * 	tunnel: Tunnel
+ * 	frontOverride?: (options: { tunnel: Tunnel, input: Input }) => Colour | undefined | null | false
+ * 	backOverride?: (options: { tunnel: Tunnel, input: Input }) => Colour | undefined | null | false
  * }} options
  */
-export const setCellStyles = ({ back, front, input, tunnel }) => {
+export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backOverride }) => {
 	// front.style.pointerEvents.set("none")
 	input.use(() => {
-		front.style.fill.set(getCellForegroundColour({ tunnel, input }).toString())
+		front.style.fill.set(
+			getCellForegroundColour({ tunnel, input, override: frontOverride }).toString(),
+		)
 	})
 
 	input.use(() => {
-		back.style.fill.set(getCellBackgroundColour({ input }))
+		back.style.fill.set(getCellBackgroundColour({ input, tunnel, override: backOverride }))
 	})
 
 	back.style.shadow.set(true)
@@ -37,7 +41,10 @@ export const setCellStyles = ({ back, front, input, tunnel }) => {
 	})
 }
 
-export const getCellForegroundColour = ({ tunnel, input }) => {
+export const getCellForegroundColour = ({ tunnel, input, override }) => {
+	const overriden = override?.({ tunnel, input })
+	if (overriden) return overriden
+
 	if (tunnel.isFiring.get()) {
 		return WHITE
 	}
@@ -47,7 +54,10 @@ export const getCellForegroundColour = ({ tunnel, input }) => {
 	return BLACK
 }
 
-export const getCellBackgroundColour = ({ input }) => {
+export const getCellBackgroundColour = ({ tunnel, input, override }) => {
+	const overriden = override?.({ tunnel, input })
+	if (overriden) return overriden
+
 	if (input.is("hovering")) {
 		return GREY_SILVER
 	}

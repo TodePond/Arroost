@@ -3,6 +3,7 @@ import {
 	BLUE,
 	CYAN,
 	GREY,
+	RED,
 	SILVER,
 	Splash,
 	WHITE,
@@ -22,6 +23,12 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
 export class Recording extends Entity {
+	recorder = new Tone.Recorder()
+	microphone = new Tone.UserMedia().connect(this.recorder)
+	hasSound = this.use(false)
+	isRecording = this.use(false)
+	players = new Set()
+
 	/**
 	 * @param {{
 	 * 	id?: CellId
@@ -57,13 +64,25 @@ export class Recording extends Entity {
 		this.dom.append(this.front.dom)
 
 		// Style elements
-		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+
+		this.use(() => {
+			const hasSound = this.hasSound.get()
+			if (hasSound) {
+				this.back.dom.transform.scale.set([1, 1])
+				this.front.dom.transform.scale.set([1 / 2, 1 / 2])
+			} else {
+				this.back.dom.transform.scale.set([2 / 3, 2 / 3])
+				this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+			}
+		})
+
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			frontOverride: () => this.isRecording.get() && RED,
+			// backOverride: () => this.isRecording.get() && GREY_SILVER,
 		})
 
 		// Nogan behaviours
@@ -73,19 +92,54 @@ export class Recording extends Entity {
 		this.tunnel.onFire = this.onFire.bind(this)
 
 		// MUSIC
-		this.synth = new Tone.PolySynth(Tone.Synth).toDestination()
-		const pitch =
-			this.pitch ?? ["A4", "B4", "C4", "D4", "E4", "F4", "G4"][Math.floor(Math.random() * 7)]
-		this.pitch = pitch
+		this.microphone.open()
 	}
 
-	onClick(e) {
-		Tunnel.perform(() => {
+	onClick() {
+		this.onClickAsync()
+		// Tunnel.perform(() => {
+		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
+		// })
+	}
+
+	async onClickAsync() {
+		if (!this.hasSound.get()) {
+			if (this.isRecording.get()) {
+				const recording = await this.recorder.stop()
+				const url = URL.createObjectURL(recording)
+				this.url = url
+
+				this.sampler = new Tone.Sampler({
+					urls: {
+						C4: url,
+					},
+					release: 1,
+				}).toDestination()
+
+				this.isRecording.set(false)
+				this.hasSound.set(true)
+			} else {
+				this.recorder.start()
+				this.isRecording.set(true)
+			}
+		}
+		Tunnel.schedule(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 	}
 
 	onFire() {
-		this.synth.triggerAttackRelease(this.pitch, "16n")
+		if (!this.hasSound.get()) return
+
+		this.sampler.triggerAttackRelease("C4")
+	}
+
+	dispose() {
+		for (const player of this.players) {
+			player.dispose()
+		}
+		this.recorder.dispose()
+		this.microphone.dispose()
+		super.dispose()
 	}
 }
