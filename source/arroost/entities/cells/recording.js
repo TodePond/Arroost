@@ -91,7 +91,7 @@ export class Recording extends Entity {
 		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 		this.tunnel.onFire = this.onFire.bind(this)
 
-		// MUSIC
+		// Tone.js
 		this.microphone.open()
 	}
 
@@ -122,10 +122,11 @@ export class Recording extends Entity {
 				this.recorder.start()
 				this.isRecording.set(true)
 			}
+		} else {
+			Tunnel.perform(() => {
+				return fireCell(shared.nogan, { id: this.tunnel.id })
+			})
 		}
-		Tunnel.schedule(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
-		})
 	}
 
 	onFire() {
