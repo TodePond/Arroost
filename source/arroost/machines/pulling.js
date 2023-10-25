@@ -16,6 +16,7 @@ export class Pulling extends InputState {
 		super(input)
 		this.target = target ?? this.input
 		this.target.highlighted.set(true)
+		this.updateHoverTarget()
 	}
 
 	pointerdown() {
@@ -23,6 +24,10 @@ export class Pulling extends InputState {
 	}
 
 	pointerover() {
+		this.updateHoverTarget()
+	}
+
+	updateHoverTarget() {
 		const oldTarget = this.target
 		const newTarget = shared.hovering.input.get()
 		if (oldTarget === newTarget) return

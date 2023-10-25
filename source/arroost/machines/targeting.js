@@ -1,5 +1,6 @@
 // import { Hovering, InputState } from "./input.js"
 
+import { shared } from "../../main.js"
 import { InputState } from "./input-state.js"
 import { Hovering } from "./input.js"
 
