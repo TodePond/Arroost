@@ -36,6 +36,7 @@ export class Tunnel extends Component {
 				const tunnel = Tunnel.tunnels.get(operation.id)
 				if (!tunnel) return true
 				tunnel.isFiring.set(true)
+				tunnel.onFire()
 				return true
 			}
 			case "unfired": {
@@ -118,6 +119,8 @@ export class Tunnel extends Component {
 	//==========//
 	// todo: initialise to what the cell/wire currently is
 	isFiring = this.use(false)
+
+	onFire = () => {}
 
 	/**
 	 * @param {CellId | WireId} id

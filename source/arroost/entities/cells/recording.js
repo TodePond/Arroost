@@ -70,18 +70,22 @@ export class Recording extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
-	}
+		this.tunnel.onFire = this.onFire.bind(this)
 
-	onClick(e) {
-		const synth = new Tone.PolySynth(Tone.Synth).toDestination()
+		// MUSIC
+		this.synth = new Tone.PolySynth(Tone.Synth).toDestination()
 		const pitch =
 			this.pitch ?? ["A4", "B4", "C4", "D4", "E4", "F4", "G4"][Math.floor(Math.random() * 7)]
 		this.pitch = pitch
+	}
 
-		synth.triggerAttackRelease(pitch, "16n")
-
+	onClick(e) {
 		Tunnel.perform(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
+	}
+
+	onFire() {
+		this.synth.triggerAttackRelease(this.pitch, "16n")
 	}
 }
