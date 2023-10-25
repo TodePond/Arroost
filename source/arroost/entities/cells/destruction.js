@@ -130,6 +130,7 @@ export class Destruction extends Entity {
 
 		replenishUnlocks()
 
+		// Meaty stuff. Probably don't need to do this? I dunno. Maybe it's more robust to stay in nogan-land actually...
 		Tunnel.apply(() => {
 			const id = target.entity.tunnel.id
 			if (id < 0) {

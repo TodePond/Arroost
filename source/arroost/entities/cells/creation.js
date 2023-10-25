@@ -106,37 +106,43 @@ export class Creation extends Entity {
 	}
 
 	onTargetingPointerUp(e) {
-		if (!e.state.target.isCloneable()) {
-			const dummy = new this.template({
-				position: shared.pointer.transform.absolutePosition.get(),
-			})
-
-			shared.scene.layer.cell.append(dummy.dom)
-			this.tunnel.isFiring.set(true)
-			Tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: this.tunnel.id })
-			})
-
-			for (const target of this.targets) {
-				target.targeted.set(false)
-				target.entity.tunnel.isFiring.set(true)
-				Tunnel.perform(() => {
-					return fireCell(shared.nogan, { id: target.entity.tunnel.id })
-				})
-			}
-			this.targets.clear()
-
-			progressUnlock("dummy-connection")
-
-			return
+		// If the thing is cloneable, let's continue targeting.
+		// TODO: This should be whatever we pointer-down'd on, not what we pointer-up'd on.
+		if (e.state.target.isCloneable()) {
+			this.template = e.state.target.entity.constructor
+			this.source = e.state.target
+			this.targets.add(e.state.target)
+			e.state.target.entity.dom.style.bringToFront()
+			e.state.target.targeted.set(true)
+			return new Pulling(this.input, e.state.target)
 		}
 
-		this.template = e.state.target.entity.constructor
-		this.source = e.state.target
-		this.targets.add(e.state.target)
-		e.state.target.entity.dom.style.bringToFront()
-		e.state.target.targeted.set(true)
+		// If it's not cloneable, let's create a new thing!
 
-		return new Pulling(this.input, e.state.target)
+		// Make the entity.
+		const dummy = new this.template({
+			position: shared.pointer.transform.absolutePosition.get(),
+		})
+
+		// Add it to the scene.
+		shared.scene.layer.cell.append(dummy.dom)
+
+		// Fire myself!
+		this.tunnel.isFiring.set(true)
+		Tunnel.perform(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
+
+		// Fire anything along the way!
+		for (const target of this.targets) {
+			target.targeted.set(false)
+			target.entity.tunnel.isFiring.set(true)
+			Tunnel.perform(() => {
+				return fireCell(shared.nogan, { id: target.entity.tunnel.id })
+			})
+		}
+
+		// We're done here.
+		this.targets.clear()
 	}
 }
