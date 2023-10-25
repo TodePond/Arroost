@@ -121,44 +121,56 @@ export class DummyConnection extends Entity {
 			this.source = null
 		}
 		const target = e.state.target
+
+		// Can we even connect to this thing?
 		if (!target.isConnectable()) {
 			this.source?.targeted.set(false)
 			return
 		}
 
-		if (this.source) {
-			if (target === this.source) {
-				return new Pulling(this.input, target)
-			}
-			this.source.targeted.set(false)
-			const sourceEntity = this.source.entity
-			if (!sourceEntity.tunnel) {
-				throw new Error("Can't connect from an entity with no tunnel")
-			}
+		// Do we not have a source yet?
+		if (!this.source) {
+			this.source = e.state.target
+			this.source?.targeted.set(true)
+			e.state.target.entity.dom.style.bringToFront()
 
-			const entity = e.state.target.entity
-
-			const dummyWire = new DummyTime({
-				// @ts-expect-error - don't know why it isn't figuring out its type here
-				source: sourceEntity,
-				target: entity,
-			})
-			shared.scene.layer.wire.append(dummyWire.dom)
-
-			this.tunnel.isFiring.set(true)
-			Tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: this.tunnel.id })
-			})
-
-			progressUnlock("destruction")
-
-			return
+			return new Pulling(this.input, target)
 		}
 
-		this.source = e.state.target
-		this.source?.targeted.set(true)
-		e.state.target.entity.dom.style.bringToFront()
+		// We already have a source! Let's try to use this one as our target.
 
-		return new Pulling(this.input, target)
+		// You can't connect to yourself
+		if (target === this.source) {
+			return new Pulling(this.input, target)
+		}
+
+		// You can't connect to something without a tunnel to nogan.
+		const sourceEntity = this.source.entity
+		if (!sourceEntity.tunnel) {
+			throw new Error("Can't connect from an entity with no tunnel")
+		}
+
+		// Let's make the arroost entity.
+		const entity = e.state.target.entity
+		const dummyWire = new DummyTime({
+			// @ts-expect-error - Don't know why it isn't figuring out its type here.
+			source: sourceEntity,
+			target: entity,
+		})
+
+		// Add it to the scene!
+		shared.scene.layer.wire.append(dummyWire.dom)
+
+		// We're done here! Stop highlighting, etc...
+		this.source.targeted.set(false)
+		this.tunnel.isFiring.set(true)
+
+		// Let's fire, for good measure!
+		Tunnel.perform(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
+
+		// Unlock the next thing!
+		progressUnlock("destruction")
 	}
 }
