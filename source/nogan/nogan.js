@@ -1211,10 +1211,11 @@ export const refresh = (
 	{ snapshot = getClone(nogan), past = [], future = [], operate = true, filter } = {},
 ) => {
 	const operations = []
+	const memo = new GetPeakMemo()
 	for (const id of iterateCellIds(snapshot)) {
 		if (filter && !filter(id)) continue
 		for (const colour of PULSE_COLOURS) {
-			const peak = getPeak(snapshot, { id, colour, past, future })
+			const peak = getPeak(snapshot, { id, colour, past, future, memo })
 			operations.push(...peak.operations)
 			if (!peak.result) continue
 			const firedOperations = fireCell(nogan, {
