@@ -21,9 +21,10 @@ export class DummyTime extends Entity {
 	 * 	id?: WireId
 	 *  target: Entity & {dom: Dom, tunnel: Tunnel}
 	 *  source: Entity & {dom: Dom, tunnel: Tunnel}
+	 *  timing: Timing
 	 * }} options
 	 */
-	constructor({ id, target, source }) {
+	constructor({ id, target, source, timing = 0 }) {
 		super()
 
 		// Attach components
@@ -41,6 +42,7 @@ export class DummyTime extends Entity {
 			const { wire, operations } = createWire(shared.nogan, {
 				source: source.tunnel.id,
 				target: target.tunnel.id,
+				timing,
 			})
 
 			this.tunnel = this.attach(new Tunnel(wire.id, { entity: this }))
