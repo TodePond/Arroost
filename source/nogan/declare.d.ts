@@ -133,7 +133,7 @@ declare type BinnedOperation = {
 declare type ModifiedOperation = {
 	type: "modified"
 	id: CellId
-	template: CellTemplate
+	template: Partial<CellTemplate>
 }
 
 //======//
@@ -223,6 +223,7 @@ declare type PongOperation = { type: "pong" }
 declare type ModifyOperation = {
 	type: "modify"
 	id: CellId
+	position?: Vector2D
 	template: Partial<CellTemplate>
 }
 

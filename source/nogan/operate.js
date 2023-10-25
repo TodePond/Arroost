@@ -4,8 +4,8 @@ import { getCell, modifyCell } from "./nogan.js"
  * Modify a cell.
  * @type {Operate<ModifyOperation>}
  */
-const modify = (nogan, { id, template }) => {
-	return modifyCell(nogan, { id, ...template })
+const modify = (nogan, { id, position, template }) => {
+	return modifyCell(nogan, { id, position, ...template })
 }
 
 /**
@@ -45,4 +45,5 @@ export const OPERATIONS = {
 	pong,
 	tag,
 	binned: noop,
+	modified: noop,
 }

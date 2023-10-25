@@ -1407,7 +1407,11 @@ describe("operation", () => {
 		const operations0 = fireCell(nogan, { id: source.id, pulse: { type: "ping" } })
 		assertEquals(operations0, [{ type: "fired", id: source.id }])
 		const operations1 = modifyCell(nogan, { id: target.id, type: "dummy" })
-		assertEquals(operations1, [{ type: "pong" }, { type: "fired", id: target.id }])
+		assertEquals(operations1, [
+			{ type: "pong" },
+			{ type: "fired", id: target.id },
+			{ type: "modified", id: target.id, template: { type: "dummy" } },
+		])
 	})
 
 	it("gets operations from advancing", () => {

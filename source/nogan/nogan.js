@@ -648,8 +648,17 @@ export const modifyCell = (
 	cell.tag = tag ?? cell.tag
 	clearCache(nogan)
 
+	const modifiedOperation = c({
+		type: "modified",
+		id,
+		template: type ? { type } : {},
+		...(position ? { position } : {}),
+	})
+
 	if (propogate) {
-		return refresh(nogan, { past, future, filter })
+		const operations = refresh(nogan, { past, future, filter })
+		operations.push(modifiedOperation)
+		return operations
 	}
 
 	validate(cell, N.Cell)
