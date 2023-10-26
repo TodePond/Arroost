@@ -138,7 +138,7 @@ export class Destruction extends Entity {
 			} else {
 				let wireOperations = []
 				const cell = getCell(shared.nogan, id)
-				if (cell.type === "control-wire" && !cell.hasSound.get()) {
+				if (cell.type === "control-wire" && !cell.hasSound) {
 					const [sourceWireId, targetWireId] = cell.outputs
 					const sourceWire = getWire(shared.nogan, sourceWireId)
 					const targetWire = getWire(shared.nogan, targetWireId)
@@ -156,8 +156,8 @@ export class Destruction extends Entity {
 					operations.push(...wireOperations)
 					return operations
 				} else {
-					if (cell.hasSound.get()) {
-						cell.hasSound.set(False)
+					if (cell.hasSound) {
+						cell.hasSound = (False)
 						return []
 					} 
 				}
