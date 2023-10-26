@@ -30,6 +30,7 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Triangle } from "../shapes/triangle.js"
+import { DummyConnection } from "./dummy-connection.js"
 
 export class ControlWire extends Entity {
 	/** @type {Signal<Timing>} */
@@ -94,6 +95,7 @@ export class ControlWire extends Entity {
 			input: this.input,
 			tunnel: this.tunnel,
 		})
+		this.timing.set(getWire(shared.nogan, wire).timing)
 		this.use(() => {
 			if (this.timing.get() !== 1) return
 			this.delayFront.dom.style.fill.set(this.back.dom.style.fill.get())
@@ -174,6 +176,8 @@ export class ControlWire extends Entity {
 				break
 			}
 		}
+
+		DummyConnection.timing = this.timing.get()
 
 		Tunnel.apply(() => {
 			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })

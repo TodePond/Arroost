@@ -72,3 +72,5 @@ Thank you to everyone who has contributed to Arroost!
 - [@jessiejs](https://github.com/jessiejs)
 - [@loglot](https://github.com/loglot)
 - [@nonnullish](https://github.com/nonnullish)
+- [@mahdiyadiilavi1](https://github.com/mahdiyadiilavi1)
+- and more! Please feel free to add yourself if you've helped in any way!
