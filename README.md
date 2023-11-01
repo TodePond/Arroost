@@ -1,5 +1,11 @@
 <img align="right" width="150" src="https://user-images.githubusercontent.com/15892272/236786183-08c68c91-8988-45b3-8554-c80962a8d57c.png">
 
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- noop -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
+
 # Arroost
 
 Arroost is a ridiculous music-making tool.
@@ -65,12 +71,31 @@ deno test --watch .
 
 It's a secret (for now).
 
-## Special thanks
+## Contributors
 
-Thank you to everyone who has contributed to Arroost!
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4?s=100" width="100px;" alt="jessie"/><br /><sub><b>jessie</b></sub></a><br /><a href="#design-jessiejs" title="Design">🎨</a> <a href="https://github.com/TodePond/Arroost/commits?author=jessiejs" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://nonnullish.pages.dev"><img src="https://avatars.githubusercontent.com/u/20538005?v=4?s=100" width="100px;" alt="nonnullish"/><br /><sub><b>nonnullish</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Anonnullish" title="Bug reports">🐛</a> <a href="https://github.com/TodePond/Arroost/commits?author=nonnullish" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahdoosh1"><img src="https://avatars.githubusercontent.com/u/83725163?v=4?s=100" width="100px;" alt="mahdoosh1"/><br /><sub><b>mahdoosh1</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Amahdoosh1" title="Bug reports">🐛</a> <a href="#userTesting-mahdoosh1" title="User Testing">📓</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/loglot"><img src="https://avatars.githubusercontent.com/u/88983354?v=4?s=100" width="100px;" alt="loglot"/><br /><sub><b>loglot</b></sub></a><br /><a href="#userTesting-loglot" title="User Testing">📓</a> <a href="https://github.com/TodePond/Arroost/issues?q=author%3Aloglot" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/labbo-lab"><img src="https://avatars.githubusercontent.com/u/62490883?v=4?s=100" width="100px;" alt="Vixey"/><br /><sub><b>Vixey</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Alabbo-lab" title="Bug reports">🐛</a> <a href="#userTesting-labbo-lab" title="User Testing">📓</a></td>
+    </tr>
+  </tbody>
+</table>
 
-- [@jessiejs](https://github.com/jessiejs)
-- [@loglot](https://github.com/loglot)
-- [@nonnullish](https://github.com/nonnullish)
-- [@mahdiyadiilavi1](https://github.com/mahdiyadiilavi1)
-- and more! Please feel free to add yourself if you've helped in any way!
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
