@@ -10,8 +10,8 @@ import {
 	equals,
 	subtract,
 } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER, shared } from "../../../main.js"
-import { MIDDLE_C, createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
+import { GREY_SILVER, MIDDLE_C, shared } from "../../../main.js"
+import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
