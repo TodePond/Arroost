@@ -122,30 +122,31 @@ export class Tunnel extends Component {
 	 * 	input: Input
 	 * }} option
 	 */
-	useCell({ dom, carry, input }) {
-		// TODO: This will update the position of the cell in the nogan
-		// But there's currently nothing that can programmatically move a cell
-		// So it's not needed yet
-		// -------
-		// this.use(() => {
-		// 	if (input.state("dragging").active.get()) return
-		// 	const position = dom.transform.position.get()
-		// 	const velocity = carry?.movement.velocity.get() ?? [0, 0]
-		// 	const cell = getCell(shared.nogan, this.id)
-		// 	if (equals(cell.position, position)) return
-		// 	Tunnel.apply(() => {
-		// 		return moveCell(shared.nogan, {
-		// 			id: this.id,
-		// 			position,
-		// 			propogate: equals(velocity, [0, 0]),
-		// 			filter: (id) => {
-		// 				const cell = getCell(shared.nogan, id)
-		// 				return cell.type === "slot"
-		// 			},
-		// 		})
-		// 	})
-		// })
-	}
+	// useCell({ dom, carry, input }) {
+	// -------
+	// TODO: This will update the position of the cell in the nogan
+	// But there's currently nothing that can programmatically move a cell
+	// So it's not needed yet
+	// -------
+	// this.use(() => {
+	// 	if (input.state("dragging").active.get()) return
+	// 	const position = dom.transform.position.get()
+	// 	const velocity = carry?.movement.velocity.get() ?? [0, 0]
+	// 	const cell = getCell(shared.nogan, this.id)
+	// 	if (equals(cell.position, position)) return
+	// 	Tunnel.apply(() => {
+	// 		return moveCell(shared.nogan, {
+	// 			id: this.id,
+	// 			position,
+	// 			propogate: equals(velocity, [0, 0]),
+	// 			filter: (id) => {
+	// 				const cell = getCell(shared.nogan, id)
+	// 				return cell.type === "slot"
+	// 			},
+	// 		})
+	// 	})
+	// })
+	// }
 }
 
 const noop = () => {}
