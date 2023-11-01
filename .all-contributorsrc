@@ -1,48 +1,49 @@
 {
-	"files": [
-		"README.md"
-	],
-	"imageSize": 100,
-	"commit": true,
-	"commitType": "docs",
-	"commitConvention": "angular",
-	"badgeTemplate": "<!-- noop -->",
-	"contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\"/><br /><b><%= contributor.name %></b><% if (contributor.contributions) { %><br /><%= contributor.contributions.join(\", \") %><% } %></a>",
-	"contributors": [
-		{
-			"login": "jessiejs",
-			"name": "jessie",
-			"avatar_url": "https://avatars.githubusercontent.com/u/63984309?v=4",
-			"profile": "https://jessiejs.github.io",
-			"contributions": [
-				"design",
-				"code"
-			]
-		},
-		{
-			"login": "nonnullish",
-			"name": "nonnullish",
-			"avatar_url": "https://avatars.githubusercontent.com/u/20538005?v=4",
-			"profile": "http://nonnullish.pages.dev",
-			"contributions": [
-				"bug",
-				"code"
-			]
-		},
-		{
-			"login": "mahdoosh1",
-			"name": "mahdoosh1",
-			"avatar_url": "https://avatars.githubusercontent.com/u/83725163?v=4",
-			"profile": "https://github.com/mahdoosh1",
-			"contributions": [
-				"bug"
-			]
-		}
-	],
-	"contributorsPerLine": 7,
-	"skipCi": true,
-	"repoType": "github",
-	"repoHost": "https://github.com",
-	"projectName": "Arroost",
-	"projectOwner": "TodePond"
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "badgeTemplate": "<!-- noop -->",
+  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\"/><br /><b><%= contributor.name %></b><% if (contributor.contributions) { %><br /><%= contributor.contributions.join(\", \") %><% } %></a>",
+  "contributors": [
+    {
+      "login": "jessiejs",
+      "name": "jessie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63984309?v=4",
+      "profile": "https://jessiejs.github.io",
+      "contributions": [
+        "design",
+        "code"
+      ]
+    },
+    {
+      "login": "nonnullish",
+      "name": "nonnullish",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20538005?v=4",
+      "profile": "http://nonnullish.pages.dev",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "mahdoosh1",
+      "name": "mahdoosh1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/83725163?v=4",
+      "profile": "https://github.com/mahdoosh1",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "Arroost",
+  "projectOwner": "TodePond"
 }
