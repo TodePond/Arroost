@@ -22,6 +22,11 @@ import { HoverMachine } from "./arroost/machines/hover.js"
 import { InputMachine } from "./arroost/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
 
+//======//
+// Tone //
+//======//
+export const MIDDLE_C = Tone.Frequency("C4").toFrequency()
+
 //===============//
 // Setup Habitat //
 //===============//

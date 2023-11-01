@@ -13,11 +13,6 @@ export const t = (v) => v
 
 export const never = Symbol("never")
 
-//======//
-// Tone //
-//======//
-export const MIDDLE_C = Tone.Frequency("C4").toFrequency()
-
 //============//
 // Validating //
 //============//
