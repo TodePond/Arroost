@@ -89,10 +89,10 @@ Thank you to everyone who has contributed to Arroost!
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4" width="100px;" alt=""/><br /><b>jessie</b></a><ul><li>design</li><li>code</li></ul></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://nonnullish.pages.dev"><img src="https://avatars.githubusercontent.com/u/20538005?v=4" width="100px;" alt=""/><br /><b>nonnullish</b></a><ul><li>bug</li><li>code</li></ul></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahdoosh1"><img src="https://avatars.githubusercontent.com/u/83725163?v=4" width="100px;" alt=""/><br /><b>mahdoosh1</b></a><ul><li>bug</li></ul></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/loglot"><img src="https://avatars.githubusercontent.com/u/88983354?v=4" width="100px;" alt=""/><br /><b>loglot</b></a><ul><li>test</li></ul></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4?s=100" width="100px;" alt="jessie"/><br /><sub><b>jessie</b></sub></a><br /><a href="#design-jessiejs" title="Design">🎨</a> <a href="https://github.com/TodePond/Arroost/commits?author=jessiejs" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://nonnullish.pages.dev"><img src="https://avatars.githubusercontent.com/u/20538005?v=4?s=100" width="100px;" alt="nonnullish"/><br /><sub><b>nonnullish</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Anonnullish" title="Bug reports">🐛</a> <a href="https://github.com/TodePond/Arroost/commits?author=nonnullish" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahdoosh1"><img src="https://avatars.githubusercontent.com/u/83725163?v=4?s=100" width="100px;" alt="mahdoosh1"/><br /><sub><b>mahdoosh1</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Amahdoosh1" title="Bug reports">🐛</a> <a href="#userTesting-mahdoosh1" title="User Testing">📓</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/loglot"><img src="https://avatars.githubusercontent.com/u/88983354?v=4?s=100" width="100px;" alt="loglot"/><br /><sub><b>loglot</b></sub></a><br /><a href="#userTesting-loglot" title="User Testing">📓</a></td>
     </tr>
   </tbody>
 </table>
