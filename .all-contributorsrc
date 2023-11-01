@@ -3,9 +3,9 @@
     "README.md"
   ],
   "imageSize": 100,
-  "commit": true,
+  "commit": false,
   "commitType": "docs",
-  "commitConvention": "angular",
+  "commitConvention": "none",
   "badgeTemplate": "<!-- noop -->",
   "contributors": [
     {
@@ -54,5 +54,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "projectName": "Arroost",
-  "projectOwner": "TodePond"
+  "projectOwner": "TodePond",
+  "linkToUsage": false,
 }
