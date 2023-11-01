@@ -169,9 +169,14 @@ type CellTemplate =
 	| ConnectionCell
 	| TimeCell
 
+// Required
 declare type RootCell = { type: "root" }
+
+// For debugging
 declare type DummyCell = { type: "dummy" }
 declare type StopperCell = { type: "stopper" }
+
+// For real
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
@@ -185,8 +190,13 @@ declare type ConnectionCell = { type: "connection" }
 //========//
 type Pulse = RawPulse | CreationPulse | DestructionPulse | PingPulse
 
+// Required
 declare type RawPulse = { type: "raw" }
+
+// For debugging
 declare type PingPulse = { type: "ping" }
+
+// For real
 declare type CreationPulse = { type: "creation"; template: CellTemplate | null }
 declare type DestructionPulse = { type: "destruction" }
 
@@ -195,33 +205,21 @@ declare type DestructionPulse = { type: "destruction" }
 //===================//
 declare type ReportOperation = FiredOperation | UnfiredOperation | BinnedOperation | MovedOperation
 
-declare type FiredOperation = {
-	type: "fired"
-	id: CellId
-}
-
-declare type UnfiredOperation = {
-	type: "unfired"
-	id: CellId
-}
-
-declare type BinnedOperation = {
-	type: "binned"
-	id: CellId | WireId
-}
-
-declare type MovedOperation = {
-	type: "moved"
-	id: CellId
-	position: Vector2D
-}
+// Required
+declare type FiredOperation = { type: "fired"; id: CellId }
+declare type UnfiredOperation = { type: "unfired"; id: CellId }
+declare type BinnedOperation = { type: "binned"; id: CellId | WireId }
+declare type MovedOperation = { type: "moved"; id: CellId; position: Vector2D }
 
 //========================//
 // Instruction operations //
 //========================//
 type InstructionOperation = ModifyOperation | PongOperation | TagOperation
 
+// For debugging
 declare type PongOperation = { type: "pong" }
+
+// For real
 declare type ModifyOperation = {
 	type: "modify"
 	id: CellId
