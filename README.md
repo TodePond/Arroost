@@ -71,16 +71,6 @@ deno test --watch .
 
 It's a secret (for now).
 
-## Special thanks
-
-Thank you to everyone who has contributed to Arroost!
-
-- [@jessiejs](https://github.com/jessiejs)
-- [@loglot](https://github.com/loglot)
-- [@nonnullish](https://github.com/nonnullish)
-- [@mahdoosh1](https://github.com/mahdiyadiilavi1)
-- and more! Please feel free to add yourself if you've helped in any way!
-
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
