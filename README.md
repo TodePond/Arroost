@@ -2,7 +2,7 @@
 
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-foo
+<!-- noop -->
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -89,9 +89,9 @@ Thank you to everyone who has contributed to Arroost!
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4" width="100px;" alt=""/><br /><b>jessie</b></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://nonnullish.pages.dev"><img src="https://avatars.githubusercontent.com/u/20538005?v=4" width="100px;" alt=""/><br /><b>nonnullish</b></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahdoosh1"><img src="https://avatars.githubusercontent.com/u/83725163?v=4" width="100px;" alt=""/><br /><b>mahdoosh1</b></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4" width="100px;" alt=""/><br /><b>jessie</b><br />design, code</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://nonnullish.pages.dev"><img src="https://avatars.githubusercontent.com/u/20538005?v=4" width="100px;" alt=""/><br /><b>nonnullish</b><br />bug, code</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahdoosh1"><img src="https://avatars.githubusercontent.com/u/83725163?v=4" width="100px;" alt=""/><br /><b>mahdoosh1</b><br />bug, code</a></td>
     </tr>
   </tbody>
 </table>
