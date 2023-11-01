@@ -22,7 +22,6 @@ declare type WireId = number
 //======//
 // Cell //
 //======//
-declare type CellTemplate = RootCell | DummyCell | CustomCell
 declare type Cell = BaseCell & CellTemplate
 declare type BaseCell = {
 	id: CellId
@@ -34,9 +33,6 @@ declare type BaseCell = {
 	fire: Fire
 	tag: { [key: string]: Seralisable }
 }
-
-declare type RootCell = { type: "root" }
-declare type DummyCell = { type: "dummy" }
 
 //======//
 // Wire //
@@ -103,7 +99,7 @@ declare type BehaviourMap = {
 //===========//
 // Operation //
 //===========//
-declare type Operation = ReportOperation | CustomOperation
+declare type Operation = ReportOperation | InstructionOperation
 declare type Operate<T extends Operation> = (nogan: Nogan, operation: T) => Operation[]
 declare type OperationMap = {
 	[key in OperationType]: Operate<Extract<Operation, { type: key }>>
@@ -122,12 +118,6 @@ declare type Fire = {
 	green: Pulse | null
 	blue: Pulse | null
 }
-
-//=======//
-// Pulse //
-//=======//
-declare type Pulse = RawPulse | CustomPulse
-declare type RawPulse = { type: "raw" }
 
 //=======//
 // Cache //
@@ -165,18 +155,12 @@ declare type AsTuple = typeof asTuple
 
 //------- Customisable stuff below this line -------//
 
-//=======//
-// Cells //
-//=======//
-declare type StopperCell = { type: "stopper" }
-declare type SlotCell = { type: "slot" }
-declare type RecordingCell = { type: "recording" }
-declare type CreationCell = { type: "creation" }
-declare type DestructionCell = { type: "destruction" }
-declare type MagnetCell = { type: "magnet" }
-declare type TimeCell = { type: "time" }
-declare type ConnectionCell = { type: "connection" }
-type CustomCell =
+//================//
+// Cell templates //
+//================//
+type CellTemplate =
+	| RootCell
+	| DummyCell
 	| SlotCell
 	| CreationCell
 	| DestructionCell
@@ -185,13 +169,26 @@ type CustomCell =
 	| ConnectionCell
 	| TimeCell
 
+declare type RootCell = { type: "root" }
+declare type DummyCell = { type: "dummy" }
+declare type StopperCell = { type: "stopper" }
+declare type SlotCell = { type: "slot" }
+declare type RecordingCell = { type: "recording" }
+declare type CreationCell = { type: "creation" }
+declare type DestructionCell = { type: "destruction" }
+declare type MagnetCell = { type: "magnet" }
+declare type TimeCell = { type: "time" }
+declare type ConnectionCell = { type: "connection" }
+
 //========//
 // Pulses //
 //========//
+type Pulse = RawPulse | CreationPulse | DestructionPulse | PingPulse
+
+declare type RawPulse = { type: "raw" }
 declare type PingPulse = { type: "ping" }
 declare type CreationPulse = { type: "creation"; template: CellTemplate | null }
 declare type DestructionPulse = { type: "destruction" }
-type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
 //===================//
 // Report operations //
@@ -222,6 +219,8 @@ declare type MovedOperation = {
 //========================//
 // Instruction operations //
 //========================//
+type InstructionOperation = ModifyOperation | PongOperation | TagOperation
+
 declare type PongOperation = { type: "pong" }
 declare type ModifyOperation = {
 	type: "modify"
@@ -235,5 +234,3 @@ declare type TagOperation = {
 	key: string
 	value?: Serialisable
 }
-
-type CustomOperation = ModifyOperation | PongOperation | TagOperation

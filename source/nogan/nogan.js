@@ -16,8 +16,10 @@ export const never = Symbol("never")
 //============//
 // Validating //
 //============//
+const isDeno = !!window.Deno
+
 /** @type {boolean | undefined} */
-let SHOULD_VALIDATE_OVERRIDE = false
+let SHOULD_VALIDATE_OVERRIDE = isDeno
 
 /** @type {boolean | null} */
 let _shouldValidate = null
