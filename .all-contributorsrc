@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "jessiejs",
+      "name": "jessie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63984309?v=4",
+      "profile": "https://jessiejs.github.io",
+      "contributions": [
+        "design",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "Arroost",
+  "projectOwner": "TodePond"
+}
