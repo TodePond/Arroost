@@ -12,24 +12,37 @@ import { Tunnel } from "../../components/tunnel.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 import { Triangle } from "../shapes/triangle.js"
+import { ArrowOfTiming } from "./timing.js"
 
-export class DummyWire extends Entity {
+export class ArrowOfTime extends Entity {
 	/**
 	 *
 	 * @param {{
 	 * 	id?: WireId
 	 *  target: Entity & {dom: Dom, tunnel: Tunnel}
 	 *  source: Entity & {dom: Dom, tunnel: Tunnel}
+	 *  timing: Timing
 	 * }} options
 	 */
-	constructor({ id, target, source }) {
+	constructor({ id, target, source, timing = 0 }) {
 		super()
+
+		// Attach components
+		this.dom = this.attach(
+			new Dom({
+				id: "time",
+				type: "html",
+			}),
+		)
+		this.source = source
+		this.target = target
 
 		// Setup tunnel
 		if (id === undefined) {
 			const { wire, operations } = createWire(shared.nogan, {
 				source: source.tunnel.id,
 				target: target.tunnel.id,
+				timing,
 			})
 
 			this.tunnel = this.attach(new Tunnel(wire.id, { entity: this }))
@@ -38,19 +51,9 @@ export class DummyWire extends Entity {
 			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		}
 
-		// Attach components
-		this.dom = this.attach(
-			new Dom({
-				id: "dummy-wire",
-				type: "html",
-			}),
-		)
-		this.source = source
-		this.target = target
-
 		// Render elements
 		this.line = this.attach(new Line())
-		this.flaps = this.attach(new Triangle())
+		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id }))
 		this.dom.append(this.line.dom)
 		this.dom.append(this.flaps.dom)
 
@@ -62,7 +65,7 @@ export class DummyWire extends Entity {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
-			const middleDistance = distance / 2 + Triangle.HEIGHT / 4
+			const middleDistance = distance / 2
 
 			const angle = angleBetween(sourcePosition, targetPosition)
 			const middleDisplacement = rotate([middleDistance, 0], angle)

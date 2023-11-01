@@ -40,9 +40,14 @@ const tag = (nogan, { id, key, value = true }) => {
 /** @type {OperationMap} */
 export const OPERATIONS = {
 	modify,
-	fired: noop,
-	unfired: noop,
 	pong,
 	tag,
+
+	// These are just for reporting purposes
+	// They've already happened!
+	// So we don't need to do anything else
+	fired: noop,
+	unfired: noop,
 	binned: noop,
+	moved: noop,
 }

@@ -6,11 +6,9 @@ import { Carry } from "../components/carry.js"
 import { Dom } from "../components/dom.js"
 import { Tunnel } from "../components/tunnel.js"
 import { HALF } from "../unit.js"
-import { Creation } from "./cells/creation.js"
-import { Destruction } from "./cells/destruction.js"
-import { DummyConnection } from "./cells/dummy-connection.js"
-import { DummyCreation } from "./cells/dummy-creation.js"
-import { DummyWiring } from "./cells/dummy-wiring.js"
+import { ArrowOfCreation } from "./arrows/creation.js"
+import { ArrowOfDestruction } from "./arrows/destruction.js"
+import { ArrowOfConnection } from "./arrows/connection.js"
 import { Entity } from "./entity.js"
 
 /**
@@ -23,35 +21,23 @@ import { Entity } from "./entity.js"
  */
 
 export const unlocks = c({
-	"dummy-creation": {
-		unlockable: false,
-		unlocked: true,
-		remaining: 0,
-		create: (arg) => new DummyCreation(arg),
-	},
-	"creation": {
+	creation: {
 		unlockable: true,
 		unlocked: true,
-		remaining: 3,
-		create: (arg) => new Creation(arg),
+		remaining: 0,
+		create: (arg) => new ArrowOfCreation(arg),
 	},
-	"dummy-wiring": {
-		unlockable: false,
-		unlocked: false,
-		remaining: 3,
-		create: (arg) => new DummyWiring(arg),
-	},
-	"dummy-connection": {
+	connection: {
 		unlockable: true,
 		unlocked: false,
 		remaining: 2,
-		create: (arg) => new DummyConnection(arg),
+		create: (arg) => new ArrowOfConnection(arg),
 	},
-	"destruction": {
+	destruction: {
 		unlockable: true,
 		unlocked: false,
 		remaining: 1,
-		create: (arg) => new Destruction(arg),
+		create: (arg) => new ArrowOfDestruction(arg),
 	},
 })
 

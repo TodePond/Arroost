@@ -1,27 +1,27 @@
-import { angleBetween, subtract } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
-import { Pulling } from "../../machines/pulling.js"
 import { HALF, QUARTER } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { Entity } from "../entity.js"
-import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Ellipse } from "../shapes/ellipse.js"
-import { Line } from "../shapes/line.js"
-import { DummyWire } from "./dummy-wire.js"
 import { setCellStyles } from "./shared.js"
+import { Rectangle } from "../shapes/rectangle.js"
+import { Plus } from "../shapes/plus.js"
+import { Pulling } from "../../machines/pulling.js"
+import { Line } from "../shapes/line.js"
+import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { ArrowOfDummy } from "./dummy.js"
+import { progressUnlock, unlocks } from "../unlock.js"
+import { ArrowOfRecording } from "./recording.js"
 
-export class DummyWiring extends Entity {
+export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
 
-	constructor({
-		id = createCell(shared.nogan, { type: "dummy-wiring" }).id,
-		position = t([0, 0]),
-	}) {
+	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
 		super()
 		triggerCounter()
 
@@ -30,7 +30,7 @@ export class DummyWiring extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "dummy-wiring",
+				id: "creation",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
@@ -41,11 +41,9 @@ export class DummyWiring extends Entity {
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))
-		this.front = this.attach(new Ellipse())
-		this.backFront = this.attach(new Ellipse())
+		this.front = this.attach(new Plus())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
-		this.dom.append(this.backFront.dom)
 
 		this.arrow = this.attach(new Line({ parent: this.dom.transform }))
 		shared.scene.layer.ghost.append(this.arrow.dom)
@@ -62,22 +60,12 @@ export class DummyWiring extends Entity {
 
 		this.source = this.input
 		this.use(() => {
+			if (!this.source) return
 			if (this.arrow.dom.style.visibility.get() === "hidden") return
-
+			this.arrow.dom.transform.setAbsolutePosition(
+				this.source.entity.dom.transform.absolutePosition.get(),
+			)
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
-			if (!this.source) {
-				const center = this.dom.transform.absolutePosition.get()
-				const angle = angleBetween(center, pointerPosition)
-				const distance = QUARTER
-				const displacement = [distance * Math.cos(angle), distance * Math.sin(angle)]
-				const position = subtract(center, displacement)
-				this.arrow.dom.transform.setAbsolutePosition(position)
-			} else {
-				this.arrow.dom.transform.setAbsolutePosition(
-					this.source.entity.dom.transform.absolutePosition.get(),
-				)
-			}
-
 			this.arrow.target.setAbsolutePosition(pointerPosition)
 		}, [
 			shared.pointer.transform.absolutePosition,
@@ -86,60 +74,75 @@ export class DummyWiring extends Entity {
 		])
 
 		// Styles!
-		this.front.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.backFront.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.front.dom.transform.scale.set([3 / 4, 3 / 4])
 		setCellStyles({
 			front: this.front.dom,
 			back: this.back.dom,
 			input: this.input,
 			tunnel: this.tunnel,
 		})
-		this.use(() => {
-			this.backFront.dom.style.fill.set(this.back.dom.style.fill.get())
-		}, [this.back.dom.style.fill])
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
+	// Type isn't correct here, but it works out ok
+	template = ArrowOfRecording
+
 	/** @type {null | Input} */
 	source = null
 
+	/** @type {Set<Input & {entity: Entity & {tunnel: Tunnel}}>} */
+	targets = new Set()
+
 	onClick(e) {
-		this.source = null
+		this.template = ArrowOfRecording
+		this.source = this.input
 		return new Pulling()
 	}
 
 	onTargetingPointerUp(e) {
-		if (!e.state.target.isConnectable()) {
-			this.source?.targeted.set(false)
-			return
+		// If the thing is cloneable, let's continue targeting.
+		// TODO: This should be whatever we pointer-down'd on, not what we pointer-up'd on.
+		if (e.state.target.isCloneable()) {
+			this.template = e.state.target.entity.constructor
+			this.source = e.state.target
+			this.targets.add(e.state.target)
+			e.state.target.entity.dom.style.bringToFront()
+			e.state.target.targeted.set(true)
+			return new Pulling(this.input, e.state.target)
 		}
 
-		if (this.source) {
-			this.source.targeted.set(false)
-			const sourceEntity = this.source.entity
-			if (!sourceEntity.tunnel) {
-				throw new Error("Can't connect from an entity with no tunnel")
-			}
-			const dummyWire = new DummyWire({
-				// @ts-expect-error - don't know why it isn't figuring out its type here
-				source: sourceEntity,
-				target: e.state.target.entity,
+		// If it's not cloneable, let's create a new thing!
+
+		// Make the entity.
+		const dummy = new this.template({
+			position: shared.pointer.transform.absolutePosition.get(),
+		})
+
+		// Add it to the scene.
+		shared.scene.layer.cell.append(dummy.dom)
+
+		// Fire myself!
+		this.tunnel.isFiring.set(true)
+		Tunnel.perform(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
+
+		// Fire anything along the way!
+		for (const target of this.targets) {
+			target.targeted.set(false)
+			target.entity.tunnel.isFiring.set(true)
+			Tunnel.perform(() => {
+				return fireCell(shared.nogan, { id: target.entity.tunnel.id })
 			})
-			shared.scene.layer.wire.append(dummyWire.dom)
-			return
 		}
 
-		this.template = e.state.target.entity.constructor
-		this.source = e.state.target
-		this.source?.targeted.set(true)
-		e.state.target.entity.dom.style.bringToFront()
-
-		return new Pulling(this.input, e.state.target)
+		// We're done here.
+		this.targets.clear()
+		progressUnlock("connection")
 	}
 }

@@ -21,7 +21,7 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
-export class Dummy extends Entity {
+export class ArrowOfDummy extends Entity {
 	/**
 	 * @param {{
 	 * 	id?: CellId
@@ -69,7 +69,6 @@ export class Dummy extends Entity {
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 	}
 
 	onClick(e) {

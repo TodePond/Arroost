@@ -14,7 +14,6 @@ import {
 import { Dragging } from "../machines/input.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
-import { DummyCreation } from "./cells/dummy-creation.js"
 import { Ghost } from "./ghost.js"
 import { Counter } from "./counter.js"
 import { replenishUnlocks } from "./unlock.js"

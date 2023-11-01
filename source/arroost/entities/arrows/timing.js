@@ -30,9 +30,9 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Triangle } from "../shapes/triangle.js"
-import { DummyConnection } from "./dummy-connection.js"
+import { ArrowOfConnection } from "./connection.js"
 
-export class ControlWire extends Entity {
+export class ArrowOfTiming extends Entity {
 	/** @type {Signal<Timing>} */
 	timing = this.use(0)
 
@@ -45,7 +45,7 @@ export class ControlWire extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "control-wire", position }).id,
+		id = createCell(shared.nogan, { type: "time", position }).id,
 		wire,
 	}) {
 		super()
@@ -59,7 +59,7 @@ export class ControlWire extends Entity {
 		)
 		this.dom = this.attach(
 			new Dom({
-				id: "control-wire",
+				id: "time",
 				type: "html",
 				input: this.input,
 				position,
@@ -135,7 +135,6 @@ export class ControlWire extends Entity {
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
-		this.tunnel.useCell({ dom: this.dom, input: this.input })
 		this.wire = wire
 		const _wire = getWire(shared.nogan, wire)
 		Tunnel.apply(() => {
@@ -177,7 +176,7 @@ export class ControlWire extends Entity {
 			}
 		}
 
-		DummyConnection.timing = this.timing.get()
+		ArrowOfConnection.timing = this.timing.get()
 
 		Tunnel.apply(() => {
 			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })

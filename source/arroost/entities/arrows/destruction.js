@@ -1,5 +1,13 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import {
+	archiveCell,
+	archiveWire,
+	createCell,
+	fireCell,
+	getCell,
+	getWire,
+	t,
+} from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -14,15 +22,16 @@ import { Plus } from "../shapes/plus.js"
 import { Pulling } from "../../machines/pulling.js"
 import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
-import { DummyCreation } from "./dummy-creation.js"
-import { Dummy } from "./dummy.js"
-import { progressUnlock, unlocks } from "../unlock.js"
-import { Recording } from "./recording.js"
+import { ArrowOfDummy } from "./dummy.js"
+import { replenishUnlocks, unlocks } from "../unlock.js"
 
-export class Creation extends Entity {
+export class ArrowOfDestruction extends Entity {
 	pulling = this.use(false)
 
-	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
+	constructor({
+		id = createCell(shared.nogan, { type: "destruction" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
 		triggerCounter()
 
@@ -31,7 +40,7 @@ export class Creation extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "creation",
+				id: "destruction",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
@@ -82,17 +91,17 @@ export class Creation extends Entity {
 			input: this.input,
 			tunnel: this.tunnel,
 		})
+		this.front.dom.transform.rotation.set(Math.PI / 4)
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
 
 	// Type isn't correct here, but it works out ok
-	template = Recording
+	template = ArrowOfDummy
 
 	/** @type {null | Input} */
 	source = null
@@ -101,50 +110,51 @@ export class Creation extends Entity {
 	targets = new Set()
 
 	onClick(e) {
-		this.template = Recording
+		this.template = ArrowOfDummy
 		this.source = this.input
 		return new Pulling()
 	}
 
 	onTargetingPointerUp(e) {
-		// If the thing is cloneable, let's continue targeting.
-		// TODO: This should be whatever we pointer-down'd on, not what we pointer-up'd on.
-		if (e.state.target.isCloneable()) {
-			this.template = e.state.target.entity.constructor
-			this.source = e.state.target
-			this.targets.add(e.state.target)
-			e.state.target.entity.dom.style.bringToFront()
-			e.state.target.targeted.set(true)
-			return new Pulling(this.input, e.state.target)
+		const target = e.state.target
+		if (!target.isDestroyable()) {
+			return
 		}
 
-		// If it's not cloneable, let's create a new thing!
-
-		// Make the entity.
-		const dummy = new this.template({
-			position: shared.pointer.transform.absolutePosition.get(),
-		})
-
-		// Add it to the scene.
-		shared.scene.layer.cell.append(dummy.dom)
-
-		// Fire myself!
 		this.tunnel.isFiring.set(true)
-		Tunnel.perform(() => {
+		Tunnel.apply(() => {
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		// Fire anything along the way!
-		for (const target of this.targets) {
-			target.targeted.set(false)
-			target.entity.tunnel.isFiring.set(true)
-			Tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: target.entity.tunnel.id })
-			})
-		}
+		replenishUnlocks()
 
-		// We're done here.
-		this.targets.clear()
-		progressUnlock("dummy-connection")
+		// Meaty stuff. Probably don't need to do this? I dunno. Maybe it's more robust to stay in nogan-land actually...
+		Tunnel.apply(() => {
+			const id = target.entity.tunnel.id
+			if (id < 0) {
+				return archiveWire(shared.nogan, id)
+			} else {
+				let wireOperations = []
+				const cell = getCell(shared.nogan, id)
+				if (cell.type === "time") {
+					const [sourceWireId, targetWireId] = cell.outputs
+					const sourceWire = getWire(shared.nogan, sourceWireId)
+					const targetWire = getWire(shared.nogan, targetWireId)
+					const sourceId = sourceWire.target
+					const targetId = targetWire.target
+					const source = getCell(shared.nogan, sourceId)
+					for (const output of source.outputs) {
+						const wire = getWire(shared.nogan, output)
+						if (wire.target === targetId) {
+							wireOperations = archiveWire(shared.nogan, output)
+							break
+						}
+					}
+				}
+				const operations = archiveCell(shared.nogan, id)
+				operations.push(...wireOperations)
+				return operations
+			}
+		})
 	}
 }

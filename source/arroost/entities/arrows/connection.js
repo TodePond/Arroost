@@ -13,15 +13,14 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Ellipse } from "../shapes/ellipse.js"
 import { Line } from "../shapes/line.js"
 import { progressUnlock } from "../unlock.js"
-import { DummyTime } from "./dummy-time.js"
-import { DummyWire } from "./dummy-wire.js"
+import { ArrowOfTime } from "./time.js"
 import { setCellStyles } from "./shared.js"
 
-export class DummyConnection extends Entity {
+export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { type: "dummy-connection" }).id,
+		id = createCell(shared.nogan, { type: "connection" }).id,
 		position = t([0, 0]),
 	}) {
 		super()
@@ -32,7 +31,7 @@ export class DummyConnection extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "dummy-wiring",
+				id: "connection",
 				type: "html",
 				input: this.input,
 				cullBounds: [HALF, HALF],
@@ -103,7 +102,6 @@ export class DummyConnection extends Entity {
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
@@ -155,11 +153,11 @@ export class DummyConnection extends Entity {
 
 		// Let's make the arroost entity.
 		const entity = e.state.target.entity
-		const dummyWire = new DummyTime({
+		const dummyWire = new ArrowOfTime({
 			// @ts-expect-error - Don't know why it isn't figuring out its type here.
 			source: sourceEntity,
 			target: entity,
-			timing: DummyConnection.timing,
+			timing: ArrowOfConnection.timing,
 		})
 
 		// Add it to the scene!

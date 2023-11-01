@@ -37,6 +37,7 @@ import {
 	iterateWires,
 	modifyCell,
 	modifyWire,
+	moveCell,
 	refresh,
 	reserveCellId,
 	reserveWireId,
@@ -319,9 +320,15 @@ describe("cell", () => {
 		const nogan = createNogan()
 		const cell = createCell(nogan)
 		assertEquals(cell.type, "dummy")
-		assertEquals(cell.position, [0, 0])
-		modifyCell(nogan, { id: cell.id, type: "creation", position: [10, 20], propogate: false })
+		modifyCell(nogan, { id: cell.id, type: "creation", propogate: false })
 		assertEquals(cell.type, "creation")
+	})
+
+	it("moves a cell", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		assertEquals(cell.position, [0, 0])
+		moveCell(nogan, { id: cell.id, position: [10, 20], propogate: false })
 		assertEquals(cell.position, [10, 20])
 	})
 })

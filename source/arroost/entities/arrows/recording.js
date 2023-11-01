@@ -8,8 +8,9 @@ import {
 	Splash,
 	WHITE,
 	equals,
+	subtract,
 } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER, shared } from "../../../main.js"
+import { GREY_SILVER, MIDDLE_C, shared } from "../../../main.js"
 import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
@@ -22,7 +23,7 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
-export class Recording extends Entity {
+export class ArrowOfRecording extends Entity {
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
 	hasSound = this.use(false)
@@ -85,14 +86,22 @@ export class Recording extends Entity {
 			// backOverride: () => this.isRecording.get() && GREY_SILVER,
 		})
 
-		// Nogan behaviours
+		// Nogan behaviour
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 		this.tunnel.onFire = this.onFire.bind(this)
 
 		// Tone.js
 		this.microphone.open()
+
+		// Pitch
+		this.use(() => {
+			if (this.startPosition.get() === null) return
+			const displacement = subtract(this.startPosition.get(), this.dom.transform.position.get())
+			const [dx, dy] = displacement
+
+			this.pitch.set(dy / 10)
+		}, [this.dom.transform.position, this.carry.movement.velocity, this.startPosition])
 	}
 
 	onClick() {
@@ -101,6 +110,12 @@ export class Recording extends Entity {
 		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
 		// })
 	}
+
+	/** @type {Signal<Vector2D | null>} */
+	startPosition = this.use(null)
+
+	/** @type {Signal<number>} */
+	pitch = this.use(0)
 
 	async onClickAsync() {
 		if (!this.hasSound.get()) {
@@ -118,6 +133,7 @@ export class Recording extends Entity {
 
 				this.isRecording.set(false)
 				this.hasSound.set(true)
+				this.startPosition.set(this.dom.transform.position.get())
 			} else {
 				this.recorder.start()
 				this.isRecording.set(true)
@@ -132,7 +148,11 @@ export class Recording extends Entity {
 	onFire() {
 		if (!this.hasSound.get()) return
 
-		this.sampler.triggerAttackRelease("C4")
+		const pitchChange = this.pitch.get()
+		const pitch = MIDDLE_C + pitchChange
+		if (!Number.isFinite(pitch)) return
+		if (pitch < -Number.MAX_SAFE_INTEGER || pitch > Number.MAX_SAFE_INTEGER) return
+		this.sampler.triggerAttackRelease(pitch)
 	}
 
 	dispose() {

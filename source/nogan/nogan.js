@@ -11,11 +11,15 @@ export const c = (v) => v
 /** @type {AsTuple} */
 export const t = (v) => v
 
+export const never = Symbol("never")
+
 //============//
 // Validating //
 //============//
+const isDeno = !!window.Deno
+
 /** @type {boolean | undefined} */
-let SHOULD_VALIDATE_OVERRIDE = false
+let SHOULD_VALIDATE_OVERRIDE = isDeno
 
 /** @type {boolean | null} */
 let _shouldValidate = null
@@ -630,7 +634,6 @@ export const archiveCell = (nogan, id) => {
  * 	id: CellId,
  * 	type?: CellType,
  *  tag?: { [key: string]: string }
- * 	position?: Vector2D,
  * 	propogate?: boolean,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
@@ -640,11 +643,10 @@ export const archiveCell = (nogan, id) => {
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, position, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
+	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
-	cell.position = position ?? cell.position
 	cell.tag = tag ?? cell.tag
 	clearCache(nogan)
 
@@ -655,6 +657,40 @@ export const modifyCell = (
 	validate(cell, N.Cell)
 	validate(nogan, N.Nogan)
 	return []
+}
+
+/**
+ * Move a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	position: Vector2D,
+ * 	propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
+ * 	filter?: (id: CellId) => boolean,
+ * }} options
+ * @returns {Operation[]}
+ */
+export const moveCell = (
+	nogan,
+	{ id, position, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
+) => {
+	const cell = getCell(nogan, id)
+	cell.position = position
+	clearCache(nogan)
+
+	const movedOperation = c({ type: "moved", id, position })
+
+	if (propogate) {
+		const refreshOperations = refresh(nogan, { past, future, filter })
+		refreshOperations.push(movedOperation)
+		return refreshOperations
+	}
+
+	validate(cell, N.Cell)
+	validate(nogan, N.Nogan)
+	return [movedOperation]
 }
 
 //======//
