@@ -69,13 +69,16 @@ export class ArrowOfRecording extends Entity {
 		this.use(() => {
 			const hasSound = this.hasSound.get()
 			if (hasSound) {
+				// Gets bigger when at lower pitch
+				const scale = -this.pitch.get() / 500
+				const clampedScale = Math.max(-10 / 11 / 2, Math.min(10 / 11 / 2, scale))
 				this.back.dom.transform.scale.set([1, 1])
-				this.front.dom.transform.scale.set([1 / 2, 1 / 2])
+				this.front.dom.transform.scale.set([1 / 2 + clampedScale, 1 / 2 + clampedScale])
 			} else {
 				this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 				this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 			}
-		})
+		}, [this.hasSound, this.pitch])
 
 		setCellStyles({
 			back: this.back.dom,
