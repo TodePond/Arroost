@@ -14,12 +14,11 @@ import { Plus } from "../shapes/plus.js"
 import { Pulling } from "../../machines/pulling.js"
 import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
-import { DummyCreation } from "./dummy-creation.js"
-import { Dummy } from "./dummy.js"
+import { ArrowOfDummy } from "./dummy.js"
 import { progressUnlock, unlocks } from "../unlock.js"
-import { Recording } from "./recording.js"
+import { ArrowOfRecording } from "./recording.js"
 
-export class Creation extends Entity {
+export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
 
 	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
@@ -92,7 +91,7 @@ export class Creation extends Entity {
 	}
 
 	// Type isn't correct here, but it works out ok
-	template = Recording
+	template = ArrowOfRecording
 
 	/** @type {null | Input} */
 	source = null
@@ -101,7 +100,7 @@ export class Creation extends Entity {
 	targets = new Set()
 
 	onClick(e) {
-		this.template = Recording
+		this.template = ArrowOfRecording
 		this.source = this.input
 		return new Pulling()
 	}
@@ -145,6 +144,6 @@ export class Creation extends Entity {
 
 		// We're done here.
 		this.targets.clear()
-		progressUnlock("dummy-connection")
+		progressUnlock("connection")
 	}
 }

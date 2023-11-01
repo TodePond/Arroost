@@ -22,7 +22,7 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
-export class Recording extends Entity {
+export class ArrowOfRecording extends Entity {
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
 	hasSound = this.use(false)

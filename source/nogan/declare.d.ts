@@ -103,25 +103,15 @@ declare type BehaviourMap = {
 //===========//
 // Operation //
 //===========//
-declare type Operation = FiredOperation | UnfiredOperation | CustomOperation | BinnedOperation
+declare type Operation = ReportOperation | CustomOperation
 declare type Operate<T extends Operation> = (nogan: Nogan, operation: T) => Operation[]
 declare type OperationMap = {
 	[key in OperationType]: Operate<Extract<Operation, { type: key }>>
 }
 
-declare type FiredOperation = {
-	type: "fired"
-	id: CellId
-}
-
-declare type UnfiredOperation = {
-	type: "unfired"
-	id: CellId
-}
-
-declare type BinnedOperation = {
-	type: "binned"
-	id: CellId | WireId
+declare type TunnelFunction<T extends Operation> = (operation: T) => void
+declare type TunnelMap = {
+	[key in OperationType]: TunnelFunction<Extract<Operation, { type: key }>>
 }
 
 //======//
@@ -184,21 +174,16 @@ declare type RecordingCell = { type: "recording" }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
-declare type ControlWireCell = { type: "control-wire" }
-declare type DummyCreationCell = { type: "dummy-creation" }
-declare type DummyConnectionCell = { type: "dummy-connection" }
-declare type DummyWiringCell = { type: "dummy-wiring" }
+declare type TimeCell = { type: "time" }
+declare type ConnectionCell = { type: "connection" }
 type CustomCell =
 	| SlotCell
 	| CreationCell
 	| DestructionCell
 	| RecordingCell
 	| StopperCell
-	| MagnetCell
-	| DummyCreationCell
-	| DummyConnectionCell
-	| DummyWiringCell
-	| ControlWireCell
+	| ConnectionCell
+	| TimeCell
 
 //==============//
 // Custom Pulse //
@@ -207,6 +192,32 @@ declare type PingPulse = { type: "ping" }
 declare type CreationPulse = { type: "creation"; template: CellTemplate | null }
 declare type DestructionPulse = { type: "destruction" }
 type CustomPulse = CreationPulse | DestructionPulse | PingPulse
+
+//==================//
+// Report operation //
+//==================//
+declare type ReportOperation = FiredOperation | UnfiredOperation | BinnedOperation | MovedOperation
+
+declare type FiredOperation = {
+	type: "fired"
+	id: CellId
+}
+
+declare type UnfiredOperation = {
+	type: "unfired"
+	id: CellId
+}
+
+declare type BinnedOperation = {
+	type: "binned"
+	id: CellId | WireId
+}
+
+declare type MovedOperation = {
+	type: "moved"
+	id: CellId
+	position: Vector2D
+}
 
 //==================//
 // Custom Operation //

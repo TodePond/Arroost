@@ -1,7 +1,7 @@
 import { equals } from "../../../libraries/habitat-import.js"
 import { msPerBeat, nextBeatQueue } from "../../link.js"
 import { shared } from "../../main.js"
-import { applyOperations, fireCell, getCell, modifyCell, modifyWire } from "../../nogan/nogan.js"
+import { getCell, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
@@ -28,42 +28,11 @@ export class Tunnel extends Component {
 
 	/**
 	 * @param {Operation} operation
-	 * @returns {true}
 	 */
 	static applyOperation(operation) {
-		switch (operation.type) {
-			case "fired": {
-				const tunnel = Tunnel.tunnels.get(operation.id)
-				if (!tunnel) return true
-				tunnel.isFiring.set(true)
-				tunnel.onFire()
-				return true
-			}
-			case "unfired": {
-				const tunnel = Tunnel.tunnels.get(operation.id)
-				if (!tunnel) return true
-				tunnel.isFiring.set(false)
-				return true
-			}
-			case "modify": {
-				// ...
-				return true
-			}
-			case "pong": {
-				// ...
-				return true
-			}
-			case "tag": {
-				// noop
-				return true
-			}
-			case "binned": {
-				const tunnel = Tunnel.tunnels.get(operation.id)
-				if (!tunnel) return true
-				tunnel.entity.dispose()
-				return true
-			}
-		}
+		const tunnelFunction = TUNNELS[operation.type]
+		// @ts-expect-error: freaks out
+		tunnelFunction(operation)
 	}
 
 	/**
@@ -162,16 +131,44 @@ export class Tunnel extends Component {
 			const cell = getCell(shared.nogan, this.id)
 			if (equals(cell.position, position)) return
 			Tunnel.apply(() => {
-				return modifyCell(shared.nogan, {
+				return moveCell(shared.nogan, {
 					id: this.id,
 					position,
 					propogate: equals(velocity, [0, 0]),
 					filter: (id) => {
 						const cell = getCell(shared.nogan, id)
-						return cell.type === "magnet"
+						return cell.type === "slot"
 					},
 				})
 			})
 		})
 	}
+}
+
+const noop = () => {}
+
+/** @type {TunnelMap} */
+const TUNNELS = {
+	fired: ({ id }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) return
+		tunnel.isFiring.set(true)
+		tunnel.onFire()
+	},
+	unfired: ({ id }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) return
+		tunnel.isFiring.set(false)
+	},
+	modify: ({ id, ...template }) => {
+		// todo
+	},
+	binned: ({ id }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) return
+		tunnel.entity.dispose()
+	},
+	moved: noop,
+	pong: noop,
+	tag: noop,
 }

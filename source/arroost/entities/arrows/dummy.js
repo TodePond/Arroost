@@ -21,7 +21,7 @@ import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 
-export class Dummy extends Entity {
+export class ArrowOfDummy extends Entity {
 	/**
 	 * @param {{
 	 * 	id?: CellId
