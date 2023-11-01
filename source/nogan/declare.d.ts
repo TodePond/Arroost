@@ -163,11 +163,11 @@ declare function asTuple<V extends any, T extends [...V], R extends T>(v: R): R 
 declare type AsConst = typeof asConst
 declare type AsTuple = typeof asTuple
 
-//------- Custom types below this line -------//
+//------- Customisable stuff below this line -------//
 
-//=============//
-// Custom Cell //
-//=============//
+//=======//
+// Cells //
+//=======//
 declare type StopperCell = { type: "stopper" }
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording" }
@@ -185,17 +185,17 @@ type CustomCell =
 	| ConnectionCell
 	| TimeCell
 
-//==============//
-// Custom Pulse //
-//==============//
+//========//
+// Pulses //
+//========//
 declare type PingPulse = { type: "ping" }
 declare type CreationPulse = { type: "creation"; template: CellTemplate | null }
 declare type DestructionPulse = { type: "destruction" }
 type CustomPulse = CreationPulse | DestructionPulse | PingPulse
 
-//==================//
-// Report operation //
-//==================//
+//===================//
+// Report operations //
+//===================//
 declare type ReportOperation = FiredOperation | UnfiredOperation | BinnedOperation | MovedOperation
 
 declare type FiredOperation = {
@@ -219,9 +219,9 @@ declare type MovedOperation = {
 	position: Vector2D
 }
 
-//==================//
-// Custom Operation //
-//==================//
+//========================//
+// Instruction operations //
+//========================//
 declare type PongOperation = { type: "pong" }
 declare type ModifyOperation = {
 	type: "modify"
