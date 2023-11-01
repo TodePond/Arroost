@@ -102,7 +102,6 @@ export class ArrowOfConnection extends Entity {
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onClick.bind(this)
-		this.tunnel.useCell({ dom: this.dom, carry: this.carry, input: this.input })
 
 		targeting.pointerup = this.onTargetingPointerUp.bind(this)
 	}
