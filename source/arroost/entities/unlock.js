@@ -50,7 +50,7 @@ export const unlocks = c({
 	"destruction": {
 		unlockable: true,
 		unlocked: false,
-		remaining: 3,
+		remaining: 1,
 		create: (arg) => new Destruction(arg),
 	},
 })
