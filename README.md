@@ -1,4 +1,7 @@
 <img align="right" width="150" src="https://user-images.githubusercontent.com/15892272/236786183-08c68c91-8988-45b3-8554-c80962a8d57c.png">
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # Arroost
 
@@ -78,6 +81,20 @@ Thank you to everyone who has contributed to Arroost!
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://jessiejs.github.io"><img src="https://avatars.githubusercontent.com/u/63984309?v=4?s=100" width="100px;" alt="jessie"/><br /><sub><b>jessie</b></sub></a><br /><a href="#design-jessiejs" title="Design">🎨</a> <a href="https://github.com/TodePond/Arroost/commits?author=jessiejs" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 
