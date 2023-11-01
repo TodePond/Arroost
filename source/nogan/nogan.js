@@ -180,6 +180,15 @@ export const getJSON = (nogan) => {
 }
 
 /**
+ * @param {Nogan | undefined} a
+ * @param {Nogan | undefined} b
+ */
+export const noganEquals = (a, b) => {
+	if (!a || !b) return false
+	return getJSON(a) === getJSON(b)
+}
+
+/**
  * Get a JSON string of an array of nogans.
  * @param {Nogan[]} nogans
  * @returns {string}
@@ -969,6 +978,16 @@ export const fireCell = (
 	return [firedOperation]
 }
 
+/**
+ * @param {Pulse | undefined} a
+ * @param {Pulse | undefined} b
+ */
+export const pulseEquals = (a, b) => {
+	if (!a || !b) return false
+	if (a.type !== b.type) return false
+	return objectEquals(a, b)
+}
+
 //=========//
 // Project //
 //=========//
@@ -1113,7 +1132,7 @@ export const getPeak = (
 
 	// But wait!
 	// Are we stuck in a loop?
-	if (objectEquals(from.at(0), nogan)) {
+	if (noganEquals(from.at(0), nogan)) {
 		return createPeak()
 	}
 
