@@ -7,7 +7,6 @@
   "commitType": "docs",
   "commitConvention": "angular",
   "badgeTemplate": "<!-- noop -->",
-  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\"/><br /><b><%= contributor.name %></b><% if (contributor.contributions) { %></a><ul><li><%= contributor.contributions.join(\"</li><li>\") %></li></ul><% } %>",
   "contributors": [
     {
       "login": "jessiejs",
