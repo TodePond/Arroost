@@ -70,7 +70,7 @@ export class ArrowOfRecording extends Entity {
 			const hasSound = this.hasSound.get()
 			if (hasSound) {
 				// Gets bigger when at lower pitch
-				const scale = -this.pitch.get() / 500
+				const scale = -this.pitch.get() / 1000
 				const clampedScale = Math.max(-10 / 11 / 2, Math.min(10 / 11 / 2, scale))
 				this.back.dom.transform.scale.set([1, 1])
 				this.front.dom.transform.scale.set([1 / 2 + clampedScale, 1 / 2 + clampedScale])
@@ -103,7 +103,12 @@ export class ArrowOfRecording extends Entity {
 			const displacement = subtract(this.startPosition.get(), this.dom.transform.position.get())
 			const [dx, dy] = displacement
 
-			this.pitch.set(dy / 10)
+			this.pitch.set(dy / 2)
+
+			for (const player of this.players) {
+				// player.detune = this.pitch.get()
+				player.playbackRate = 1 + this.pitch.get() / 1000
+			}
 		}, [this.dom.transform.position, this.carry.movement.velocity, this.startPosition])
 	}
 
@@ -127,13 +132,6 @@ export class ArrowOfRecording extends Entity {
 				const url = URL.createObjectURL(recording)
 				this.url = url
 
-				this.sampler = new Tone.Sampler({
-					urls: {
-						C4: url,
-					},
-					release: 1,
-				}).toDestination()
-
 				this.isRecording.set(false)
 				this.hasSound.set(true)
 				this.startPosition.set(this.dom.transform.position.get())
@@ -148,14 +146,23 @@ export class ArrowOfRecording extends Entity {
 		}
 	}
 
-	onFire() {
+	async onFire() {
 		if (!this.hasSound.get()) return
 
-		const pitchChange = this.pitch.get()
-		const pitch = MIDDLE_C + pitchChange
-		if (!Number.isFinite(pitch)) return
-		if (pitch < -Number.MAX_SAFE_INTEGER || pitch > Number.MAX_SAFE_INTEGER) return
-		this.sampler.triggerAttackRelease(pitch)
+		const player = await new Tone.Player(this.url).toDestination()
+		player.playbackRate = 1 + this.pitch.get() / 1000
+		player.autostart = true
+		this.players.add(player)
+		player.onended = () => {
+			this.players.delete(player)
+			player.dispose()
+		}
+
+		// const pitchChange = this.pitch.get()
+		// const pitch = MIDDLE_C + pitchChange
+		// if (!Number.isFinite(pitch)) return
+		// if (pitch < -Number.MAX_SAFE_INTEGER || pitch > Number.MAX_SAFE_INTEGER) return
+		// this.sampler.triggerAttackRelease("C4")
 	}
 
 	dispose() {

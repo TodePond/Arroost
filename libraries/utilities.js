@@ -1,6 +1,7 @@
 /**
  * Check if two objects are equal.
  * This is a full, deep comparison.
+ * But slow as fuck.
  * @param {object | null | undefined} a
  * @param {object | null | undefined} b
  * @returns {boolean}
