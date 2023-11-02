@@ -159,7 +159,7 @@ export class Destruction extends Entity {
 					return operations
 				}
 				if (cell.hasSound) {
-					cell.hasSound.set(False)
+					cell.hasSound.set(false)
 					return
 				} 
 				}
