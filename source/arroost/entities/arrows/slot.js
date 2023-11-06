@@ -52,15 +52,18 @@ export class ArrowOfSlot extends Entity {
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))
+		this.front = this.attach(new Ellipse())
 		this.dom.append(this.back.dom)
+		this.dom.append(this.front.dom)
 
 		// Style elements
 		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		setCellStyles({
 			back: this.back.dom,
+			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
-			front: null,
 		})
 
 		// Nogan behaviours

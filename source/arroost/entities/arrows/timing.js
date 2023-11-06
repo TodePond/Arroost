@@ -55,6 +55,7 @@ export class ArrowOfTiming extends Entity {
 		// Attach components
 		this.input = this.attach(new Input(this))
 		this.tunnel = this.attach(
+			// TODO: This shouldn't be concrete (ie: not part of the nogan)
 			new Tunnel(id, { concrete: false, destroyable: true, entity: this }),
 		)
 		this.dom = this.attach(

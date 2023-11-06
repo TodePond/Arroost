@@ -15,6 +15,7 @@ import { Line } from "../shapes/line.js"
 import { progressUnlock } from "../unlock.js"
 import { ArrowOfTime } from "./time.js"
 import { setCellStyles } from "./shared.js"
+import { ArrowOfSlot } from "./slot.js"
 
 export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
@@ -121,19 +122,25 @@ export class ArrowOfConnection extends Entity {
 		if (this.source === this.input) {
 			this.source = null
 		}
-		const target = e.state.target
+		let target = e.state.target
 
 		// Can we even connect to this thing?
 		if (!target.isConnectable()) {
-			this.source?.targeted.set(false)
-			return
+			// If we can't, let's create a slot instead!
+			const slot = new ArrowOfSlot({
+				position: shared.pointer.transform.absolutePosition.get(),
+			})
+
+			shared.scene.layer.cell.append(slot.dom)
+
+			target = slot.input
 		}
 
 		// Do we not have a source yet?
 		if (!this.source) {
-			this.source = e.state.target
+			this.source = target
 			this.source?.targeted.set(true)
-			e.state.target.entity.dom.style.bringToFront()
+			target.entity.dom.style.bringToFront()
 
 			return new Pulling(this.input, target)
 		}
@@ -152,7 +159,7 @@ export class ArrowOfConnection extends Entity {
 		}
 
 		// Let's make the arroost entity.
-		const entity = e.state.target.entity
+		const entity = target.entity
 		const dummyWire = new ArrowOfTime({
 			// @ts-expect-error - Don't know why it isn't figuring out its type here.
 			source: sourceEntity,
