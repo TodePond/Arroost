@@ -7,7 +7,7 @@ import { Tunnel } from "../../components/tunnel.js"
 /**
  * @param {{
  * 	back: Dom
- * 	front: Dom
+ * 	front: Dom | null
  * 	input: Input
  * 	tunnel: Tunnel
  * 	frontOverride?: (options: { tunnel: Tunnel, input: Input }) => Colour | undefined | null | false
@@ -16,11 +16,13 @@ import { Tunnel } from "../../components/tunnel.js"
  */
 export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backOverride }) => {
 	// front.style.pointerEvents.set("none")
-	input.use(() => {
-		front.style.fill.set(
-			getCellForegroundColour({ tunnel, input, override: frontOverride }).toString(),
-		)
-	})
+	if (front) {
+		input.use(() => {
+			front.style.fill.set(
+				getCellForegroundColour({ tunnel, input, override: frontOverride }).toString(),
+			)
+		})
+	}
 
 	input.use(() => {
 		back.style.fill.set(getCellBackgroundColour({ input, tunnel, override: backOverride }))
