@@ -1,4 +1,4 @@
-import { memo, memo } from "../../libraries/habitat-import.js"
+import { memo } from "../../libraries/habitat-import.js"
 import { objectEquals } from "../../libraries/utilities.js"
 import { BEHAVIOURS } from "./behave.js"
 import { OPERATIONS } from "./operate.js"
