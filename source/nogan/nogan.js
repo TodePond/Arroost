@@ -1267,7 +1267,7 @@ export const refresh = (
 	{ snapshot = getClone(nogan), past = [], future = [], operate = true, filter } = {},
 ) => {
 	const operations = []
-	const memo = new GetPeakMemo()
+	let memo = new GetPeakMemo()
 	for (const id of iterateCellIds(snapshot)) {
 		if (filter && !filter(id)) continue
 		for (const colour of PULSE_COLOURS) {
@@ -1287,6 +1287,10 @@ export const refresh = (
 				pulse: peak.pulse,
 				propogate: false,
 			})
+
+			// If we've changed the nogan, we need to refresh the cache
+			// (as things might be different now)
+			memo = new GetPeakMemo()
 			operations.push(...firedOperations)
 		}
 	}
