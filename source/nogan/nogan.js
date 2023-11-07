@@ -1276,7 +1276,6 @@ export const refresh = (
 				colour,
 				past,
 				future,
-				// TODO: fix memo here. it was for perf but was causing issue
 				memo,
 			})
 			operations.push(...peak.operations)
