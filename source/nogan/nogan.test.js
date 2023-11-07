@@ -1654,3 +1654,18 @@ describe.skip("destruction", () => {
 		assertEquals(recording.type, "slot")
 	})
 })
+
+describe("memoisation", () => {
+	it("spreads instant fires correctly", () => {
+		const nogan = createNogan()
+		const slot1 = createCell(nogan, { type: "slot" })
+		const slot2 = createCell(nogan, { type: "slot" })
+		const slot3 = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: slot1.id, target: slot2.id })
+		createWire(nogan, { source: slot2.id, target: slot3.id })
+		createWire(nogan, { source: slot3.id, target: slot1.id })
+
+		const operations = fireCell(nogan, { id: slot1.id })
+		assertEquals(operations.length, 3) // Should have fired all three slots
+	})
+})
