@@ -1267,7 +1267,7 @@ export const refresh = (
 	{ snapshot = getClone(nogan), past = [], future = [], operate = true, filter } = {},
 ) => {
 	const operations = []
-	const memfixo = new GetPeakMemo()
+	const memo = new GetPeakMemo()
 	for (const id of iterateCellIds(snapshot)) {
 		if (filter && !filter(id)) continue
 		for (const colour of PULSE_COLOURS) {
