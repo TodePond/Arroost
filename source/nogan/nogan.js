@@ -1,3 +1,4 @@
+import { memo, memo } from "../../libraries/habitat-import.js"
 import { objectEquals } from "../../libraries/utilities.js"
 import { BEHAVIOURS } from "./behave.js"
 import { OPERATIONS } from "./operate.js"
@@ -1275,8 +1276,8 @@ export const refresh = (
 				colour,
 				past,
 				future,
-				// TODO: restore memo here. it was for perf but was causing issue
-				// memo,
+				// TODO: fix memo here. it was for perf but was causing issue
+				memo,
 			})
 			operations.push(...peak.operations)
 			if (!peak.result) continue
