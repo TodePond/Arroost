@@ -17,6 +17,9 @@ class Clock {
 
 		Tone.Transport.bpm.value = this.bpm
 
+		let queuedOperations = []
+		let queuedUnfiredOperations = []
+
 		Tone.Transport.scheduleRepeat((time) => {
 			switch (this.phase) {
 				case "buildup": {
@@ -30,12 +33,8 @@ class Clock {
 					Tone.Draw.schedule(() => {
 						document.body.style["background-color"] = BLACK
 
-						const { nogan } = shared
-						const { advanced, operations, unfiredOperations } = getAdvanced(nogan)
-						Tunnel.applyOperations(unfiredOperations)
-						Tunnel.applyOperations(operations)
-						shared.nogan = advanced
-						window.nogan = advanced
+						Tunnel.applyOperations(queuedUnfiredOperations)
+						Tunnel.applyOperations(queuedOperations)
 
 						for (const func of active) {
 							func()
@@ -45,6 +44,14 @@ class Clock {
 				}
 				case "aftermath": {
 					this.phase = "buildup"
+
+					const { nogan } = shared
+					const { advanced, operations, unfiredOperations } = getAdvanced(nogan)
+					shared.nogan = advanced
+					window.nogan = advanced
+
+					queuedOperations = operations
+					queuedUnfiredOperations = unfiredOperations
 
 					Tone.Draw.schedule(() => {
 						document.body.style["background-color"] = GREY_BLACK
