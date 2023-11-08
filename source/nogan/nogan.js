@@ -1160,7 +1160,7 @@ const GetPeakMemo = class extends Cache {
 	/** @param {GetPeakOptions} options */
 	// @ts-expect-error
 	encode({ nogan, id, colour, timing, past, future }) {
-		return [getJSON(nogan), id, colour, timing, getArrayJSON(past), getArrayJSON(future)]
+		return [id, colour, timing, getArrayJSON(future), getArrayJSON(past), getJSON(nogan)]
 	}
 }
 
@@ -1371,6 +1371,8 @@ export const refresh = (
 				pulse: peak.pulse,
 				propogate: false,
 			})
+
+			clearCache(nogan)
 
 			// If we've changed the nogan, we need to refresh the cache
 			// (as things might be different now)
