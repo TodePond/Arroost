@@ -17,6 +17,7 @@ import { Movement } from "../components/movement.js"
 import { Ghost } from "./ghost.js"
 import { Counter } from "./counter.js"
 import { replenishUnlocks } from "./unlock.js"
+import { Title } from "./title.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -103,6 +104,9 @@ export class Scene extends Entity {
 		// layer.ghost.append(counter.dom)
 
 		replenishUnlocks()
+
+		this.title = this.attach(new Title())
+		this.layer.ghost.append(this.title.dom)
 	}
 
 	start({ html }) {

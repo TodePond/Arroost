@@ -2,3 +2,12 @@
 	font-family: "Rosario";
 	src: url("/assets/Rosario-VariableFont_wght.ttf") format("truetype");
 }
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}

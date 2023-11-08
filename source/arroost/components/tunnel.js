@@ -1,5 +1,4 @@
 import { equals } from "../../../libraries/habitat-import.js"
-import { msPerBeat, nextBeatQueue } from "../../link.js"
 import { shared } from "../../main.js"
 import { getCell, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
@@ -7,6 +6,7 @@ import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"
 import { Entity } from "../entities/entity.js"
+import { clock } from "../../clock.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -52,10 +52,7 @@ export class Tunnel extends Component {
 	 * @returns {Promise<Operation[]>}
 	 */
 	static async perform(func = () => []) {
-		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
-		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
-
-		if (fractionOfBeat < 0.5) return Tunnel.apply(func)
+		if (clock.phase === "aftermath") return Tunnel.apply(func)
 		return Tunnel.schedule(func)
 	}
 
@@ -68,7 +65,7 @@ export class Tunnel extends Component {
 	static async schedule(func = () => [], beats = 0) {
 		if (beats <= 0) {
 			return new Promise((resolve) => {
-				nextBeatQueue.current.push(() => {
+				clock.queue.push(() => {
 					const operations = this.apply(func)
 					resolve(operations)
 				})
@@ -76,7 +73,7 @@ export class Tunnel extends Component {
 		}
 
 		return new Promise((resolve) => {
-			nextBeatQueue.current.push(() => {
+			clock.queue.push(() => {
 				this.schedule(func, beats - 1)
 				resolve([])
 			})
