@@ -79,12 +79,6 @@ export class ArrowOfRecording extends Entity {
 			this.front.dom.transform.scale.set([1 / 2 + clampedScale, 1 / 2 + clampedScale])
 		}, [this.hasSound, this.pitch])
 
-		this.use(() => {
-			const hasSound = this.hasSound.get()
-			const isRecording = this.isRecording.get()
-			this.front.dom.style.visibility.set(hasSound || isRecording ? "visible" : "hidden")
-		}, [this.hasSound, this.isRecording])
-
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
@@ -132,6 +126,7 @@ export class ArrowOfRecording extends Entity {
 
 	async onClickAsync() {
 		if (!this.hasSound.get()) {
+			await Tunnel.perform()
 			if (this.isRecording.get()) {
 				const recording = await this.recorder.stop()
 				const url = URL.createObjectURL(recording)

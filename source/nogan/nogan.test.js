@@ -25,6 +25,7 @@ import {
 	getCell,
 	getCells,
 	getClone,
+	getJSON,
 	getPeak,
 	getProjection,
 	getRoot,
@@ -421,6 +422,45 @@ describe("firing", () => {
 		fireCell(nogan, { id: cell.id, propogate: false })
 		assertEquals(cell.fire.blue, { type: "raw" })
 		assertEquals(cell.fire.green, null)
+	})
+})
+
+describe("cloning", () => {
+	it("clones a fresh nogan", () => {
+		const nogan = createNogan()
+		const clone = getClone(nogan)
+		assertEquals(clone, nogan)
+	})
+
+	it("clones a nogan with cells and wires", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan)
+		const cell2 = createCell(nogan)
+		createWire(nogan, { source: cell1.id, target: cell2.id })
+		createWire(nogan, { source: cell2.id, target: cell1.id })
+		const clone = getClone(nogan)
+		assertEquals(clone, nogan)
+	})
+
+	it("clones a nogan with pulses", () => {
+		const nogan = createNogan()
+		const cell = createCell(nogan)
+		fireCell(nogan, { id: cell.id, propogate: false })
+		const clone = getClone(nogan)
+		assertEquals(clone, nogan)
+	})
+
+	it("clones a nogan with a json cache", () => {
+		const nogan = createNogan()
+		// const source = createCell(nogan)
+		// const target = createCell(nogan)
+		// createWire(nogan, { source: source.id, target: target.id })
+		// fireCell(nogan, { id: source.id, propogate: false })
+		getJSON(nogan)
+		const clone = getClone(nogan)
+
+		assertEquals(clone, nogan)
+		assertEquals(clone.json, nogan.json)
 	})
 })
 

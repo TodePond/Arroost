@@ -40,7 +40,7 @@ export class Tunnel extends Component {
 	 * @param {() => Operation[]} func
 	 * @returns {Operation[]}
 	 */
-	static apply(func) {
+	static apply(func = () => []) {
 		const operations = func()
 		Tunnel.applyOperations(operations)
 		return operations
@@ -51,12 +51,12 @@ export class Tunnel extends Component {
 	 * @param {() => Operation[]} func
 	 * @returns {Promise<Operation[]>}
 	 */
-	static async perform(func) {
+	static async perform(func = () => []) {
 		const timeSinceLastBeat = shared.clock.time - shared.clock.lastBeatTime
 		const fractionOfBeat = timeSinceLastBeat / msPerBeat()
 
-		if (fractionOfBeat < 0.5) return this.apply(func)
-		return this.schedule(func)
+		if (fractionOfBeat < 0.5) return Tunnel.apply(func)
+		return Tunnel.schedule(func)
 	}
 
 	/**
@@ -65,7 +65,7 @@ export class Tunnel extends Component {
 	 * @param {number} [beats] - How many beats to wait
 	 * @returns {Promise<Operation[]>}
 	 */
-	static async schedule(func, beats = 0) {
+	static async schedule(func = () => [], beats = 0) {
 		if (beats <= 0) {
 			return new Promise((resolve) => {
 				nextBeatQueue.current.push(() => {

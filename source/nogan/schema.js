@@ -143,6 +143,8 @@ N.Nogan = S.Struct({
 	if (nogan.json) {
 		const json = JSON.stringify({ ...nogan, json: null })
 		if (json !== nogan.json) {
+			// console.log("Expected:\n", json)
+			// console.log("Actual:\n", nogan.json)
 			throw new Error("Cached nogan JSON does not match nogan")
 		}
 	}
