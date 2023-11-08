@@ -19,6 +19,8 @@ export class Title extends Entity {
 		const element = this.heading.dom.getElement()
 		if (!element) return
 		element.style.animation = "fade-in 5s ease-in forwards"
+
+		addEventListener("pointerdown", () => this.dispose(), { once: true })
 	}
 
 	dispose() {

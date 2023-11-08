@@ -1,6 +1,6 @@
 import { equals } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { getCell, moveCell } from "../../nogan/nogan.js"
+import { getCell, isFiring, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
@@ -59,23 +59,13 @@ export class Tunnel extends Component {
 	/**
 	 * Run a function on the nogan - on the next beat
 	 * @param {() => Operation[]} func
-	 * @param {number} [beats] - How many beats to wait
 	 * @returns {Promise<Operation[]>}
 	 */
-	static async schedule(func = () => [], beats = 0) {
-		if (beats <= 0) {
-			return new Promise((resolve) => {
-				clock.queue.push(() => {
-					const operations = this.apply(func)
-					resolve(operations)
-				})
-			})
-		}
-
+	static async schedule(func = () => []) {
 		return new Promise((resolve) => {
 			clock.queue.push(() => {
-				this.schedule(func, beats - 1)
-				resolve([])
+				const operations = Tunnel.apply(func)
+				resolve(operations)
 			})
 		})
 	}

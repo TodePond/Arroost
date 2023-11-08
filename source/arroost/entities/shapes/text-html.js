@@ -35,14 +35,6 @@ export class TextHtml extends Entity {
 			element.textContent = this.value.get()
 		}, [this.value])
 
-		addEventListener(
-			"pointerdown",
-			() => {
-				this.dispose()
-			},
-			{ once: true },
-		)
-
 		return element
 	}
 }

@@ -4,7 +4,7 @@ import { GREY_BLACK, shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
 class Clock {
-	bpm = 120
+	bpm = 60
 
 	/** @type {"buildup" | "aftermath"} */
 	phase = "buildup"
@@ -13,33 +13,44 @@ class Clock {
 	queue = []
 
 	start() {
+		const metronome = new Tone.PluckSynth().toDestination()
+
 		Tone.Transport.bpm.value = this.bpm
 
 		Tone.Transport.scheduleRepeat((time) => {
 			switch (this.phase) {
-				case "buildup":
+				case "buildup": {
 					// BEAT!
 					this.phase = "aftermath"
+					metronome.triggerAttack("C4", time)
 
-					const { nogan } = shared
-					const { advanced, operations, unfiredOperations } = getAdvanced(nogan)
+					const active = this.queue
+					this.queue = []
 
 					Tone.Draw.schedule(() => {
+						document.body.style["background-color"] = BLACK
+
+						const { nogan } = shared
+						const { advanced, operations, unfiredOperations } = getAdvanced(nogan)
 						Tunnel.applyOperations(unfiredOperations)
 						Tunnel.applyOperations(operations)
 						shared.nogan = advanced
 						window.nogan = advanced
 
-						const active = this.queue
-						this.queue = []
 						for (const func of active) {
 							func()
 						}
 					}, time)
-					break
-				case "aftermath":
+					return
+				}
+				case "aftermath": {
 					this.phase = "buildup"
-					break
+
+					Tone.Draw.schedule(() => {
+						document.body.style["background-color"] = GREY_BLACK
+					}, time)
+					return
+				}
 			}
 		}, "8n")
 
