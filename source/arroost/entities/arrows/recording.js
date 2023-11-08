@@ -126,7 +126,7 @@ export class ArrowOfRecording extends Entity {
 
 	async onClickAsync() {
 		if (!this.hasSound.get()) {
-			await Tunnel.perform()
+			await Tunnel.schedule()
 			if (this.isRecording.get()) {
 				const recording = await this.recorder.stop()
 				const url = URL.createObjectURL(recording)
