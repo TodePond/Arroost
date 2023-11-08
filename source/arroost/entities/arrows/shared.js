@@ -9,9 +9,9 @@ import { Tunnel } from "../../components/tunnel.js"
  * 	back: Dom
  * 	front: Dom | null
  * 	input: Input
- * 	tunnel: Tunnel
- * 	frontOverride?: (options: { tunnel: Tunnel, input: Input }) => Colour | undefined | null | false
- * 	backOverride?: (options: { tunnel: Tunnel, input: Input }) => Colour | undefined | null | false
+ * 	tunnel: Tunnel | null
+ * 	frontOverride?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
+ * 	backOverride?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
  * }} options
  */
 export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backOverride }) => {
@@ -40,14 +40,22 @@ export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backO
 		} else {
 			back.style.cursor.set("pointer")
 		}
-	})
+	}, [input.state("dragging").active])
 }
 
+/**
+ * @param {{
+ * 	tunnel: Tunnel | null
+ * 	input: Input
+ * 	override?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
+ * }} options
+ * @returns
+ */
 export const getCellForegroundColour = ({ tunnel, input, override }) => {
 	const overriden = override?.({ tunnel, input })
 	if (overriden) return overriden
 
-	if (tunnel.isFiring.get()) {
+	if (tunnel?.isFiring.get()) {
 		return WHITE
 	}
 	if (input.is("pulling") || input.is("targeting") || input.targeted.get()) {
@@ -56,6 +64,14 @@ export const getCellForegroundColour = ({ tunnel, input, override }) => {
 	return BLACK
 }
 
+/**
+ * @param {{
+ * 	tunnel: Tunnel | null
+ * 	input: Input
+ * 	override?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
+ * }} options
+ * @returns
+ */
 export const getCellBackgroundColour = ({ tunnel, input, override }) => {
 	const overriden = override?.({ tunnel, input })
 	if (overriden) return overriden

@@ -214,11 +214,89 @@ const clearCache = (nogan) => {
  * @returns {Nogan}
  */
 export const getClone = (nogan) => {
-	// Parsing was faster!
-	const json = getJSON(nogan)
-	return JSON.parse(json)
+	// Constructing a clone manually was faster than parsing JSON
+	const clone = {
+		// TODO: This is causing issues, not sure why
+		json: nogan.json,
+		nextCell: nogan.nextCell,
+		nextWire: nogan.nextWire,
+		archivedCells: [...nogan.archivedCells],
+		archivedWires: [...nogan.archivedWires],
+		deletedCells: [...nogan.deletedCells],
+		deletedWires: [...nogan.deletedWires],
+		items: {},
+	}
+
+	for (const wire of iterateWires(nogan)) {
+		clone.items[wire.id] = getWireClone(wire)
+	}
+
+	for (const cell of iterateCells(nogan)) {
+		clone.items[cell.id] = getCellClone(cell)
+	}
+
+	validate(clone, N.Nogan)
+	return clone
+
+	// Parsing was faster than structuredclone
+	// const json = getJSON(nogan)
+	// return JSON.parse(json)
 
 	// return structuredClone(nogan)
+}
+
+/**
+ * Get a clone of a cell.
+ * @param {Cell} cell
+ * @returns {Cell}
+ */
+export const getCellClone = (cell) => {
+	const clone = {
+		type: cell.type,
+		id: cell.id,
+		parent: cell.parent,
+		position: c([cell.position[0], cell.position[1]]),
+		cells: [...cell.cells],
+		inputs: [...cell.inputs],
+		outputs: [...cell.outputs],
+		fire: getFireClone(cell.fire),
+		tag: { ...cell.tag },
+	}
+
+	validate(clone, N.Cell)
+	return clone
+}
+
+/**
+ * Get a clone of a fire.
+ * @param {Fire} fire
+ * @returns {Fire}
+ */
+export const getFireClone = (fire) => {
+	const clone = {
+		red: fire.red ? { ...fire.red } : null,
+		green: fire.green ? { ...fire.green } : null,
+		blue: fire.blue ? { ...fire.blue } : null,
+	}
+	validate(clone, N.Fire)
+	return clone
+}
+
+/**
+ * Get a clone of a cell.
+ * @param {Wire} wire
+ * @returns {Wire}
+ */
+export const getWireClone = (wire) => {
+	const clone = {
+		id: wire.id,
+		source: wire.source,
+		target: wire.target,
+		colour: wire.colour,
+		timing: wire.timing,
+	}
+	validate(clone, N.Wire)
+	return clone
 }
 
 /**
@@ -1004,6 +1082,8 @@ export const getProjection = (nogan) => {
 	const projection = getClone(nogan)
 	const operations = []
 
+	let unfiredSomething = false
+
 	for (const cell of iterateCells(projection)) {
 		cell.tag = {}
 		const { parent } = cell
@@ -1017,6 +1097,11 @@ export const getProjection = (nogan) => {
 		cell.fire = createFire()
 		const unfiredOperation = c({ type: "unfired", id: cell.id })
 		operations.push(unfiredOperation)
+		unfiredSomething = true
+	}
+
+	if (unfiredSomething) {
+		clearCache(projection)
 	}
 
 	validate(projection, N.Nogan)
@@ -1075,7 +1160,7 @@ const GetPeakMemo = class extends Cache {
 	/** @param {GetPeakOptions} options */
 	// @ts-expect-error
 	encode({ nogan, id, colour, timing, past, future }) {
-		return [getJSON(nogan), id, colour, timing, getArrayJSON(past), getArrayJSON(future)]
+		return [id, colour, timing, getArrayJSON(future), getArrayJSON(past), getJSON(nogan)]
 	}
 }
 

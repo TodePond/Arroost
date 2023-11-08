@@ -1,5 +1,4 @@
 import { angleBetween, equals, oneIn, randomBetween } from "../../../libraries/habitat-import.js"
-import { msPerBeat } from "../../link.js"
 import { shared } from "../../main.js"
 import { c, iterateCells, t } from "../../nogan/nogan.js"
 import { Carry } from "../components/carry.js"

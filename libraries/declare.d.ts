@@ -12,6 +12,7 @@ interface Array {
 interface Window {
 	shared: any
 	Deno?: any
+	nogan: Nogan
 }
 
 declare function print(...args: any[]): void

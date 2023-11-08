@@ -12,6 +12,9 @@ export const Style = class extends Component {
 	strokeWidth = this.use(1)
 	cursor = this.use("default")
 	shadow = this.use(false)
+	color = this.use("black")
+	fontFamily = this.use("Rosario")
+	fontSize = this.use(16)
 
 	/** @type {Signal<"none" | "all" | "inherit">} */
 	pointerEvents = this.use("inherit")
@@ -50,6 +53,9 @@ export const Style = class extends Component {
 	applyHtmlElement(element) {
 		this.use(() => (element.style["background-color"] = this.fill.get().toString()))
 		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
+		this.use(() => (element.style["color"] = this.color.get().toString()))
+		this.use(() => (element.style["font-family"] = this.fontFamily.get().toString()))
+		this.use(() => (element.style["font-size"] = this.fontSize.get().toString() + "px"))
 		this.use(() => {
 			const hasStroke = this.stroke.get() !== "none" && this.strokeWidth.get() !== 0
 			const hasShadow = this.shadow.get()
