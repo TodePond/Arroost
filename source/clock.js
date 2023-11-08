@@ -4,7 +4,7 @@ import { GREY_BLACK, shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
 class Clock {
-	bpm = 60
+	bpm = 120
 
 	/** @type {"buildup" | "aftermath"} */
 	phase = "buildup"
@@ -25,13 +25,13 @@ class Clock {
 				case "buildup": {
 					// BEAT!
 					this.phase = "aftermath"
-					metronome.triggerAttack("C4", time)
+					// metronome.triggerAttack("C4", time)
 
 					const active = this.queue
 					this.queue = []
 
 					Tone.Draw.schedule(() => {
-						document.body.style["background-color"] = BLACK
+						// document.body.style["background-color"] = BLACK
 
 						Tunnel.applyOperations(queuedUnfiredOperations)
 						Tunnel.applyOperations(queuedOperations)
@@ -53,9 +53,9 @@ class Clock {
 					queuedOperations = operations
 					queuedUnfiredOperations = unfiredOperations
 
-					Tone.Draw.schedule(() => {
-						document.body.style["background-color"] = GREY_BLACK
-					}, time)
+					// Tone.Draw.schedule(() => {
+					// 	document.body.style["background-color"] = GREY_BLACK
+					// }, time)
 					return
 				}
 			}
