@@ -32,6 +32,7 @@ export class ArrowOfTime extends Entity {
 			new Dom({
 				id: "time",
 				type: "html",
+				// TODO: add cull bounds
 			}),
 		)
 		this.source = source

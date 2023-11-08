@@ -22,6 +22,8 @@ import { setCellStyles } from "./shared.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { Rectangle } from "../shapes/rectangle.js"
+import { ArrowOfNoise } from "./noise.js"
 
 export class ArrowOfRecording extends Entity {
 	recorder = new Tone.Recorder()
@@ -59,8 +61,11 @@ export class ArrowOfRecording extends Entity {
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
+		this.noise = this.attach(new ArrowOfNoise(this))
 		this.back = this.attach(new EllipseHtml({ input: this.input }))
 		this.front = this.attach(new Ellipse())
+
+		this.dom.append(this.noise.dom)
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 

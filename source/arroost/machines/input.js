@@ -10,6 +10,7 @@ export class Hovering extends InputState {
 	name = "hovering"
 
 	enter() {
+		console.log("s")
 		super.enter()
 	}
 
