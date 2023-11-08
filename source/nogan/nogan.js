@@ -1372,8 +1372,6 @@ export const refresh = (
 				propogate: false,
 			})
 
-			clearCache(nogan)
-
 			// If we've changed the nogan, we need to refresh the cache
 			// (as things might be different now)
 			memo = new GetPeakMemo()
