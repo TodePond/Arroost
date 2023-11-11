@@ -57,6 +57,16 @@
         "bug",
         "userTesting"
       ]
+    },
+    {
+      "login": "edibotopic",
+      "name": "Shane Crowley",
+      "avatar_url": "https://avatars.githubusercontent.com/u/66971213?v=4",
+      "profile": "http://edibotopic.com",
+      "contributions": [
+        "userTesting",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
