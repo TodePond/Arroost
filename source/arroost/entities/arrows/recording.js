@@ -28,9 +28,22 @@ import { ArrowOfNoise } from "./noise.js"
 export class ArrowOfRecording extends Entity {
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
-	hasSound = this.use(false)
-	isRecording = this.use(false)
 	players = new Set()
+
+	/** @type {Signal<"idle" | "recording" | "sound" | "paused">} */
+	recordingState = this.use("idle")
+
+	/** @type {Signal<number | null>} */
+	recordingStart = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	recordingDuration = this.use(null)
+
+	/** @type {Signal<Vector2D | null>} */
+	startPosition = this.use(null)
+
+	/** @type {Signal<number>} */
+	pitch = this.use(0)
 
 	/**
 	 * @param {{
@@ -77,15 +90,14 @@ export class ArrowOfRecording extends Entity {
 			const clampedScale = Math.max(-10 / 11 / 2, Math.min(10 / 11 / 2, scale))
 			this.back.dom.transform.scale.set([1, 1])
 			this.front.dom.transform.scale.set([1 / 2 + clampedScale, 1 / 2 + clampedScale])
-		}, [this.hasSound, this.pitch])
+		}, [this.pitch])
 
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
-			frontOverride: () => this.isRecording.get() && RED,
-			// backOverride: () => this.isRecording.get() && GREY_SILVER,
+			frontOverride: () => this.recordingState.get() === "recording" && RED,
 		})
 
 		// Nogan behaviour
@@ -113,41 +125,48 @@ export class ArrowOfRecording extends Entity {
 
 	onClick() {
 		this.onClickAsync()
-		// Tunnel.perform(() => {
-		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
-		// })
 	}
 
-	/** @type {Signal<Vector2D | null>} */
-	startPosition = this.use(null)
-
-	/** @type {Signal<number>} */
-	pitch = this.use(0)
-
 	async onClickAsync() {
-		if (!this.hasSound.get()) {
-			await Tunnel.schedule()
-			if (this.isRecording.get()) {
-				const recording = await this.recorder.stop()
-				const url = URL.createObjectURL(recording)
-				this.url = url
-
-				this.isRecording.set(false)
-				this.hasSound.set(true)
-				this.startPosition.set(this.dom.transform.position.get())
-			} else {
-				this.recorder.start()
-				this.isRecording.set(true)
+		switch (this.recordingState.get()) {
+			case "paused": {
+				return
 			}
-		} else {
-			Tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: this.tunnel.id })
-			})
+			case "idle": {
+				this.recordingState.set("paused")
+				await Tunnel.schedule()
+				this.recordingState.set("recording")
+				this.recorder.start()
+				this.recordingStart.set(Tone.now())
+				return
+			}
+			case "recording": {
+				this.recordingState.set("paused")
+				await Tunnel.schedule()
+
+				const recordingStart = this.recordingStart.get()
+				if (!recordingStart) {
+					throw new Error("Tried to stop a recording that doesn't have a start time")
+				}
+
+				const recording = await this.recorder.stop()
+				this.url = URL.createObjectURL(recording)
+				this.recordingDuration.set(Tone.now() - recordingStart)
+				this.recordingState.set("sound")
+				this.startPosition.set(this.dom.transform.position.get())
+				return
+			}
+			case "sound": {
+				Tunnel.perform(() => {
+					return fireCell(shared.nogan, { id: this.tunnel.id })
+				})
+				return
+			}
 		}
 	}
 
 	async onFire() {
-		if (!this.hasSound.get()) return
+		if (this.recordingState.get() !== "sound") return
 
 		const player = await new Tone.Player(this.url).toDestination()
 		player.playbackRate = 1 + this.pitch.get() / 1000
@@ -157,12 +176,6 @@ export class ArrowOfRecording extends Entity {
 			this.players.delete(player)
 			player.dispose()
 		}
-
-		// const pitchChange = this.pitch.get()
-		// const pitch = MIDDLE_C + pitchChange
-		// if (!Number.isFinite(pitch)) return
-		// if (pitch < -Number.MAX_SAFE_INTEGER || pitch > Number.MAX_SAFE_INTEGER) return
-		// this.sampler.triggerAttackRelease("C4")
 	}
 
 	dispose() {
