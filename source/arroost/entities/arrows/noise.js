@@ -7,7 +7,7 @@ import { ArrowOfRecording } from "./recording.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
 import { GREY_SILVER } from "../../../main.js"
 import { GREY } from "../../../../libraries/habitat-import.js"
-import { FIFTH, FULL, HALF, TENTH } from "../../unit.js"
+import { FIFTH, FULL, HALF, TENTH, THIRD } from "../../unit.js"
 
 export class ArrowOfNoise extends Entity {
 	/**
@@ -34,7 +34,14 @@ export class ArrowOfNoise extends Entity {
 		)
 
 		// TODO: constrain to x axis
-		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		this.carry = this.attach(
+			new Carry({
+				input: this.input,
+				dom: this.dom,
+				constrain: [false, true],
+				raise: false,
+			}),
+		)
 
 		// Render elements
 		this.stem = this.attach(new RectangleHtml({ input: this.input }))
@@ -48,12 +55,14 @@ export class ArrowOfNoise extends Entity {
 			tunnel: null,
 		})
 
-		this.stem.dimensions.set([FULL, HALF])
+		this.stem.dimensions.set([FULL, this.height.get()])
 
 		this.dom.transform.position.set([-HALF + TENTH, 0])
 
 		this.use(() => {
-			this.stem.dimensions.set([this.duration.get() * FULL + FULL - FIFTH, HALF])
+			this.stem.dimensions.set([this.duration.get() * FULL + FULL - FIFTH, this.height.get()])
 		}, [this.duration])
 	}
+
+	height = this.use((FULL * 2) / 5)
 }

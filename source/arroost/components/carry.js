@@ -14,6 +14,7 @@ import { Input } from "./input.js"
 import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
+import { c, t } from "../../nogan/nogan.js"
 
 export class Carry extends Component {
 	/** @type {Input} */
@@ -37,13 +38,17 @@ export class Carry extends Component {
 	 * 	input: Input
 	 * 	dom: Dom
 	 * 	movement?: Movement
+	 * 	constrain?: [boolean, boolean]
+	 * 	raise?: boolean
 	 * }} options
 	 */
-	constructor({ input, dom, movement }) {
+	constructor({ input, dom, movement, constrain = [false, false], raise = true }) {
 		super()
 		this.input = input
 		this.transform = dom.transform
 		this.style = dom.style
+		this.constrain = constrain
+		this.raise = raise
 		this.movement = movement ?? new Movement({ transform: this.transform })
 		if (!movement) {
 			this.movement.friction.set([0.9, 0.9])
@@ -61,7 +66,7 @@ export class Carry extends Component {
 	}
 
 	onPointingEnter(e) {
-		this.style.bringToFront()
+		if (this.raise) this.style.bringToFront()
 		const pointerStart = shared.pointer.transform.displacedPosition.get()
 		const offset = subtract(pointerStart, this.transform.displacedPosition.get())
 		e.state.pointerStart = pointerStart
@@ -80,7 +85,7 @@ export class Carry extends Component {
 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
 		const position = subtract(pointerPosition, e.state.absoluteOffset)
 		const dampened = lerp([e.state.absoluteStart, position], 0.5)
-		this.transform.setAbsolutePosition(dampened)
+		this.setAbsolutePosition(dampened)
 	}
 
 	onPointingPointerMove(e) {
@@ -90,7 +95,7 @@ export class Carry extends Component {
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)
-			this.transform.setAbsolutePosition(dampened)
+			this.setAbsolutePosition(dampened)
 			return null
 		}
 
@@ -98,10 +103,29 @@ export class Carry extends Component {
 			const dragging = new Dragging(shared.scene.input)
 			dragging.pointerStart = e.state.scenePointerStart
 			dragging.start = e.state.sceneStart
-			this.transform.setAbsolutePosition(e.state.absoluteStart)
+			this.setAbsolutePosition(e.state.absoluteStart)
 			return dragging
 		}
 		return new Dragging(this.input)
+	}
+
+	/** @param {[number, number]} position */
+	setAbsolutePosition(position) {
+		const currentPosition = this.transform.absolutePosition.get()
+		const constrainedPosition = t([
+			this.constrain.x ? currentPosition.x : position.x,
+			this.constrain.y ? currentPosition.y : position.y,
+		])
+		this.transform.setAbsolutePosition(constrainedPosition)
+	}
+
+	/** @param {[number, number]} velocity */
+	setAbsoluteVelocity(velocity) {
+		const constrainedVelocity = t([
+			this.constrain.x ? 0 : velocity.x,
+			this.constrain.y ? 0 : velocity.y,
+		])
+		this.movement.setAbsoluteVelocity(constrainedVelocity)
 	}
 
 	onPointingTick(e) {
@@ -113,14 +137,14 @@ export class Carry extends Component {
 				const dragging = new Dragging(shared.scene.input)
 				dragging.pointerStart = e.state.scenePointerStart
 				dragging.start = e.state.sceneStart
-				this.transform.setAbsolutePosition(e.state.absoluteStart)
+				this.setAbsolutePosition(e.state.absoluteStart)
 				return dragging
 			}
 
 			const pointerPosition = shared.pointer.transform.absolutePosition.get()
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)
-			this.transform.setAbsolutePosition(dampened)
+			this.setAbsolutePosition(dampened)
 			return new Dragging(this.input)
 		}
 	}
@@ -133,11 +157,11 @@ export class Carry extends Component {
 	onDraggingPointerMove(e) {
 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
 		const position = subtract(pointerPosition, e.state.absoluteOffset)
-		this.transform.setAbsolutePosition(position)
+		this.setAbsolutePosition(position)
 	}
 
 	onDraggingPointerUp(e) {
 		const pointerVelocity = shared.pointer.movement.absoluteVelocity.get()
-		this.movement.setAbsoluteVelocity(pointerVelocity)
+		this.setAbsoluteVelocity(pointerVelocity)
 	}
 }
