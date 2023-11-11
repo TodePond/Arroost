@@ -7,11 +7,9 @@ import { ArrowOfRecording } from "./recording.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
 import { GREY_SILVER } from "../../../main.js"
 import { GREY } from "../../../../libraries/habitat-import.js"
-import { FULL, HALF } from "../../unit.js"
+import { FIFTH, FULL, HALF, TENTH } from "../../unit.js"
 
 export class ArrowOfNoise extends Entity {
-	duration = this.use(0)
-
 	/**
 	 * @param {ArrowOfRecording} recording
 	 */
@@ -19,6 +17,10 @@ export class ArrowOfNoise extends Entity {
 		super()
 
 		this.recording = recording
+		this.duration = this.use(
+			() => this.recording.recordingDuration.get() ?? 0,
+			[this.recording.recordingDuration],
+		)
 
 		// Attach components
 		this.input = this.attach(new Input(this))
@@ -46,10 +48,12 @@ export class ArrowOfNoise extends Entity {
 			tunnel: null,
 		})
 
-		this.stem.height.set(HALF)
+		this.stem.dimensions.set([FULL, HALF])
+
+		this.dom.transform.position.set([-HALF + TENTH, 0])
 
 		this.use(() => {
-			this.stem.width.set(this.duration.get() * FULL)
+			this.stem.dimensions.set([this.duration.get() * FULL + FULL - FIFTH, HALF])
 		}, [this.duration])
 	}
 }

@@ -30,7 +30,7 @@ export class ArrowOfRecording extends Entity {
 	microphone = new Tone.UserMedia().connect(this.recorder)
 	players = new Set()
 
-	/** @type {Signal<"idle" | "recording" | "sound" | "paused">} */
+	/** @type {Signal<"idle" | "recording" | "sound" | "paused" | "processing">} */
 	recordingState = this.use("idle")
 
 	/** @type {Signal<number | null>} */
@@ -83,7 +83,6 @@ export class ArrowOfRecording extends Entity {
 		this.dom.append(this.front.dom)
 
 		// Style elements
-
 		this.use(() => {
 			// Gets bigger when at lower pitch
 			const scale = -this.pitch.get() / 1000
@@ -97,7 +96,10 @@ export class ArrowOfRecording extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
-			frontOverride: () => this.recordingState.get() === "recording" && RED,
+			frontOverride: () => {
+				if (this.recordingState.get() === "recording") return RED
+				if (this.recordingState.get() === "processing") return RED
+			},
 		})
 
 		// Nogan behaviour
@@ -107,6 +109,7 @@ export class ArrowOfRecording extends Entity {
 
 		// Tone.js
 		this.microphone.open()
+		this.handleRecordingTick = this.onRecordingTick.bind(this)
 
 		// Pitch
 		this.use(() => {
@@ -127,6 +130,15 @@ export class ArrowOfRecording extends Entity {
 		this.onClickAsync()
 	}
 
+	onRecordingTick() {
+		const recordingStart = this.recordingStart.get()
+		if (!recordingStart) {
+			throw new Error("Can't update recording duration without a start time")
+		}
+
+		this.recordingDuration.set(Tone.now() - recordingStart)
+	}
+
 	async onClickAsync() {
 		switch (this.recordingState.get()) {
 			case "paused": {
@@ -138,22 +150,26 @@ export class ArrowOfRecording extends Entity {
 				this.recordingState.set("recording")
 				this.recorder.start()
 				this.recordingStart.set(Tone.now())
+				this.listen("tick", this.handleRecordingTick)
 				return
 			}
 			case "recording": {
-				this.recordingState.set("paused")
+				this.recordingState.set("processing")
 				await Tunnel.schedule()
+				this.recordingState.set("paused")
 
 				const recordingStart = this.recordingStart.get()
 				if (!recordingStart) {
 					throw new Error("Tried to stop a recording that doesn't have a start time")
 				}
 
+				this.recordingDuration.set(Tone.now() - recordingStart)
+				this.unlisten("tick", this.handleRecordingTick)
+				this.startPosition.set(this.dom.transform.position.get())
+
 				const recording = await this.recorder.stop()
 				this.url = URL.createObjectURL(recording)
-				this.recordingDuration.set(Tone.now() - recordingStart)
 				this.recordingState.set("sound")
-				this.startPosition.set(this.dom.transform.position.get())
 				return
 			}
 			case "sound": {
