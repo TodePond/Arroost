@@ -1,12 +1,12 @@
 import { HTML, SVG } from "../../../../libraries/habitat-import.js"
+import { c, t } from "../../../nogan/nogan.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
 import { FULL, HALF } from "../../unit.js"
 import { Entity } from "../entity.js"
 
 export class RectangleHtml extends Entity {
-	width = this.use(FULL)
-	height = this.use(FULL)
+	dimensions = this.use(t([FULL, FULL]))
 
 	/**
 	 * @param {{
@@ -24,14 +24,11 @@ export class RectangleHtml extends Entity {
 		element.style["position"] = "relative"
 
 		this.use(() => {
-			element.style.width = this.width.get() + "px"
-		}, [this.width])
-
-		this.use(() => {
-			const height = this.height.get()
+			const [width, height] = this.dimensions.get()
 			element.style.height = height + "px"
 			element.style.top = -height / 2 + "px"
-		}, [this.height])
+			element.style.width = width + "px"
+		}, [this.dimensions])
 
 		return element
 	}
