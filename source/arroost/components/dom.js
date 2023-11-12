@@ -52,7 +52,7 @@ export class Dom extends Component {
 		this.#element = element
 		if (element) {
 			element.setAttribute("class", `${this.id}${this.id ? "-" : ""}element`)
-			element.style["draggable"] = "false"
+			element.setAttribute("draggable", "false")
 			this.type === "svg"
 				? // @ts-expect-error - can't be bothered to get it to figure out the types here
 				  this.style.applySvgElement(element)
@@ -73,17 +73,8 @@ export class Dom extends Component {
 			this.type === "svg"
 				? document.createElementNS("http://www.w3.org/2000/svg", "svg")
 				: document.createElement("div")
-		container.style.position = "absolute"
-		// @ts-expect-error - more performant if I just pass a number
-		container.style.width = 1
-		// @ts-expect-error
-		container.style.height = 1
-		container.style.overflow = "visible"
-		container.style.pointerEvents = "none"
-		container.style.userSelect = "none"
-		container.style.contain = "size layout style"
 
-		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container`)
+		container.setAttribute("class", `${this.id}${this.id ? "-" : ""}container dom-container`)
 
 		// this.use(() => {
 		// 	const [x, y] = this.transform.absolutePosition.get()
@@ -96,7 +87,12 @@ export class Dom extends Component {
 		this.use(() => {
 			const [sx, sy] = this.transform.scale.get()
 			const [x, y] = this.transform.absolutePosition.get()
-			container.style.transform = `translate(${x}px,${y}px) scale(${sx}, ${sy}) rotate(${this.transform.rotation.get()}rad)`
+			const rotation = this.transform.rotation.get()
+			let transform = ""
+			if (x !== 0 || y !== 0) transform += `translate(${x}px,${y}px)`
+			if (sx !== 1 || sy !== 1) transform += ` scale(${sx}, ${sy})`
+			if (rotation !== 0) transform += ` rotate(${rotation}rad)`
+			if (transform !== "") container.style.transform = transform
 		}, [this.transform.scale, this.transform.absolutePosition, this.transform.rotation])
 
 		if (this.cullBounds.get()) {
@@ -154,7 +150,7 @@ export class Dom extends Component {
 		this.use(
 			() => {
 				const outOfView = this.outOfView.get()
-				container.style["display"] = outOfView ? "none" : "block"
+				container.style.display = outOfView ? "none" : "block"
 			},
 			{
 				parents: [this.outOfView],

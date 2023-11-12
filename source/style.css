@@ -11,3 +11,14 @@
 		opacity: 1;
 	}
 }
+
+.dom-container {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: visible;
+	pointer-events: none;
+	user-select: none;
+	/* Contain size, layout and style */
+	contain: size layout style;
+}
