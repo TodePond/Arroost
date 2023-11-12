@@ -11,24 +11,41 @@ export const Style = class extends Component {
 	/** @type {Signal<string | null>} */
 	fill = this.use(null)
 
-	stroke = this.use("none", { store: false })
-	strokeWidth = this.use(1)
-	cursor = this.use("default")
-	shadow = this.use(false)
-	color = this.use("black")
-	fontFamily = this.use("Rosario")
-	fontSize = this.use(16)
+	/** @type {Signal<string | null>} */
+	stroke = this.use(null)
 
-	/** @type {Signal<"none" | "all" | "inherit">} */
-	pointerEvents = this.use("inherit")
+	/** @type {Signal<number | null>} */
+	strokeWidth = this.use(null)
 
-	/** @type {Signal<"hidden" | "visible" | "inherit">} */
-	visibility = this.use("inherit")
+	/** @type {Signal<null | string>} */
+	cursor = this.use(null)
 
-	/** @type {Signal<"butt" | "round" | "square">} */
-	strokeLineCap = this.use("butt")
+	/** @type {Signal<boolean | null>} */
+	shadow = this.use(null)
 
-	zIndex = this.use(0)
+	/** @type {Signal<string | null>} */
+	color = this.use(null)
+
+	/** @type {Signal<string | null>} */
+	fontFamily = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	fontSize = this.use(null)
+
+	/** @type {Signal<string | number | null>} */
+	fontWeight = this.use(null)
+
+	/** @type {Signal<null | "none" | "all" | "inherit">} */
+	pointerEvents = this.use(null)
+
+	/** @type {Signal<null | "hidden" | "visible" | "inherit">} */
+	visibility = this.use(null)
+
+	/** @type {Signal<"butt" | "round" | "square" | null>} */
+	strokeLineCap = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	zIndex = this.use(null)
 
 	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
 	static SHADOW_FILTER =
@@ -62,6 +79,7 @@ export const Style = class extends Component {
 		this.useStyle(element, "color", this.color)
 		this.useStyle(element, "font-family", this.fontFamily)
 		this.useStyle(element, "font-size", this.fontSize, (value) => value + "px")
+		this.useStyle(element, "font-weight", this.fontWeight)
 		this.useStyle(
 			element,
 			"box-shadow",
