@@ -71,7 +71,7 @@ export class ArrowOfConnection extends Entity {
 			if (!this.source) {
 				const center = this.dom.transform.absolutePosition.get()
 				const angle = angleBetween(center, pointerPosition)
-				const distance = QUARTER
+				const distance = 0
 				const displacement = [distance * Math.cos(angle), distance * Math.sin(angle)]
 				const position = subtract(center, displacement)
 				this.arrow.dom.transform.setAbsolutePosition(position)
