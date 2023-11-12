@@ -16,6 +16,7 @@ import { progressUnlock } from "../unlock.js"
 import { ArrowOfTime } from "./time.js"
 import { setCellStyles } from "./shared.js"
 import { ArrowOfSlot } from "./slot.js"
+import { Targeter } from "../shapes/targeter.js"
 
 export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
@@ -49,7 +50,7 @@ export class ArrowOfConnection extends Entity {
 		this.dom.append(this.front.dom)
 		this.dom.append(this.backFront.dom)
 
-		this.arrow = this.attach(new Line({ parent: this.dom.transform }))
+		this.arrow = this.attach(new Targeter())
 		shared.scene.layer.ghost.append(this.arrow.dom)
 
 		const pulling = this.input.state("pulling")
@@ -70,7 +71,7 @@ export class ArrowOfConnection extends Entity {
 			if (!this.source) {
 				const center = this.dom.transform.absolutePosition.get()
 				const angle = angleBetween(center, pointerPosition)
-				const distance = QUARTER
+				const distance = 0
 				const displacement = [distance * Math.cos(angle), distance * Math.sin(angle)]
 				const position = subtract(center, displacement)
 				this.arrow.dom.transform.setAbsolutePosition(position)

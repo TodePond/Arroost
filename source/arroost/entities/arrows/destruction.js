@@ -24,6 +24,7 @@ import { Line } from "../shapes/line.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { ArrowOfDummy } from "./dummy.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
+import { Targeter } from "../shapes/targeter.js"
 
 export class ArrowOfDestruction extends Entity {
 	pulling = this.use(false)
@@ -55,7 +56,7 @@ export class ArrowOfDestruction extends Entity {
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
-		this.arrow = this.attach(new Line({ parent: this.dom.transform }))
+		this.arrow = this.attach(new Targeter())
 		shared.scene.layer.ghost.append(this.arrow.dom)
 
 		const pulling = this.input.state("pulling")

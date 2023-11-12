@@ -97,16 +97,10 @@ export class Scene extends Entity {
 		this.dom.append(layer.cell)
 		this.dom.append(layer.ghost)
 
-		// const ghost = new Ghost()
-		// layer.ghost.append(ghost.dom)
-
-		// const counter = new Counter()
-		// layer.ghost.append(counter.dom)
-
-		replenishUnlocks()
-
 		this.title = this.attach(new Title())
 		this.layer.ghost.append(this.title.dom)
+
+		addEventListener("pointerdown", () => replenishUnlocks(true), { once: true })
 	}
 
 	start({ html }) {

@@ -2,9 +2,7 @@ import {
 	BLACK,
 	Habitat,
 	Machine,
-	Splash,
 	Stage,
-	VOID,
 	print,
 	registerMethods,
 	Colour,
@@ -20,8 +18,6 @@ import { registerMachine } from "./arroost/machines/machine.js"
 import { HoverMachine } from "./arroost/machines/hover.js"
 import { InputMachine } from "./arroost/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
-import { replenishUnlocks } from "./arroost/entities/unlock.js"
-import { Tunnel } from "./arroost/components/tunnel.js"
 import { clock } from "./clock.js"
 
 //======//
