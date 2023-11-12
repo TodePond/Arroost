@@ -9,8 +9,10 @@ export class Title extends Entity {
 		this.dom = this.attach(new Dom({ type: "html", id: "title" }))
 
 		this.heading = this.attach(new TextHtml())
-		this.heading.value.set("Arroost")
-		// this.heading.value.set("normalise sharing scrappy fiddles")
+		this.heading.value.set("normalise sharing scrappy fiddles")
+		this.heading.dom.style.fontFamily.set("Rosario")
+		this.heading.dom.style.fontSize.set(40)
+		this.heading.dom.style.fontWeight.set("lighter")
 
 		this.dom.append(this.heading.dom)
 

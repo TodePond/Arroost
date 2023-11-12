@@ -7,25 +7,45 @@ export const Style = class extends Component {
 	static lowestZIndex = 0
 
 	name = "style"
-	fill = this.use(GREY.toString(), { store: false })
-	stroke = this.use("none", { store: false })
-	strokeWidth = this.use(1)
-	cursor = this.use("default")
-	shadow = this.use(false)
-	color = this.use("black")
-	fontFamily = this.use("Rosario")
-	fontSize = this.use(16)
 
-	/** @type {Signal<"none" | "all" | "inherit">} */
-	pointerEvents = this.use("inherit")
+	/** @type {Signal<string | null>} */
+	fill = this.use(null)
 
-	/** @type {Signal<"hidden" | "visible" | "inherit">} */
-	visibility = this.use("inherit")
+	/** @type {Signal<string | null>} */
+	stroke = this.use(null)
 
-	/** @type {Signal<"butt" | "round" | "square">} */
-	strokeLineCap = this.use("butt")
+	/** @type {Signal<number | null>} */
+	strokeWidth = this.use(null)
 
-	zIndex = this.use(0)
+	/** @type {Signal<null | string>} */
+	cursor = this.use(null)
+
+	/** @type {Signal<boolean | null>} */
+	shadow = this.use(null)
+
+	/** @type {Signal<string | null>} */
+	color = this.use(null)
+
+	/** @type {Signal<string | null>} */
+	fontFamily = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	fontSize = this.use(null)
+
+	/** @type {Signal<string | number | null>} */
+	fontWeight = this.use(null)
+
+	/** @type {Signal<null | "none" | "all" | "inherit">} */
+	pointerEvents = this.use(null)
+
+	/** @type {Signal<null | "hidden" | "visible" | "inherit">} */
+	visibility = this.use(null)
+
+	/** @type {Signal<"butt" | "round" | "square" | null>} */
+	strokeLineCap = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	zIndex = this.use(null)
 
 	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
 	static SHADOW_FILTER =
@@ -35,84 +55,58 @@ export const Style = class extends Component {
 	 * @param {SVGElement} element
 	 */
 	applySvgElement(element) {
-		this.use(() => element.setAttribute("fill", this.fill.get().toString()), [this.fill])
-		this.use(() => element.setAttribute("stroke", this.stroke.get().toString()), [this.stroke])
-		this.use(
-			() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()),
-			[this.strokeWidth],
-		)
-		this.use(
-			() => element.setAttribute("stroke-linecap", this.strokeLineCap.get().toString()),
-			[this.strokeLineCap],
-		)
-		this.use(
-			() => (element.style["pointer-events"] = this.pointerEvents.get()),
-			[this.pointerEvents],
-		)
-		this.use(() => {
-			if (!this.shadow.get()) return
+		this.useAttribute(element, "fill", this.fill)
+		this.useAttribute(element, "stroke", this.stroke)
+		this.useAttribute(element, "stroke-width", this.strokeWidth)
+		this.useAttribute(element, "stroke-linecap", this.strokeLineCap)
+		this.useStyle(element, "pointer-events", this.pointerEvents)
+		this.useStyle(element, "filter", this.shadow, (value) => {
 			console.warn(
 				"You are applying a shadow to an SVG element.",
 				"This is quite slow.",
 				"Consider changing the element type to HTML :)",
 			)
-			element.style.filter = this.shadow.get() ? Style.SHADOW_FILTER : "none"
-		}, [this.shadow])
+			return value ? Style.SHADOW : "none"
+		})
 	}
 
 	/**
-	 * @param {SVGElement} element
+	 * @param {HTMLElement} element
 	 */
 	applyHtmlElement(element) {
-		this.use(() => (element.style["background-color"] = this.fill.get().toString()), [this.fill])
-		this.use(
-			() => (element.style["pointer-events"] = this.pointerEvents.get()),
-			[this.pointerEvents],
-		)
-		this.use(() => (element.style["color"] = this.color.get().toString()), [this.color])
-		this.use(
-			() => (element.style["font-family"] = this.fontFamily.get().toString()),
-			[this.fontFamily],
-		)
-		this.use(
-			() => (element.style["font-size"] = this.fontSize.get().toString() + "px"),
-			[this.fontSize],
-		)
-		this.use(() => {
-			const hasStroke = this.stroke.get() !== "none" && this.strokeWidth.get() !== 0
-			const hasShadow = this.shadow.get()
-			if (!hasStroke && !hasShadow) {
-				return
-			}
-			const shadow = hasShadow ? Style.SHADOW : ""
-			const stroke = hasStroke
-				? `inset 0 0 0 ${this.strokeWidth.get()}px ${this.stroke.get()}`
-				: ""
+		this.useStyle(element, "background-color", this.fill)
+		this.useStyle(element, "pointer-events", this.pointerEvents)
+		this.useStyle(element, "color", this.color)
+		this.useStyle(element, "font-family", this.fontFamily)
+		this.useStyle(element, "font-size", this.fontSize, (value) => value + "px")
+		this.useStyle(element, "font-weight", this.fontWeight)
+		this.useStyle(
+			element,
+			"box-shadow",
+			this.shadow,
+			(value) => {
+				const hasStroke = this.stroke.get() !== "none" && this.strokeWidth.get() !== 0
+				const hasShadow = value
 
-			const divider = hasShadow && hasStroke ? ", " : ""
-			element.style["box-shadow"] = shadow + divider + stroke ?? "none"
-		})
+				const shadow = hasShadow ? Style.SHADOW : ""
+				const stroke = hasStroke
+					? `inset 0 0 0 ${this.strokeWidth.get()}px ${this.stroke.get()}`
+					: ""
+
+				const divider = hasShadow && hasStroke ? ", " : ""
+				return shadow + divider + stroke ?? "none"
+			},
+			[this.stroke, this.strokeWidth, this.shadow],
+		)
 	}
 
 	/**
 	 * @param {HTMLElement | SVGElement} container
 	 */
 	applyContainer(container) {
-		this.use(
-			() => container.setAttribute("visibility", this.visibility.get()),
-			[this.visibility],
-		)
-		this.use(() => (container.style["z-index"] = this.zIndex.get()), [this.zIndex])
-		this.use(() => (container.style["cursor"] = this.cursor.get()), [this.cursor])
-		this.use(
-			() => (container.style.filter = this.shadow.get() ? Style.SHADOW : "none"),
-			[this.shadow],
-		)
-
-		this.use(() => {
-			this.shadowElement = this.attach(new Dom({ id: "shadow" }))
-			container.style["box-shadow"] = this.shadow.get() ? Style.SHADOW : "none"
-		}, [this.shadow])
+		this.useAttribute(container, "visibility", this.visibility)
+		this.useStyle(container, "z-index", this.zIndex)
+		this.useStyle(container, "cursor", this.cursor)
 	}
 
 	/**

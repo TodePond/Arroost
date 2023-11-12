@@ -73,4 +73,56 @@ export const Entity = class {
 		removeEventListener(type, listener)
 		this.listeners.delete({ type, listener })
 	}
+
+	/**
+	 * @param {SVGElement | HTMLElement} element
+	 * @param {string} attribute
+	 * @param {Signal<string | boolean | number | null>} signal
+	 * @param {(value: string | boolean | number) => string} transform
+	 * @param {Signal<any>[]} dependencies
+	 * @returns {Signal<any>}
+	 */
+	useAttribute(
+		element,
+		attribute,
+		signal,
+		transform = (value) => value.toString(),
+		dependencies = [signal],
+	) {
+		return this.use(() => {
+			const value = signal.get()
+			if (value === null) {
+				element.removeAttribute(attribute)
+				return
+			}
+
+			element.setAttribute(attribute, transform(value))
+		}, dependencies)
+	}
+
+	/**
+	 * @param {HTMLElement | SVGElement} element
+	 * @param {string} style
+	 * @param {Signal<string | boolean | number | null>} signal
+	 * @param {(value: string | boolean | number) => string} transform
+	 * @param {Signal<any>[]} dependencies
+	 * @returns {Signal<any>}
+	 */
+	useStyle(
+		element,
+		style,
+		signal,
+		transform = (value) => value.toString(),
+		dependencies = [signal],
+	) {
+		return this.use(() => {
+			const value = signal.get()
+			if (value === null) {
+				element.style.removeProperty(style)
+				return
+			}
+
+			element.style.setProperty(style, transform(value))
+		}, dependencies)
+	}
 }

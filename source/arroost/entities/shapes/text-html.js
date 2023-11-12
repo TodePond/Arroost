@@ -10,9 +10,8 @@ export class TextHtml extends Entity {
 		this.dom = this.attach(new Dom({ type: "html", id: "text-html" }))
 		this.dom.render = () => this.render()
 
-		this.dom.style.fill.set("none")
+		// this.dom.style.fill.set("none")
 		this.dom.style.color.set("white")
-		this.dom.style.fontSize.set(40)
 
 		const container = this.dom.getContainer()
 		container.style.textAlign = "center"
