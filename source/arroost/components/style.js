@@ -22,6 +22,9 @@ export const Style = class extends Component {
 	/** @type {Signal<"hidden" | "visible" | "inherit">} */
 	visibility = this.use("inherit")
 
+	/** @type {Signal<"butt" | "round" | "square">} */
+	strokeLineCap = this.use("butt")
+
 	zIndex = this.use(0)
 
 	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
@@ -32,10 +35,20 @@ export const Style = class extends Component {
 	 * @param {SVGElement} element
 	 */
 	applySvgElement(element) {
-		this.use(() => element.setAttribute("fill", this.fill.get().toString()))
-		this.use(() => element.setAttribute("stroke", this.stroke.get().toString()))
-		this.use(() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()))
-		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
+		this.use(() => element.setAttribute("fill", this.fill.get().toString()), [this.fill])
+		this.use(() => element.setAttribute("stroke", this.stroke.get().toString()), [this.stroke])
+		this.use(
+			() => element.setAttribute("stroke-width", this.strokeWidth.get().toString()),
+			[this.strokeWidth],
+		)
+		this.use(
+			() => element.setAttribute("stroke-linecap", this.strokeLineCap.get().toString()),
+			[this.strokeLineCap],
+		)
+		this.use(
+			() => (element.style["pointer-events"] = this.pointerEvents.get()),
+			[this.pointerEvents],
+		)
 		this.use(() => {
 			if (!this.shadow.get()) return
 			console.warn(
@@ -44,18 +57,27 @@ export const Style = class extends Component {
 				"Consider changing the element type to HTML :)",
 			)
 			element.style.filter = this.shadow.get() ? Style.SHADOW_FILTER : "none"
-		})
+		}, [this.shadow])
 	}
 
 	/**
 	 * @param {SVGElement} element
 	 */
 	applyHtmlElement(element) {
-		this.use(() => (element.style["background-color"] = this.fill.get().toString()))
-		this.use(() => (element.style["pointer-events"] = this.pointerEvents.get()))
-		this.use(() => (element.style["color"] = this.color.get().toString()))
-		this.use(() => (element.style["font-family"] = this.fontFamily.get().toString()))
-		this.use(() => (element.style["font-size"] = this.fontSize.get().toString() + "px"))
+		this.use(() => (element.style["background-color"] = this.fill.get().toString()), [this.fill])
+		this.use(
+			() => (element.style["pointer-events"] = this.pointerEvents.get()),
+			[this.pointerEvents],
+		)
+		this.use(() => (element.style["color"] = this.color.get().toString()), [this.color])
+		this.use(
+			() => (element.style["font-family"] = this.fontFamily.get().toString()),
+			[this.fontFamily],
+		)
+		this.use(
+			() => (element.style["font-size"] = this.fontSize.get().toString() + "px"),
+			[this.fontSize],
+		)
 		this.use(() => {
 			const hasStroke = this.stroke.get() !== "none" && this.strokeWidth.get() !== 0
 			const hasShadow = this.shadow.get()
@@ -76,15 +98,21 @@ export const Style = class extends Component {
 	 * @param {HTMLElement | SVGElement} container
 	 */
 	applyContainer(container) {
-		this.use(() => container.setAttribute("visibility", this.visibility.get()))
-		this.use(() => (container.style["z-index"] = this.zIndex.get()))
-		this.use(() => (container.style["cursor"] = this.cursor.get()))
-		this.use(() => (container.style.filter = this.shadow.get() ? Style.SHADOW : "none"))
+		this.use(
+			() => container.setAttribute("visibility", this.visibility.get()),
+			[this.visibility],
+		)
+		this.use(() => (container.style["z-index"] = this.zIndex.get()), [this.zIndex])
+		this.use(() => (container.style["cursor"] = this.cursor.get()), [this.cursor])
+		this.use(
+			() => (container.style.filter = this.shadow.get() ? Style.SHADOW : "none"),
+			[this.shadow],
+		)
 
 		this.use(() => {
 			this.shadowElement = this.attach(new Dom({ id: "shadow" }))
 			container.style["box-shadow"] = this.shadow.get() ? Style.SHADOW : "none"
-		})
+		}, [this.shadow])
 	}
 
 	/**
