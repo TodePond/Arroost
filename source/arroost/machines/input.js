@@ -7,6 +7,8 @@ import { triggerRightClickPity } from "../input/wheel.js"
 import { InputState } from "./input-state.js"
 // import { replenishUnlocks } from "../entities/unlock.js"
 
+let createdArrowOfRecording = null
+
 export class Hovering extends InputState {
 	name = "hovering"
 
@@ -25,18 +27,17 @@ export class Hovering extends InputState {
 
 	keydown({ ctrlKey, metaKey, key }) {
 		switch (key.toLowerCase()) {
-			// case "d": {
-			// 	// return new Debugging()
-			// }
 			case " ": {
 				return new Handing()
 			}
 			case "r": {
 				if (ctrlKey || metaKey) return
-				const isRecordingSomething = false
 
-				if (isRecordingSomething) {
-					// stop it
+				if (
+					createdArrowOfRecording &&
+					createdArrowOfRecording.recordingState.get() === "recording"
+				) {
+					createdArrowOfRecording.onFire()
 					return
 				}
 
@@ -45,13 +46,10 @@ export class Hovering extends InputState {
 				arrowOfRecording.dom.transform.setAbsolutePosition(
 					shared.pointer.transform.absolutePosition.get(),
 				)
+				createdArrowOfRecording = arrowOfRecording
+				arrowOfRecording.onFire()
 				return
 			}
-		}
-	}
-
-	keyup({ key }) {
-		switch (key.toLowerCase()) {
 			case "d": {
 				return selectTool("destruction")
 			}
@@ -110,24 +108,5 @@ export class Dragging extends InputState {
 		return new Hovering()
 	}
 }
-
-// export class Debugging extends InputState {
-// 	name = "debugging"
-// 	cursor = "help"
-
-// 	keyup({ key }) {
-// 		if (key.toLowerCase() === "d") {
-// 			return new Hovering()
-// 		}
-// 	}
-
-// 	pointerdown(e) {
-// 		if (e.ctrlKey || e.metaKey) {
-// 			print(shared.hovering.input.get())
-// 		} else {
-// 			print(shared.hovering.input.get().entity)
-// 		}
-// 	}
-// }
 
 export const InputMachine = Hovering
