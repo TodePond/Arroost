@@ -1,13 +1,13 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { fireCell } from "../../nogan/nogan.js"
 import { Input } from "../components/input.js"
+import { Tunnel } from "../components/tunnel.js"
 import { ArrowOfRecording } from "../entities/arrows/recording.js"
 import { fireTool, selectTool } from "../entities/tool.js"
 import { triggerRightClickPity } from "../input/wheel.js"
 import { InputState } from "./input-state.js"
 // import { replenishUnlocks } from "../entities/unlock.js"
-
-let createdArrowOfRecording = null
 
 export class Hovering extends InputState {
 	name = "hovering"
@@ -33,11 +33,16 @@ export class Hovering extends InputState {
 			case "r": {
 				if (ctrlKey || metaKey) return
 
-				if (
-					createdArrowOfRecording &&
-					createdArrowOfRecording.recordingState.get() === "recording"
-				) {
-					createdArrowOfRecording.onFire()
+				if (ArrowOfRecording.recordingArrows.size > 0) {
+					const arrows = [...ArrowOfRecording.recordingArrows]
+					for (const arrow of arrows) {
+						arrow.fromClick = true
+						arrow.recordingBusy.set(true)
+						Tunnel.schedule(() => {
+							arrow.recordingBusy.set(false)
+							return fireCell(shared.nogan, { id: arrow.tunnel.id })
+						})
+					}
 					return
 				}
 
@@ -46,8 +51,11 @@ export class Hovering extends InputState {
 				arrowOfRecording.dom.transform.setAbsolutePosition(
 					shared.pointer.transform.absolutePosition.get(),
 				)
-				createdArrowOfRecording = arrowOfRecording
-				arrowOfRecording.onFire()
+				arrowOfRecording.recordingBusy.set(true)
+				Tunnel.schedule(() => {
+					arrowOfRecording.recordingBusy.set(false)
+					return fireCell(shared.nogan, { id: arrowOfRecording.tunnel.id })
+				})
 				return
 			}
 			case "d": {

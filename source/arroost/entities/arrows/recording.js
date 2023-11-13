@@ -26,12 +26,16 @@ import { Rectangle } from "../shapes/rectangle.js"
 import { ArrowOfNoise } from "./noise.js"
 
 export class ArrowOfRecording extends Entity {
+	static recordingArrows = new Set()
+
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
 	players = new Set()
 
 	/** @type {Signal<"idle" | "recording" | "sound">} */
 	recordingState = this.use("idle")
+
+	isRecording = this.use(() => this.recordingState.get() === "recording")
 
 	/** @type {Signal<number | null>} */
 	recordingStart = this.use(null)
@@ -126,6 +130,14 @@ export class ArrowOfRecording extends Entity {
 				player.playbackRate = 1 + this.pitch.get() / 1000
 			}
 		}, [this.dom.transform.position, this.carry.movement.velocity, this.startPosition])
+
+		this.use(() => {
+			if (this.isRecording.get()) {
+				ArrowOfRecording.recordingArrows.add(this)
+			} else {
+				ArrowOfRecording.recordingArrows.delete(this)
+			}
+		}, [this.isRecording])
 	}
 
 	onClick() {
