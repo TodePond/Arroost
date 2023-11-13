@@ -62,3 +62,9 @@ declare type InputEventHandler = (
 ) => State | void | null
 
 declare const Tone
+
+declare type Pointer = {
+	transform: Transform
+	movement: Movement
+	velocity: Signal<[number, number]>
+}

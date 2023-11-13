@@ -1,6 +1,7 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Input } from "../components/input.js"
+import { ArrowOfRecording } from "../entities/arrows/recording.js"
 import { fireTool, selectTool } from "../entities/tool.js"
 import { triggerRightClickPity } from "../input/wheel.js"
 import { InputState } from "./input-state.js"
@@ -22,13 +23,29 @@ export class Hovering extends InputState {
 		return new Pointing(this.input)
 	}
 
-	keydown({ key }) {
+	keydown({ ctrlKey, metaKey, key }) {
 		switch (key.toLowerCase()) {
 			// case "d": {
 			// 	// return new Debugging()
 			// }
 			case " ": {
 				return new Handing()
+			}
+			case "r": {
+				if (ctrlKey || metaKey) return
+				const isRecordingSomething = false
+
+				if (isRecordingSomething) {
+					// stop it
+					return
+				}
+
+				const arrowOfRecording = new ArrowOfRecording()
+				shared.scene.layer.cell.append(arrowOfRecording.dom)
+				arrowOfRecording.dom.transform.setAbsolutePosition(
+					shared.pointer.transform.absolutePosition.get(),
+				)
+				return
 			}
 		}
 	}
