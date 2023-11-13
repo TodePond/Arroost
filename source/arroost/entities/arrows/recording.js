@@ -26,15 +26,22 @@ import { Rectangle } from "../shapes/rectangle.js"
 import { ArrowOfNoise } from "./noise.js"
 
 export class ArrowOfRecording extends Entity {
+	static recordingArrows = new Set()
+
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
 	players = new Set()
 
-	/** @type {Signal<"idle" | "recording" | "sound" | "paused" | "processing">} */
+	/** @type {Signal<"idle" | "recording" | "sound">} */
 	recordingState = this.use("idle")
+
+	isRecording = this.use(() => this.recordingState.get() === "recording")
 
 	/** @type {Signal<number | null>} */
 	recordingStart = this.use(null)
+
+	/** @type {Signal<boolean>} */
+	recordingBusy = this.use(false)
 
 	/** @type {Signal<number | null>} */
 	recordingDuration = this.use(null)
@@ -98,7 +105,6 @@ export class ArrowOfRecording extends Entity {
 			tunnel: this.tunnel,
 			frontOverride: () => {
 				if (this.recordingState.get() === "recording") return RED
-				if (this.recordingState.get() === "processing") return RED
 			},
 		})
 
@@ -124,6 +130,14 @@ export class ArrowOfRecording extends Entity {
 				player.playbackRate = 1 + this.pitch.get() / 1000
 			}
 		}, [this.dom.transform.position, this.carry.movement.velocity, this.startPosition])
+
+		this.use(() => {
+			if (this.isRecording.get()) {
+				ArrowOfRecording.recordingArrows.add(this)
+			} else {
+				ArrowOfRecording.recordingArrows.delete(this)
+			}
+		}, [this.isRecording])
 	}
 
 	onClick() {
@@ -140,36 +154,23 @@ export class ArrowOfRecording extends Entity {
 	}
 
 	async onClickAsync() {
+		if (this.recordingBusy.get()) return
 		switch (this.recordingState.get()) {
-			case "paused": {
-				return
-			}
 			case "idle": {
-				this.recordingState.set("paused")
-				await Tunnel.schedule()
-				this.recordingState.set("recording")
-				this.recorder.start()
-				this.recordingStart.set(Tone.now())
-				this.listen("tick", this.handleRecordingTick)
+				this.recordingBusy.set(true)
+				Tunnel.schedule(() => {
+					this.recordingBusy.set(false)
+					return fireCell(shared.nogan, { id: this.tunnel.id })
+				})
 				return
 			}
 			case "recording": {
-				this.recordingState.set("processing")
-				await Tunnel.schedule()
-				this.recordingState.set("paused")
-
-				const recordingStart = this.recordingStart.get()
-				if (!recordingStart) {
-					throw new Error("Tried to stop a recording that doesn't have a start time")
-				}
-
-				this.recordingDuration.set(Tone.now() - recordingStart)
-				this.unlisten("tick", this.handleRecordingTick)
-				this.startPosition.set(this.dom.transform.position.get())
-
-				const recording = await this.recorder.stop()
-				this.url = URL.createObjectURL(recording)
-				this.recordingState.set("sound")
+				this.recordingBusy.set(false)
+				Tunnel.schedule(() => {
+					this.recordingBusy.set(false)
+					this.fromClick = true
+					return fireCell(shared.nogan, { id: this.tunnel.id })
+				})
 				return
 			}
 			case "sound": {
@@ -181,16 +182,49 @@ export class ArrowOfRecording extends Entity {
 		}
 	}
 
-	async onFire() {
-		if (this.recordingState.get() !== "sound") return
+	fromClick = false
 
-		const player = await new Tone.Player(this.url).toDestination()
-		player.playbackRate = 1 + this.pitch.get() / 1000
-		player.autostart = true
-		this.players.add(player)
-		player.onended = () => {
-			this.players.delete(player)
-			player.dispose()
+	async onFire() {
+		if (this.recordingBusy.get()) return
+		switch (this.recordingState.get()) {
+			case "idle": {
+				this.recordingState.set("recording")
+				this.recorder.start()
+				this.recordingStart.set(Tone.now())
+				this.listen("tick", this.handleRecordingTick)
+				return
+			}
+			case "recording": {
+				this.recordingBusy.set(true)
+				const recordingStart = this.recordingStart.get()
+				if (!recordingStart) {
+					throw new Error("Tried to stop a recording that doesn't have a start time")
+				}
+
+				this.recordingDuration.set(Tone.now() - recordingStart)
+				this.unlisten("tick", this.handleRecordingTick)
+				this.startPosition.set(this.dom.transform.position.get())
+
+				const recording = await this.recorder.stop()
+				this.recordingState.set("sound")
+				this.recordingBusy.set(false)
+				this.url = URL.createObjectURL(recording)
+				if (!this.fromClick) {
+					this.onFire()
+				}
+				return
+			}
+			case "sound": {
+				const player = await new Tone.Player(this.url).toDestination()
+				player.playbackRate = 1 + this.pitch.get() / 1000
+				player.autostart = true
+				this.players.add(player)
+				player.onended = () => {
+					this.players.delete(player)
+					player.dispose()
+				}
+				return
+			}
 		}
 	}
 

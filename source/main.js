@@ -49,6 +49,10 @@ export const shared = {
 	// @ts-expect-error
 	scene: undefined,
 	clock,
+
+	/** @type {Pointer} */
+	// @ts-expect-error
+	pointer: undefined,
 }
 
 document.body.style["background-color"] = BLACK

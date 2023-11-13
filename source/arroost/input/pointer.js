@@ -12,6 +12,9 @@ import { Transform } from "../components/transform.js"
 
 let done = false
 
+/**
+ * @returns {Pointer}
+ */
 export const getPointer = () => {
 	if (done) throw new Error("getPointer called after pointer already initialized")
 	done = true

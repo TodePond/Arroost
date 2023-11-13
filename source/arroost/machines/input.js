@@ -1,6 +1,9 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { fireCell } from "../../nogan/nogan.js"
 import { Input } from "../components/input.js"
+import { Tunnel } from "../components/tunnel.js"
+import { ArrowOfRecording } from "../entities/arrows/recording.js"
 import { fireTool, selectTool } from "../entities/tool.js"
 import { triggerRightClickPity } from "../input/wheel.js"
 import { InputState } from "./input-state.js"
@@ -22,19 +25,39 @@ export class Hovering extends InputState {
 		return new Pointing(this.input)
 	}
 
-	keydown({ key }) {
+	keydown({ ctrlKey, metaKey, key }) {
 		switch (key.toLowerCase()) {
-			// case "d": {
-			// 	// return new Debugging()
-			// }
 			case " ": {
 				return new Handing()
 			}
-		}
-	}
+			case "r": {
+				if (ctrlKey || metaKey) return
 
-	keyup({ key }) {
-		switch (key.toLowerCase()) {
+				if (ArrowOfRecording.recordingArrows.size > 0) {
+					const arrows = [...ArrowOfRecording.recordingArrows]
+					for (const arrow of arrows) {
+						arrow.fromClick = true
+						arrow.recordingBusy.set(true)
+						Tunnel.schedule(() => {
+							arrow.recordingBusy.set(false)
+							return fireCell(shared.nogan, { id: arrow.tunnel.id })
+						})
+					}
+					return
+				}
+
+				const arrowOfRecording = new ArrowOfRecording()
+				shared.scene.layer.cell.append(arrowOfRecording.dom)
+				arrowOfRecording.dom.transform.setAbsolutePosition(
+					shared.pointer.transform.absolutePosition.get(),
+				)
+				arrowOfRecording.recordingBusy.set(true)
+				Tunnel.schedule(() => {
+					arrowOfRecording.recordingBusy.set(false)
+					return fireCell(shared.nogan, { id: arrowOfRecording.tunnel.id })
+				})
+				return
+			}
 			case "d": {
 				return selectTool("destruction")
 			}
@@ -93,24 +116,5 @@ export class Dragging extends InputState {
 		return new Hovering()
 	}
 }
-
-// export class Debugging extends InputState {
-// 	name = "debugging"
-// 	cursor = "help"
-
-// 	keyup({ key }) {
-// 		if (key.toLowerCase() === "d") {
-// 			return new Hovering()
-// 		}
-// 	}
-
-// 	pointerdown(e) {
-// 		if (e.ctrlKey || e.metaKey) {
-// 			print(shared.hovering.input.get())
-// 		} else {
-// 			print(shared.hovering.input.get().entity)
-// 		}
-// 	}
-// }
 
 export const InputMachine = Hovering
