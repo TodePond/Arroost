@@ -228,7 +228,11 @@ export class ArrowOfRecording extends Entity {
 				const player = await createPlayer(this.url, this.pitch.get())
 				player.toDestination()
 				player.playbackRate = 1 + this.pitch.get() / 1000
-				player.start(Tone.now() + this.noiseTime.get())
+				const diff = Tone.now() + this.noiseTime.get()
+				const isBefore = diff < Tone.now()
+				const startTime = isBefore ? Tone.now() : diff
+				const offset = isBefore ? Tone.now() - diff : 0
+				player.start(startTime, offset)
 				this.players.add(player)
 				player.onended = () => {
 					this.players.delete(player)
