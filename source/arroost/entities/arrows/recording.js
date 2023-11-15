@@ -19,7 +19,7 @@ import { Ellipse } from "../shapes/ellipse.js"
 import { Carry } from "../../components/carry.js"
 import { Input } from "../../components/input.js"
 import { setCellStyles } from "./shared.js"
-import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
+import { FIFTH, FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
@@ -138,6 +138,13 @@ export class ArrowOfRecording extends Entity {
 				ArrowOfRecording.recordingArrows.delete(this)
 			}
 		}, [this.isRecording])
+
+		// Asjustment to noise arrow
+		this.noiseTime = this.use(() => {
+			const [x] = this.noise.dom.transform.position.get()
+			const diff = -(-FIFTH * 2 - x)
+			return diff / FULL
+		})
 	}
 
 	onClick() {
@@ -221,9 +228,17 @@ export class ArrowOfRecording extends Entity {
 				return
 			}
 			case "sound": {
-				const player = await new Tone.Player(this.url).toDestination()
+				if (!this.url) {
+					throw new Error("Tried to play a recording that doesn't have a url")
+				}
+				const player = await createPlayer(this.url, this.pitch.get())
+				player.toDestination()
 				player.playbackRate = 1 + this.pitch.get() / 1000
-				player.autostart = true
+				const diff = Tone.now() + this.noiseTime.get()
+				const isBefore = diff < Tone.now()
+				const startTime = isBefore ? Tone.now() : diff
+				const offset = isBefore ? Tone.now() - diff : 0
+				player.start(startTime, offset)
 				this.players.add(player)
 				player.onended = () => {
 					this.players.delete(player)
@@ -246,4 +261,19 @@ export class ArrowOfRecording extends Entity {
 		this.microphone.dispose()
 		super.dispose()
 	}
+}
+
+/**
+ *
+ * @param {string} url
+ * @param {number} pitch
+ * @returns
+ */
+async function createPlayer(url, pitch) {
+	return new Promise((resolve) => {
+		const player = new Tone.Player({
+			url,
+			onload: () => resolve(player),
+		})
+	})
 }
