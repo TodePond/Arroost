@@ -1,7 +1,8 @@
-import { shared } from "../../main.js"
+import { GREY_SILVER, shared } from "../../main.js"
 import { Entity } from "./entity.js"
 import { Dom } from "../components/dom.js"
 import {
+	GREY,
 	Habitat,
 	WHITE,
 	add,
@@ -18,12 +19,16 @@ import { Ghost } from "./ghost.js"
 import { Counter } from "./counter.js"
 import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
+import { TextHtml } from "./shapes/text-html.js"
+import { Transform } from "../components/transform.js"
 
 const ZOOM_FRICTION = 0.75
 
 export class Scene extends Entity {
 	width = this.use(innerWidth)
 	height = this.use(innerHeight)
+
+	focusMode = this.use(false)
 
 	bounds = this.use({
 		left: 0,
@@ -91,6 +96,7 @@ export class Scene extends Entity {
 			wire: new Dom({ id: "wire-layer", type: "html" }),
 			cell: new Dom({ id: "cell-layer", type: "html" }),
 			ghost: new Dom({ id: "ghost-layer", type: "html" }),
+			hud: new Dom({ id: "hud-layer", type: "html" }),
 		})
 
 		this.dom.append(layer.wire)
@@ -100,12 +106,28 @@ export class Scene extends Entity {
 		this.title = this.attach(new Title())
 		this.layer.ghost.append(this.title.dom)
 
+		this.focusModeIndicator = this.attach(new TextHtml())
+		this.focusModeIndicator.value.set("Focus mode on (press F to toggle)")
+		this.focusModeIndicator.dom.style.fontFamily.set("Rosario")
+		this.focusModeIndicator.dom.transform.position.set([120, 20])
+		this.focusModeIndicator.dom.style.color.set(GREY_SILVER.toString())
+		this.use(() => {
+			if (this.focusMode.get()) {
+				this.focusModeIndicator.dom.style.visibility.set("visible")
+			} else {
+				this.focusModeIndicator.dom.style.visibility.set("hidden")
+			}
+		}, [this.focusMode])
+		this.layer.hud.append(this.focusModeIndicator.dom)
+
 		addEventListener("pointerdown", () => replenishUnlocks(true), { once: true })
 	}
 
 	start({ html }) {
+		this.html = html
 		const container = this.dom.getContainer()
 		html.append(container)
+		html.append(this.layer.hud.getContainer())
 	}
 
 	resize() {
