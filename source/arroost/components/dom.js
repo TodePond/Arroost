@@ -37,7 +37,6 @@ export class Dom extends Component {
 		style = new Style(),
 		input,
 		cullBounds = null,
-		fixed = false,
 	}) {
 		super()
 		this.id = id
@@ -46,7 +45,6 @@ export class Dom extends Component {
 		this.style = style
 		this.input = input ?? shared.scene?.input
 		this.cullBounds = this.use(cullBounds)
-		this.fixed = this.use(fixed)
 	}
 
 	getElement() {
@@ -88,9 +86,6 @@ export class Dom extends Component {
 		// }, [this.transform.absolutePosition])
 
 		this.use(() => {
-			if (this.fixed.get()) {
-				return
-			}
 			const [sx, sy] = this.transform.scale.get()
 			const [x, y] = this.transform.absolutePosition.get()
 			const rotation = this.transform.rotation.get()
@@ -99,12 +94,7 @@ export class Dom extends Component {
 			if (sx !== 1 || sy !== 1) transform += ` scale(${sx}, ${sy})`
 			if (rotation !== 0) transform += ` rotate(${rotation}rad)`
 			if (transform !== "") container.style.transform = transform
-		}, [
-			this.fixed,
-			this.transform.scale,
-			this.transform.absolutePosition,
-			this.transform.rotation,
-		])
+		}, [this.transform.scale, this.transform.absolutePosition, this.transform.rotation])
 
 		if (this.cullBounds.get()) {
 			this.use(() => {
