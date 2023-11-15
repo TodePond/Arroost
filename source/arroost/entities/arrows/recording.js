@@ -174,7 +174,7 @@ export class ArrowOfRecording extends Entity {
 				return
 			}
 			case "sound": {
-				Tunnel.perform(() => {
+				Tunnel.schedule(() => {
 					return fireCell(shared.nogan, { id: this.tunnel.id })
 				})
 				return
@@ -239,6 +239,9 @@ export class ArrowOfRecording extends Entity {
 			player.dispose()
 		}
 		ArrowOfRecording.recordingArrows.delete(this)
+		if (ArrowOfRecording.recordingArrows.size <= 1) {
+			Tone.Master.mute = false
+		}
 		this.recorder.dispose()
 		this.microphone.dispose()
 		super.dispose()
