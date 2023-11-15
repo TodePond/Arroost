@@ -116,6 +116,7 @@ export class Scene extends Entity {
 				this.focusModeIndicator.dom.style.visibility.set("visible")
 			} else {
 				this.focusModeIndicator.dom.style.visibility.set("hidden")
+				Tone.Master.mute = false
 			}
 		}, [this.focusMode])
 		this.layer.hud.append(this.focusModeIndicator.dom)
