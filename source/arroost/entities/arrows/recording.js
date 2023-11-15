@@ -181,7 +181,7 @@ export class ArrowOfRecording extends Entity {
 				return
 			}
 			case "sound": {
-				Tunnel.perform(() => {
+				Tunnel.schedule(() => {
 					return fireCell(shared.nogan, { id: this.tunnel.id })
 				})
 				return
@@ -196,6 +196,9 @@ export class ArrowOfRecording extends Entity {
 		switch (this.recordingState.get()) {
 			case "idle": {
 				this.recordingState.set("recording")
+				if (shared.scene.focusMode.get()) {
+					Tone.Master.mute = true
+				}
 				this.recorder.start()
 				this.recordingStart.set(Tone.now())
 				this.listen("tick", this.handleRecordingTick)
@@ -213,6 +216,9 @@ export class ArrowOfRecording extends Entity {
 				this.startPosition.set(this.dom.transform.position.get())
 
 				const recording = await this.recorder.stop()
+				if (ArrowOfRecording.recordingArrows.size <= 1) {
+					Tone.Master.mute = false
+				}
 				this.recordingState.set("sound")
 				this.recordingBusy.set(false)
 				this.url = URL.createObjectURL(recording)
@@ -246,6 +252,10 @@ export class ArrowOfRecording extends Entity {
 	dispose() {
 		for (const player of this.players) {
 			player.dispose()
+		}
+		ArrowOfRecording.recordingArrows.delete(this)
+		if (ArrowOfRecording.recordingArrows.size <= 1) {
+			Tone.Master.mute = false
 		}
 		this.recorder.dispose()
 		this.microphone.dispose()

@@ -5,11 +5,11 @@ import { triggerSomethingHasMoved } from "../machines/hover.js"
 const ZOOM_MOUSE_SPEED = 0.025
 const ZOOM_TRACKPAD_SPEED = 0.01
 
-const RIGHT_CLICK_PITY_EASE_DURATION = 700
+const RIGHT_CLICK_PITY_EASE_DURATION = 0.5
 
 let pityTime = -Infinity
 export const triggerRightClickPity = () => {
-	pityTime = shared.clock.time
+	pityTime = Tone.now()
 }
 
 export const registerWheel = () => {
@@ -43,7 +43,7 @@ export const registerWheel = () => {
 
 			let [dx, dy] = [event.deltaX, event.deltaY]
 
-			const timeSincePity = shared.clock.time - pityTime
+			const timeSincePity = Tone.now() - pityTime
 			if (timeSincePity < RIGHT_CLICK_PITY_EASE_DURATION) {
 				const t = timeSincePity / RIGHT_CLICK_PITY_EASE_DURATION
 				dx = dx * t ** 4
@@ -64,11 +64,11 @@ export const registerWheel = () => {
 	)
 
 	addEventListener("keydown", (e) => {
-		if (e.key === "s") {
-			// shared.zoomer.smoothMode = !shared.zoomer.smoothMode
-			shared.zoomer.desiredSpeed = 0
-		} else if (e.key === "r") {
-			shared.zoomer.desiredSpeed = 0
-		}
+		// if (e.key === "s") {
+		// 	// shared.zoomer.smoothMode = !shared.zoomer.smoothMode
+		// 	shared.zoomer.desiredSpeed = 0
+		// } else if (e.key === "r") {
+		// 	shared.zoomer.desiredSpeed = 0
+		// }
 	})
 }

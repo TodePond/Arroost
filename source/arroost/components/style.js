@@ -104,7 +104,7 @@ export const Style = class extends Component {
 	 * @param {HTMLElement | SVGElement} container
 	 */
 	applyContainer(container) {
-		this.useAttribute(container, "visibility", this.visibility)
+		this.useStyle(container, "visibility", this.visibility)
 		this.useStyle(container, "z-index", this.zIndex)
 		this.useStyle(container, "cursor", this.cursor)
 	}

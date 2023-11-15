@@ -26,6 +26,7 @@ export class Dom extends Component {
 	 * 	style?: Style
 	 * 	input?: Input
 	 * 	cullBounds?: [number, number] | null
+	 * 	fixed?: boolean
 	 * }} options
 	 */
 	constructor({
