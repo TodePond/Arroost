@@ -58,6 +58,10 @@ export class Hovering extends InputState {
 				})
 				return
 			}
+			case "f": {
+				shared.scene.focusMode.set(!shared.scene.focusMode.get())
+				return
+			}
 			case "d": {
 				return selectTool("destruction")
 			}
