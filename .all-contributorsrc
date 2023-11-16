@@ -67,6 +67,16 @@
         "userTesting",
         "bug"
       ]
+    },
+    {
+      "login": "thacuber2a03",
+      "name": "ThaCuber",
+      "avatar_url": "https://avatars.githubusercontent.com/u/70547062?v=4",
+      "profile": "http://thacuber2a03.github.io",
+      "contributions": [
+        "bug",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
