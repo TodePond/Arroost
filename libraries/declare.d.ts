@@ -48,9 +48,9 @@ declare type StructSchema = BaseSchema & {
 declare type Schema = BaseSchema | StructSchema
 
 declare type Signal<T extends any> = {
-	value: T
 	get(): T
 	set(value: T): void
+	dispose(): void
 }
 
 declare type Colour = [number, number, number]
