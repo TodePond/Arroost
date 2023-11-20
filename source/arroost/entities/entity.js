@@ -1,9 +1,14 @@
 import { snuse, use } from "../../../libraries/habitat-import.js"
 import { Component } from "../components/component.js"
 
-export const Entity = class {
+export class Entity {
+	/** @type {Set<Entity>} */
 	components = new Set()
+
+	/** @type {Set<Signal<any>>} */
 	signals = new Set()
+
+	/** @type {Set<{ type: string, listener: EventListener }>} */
 	listeners = new Set()
 
 	/**

@@ -7,6 +7,12 @@ import { Dom } from "./dom.js"
 import { Input } from "./input.js"
 import { Entity } from "../entities/entity.js"
 import { clock } from "../../clock.js"
+import { ArrowOfCreation } from "../entities/arrows/creation.js"
+import { ArrowOfDummy } from "../entities/arrows/dummy.js"
+import { ArrowOfRecording } from "../entities/arrows/recording.js"
+import { ArrowOfSlot } from "../entities/arrows/slot.js"
+import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
+import { ArrowOfConnection } from "../entities/arrows/connection.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -134,6 +140,14 @@ export class Tunnel extends Component {
 	// 	})
 	// })
 	// }
+
+	/**
+	 * @param {Partial<CellTemplate>} template
+	 */
+	applyTemplate(template) {
+		// Currently, no cells have any extra properties.
+		// So there's nothing to do here!!!
+	}
 }
 
 const noop = () => {}
@@ -151,8 +165,44 @@ const TUNNELS = {
 		if (!tunnel) return
 		tunnel.isFiring.set(false)
 	},
-	modify: ({ id, ...template }) => {
-		// todo
+	modify: ({ id, template }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) throw new Error(`Tunnel: Can't modify cell ${id} does not exist`)
+		if (template.type !== undefined) {
+			const entity = tunnel.entity
+			const position = entity.dom.transform.position.get()
+			const oldCell = getCell(shared.nogan, id)
+
+			const inputEntities = oldCell.inputs
+				.map((input) => Tunnel.tunnels.get(input)?.entity)
+				.filter((v) => v)
+
+			const outputEntities = oldCell.outputs
+				.map((output) => Tunnel.tunnels.get(output)?.entity)
+				.filter((v) => v)
+
+			tunnel.entity.dispose()
+			const newEntity = CELL_CONSTRUCTORS[template.type]({ id, position })
+			shared.scene.layer.cell.append(newEntity.dom)
+
+			for (const inputEntity of inputEntities) {
+				// @ts-expect-error: cant be bothered with type guards
+				inputEntity.target = newEntity
+				// @ts-expect-error: cant be bothered with type guards
+				inputEntity.reusePosition()
+			}
+
+			for (const outputEntity of outputEntities) {
+				// @ts-expect-error: cant be bothered with type guards
+				outputEntity.source = newEntity
+				// @ts-expect-error: cant be bothered with type guards
+				outputEntity.reusePosition()
+			}
+
+			return
+		}
+
+		tunnel.applyTemplate(template)
 	},
 	binned: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
@@ -162,4 +212,24 @@ const TUNNELS = {
 	moved: noop,
 	pong: noop,
 	tag: noop,
+}
+
+/** @type {Record<Cell['type'], (args: any) => Entity & {dom: Dom}>} */
+export const CELL_CONSTRUCTORS = {
+	creation: ({ id, position }) => new ArrowOfCreation({ id, position }),
+	dummy: ({ id, position }) => new ArrowOfDummy({ id, position }),
+	recording: ({ id, position }) => new ArrowOfRecording({ id, position }),
+	slot: ({ id, position }) => new ArrowOfSlot({ id, position }),
+	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
+	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
+
+	time: () => {
+		throw new Error("Time cells cannot be created programmatically")
+	},
+	stopper: () => {
+		throw new Error("Stopper cells are unimplemented")
+	},
+	root: () => {
+		throw new Error("Root cells cannot be created")
+	},
 }

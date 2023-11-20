@@ -62,7 +62,15 @@ export class ArrowOfTime extends Entity {
 		this.flaps.dom.style.fill.set(WHITE.toString())
 		this.flaps.dom.transform.scale.set([2 / 3, 2 / 3])
 
-		this.use(() => {
+		this.reusePosition()
+	}
+
+	reusePosition() {
+		if (this.positioner !== undefined) {
+			this.positioner.dispose()
+		}
+
+		this.positioner = this.use(() => {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
