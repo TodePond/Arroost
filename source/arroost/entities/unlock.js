@@ -9,6 +9,7 @@ import { ArrowOfCreation } from "./arrows/creation.js"
 import { ArrowOfDestruction } from "./arrows/destruction.js"
 import { ArrowOfConnection } from "./arrows/connection.js"
 import { Entity } from "./entity.js"
+import { ArrowOfWriting } from "./arrows/writing.js"
 
 /**
  * @typedef {{
@@ -37,6 +38,12 @@ export const unlocks = c({
 		unlocked: false,
 		remaining: 1,
 		create: (arg) => new ArrowOfDestruction(arg),
+	},
+	dummy: {
+		unlockable: true,
+		unlocked: false,
+		remaining: 99999999,
+		create: (arg) => new ArrowOfWriting(arg),
 	},
 })
 

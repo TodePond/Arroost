@@ -77,6 +77,9 @@ export class Hovering extends InputState {
 			case "s": {
 				return selectTool("creation")
 			}
+			case "t": {
+				return selectTool("dummy")
+			}
 		}
 	}
 }

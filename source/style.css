@@ -22,3 +22,11 @@
 	/* Contain size, layout and style */
 	contain: size layout style;
 }
+
+.text-input-element:focus {
+	pointer-events: all;
+}
+
+.text-input-element {
+	pointer-events: none;
+}
