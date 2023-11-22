@@ -182,7 +182,7 @@ const TUNNELS = {
 				.filter((v) => v)
 
 			tunnel.entity.dispose()
-			const newEntity = CELL_CONSTRUCTORS[template.type]({ id, position })
+			const newEntity = CELL_CONSTRUCTORS[template.type]({ id, position, template })
 			shared.scene.layer.cell.append(newEntity.dom)
 
 			for (const inputEntity of inputEntities) {
@@ -218,7 +218,9 @@ const TUNNELS = {
 export const CELL_CONSTRUCTORS = {
 	creation: ({ id, position }) => new ArrowOfCreation({ id, position }),
 	dummy: ({ id, position }) => new ArrowOfDummy({ id, position }),
-	recording: ({ id, position }) => new ArrowOfRecording({ id, position }),
+	recording: ({ id, position, template }) => {
+		return new ArrowOfRecording({ id, position, recordingKey: template.key })
+	},
 	slot: ({ id, position }) => new ArrowOfSlot({ id, position }),
 	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
 	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),

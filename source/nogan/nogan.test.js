@@ -1645,7 +1645,7 @@ describe("creation", () => {
 		}
 	})
 
-	it("ends at a slot", () => {
+	it("continues as raw after a slot", () => {
 		const nogan = createNogan()
 		const creation = createCell(nogan, { type: "creation" })
 		const slot = createCell(nogan, { type: "slot" })
@@ -1654,8 +1654,16 @@ describe("creation", () => {
 		createWire(nogan, { source: slot.id, target: other.id })
 		fireCell(nogan, { id: creation.id })
 		assert(isFiring(nogan, { id: creation.id }))
-		assert(!isFiring(nogan, { id: slot.id }))
-		assert(!isFiring(nogan, { id: other.id }))
+		assert(isFiring(nogan, { id: slot.id }))
+		assert(isFiring(nogan, { id: other.id }))
+
+		const peak1 = getPeak(nogan, { id: creation.id })
+		const peak2 = getPeak(nogan, { id: slot.id })
+		const peak3 = getPeak(nogan, { id: other.id })
+
+		assertEquals(peak1.pulse?.type, "raw")
+		assertEquals(peak2.pulse?.type, "raw")
+		assertEquals(peak3.pulse?.type, "raw")
 	})
 
 	it("continues through non-slots", () => {

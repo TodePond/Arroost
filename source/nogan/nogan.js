@@ -740,7 +740,14 @@ export const giveChild = (nogan, { source = 0, target, child }) => {
  * @param {Partial<Cell>} cell
  * @returns {CellTemplate}
  */
-export const getTemplate = ({ type = "dummy" } = {}) => {
+export const getTemplate = (cell) => {
+	if (cell.type === "recording") {
+		const { type, key } = cell
+		const template = N.CellTemplate.make({ type, key })
+		validate(template, N.CellTemplate)
+		return template
+	}
+	const { type = "dummy" } = cell
 	const template = N.CellTemplate.make({ type })
 	validate(template, N.CellTemplate)
 	return template

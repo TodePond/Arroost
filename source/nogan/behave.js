@@ -116,6 +116,9 @@ const creation = (args) => {
 					key: "justCreated",
 				}),
 			],
+			pulse: {
+				type: "raw",
+			},
 		})
 	}
 
