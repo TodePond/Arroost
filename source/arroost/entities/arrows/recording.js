@@ -241,12 +241,6 @@ export class ArrowOfRecording extends Entity {
 				this.startPosition.set(this.dom.transform.position.get())
 
 				const recording = await this.recorder.stop()
-				Tunnel.apply(() => {
-					return modifyCell(shared.nogan, {
-						id: this.tunnel.id,
-						key: this.recordingKey,
-					})
-				})
 				if (ArrowOfRecording.recordingArrows.size <= 1) {
 					Tone.Master.mute = false
 				}
@@ -256,6 +250,12 @@ export class ArrowOfRecording extends Entity {
 				this.recordingKey = ArrowOfRecording.recordings.add({
 					url: this.url,
 					duration: this.recordingDuration.get(),
+				})
+				Tunnel.apply(() => {
+					return modifyCell(shared.nogan, {
+						id: this.tunnel.id,
+						key: this.recordingKey,
+					})
 				})
 				if (!this.fromClick) {
 					this.onFire()
