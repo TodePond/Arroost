@@ -62,48 +62,61 @@ export const unimplemented = () => {
 	throw new Error("Unimplemented")
 }
 
-//========//
-// Lookup //
-//========//
-export class Lookup {
+//================//
+// SharedResource //
+//================//
+export class SharedResource {
+	/**
+	 * @type {Map<number, {
+	 * 	value: any,
+	 *  count: number,
+	 * }>}
+	 **/
+	map = new Map()
+
 	constructor() {
-		this.map = new Map()
 		this.freeKeys = new ArrayStack()
 		this.nextKey = 0
 	}
 
 	/**
-	 * @param {number} key
-	 * @returns {any}
-	 */
-	get(key) {
-		return this.map.get(key)
-	}
-
-	/**
+	 * Add a value to the shared lookup, and use it.
 	 * @param {any} value
-	 * @returns {number} key
+	 * @returns {number}
 	 */
 	add(value) {
-		const key = this.createKey()
-		this.map.set(key, value)
+		const key = this.freeKeys.getLength() > 0 ? this.freeKeys.pop() : this.nextKey++
+		this.map.set(key, {
+			value,
+			count: 1,
+		})
 		return key
 	}
 
-	createKey() {
-		if (this.freeKeys.getLength() > 0) {
-			return this.freeKeys.pop()
-		}
-
-		return this.nextKey++
+	/**
+	 * Use an existing value in the shared lookup.
+	 * @param {number} key
+	 * @returns {any}
+	 */
+	use(key) {
+		const entry = this.map.get(key)?.value
+		if (!entry) throw new Error(`SharedLookup: Key ${key} does not exist`)
+		entry.count++
+		return entry.value
 	}
 
 	/**
+	 * Stop using a value in the shared lookup.
 	 * @param {number} key
 	 */
-	remove(key) {
-		this.map.delete(key)
-		this.freeKeys.push(key)
+	free(key) {
+		const entry = this.map.get(key)
+		if (!entry) throw new Error(`SharedLookup: Key ${key} does not exist`)
+		entry.count--
+		if (entry.count === 0) {
+			this.map.delete(key)
+			this.freeKeys.push(key)
+		}
 	}
 }
 
@@ -820,16 +833,21 @@ export const archiveCell = (nogan, id) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * 	filter?: (id: CellId) => boolean,
+ *  key?: number | null,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
+	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.tag = tag ?? cell.tag
+	if (key !== undefined) {
+		// @ts-expect-error: validation will catch this anyway
+		cell.key = key
+	}
 	clearCache(nogan)
 
 	if (propogate) {

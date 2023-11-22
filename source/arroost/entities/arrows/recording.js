@@ -11,7 +11,14 @@ import {
 	subtract,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, MIDDLE_C, shared } from "../../../main.js"
-import { Lookup, createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
+import {
+	SharedResource,
+	createCell,
+	fireCell,
+	getCell,
+	modifyCell,
+	t,
+} from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -27,7 +34,7 @@ import { ArrowOfNoise } from "./noise.js"
 
 export class ArrowOfRecording extends Entity {
 	static recordingArrows = new Set()
-	static recordings = new Lookup()
+	static recordings = new SharedResource()
 
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
@@ -46,6 +53,12 @@ export class ArrowOfRecording extends Entity {
 
 	/** @type {Signal<number | null>} */
 	recordingDuration = this.use(null)
+
+	/** @type {number | null} */
+	recordingKey = null
+
+	/** @type {string | null} */
+	url = null
 
 	/** @type {Signal<Vector2D | null>} */
 	startPosition = this.use(null)
@@ -217,6 +230,14 @@ export class ArrowOfRecording extends Entity {
 				this.startPosition.set(this.dom.transform.position.get())
 
 				const recording = await this.recorder.stop()
+				this.recordingKey = ArrowOfRecording.recordings.add(recording)
+				print(this.recordingKey)
+				Tunnel.apply(() => {
+					return modifyCell(shared.nogan, {
+						id: this.tunnel.id,
+						key: this.recordingKey,
+					})
+				})
 				if (ArrowOfRecording.recordingArrows.size <= 1) {
 					Tone.Master.mute = false
 				}
@@ -232,7 +253,7 @@ export class ArrowOfRecording extends Entity {
 				if (!this.url) {
 					throw new Error("Tried to play a recording that doesn't have a url")
 				}
-				const player = await createPlayer(this.url, this.pitch.get())
+				const player = await createPlayer(this.url)
 				player.toDestination()
 				player.playbackRate = 1 + this.pitch.get() / 1000
 				const diff = Tone.now() + this.noiseTime.get()
@@ -258,6 +279,9 @@ export class ArrowOfRecording extends Entity {
 		if (ArrowOfRecording.recordingArrows.size <= 1) {
 			Tone.Master.mute = false
 		}
+		if (this.recordingKey !== null) {
+			ArrowOfRecording.recordings.free(this.recordingKey)
+		}
 		this.recorder.dispose()
 		this.microphone.dispose()
 		super.dispose()
@@ -265,12 +289,9 @@ export class ArrowOfRecording extends Entity {
 }
 
 /**
- *
  * @param {string} url
- * @param {number} pitch
- * @returns
  */
-async function createPlayer(url, pitch) {
+async function createPlayer(url) {
 	return new Promise((resolve) => {
 		const player = new Tone.Player({
 			url,
