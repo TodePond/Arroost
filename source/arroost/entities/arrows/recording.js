@@ -217,6 +217,8 @@ export class ArrowOfRecording extends Entity {
 	fromClick = false
 
 	async onFire() {
+		const cell = getCell(shared.nogan, this.tunnel.id)
+		if (cell.tag.justCreated) return
 		if (this.recordingBusy.get()) return
 		switch (this.recordingState.get()) {
 			case "idle": {
