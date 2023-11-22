@@ -70,14 +70,17 @@ export class ArrowOfRecording extends Entity {
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 *  recordingKey?: number | null
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { type: "recording", position }).id,
+		recordingKey = null,
 	} = {}) {
 		super()
 
+		console.log(recordingKey)
 		triggerCounter()
 
 		// Attach components
