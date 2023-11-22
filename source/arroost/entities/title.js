@@ -23,6 +23,7 @@ export class Title extends Entity {
 		element.style.animation = "fade-in 5s ease-in forwards"
 
 		addEventListener("pointerdown", () => this.dispose(), { once: true })
+		addEventListener("keydown", () => this.dispose(), { once: true })
 	}
 
 	dispose() {
