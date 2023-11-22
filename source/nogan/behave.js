@@ -98,7 +98,7 @@ const creation = (args) => {
 		}
 	} else {
 		// Set the template to recording if it's not already set
-		template = c({ type: "recording" })
+		template = c({ type: "recording", key: null })
 	}
 
 	// If the pulse arrives at a slot, create a cell from the template
