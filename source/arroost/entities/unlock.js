@@ -46,6 +46,14 @@ export const unlocks = c({
  **/
 const _unlocksType = unlocks
 
+export function unlockEverything() {
+	for (const key in unlocks) {
+		const unlock = unlocks[key]
+		unlock.unlocked = true
+	}
+	replenishUnlocks(true)
+}
+
 export function replenishUnlocks(immediately = false) {
 	const caller = immediately ? Tunnel.apply.bind(Tunnel) : Tunnel.schedule.bind(Tunnel)
 

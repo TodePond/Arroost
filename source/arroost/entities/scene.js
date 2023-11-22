@@ -121,6 +121,7 @@ export class Scene extends Entity {
 		}, [this.focusMode])
 		this.layer.hud.append(this.focusModeIndicator.dom)
 
+		addEventListener("keydown", () => replenishUnlocks(true), { once: true })
 		addEventListener("pointerdown", () => replenishUnlocks(true), { once: true })
 	}
 
