@@ -178,7 +178,7 @@ declare type StopperCell = { type: "stopper" }
 
 // For real
 declare type SlotCell = { type: "slot" }
-declare type RecordingCell = { type: "recording" }
+declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }

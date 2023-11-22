@@ -62,6 +62,94 @@ export const unimplemented = () => {
 	throw new Error("Unimplemented")
 }
 
+//================//
+// SharedResource //
+//================//
+export class SharedResource {
+	/**
+	 * @type {Map<number, {
+	 * 	value: any,
+	 *  count: number,
+	 * }>}
+	 **/
+	map = new Map()
+
+	constructor() {
+		this.freeKeys = new ArrayStack()
+		this.nextKey = 0
+	}
+
+	/**
+	 * Add a value to the shared lookup, and use it.
+	 * @param {any} value
+	 * @returns {number}
+	 */
+	add(value) {
+		const key = this.freeKeys.getLength() > 0 ? this.freeKeys.pop() : this.nextKey++
+		this.map.set(key, {
+			value,
+			count: 1,
+		})
+		return key
+	}
+
+	/**
+	 * Use an existing value in the shared lookup.
+	 * @param {number} key
+	 * @returns {any}
+	 */
+	use(key) {
+		const entry = this.map.get(key)
+		if (!entry) throw new Error(`SharedLookup: Key ${key} does not exist`)
+		entry.count++
+		return entry.value
+	}
+
+	/**
+	 * Stop using a value in the shared lookup.
+	 * @param {number} key
+	 */
+	free(key) {
+		const entry = this.map.get(key)
+		if (!entry) throw new Error(`SharedLookup: Key ${key} does not exist`)
+		entry.count--
+		if (entry.count === 0) {
+			this.map.delete(key)
+			this.freeKeys.push(key)
+		}
+	}
+}
+
+//============//
+// ArrayStack //
+//============//
+export class ArrayStack {
+	/**
+	 * @param {Iterable<any>} iterable
+	 */
+	constructor(iterable = []) {
+		this.array = [...iterable]
+	}
+
+	getLength() {
+		return this.array.length
+	}
+
+	/**
+	 * @param {any} value
+	 */
+	push(value) {
+		this.array.push(value)
+	}
+
+	/**
+	 * @returns {any}
+	 */
+	pop() {
+		return this.array.pop()
+	}
+}
+
 //=========//
 // Memoise //
 //=========//
@@ -247,10 +335,29 @@ export const getClone = (nogan) => {
 
 /**
  * Get a clone of a cell.
- * @param {Cell} cell
+ * @template {Cell} T
+ * @param {T} cell
  * @returns {Cell}
  */
 export const getCellClone = (cell) => {
+	if (cell.type === "recording") {
+		const clone = {
+			type: cell.type,
+			id: cell.id,
+			parent: cell.parent,
+			position: c([cell.position[0], cell.position[1]]),
+			cells: [...cell.cells],
+			inputs: [...cell.inputs],
+			outputs: [...cell.outputs],
+			fire: getFireClone(cell.fire),
+			tag: { ...cell.tag },
+			key: cell.key,
+		}
+
+		validate(clone, N.Cell)
+		return clone
+	}
+
 	const clone = {
 		type: cell.type,
 		id: cell.id,
@@ -726,16 +833,21 @@ export const archiveCell = (nogan, id) => {
  * 	past?: Nogan[],
  * 	future?: Nogan[],
  * 	filter?: (id: CellId) => boolean,
+ *  key?: number | null,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
+	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.tag = tag ?? cell.tag
+	if (key !== undefined) {
+		// @ts-expect-error: validation will catch this anyway
+		cell.key = key
+	}
 	clearCache(nogan)
 
 	if (propogate) {

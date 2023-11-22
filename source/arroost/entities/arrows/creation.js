@@ -105,11 +105,23 @@ export class ArrowOfCreation extends Entity {
 		return new Pulling()
 	}
 
+	/**
+	 * @param {Entity} entity
+	 */
+	getTemplateArgs(entity) {
+		if (entity instanceof ArrowOfRecording) {
+			return { recordingKey: entity.recordingKey }
+		}
+
+		return {}
+	}
+
 	onTargetingPointerUp(e) {
 		// If the thing is cloneable, let's continue targeting.
 		// TODO: This should be whatever we pointer-down'd on, not what we pointer-up'd on.
 		if (e.state.target.isCloneable()) {
 			this.template = e.state.target.entity.constructor
+			this.templateArgs = this.getTemplateArgs(e.state.target.entity)
 			this.source = e.state.target
 			this.targets.add(e.state.target)
 			e.state.target.entity.dom.style.bringToFront()
@@ -120,9 +132,12 @@ export class ArrowOfCreation extends Entity {
 		// If it's not cloneable, let's create a new thing!
 
 		// Make the entity.
-		const dummy = new this.template({
+		/** @type {any} */
+		const dummyArgs = {
 			position: shared.pointer.transform.absolutePosition.get(),
-		})
+			...this.templateArgs,
+		}
+		const dummy = new this.template(dummyArgs)
 
 		// Add it to the scene.
 		shared.scene.layer.cell.append(dummy.dom)
