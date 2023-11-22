@@ -99,7 +99,7 @@ export class SharedResource {
 	 * @returns {any}
 	 */
 	use(key) {
-		const entry = this.map.get(key)?.value
+		const entry = this.map.get(key)
 		if (!entry) throw new Error(`SharedLookup: Key ${key} does not exist`)
 		entry.count++
 		return entry.value

@@ -80,7 +80,6 @@ export class ArrowOfRecording extends Entity {
 	} = {}) {
 		super()
 
-		console.log(recordingKey)
 		triggerCounter()
 
 		// Attach components
@@ -162,6 +161,15 @@ export class ArrowOfRecording extends Entity {
 			const diff = -(-FIFTH * 2 - x)
 			return diff / FULL
 		})
+
+		if (recordingKey !== null) {
+			this.recordingKey = recordingKey
+			this.recordingState.set("sound")
+			const { url, duration } = ArrowOfRecording.recordings.use(recordingKey)
+			this.url = url
+			this.startPosition.set(this.dom.transform.position.get())
+			this.recordingDuration.set(duration)
+		}
 	}
 
 	onClick() {
@@ -245,7 +253,10 @@ export class ArrowOfRecording extends Entity {
 				this.recordingState.set("sound")
 				this.recordingBusy.set(false)
 				this.url = URL.createObjectURL(recording)
-				this.recordingKey = ArrowOfRecording.recordings.add(this.url)
+				this.recordingKey = ArrowOfRecording.recordings.add({
+					url: this.url,
+					duration: this.recordingDuration.get(),
+				})
 				if (!this.fromClick) {
 					this.onFire()
 				}
