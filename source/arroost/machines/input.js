@@ -5,6 +5,7 @@ import { Input } from "../components/input.js"
 import { Tunnel } from "../components/tunnel.js"
 import { ArrowOfRecording } from "../entities/arrows/recording.js"
 import { fireTool, selectTool } from "../entities/tool.js"
+import { unlockEverything } from "../entities/unlock.js"
 import { triggerRightClickPity } from "../input/wheel.js"
 import { InputState } from "./input-state.js"
 // import { replenishUnlocks } from "../entities/unlock.js"
@@ -27,6 +28,11 @@ export class Hovering extends InputState {
 
 	keydown({ ctrlKey, metaKey, key }) {
 		switch (key.toLowerCase()) {
+			case "q": {
+				unlockEverything()
+				return
+			}
+
 			case " ": {
 				return new Handing()
 			}
