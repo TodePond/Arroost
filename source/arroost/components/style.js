@@ -98,6 +98,8 @@ export const Style = class extends Component {
 			},
 			[this.stroke, this.strokeWidth, this.shadow],
 		)
+		this.useStyle(element, "border-color", this.stroke)
+		this.useStyle(element, "border-width", this.strokeWidth, (value) => value + "px")
 	}
 
 	/**

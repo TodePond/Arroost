@@ -19,7 +19,7 @@ export class Targeter extends Entity {
 		this.target = this.attach(new Transform({ parent: this.dom.transform }))
 		this.dom.style.stroke.set(WHITE.toString())
 		this.dom.style.strokeWidth.set(QUARTER)
-		this.dom.style.strokeLineCap.set("round")
+		this.dom.style.strokeLineCap.set("butt")
 		this.dom.render = () => this.render()
 	}
 

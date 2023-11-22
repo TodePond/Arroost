@@ -19,8 +19,9 @@ import { progressUnlock, unlocks } from "../unlock.js"
 import { ArrowOfRecording } from "./recording.js"
 import { Targeter } from "../shapes/targeter.js"
 import { TextInput } from "../shapes/text-input.js"
+import { ArrowOfTyping } from "./typing.js"
 
-export class ArrowOfText extends Entity {
+export class ArrowOfWriting extends Entity {
 	pulling = this.use(false)
 
 	constructor({ id = createCell(shared.nogan, { type: "dummy" }).id, position = t([0, 0]) }) {
@@ -32,7 +33,7 @@ export class ArrowOfText extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "text",
+				id: "writing",
 				type: "html",
 				input: this.input,
 				position,
@@ -75,7 +76,7 @@ export class ArrowOfText extends Entity {
 		])
 
 		// Styles!
-		this.front.dom.transform.scale.set([3 / 4, 3 / 4])
+		this.front.dom.transform.scale.set([1 / 4, 3 / 4])
 		setCellStyles({
 			front: this.front.dom,
 			back: this.back.dom,
@@ -96,10 +97,14 @@ export class ArrowOfText extends Entity {
 
 	onTargetingPointerUp(e) {
 		// Make the entity.
-		const textInput = new TextInput()
+		const textInput = new ArrowOfTyping({
+			position: shared.pointer.transform.absolutePosition.get(),
+		})
 
 		// Add it to the scene.
 		shared.scene.layer.cell.append(textInput.dom)
+
+		textInput.front.dom.getElement()?.focus()
 
 		// Fire myself!
 		this.tunnel.isFiring.set(true)
