@@ -62,6 +62,81 @@ export const unimplemented = () => {
 	throw new Error("Unimplemented")
 }
 
+//========//
+// Lookup //
+//========//
+export class Lookup {
+	constructor() {
+		this.map = new Map()
+		this.freeKeys = new ArrayStack()
+		this.nextKey = 0
+	}
+
+	/**
+	 * @param {number} key
+	 * @returns {any}
+	 */
+	get(key) {
+		return this.map.get(key)
+	}
+
+	/**
+	 * @param {any} value
+	 * @returns {number} key
+	 */
+	add(value) {
+		const key = this.createKey()
+		this.map.set(key, value)
+		return key
+	}
+
+	createKey() {
+		if (this.freeKeys.getLength() > 0) {
+			return this.freeKeys.pop()
+		}
+
+		return this.nextKey++
+	}
+
+	/**
+	 * @param {number} key
+	 */
+	remove(key) {
+		this.map.delete(key)
+		this.freeKeys.push(key)
+	}
+}
+
+//============//
+// ArrayStack //
+//============//
+export class ArrayStack {
+	/**
+	 * @param {Iterable<any>} iterable
+	 */
+	constructor(iterable = []) {
+		this.array = [...iterable]
+	}
+
+	getLength() {
+		return this.array.length
+	}
+
+	/**
+	 * @param {any} value
+	 */
+	push(value) {
+		this.array.push(value)
+	}
+
+	/**
+	 * @returns {any}
+	 */
+	pop() {
+		return this.array.pop()
+	}
+}
+
 //=========//
 // Memoise //
 //=========//

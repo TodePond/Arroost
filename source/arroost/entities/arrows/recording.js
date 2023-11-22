@@ -11,7 +11,7 @@ import {
 	subtract,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, MIDDLE_C, shared } from "../../../main.js"
-import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
+import { Lookup, createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -27,6 +27,7 @@ import { ArrowOfNoise } from "./noise.js"
 
 export class ArrowOfRecording extends Entity {
 	static recordingArrows = new Set()
+	static recordings = new Lookup()
 
 	recorder = new Tone.Recorder()
 	microphone = new Tone.UserMedia().connect(this.recorder)
