@@ -15,7 +15,6 @@ export class TextInput extends Entity {
 		this.dom.style.fill.set("transparent")
 		this.dom.style.stroke.set("transparent")
 		this.dom.style.strokeWidth.set(0)
-		this.dom.style.pointerEvents.set("all")
 
 		const container = this.dom.getContainer()
 		container.style.width = "100vw"
@@ -65,5 +64,11 @@ export class TextInput extends Entity {
 		"keypress",
 	]
 
-	stopIt = (event) => event.stopPropagation()
+	stopIt = (event) => {
+		// Only block pointermove if focused
+		if (event.type === "pointermove" && document.activeElement !== this.dom.getElement()) {
+			return
+		}
+		event.stopPropagation()
+	}
 }

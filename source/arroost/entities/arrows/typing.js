@@ -70,9 +70,6 @@ export class ArrowOfTyping extends Entity {
 		this.front.dom.style.fontSize.set((height * 2) / 3)
 		this.front.dom.style.fontFamily.set("Rosario")
 		const element = this.front.dom.getElement()
-		const container = this.front.dom.getContainer()
-		if (container) {
-		}
 		if (element) {
 			element.style.outline = "none"
 		}
