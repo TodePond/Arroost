@@ -322,10 +322,29 @@ export const getClone = (nogan) => {
 
 /**
  * Get a clone of a cell.
- * @param {Cell} cell
+ * @template {Cell} T
+ * @param {T} cell
  * @returns {Cell}
  */
 export const getCellClone = (cell) => {
+	if (cell.type === "recording") {
+		const clone = {
+			type: cell.type,
+			id: cell.id,
+			parent: cell.parent,
+			position: c([cell.position[0], cell.position[1]]),
+			cells: [...cell.cells],
+			inputs: [...cell.inputs],
+			outputs: [...cell.outputs],
+			fire: getFireClone(cell.fire),
+			tag: { ...cell.tag },
+			key: cell.key,
+		}
+
+		validate(clone, N.Cell)
+		return clone
+	}
+
 	const clone = {
 		type: cell.type,
 		id: cell.id,
