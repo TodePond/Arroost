@@ -230,8 +230,6 @@ export class ArrowOfRecording extends Entity {
 				this.startPosition.set(this.dom.transform.position.get())
 
 				const recording = await this.recorder.stop()
-				this.recordingKey = ArrowOfRecording.recordings.add(recording)
-				print(this.recordingKey)
 				Tunnel.apply(() => {
 					return modifyCell(shared.nogan, {
 						id: this.tunnel.id,
@@ -244,6 +242,7 @@ export class ArrowOfRecording extends Entity {
 				this.recordingState.set("sound")
 				this.recordingBusy.set(false)
 				this.url = URL.createObjectURL(recording)
+				this.recordingKey = ArrowOfRecording.recordings.add(this.url)
 				if (!this.fromClick) {
 					this.onFire()
 				}
