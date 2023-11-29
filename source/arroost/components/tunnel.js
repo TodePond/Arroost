@@ -223,7 +223,7 @@ export const CELL_CONSTRUCTORS = {
 	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
 	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
 
-	time: () => {
+	timing: () => {
 		throw new Error("Time cells cannot be created programmatically")
 	},
 	stopper: () => {
