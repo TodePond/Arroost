@@ -1,53 +1,38 @@
 import { getCell, modifyCell } from "./nogan.js"
 
-/**
- * Modify a cell.
- * @type {Operate<ModifyOperation>}
- */
-const modify = (nogan, { id, template }) => {
-	return modifyCell(nogan, { id, ...template })
-}
-
-/**
- * Placeholder: Do nothing.
- * @type {Operate<Operation>}
- */
-const noop = () => []
-
-/**
- * Print 'pong' to the console?
- * Just for testing purposes.
- * @type {Operate<PongOperation>}
- */
-const pong = () => {
-	// console.log("pong")
-	return []
-}
-
-/**
- * Tag a cell.
- * @type {Operate<TagOperation>}
- */
-const tag = (nogan, { id, key, value = true }) => {
-	const cell = getCell(nogan, id)
-	const tag = {
-		...cell.tag,
-		[key]: value,
-	}
-	return modifyCell(nogan, { id, tag })
-}
-
 /** @type {OperationMap} */
 export const OPERATIONS = {
-	modify,
-	pong,
-	tag,
+	/** Modify a cell */
+	modify(nogan, { id, template }) {
+		return modifyCell(nogan, { id, ...template })
+	},
+
+	/**
+	 * Print 'pong' to the console?
+	 * Just for testing purposes.
+	 */
+	pong() {
+		// console.log("pong")
+		return []
+	},
+
+	/** Tag a cell */
+	tag(nogan, { id, key, value = true }) {
+		const cell = getCell(nogan, id)
+		const tag = {
+			...cell.tag,
+			[key]: value,
+		}
+		return modifyCell(nogan, { id, tag })
+	},
 
 	// These are just for reporting purposes
 	// They've already happened!
 	// So we don't need to do anything else
-	fired: noop,
-	unfired: noop,
-	binned: noop,
-	moved: noop,
+	fired: () => [],
+	unfired: () => [],
+	moved: () => [],
+	binned: () => {
+		throw new Error("Binned operation are never sent.... right?")
+	},
 }

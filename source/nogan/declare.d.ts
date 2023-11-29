@@ -43,6 +43,7 @@ declare type Wire = {
 	timing: Timing
 	source: CellId
 	target: CellId
+	cell: CellId | null
 }
 
 //=======//
@@ -182,7 +183,7 @@ declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
-declare type TimingCell = { type: "timing"; timing: Timing }
+declare type TimingCell = { type: "timing"; timing: Timing; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
 
 //========//

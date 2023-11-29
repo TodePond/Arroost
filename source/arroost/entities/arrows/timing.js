@@ -43,14 +43,27 @@ export class ArrowOfTiming extends Entity {
 	 *  wire: WireId
 	 * }} options
 	 */
-	constructor({
-		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "timing", position }).id,
-		wire,
-	}) {
+	constructor({ position = t([0, 0]), id, wire }) {
 		super()
 
 		triggerCounter()
+
+		if (id === undefined) {
+			const cell = createCell(shared.nogan, { type: "timing" })
+			Tunnel.apply(() => {
+				const operations = modifyCell(shared.nogan, {
+					id: cell.id,
+					wire,
+				})
+				const wireOperations = modifyWire(shared.nogan, {
+					id: wire,
+					cell: cell.id,
+				})
+				operations.push(...wireOperations)
+				return operations
+			})
+			id = cell.id
+		}
 
 		// Attach components
 		this.input = this.attach(new Input(this))

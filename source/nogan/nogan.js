@@ -340,22 +340,43 @@ export const getClone = (nogan) => {
  * @returns {Cell}
  */
 export const getCellClone = (cell) => {
-	if (cell.type === "recording") {
-		const clone = {
-			type: cell.type,
-			id: cell.id,
-			parent: cell.parent,
-			position: c([cell.position[0], cell.position[1]]),
-			cells: [...cell.cells],
-			inputs: [...cell.inputs],
-			outputs: [...cell.outputs],
-			fire: getFireClone(cell.fire),
-			tag: { ...cell.tag },
-			key: cell.key,
+	switch (cell.type) {
+		case "recording": {
+			const clone = {
+				type: cell.type,
+				id: cell.id,
+				parent: cell.parent,
+				position: c([cell.position[0], cell.position[1]]),
+				cells: [...cell.cells],
+				inputs: [...cell.inputs],
+				outputs: [...cell.outputs],
+				fire: getFireClone(cell.fire),
+				tag: { ...cell.tag },
+				key: cell.key,
+			}
+
+			validate(clone, N.Cell)
+			return clone
 		}
 
-		validate(clone, N.Cell)
-		return clone
+		case "timing": {
+			const clone = {
+				type: cell.type,
+				id: cell.id,
+				parent: cell.parent,
+				position: c([cell.position[0], cell.position[1]]),
+				cells: [...cell.cells],
+				inputs: [...cell.inputs],
+				outputs: [...cell.outputs],
+				fire: getFireClone(cell.fire),
+				tag: { ...cell.tag },
+				wire: cell.wire,
+				timing: cell.timing,
+			}
+
+			validate(clone, N.Cell)
+			return clone
+		}
 	}
 
 	const clone = {
@@ -401,6 +422,7 @@ export const getWireClone = (wire) => {
 		target: wire.target,
 		colour: wire.colour,
 		timing: wire.timing,
+		cell: wire.cell,
 	}
 	validate(clone, N.Wire)
 	return clone
@@ -841,19 +863,24 @@ export const archiveCell = (nogan, id) => {
  * 	future?: Nogan[],
  * 	filter?: (id: CellId) => boolean,
  *  key?: number | null,
+ *  wire?: WireId | null,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key },
+	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key, wire },
 ) => {
 	const cell = getCell(nogan, id)
 	cell.type = type ?? cell.type
 	cell.tag = tag ?? cell.tag
 	if (key !== undefined) {
-		// @ts-expect-error: validation will catch this anyway
+		// @ts-expect-error: cba
 		cell.key = key
+	}
+	if (wire !== undefined) {
+		// @ts-expect-error: cba
+		cell.wire = wire
 	}
 	clearCache(nogan)
 
@@ -1014,12 +1041,22 @@ export const binWire = (
 		targetCell.inputs.splice(targetIndex, 1)
 	}
 
+	/** @type {Operation[]} */
+	const operations = [c({ type: "binned", id })]
+
+	if (wire.cell !== null) {
+		const cellCell = getCell(nogan, wire.cell, { check })
+		if (cellCell) {
+			const cellOperations = binCell(nogan, { id: wire.cell, mode, check: false, past, future })
+			operations.push(...cellOperations)
+		}
+	}
+
 	binWireId(nogan, { mode, id: wire.id, check: false })
 
-	const binnedOperation = c({ type: "binned", id })
 	if (propogate) {
-		const operations = refresh(nogan, { past, future })
-		operations.push(binnedOperation)
+		const refreshOperations = refresh(nogan, { past, future })
+		operations.push(...refreshOperations)
 		return operations
 	}
 
@@ -1029,7 +1066,7 @@ export const binWire = (
 		validate(nogan, N.Nogan)
 	}
 
-	return [binnedOperation]
+	return operations
 }
 
 /**
@@ -1081,16 +1118,18 @@ export const getWires = (nogan) => {
  * 	propogate?: boolean,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
+ * 	cell?: CellId,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyWire = (
 	nogan,
-	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
+	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [], cell },
 ) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
+	wire.cell = cell ?? wire.cell
 	clearCache(nogan)
 
 	if (propogate) {
