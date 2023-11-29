@@ -159,37 +159,29 @@ export class ArrowOfTiming extends Entity {
 	}
 
 	onClick(e) {
-		switch (this.timing.get()) {
-			case 0: {
-				this.timing.set(1)
-				break
-			}
-			case 1: {
-				this.timing.set(-1)
-				break
-			}
-			case -1: {
-				this.timing.set(0)
-				break
-			}
-		}
+		// switch (this.timing.get()) {
+		// 	case 0: {
+		// 		this.timing.set(1)
+		// 		break
+		// 	}
+		// 	case 1: {
+		// 		this.timing.set(-1)
+		// 		break
+		// 	}
+		// 	case -1: {
+		// 		this.timing.set(0)
+		// 		break
+		// 	}
+		// }
 
-		ArrowOfConnection.timing = this.timing.get()
+		// ArrowOfConnection.timing = this.timing.get()
 
-		Tunnel.apply(() => {
-			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
-		})
-
-		// Tunnel.perform(() => {
-		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
+		// Tunnel.apply(() => {
+		// 	return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
 		// })
-		// === Debug ===
-		// const dummy = new Dummy()
-		// shared.scene.dom.append(dummy.dom)
-		// const angle = Math.random() * Math.PI * 2
-		// const speed = 15
-		// const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-		// dummy.dom.transform.position.set(this.dom.transform.position.get())
-		// dummy.carry.movement.velocity.set(velocity)
+
+		Tunnel.schedule(() => {
+			return fireCell(shared.nogan, { id: this.tunnel.id })
+		})
 	}
 }
