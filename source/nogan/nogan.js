@@ -668,6 +668,7 @@ export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0
 	nogan.items[id] = cell
 
 	const parentCell = getCell(nogan, parent)
+	if (!parentCell) throw new Error(`Couldn't find parent cell ${parent}`)
 	parentCell.cells.push(id)
 
 	clearCache(nogan)
@@ -682,7 +683,7 @@ export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0
  * @param {Nogan} nogan
  * @param {CellId} id
  * @param {{check?: boolean}} options
- * @returns {Cell}
+ * @returns {Cell | null}
  */
 export const getCell = (nogan, id, { check = true } = {}) => {
 	const cell = nogan.items[id]
@@ -744,6 +745,10 @@ export const giveChild = (nogan, { source = 0, target, child }) => {
 	const targetCell = getCell(nogan, target)
 	const childCell = getCell(nogan, child)
 
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
+	if (!childCell) throw new Error(`Couldn't find child cell ${child}`)
+
 	const sourceIndex = sourceCell.cells.indexOf(child)
 	sourceCell.cells.splice(sourceIndex, 1)
 
@@ -793,6 +798,7 @@ export const binCell = (
 	{ id, mode = "delete", check = true, propogate = false, past = [], future = [] },
 ) => {
 	const cell = getCell(nogan, id, { check })
+	if (!cell) throw new Error(`Couldn't find cell ${id} to delete`)
 	const parentCell = getCell(nogan, cell.parent, { check })
 	if (parentCell) {
 		const index = parentCell.cells.indexOf(id)
@@ -872,6 +878,7 @@ export const modifyCell = (
 	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key, wire },
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to modify`)
 	cell.type = type ?? cell.type
 	cell.tag = tag ?? cell.tag
 	if (key !== undefined) {
@@ -911,6 +918,7 @@ export const moveCell = (
 	{ id, position, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to move`)
 	cell.position = position
 	clearCache(nogan)
 
@@ -962,6 +970,8 @@ export const createWire = (
 
 	const sourceCell = getCell(nogan, source)
 	const targetCell = getCell(nogan, target)
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
 	sourceCell.outputs.push(id)
 	targetCell.inputs.push(id)
 	clearCache(nogan)
@@ -1195,6 +1205,7 @@ export const fireCell = (
 	},
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to fire`)
 	const { fire } = cell
 	const current = fire[colour]
 	if (objectEquals(current, pulse)) return []
@@ -1406,6 +1417,7 @@ export const getPeak = (
  */
 const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() }) => {
 	const cell = getCell(nogan, id)
+	if (!cell) return createPeak()
 	const { fire } = cell
 	const pulse = fire[colour]
 

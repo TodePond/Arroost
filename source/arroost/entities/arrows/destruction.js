@@ -124,26 +124,24 @@ export class ArrowOfDestruction extends Entity {
 
 		this.tunnel.isFiring.set(true)
 		Tunnel.schedule(() => {
+			if (!getCell(shared.nogan, this.tunnel.id)) return []
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
-
-		replenishUnlocks()
 
 		Tunnel.schedule(() => {
 			const id = target.entity.tunnel.id
 			if (id < 0) {
 				throw new Error("Wait, you clicked on a wire? How??")
-			} else {
-				let wireOperations = []
-				const cell = getCell(shared.nogan, id)
-				if (cell.type === "timing") {
-					const wire = getWire(shared.nogan, cell.wire)
-					wireOperations = deleteWire(shared.nogan, wire.id)
-				}
-				const operations = deleteCell(shared.nogan, id)
-				operations.push(...wireOperations)
-				return operations
 			}
+			const cell = getCell(shared.nogan, id)
+			if (!cell) return []
+			if (cell.type === "timing") {
+				const wire = getWire(shared.nogan, cell.wire)
+				return deleteWire(shared.nogan, wire.id)
+			}
+			const operations = deleteCell(shared.nogan, id)
+			replenishUnlocks()
+			return operations
 		})
 	}
 }

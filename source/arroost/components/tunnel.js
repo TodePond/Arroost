@@ -165,11 +165,12 @@ const TUNNELS = {
 	},
 	modify: ({ id, template }) => {
 		const tunnel = Tunnel.tunnels.get(id)
-		if (!tunnel) throw new Error(`Tunnel: Can't modify cell ${id} does not exist`)
+		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to modify`)
 		if (template.type !== undefined) {
 			const entity = tunnel.entity
 			const position = entity.dom.transform.position.get()
 			const oldCell = getCell(shared.nogan, id)
+			if (!oldCell) throw new Error(`Tunnel: Can't find cell ${id} to modify`)
 
 			const inputEntities = oldCell.inputs
 				.map((input) => Tunnel.tunnels.get(input)?.entity)

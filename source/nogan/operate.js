@@ -19,6 +19,7 @@ export const OPERATIONS = {
 	/** Tag a cell */
 	tag(nogan, { id, key, value = true }) {
 		const cell = getCell(nogan, id)
+		if (!cell) throw new Error(`Couldn't find cell ${id} to tag`)
 		const tag = {
 			...cell.tag,
 			[key]: value,
