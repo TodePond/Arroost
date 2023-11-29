@@ -1,5 +1,5 @@
 import { randomBetween, add } from "../../libraries/habitat-import.js"
-import { c, createPeak, getCell, getTemplate, t } from "./nogan.js"
+import { c, createPeak, getCell, getTemplate, getWire, t } from "./nogan.js"
 
 /**
  * The ping pulse is for testing purposes.
@@ -7,14 +7,16 @@ import { c, createPeak, getCell, getTemplate, t } from "./nogan.js"
  * It can be stopped by a stopper cell.
  * @type {Behave<PingPulse>}
  */
-const ping = ({ nogan, previous, next, target }) => {
+const ping = ({ nogan, previous, peak, target }) => {
 	const targetCell = getCell(nogan, target)
+	if (!targetCell) throw new Error(`Couldn't find cell ${target} to ping`)
+
 	// Don't spread to 'stopper' cells
 	if (targetCell.type === "stopper") return previous
 
 	// Send a pong operation!
 	return {
-		...next,
+		...peak,
 		operations: [c({ type: "pong" })],
 	}
 }
@@ -26,54 +28,80 @@ const ping = ({ nogan, previous, next, target }) => {
  * @type {Behave<RawPulse>}
  */
 const raw = (args) => {
-	const { nogan, source, previous, next, ...rest } = args
+	const { nogan, source, previous, peak, target } = args
 	const sourceCell = getCell(nogan, source)
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
 	switch (sourceCell.type) {
 		// If the pulse is coming from a creation cell
 		// ... turn it into a creation pulse
-		case "creation":
+		case "creation": {
 			return creation({
 				nogan,
 				source,
 				previous,
-				next: {
-					...next,
+				target,
+				peak: {
+					...peak,
 					pulse: c({
 						type: "creation",
 						template: null,
 					}),
 				},
-				...rest,
 			})
-		case "destruction":
+		}
+		case "destruction": {
 			return destruction({
 				nogan,
 				source,
 				previous,
-				next: {
-					...next,
+				target,
+				peak: {
+					...peak,
 					pulse: c({ type: "destruction" }),
 				},
-				...rest,
 			})
-		// case "dummy-creation": {
-		// 	const angle = Math.random() * Math.PI * 2
-		// 	const distance = randomBetween(15, 30)
-		// 	const displacement = t([Math.cos(angle) * distance, Math.sin(angle) * distance])
-		// 	const position = add(sourceCell.position, displacement)
-		// 	return {
-		// 		...next,
-		// 		operations: [
-		// 			// c({
-		// 			// 	type: "create",
-		// 			// 	template: c({ type: "dummy" }),
-		// 			// 	position,
-		// 			// }),
-		// 		],
-		// 	}
-		// }
+		}
 	}
-	return previous.result ? previous : next
+
+	const targetCell = getCell(nogan, target)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
+
+	switch (targetCell.type) {
+		case "timing": {
+			const wire = getWire(nogan, targetCell.wire)
+			if (!wire) throw new Error(`Couldn't find wire ${targetCell.wire}`)
+			return {
+				...peak,
+				operations: [
+					c({
+						type: "modifyWire",
+						id: wire.id,
+						template: c({
+							type: "timing",
+							timing: getNextTiming(wire.timing),
+						}),
+					}),
+				],
+			}
+		}
+	}
+
+	return peak
+}
+
+/**
+ * @param {Timing} timing
+ * @returns {Timing}
+ */
+export const getNextTiming = (timing) => {
+	switch (timing) {
+		case -1:
+			return 0
+		case 0:
+			return 1
+		case 1:
+			return -1
+	}
 }
 
 /**
@@ -84,13 +112,17 @@ const raw = (args) => {
  * @type {Behave<CreationPulse>}
  */
 const creation = (args) => {
-	const { nogan, source, target, previous, next } = args
+	const { nogan, source, target, previous, peak } = args
 	const sourceCell = getCell(nogan, source)
 	const targetCell = getCell(nogan, target)
+
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
+
 	// If the target was just created, don't create from it
 	if (targetCell.tag.justCreated) return previous
 
-	let template = next.pulse.template
+	let template = peak.pulse.template
 	if (template) {
 		// Change the template to any cloneable cell that the pulse travels through
 		if (CLONEABLE_CELLS.has(sourceCell.type)) {
@@ -106,7 +138,7 @@ const creation = (args) => {
 		return createPeak({
 			operations: [
 				c({
-					type: "modify",
+					type: "modifyCell",
 					id: target,
 					template,
 				}),
@@ -123,7 +155,7 @@ const creation = (args) => {
 	}
 
 	// Otherwise, carry on through
-	return c({ ...next, pulse: { ...next.pulse, template }, final: true })
+	return c({ ...peak, pulse: { ...peak.pulse, template }, final: true })
 }
 
 /**
@@ -131,21 +163,22 @@ const creation = (args) => {
  * They change the destroyable cell into a slot cell.
  * @type {Behave<DestructionPulse>}
  */
-const destruction = ({ nogan, target, next }) => {
+const destruction = ({ nogan, target, peak }) => {
 	const targetCell = getCell(nogan, target)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
 
 	if (DESTROYABLE_CELLS.has(targetCell.type)) {
 		return createPeak({
 			operations: [
 				c({
-					type: "modify",
+					type: "modifyCell",
 					id: target,
 					template: c({ type: "slot" }),
 				}),
 			],
 		})
 	}
-	return next
+	return peak
 }
 
 const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])

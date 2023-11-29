@@ -480,7 +480,7 @@ describe("projecting", () => {
 
 		const { projection } = getProjection(nogan)
 		const projectedCell = getCell(projection, cell.id)
-		assertEquals(projectedCell.fire.blue, null)
+		assertEquals(projectedCell?.fire.blue, null)
 	})
 
 	it("ends fires of children", () => {
@@ -495,8 +495,8 @@ describe("projecting", () => {
 		const { projection } = getProjection(nogan)
 		const projectedParent = getCell(projection, parent.id)
 		const projectedChild = getCell(projection, child.id)
-		assertEquals(projectedParent.fire.blue, null)
-		assertEquals(projectedChild.fire.blue, null)
+		assertEquals(projectedParent?.fire.blue, null)
+		assertEquals(projectedChild?.fire.blue, null)
 	})
 
 	it("only ends fires of children with firing parents", () => {
@@ -510,8 +510,8 @@ describe("projecting", () => {
 		const { projection } = getProjection(nogan)
 		const projectedParent = getCell(projection, parent.id)
 		const projectedChild = getCell(projection, child.id)
-		assertEquals(projectedParent.fire.blue, null)
-		assertEquals(projectedChild.fire.blue, { type: "raw" })
+		assertEquals(projectedParent?.fire.blue, null)
+		assertEquals(projectedChild?.fire.blue, { type: "raw" })
 	})
 
 	it("clears tags", () => {
@@ -521,7 +521,7 @@ describe("projecting", () => {
 		assertEquals(cell.tag, { foo: "bar" })
 		const { projection } = getProjection(nogan)
 		const projectedCell = getCell(projection, cell.id)
-		assertEquals(projectedCell.tag, {})
+		assertEquals(projectedCell?.tag, {})
 	})
 })
 
@@ -1308,8 +1308,8 @@ describe("advancing", () => {
 		const { advanced } = getAdvanced(nogan)
 		const sourceAfter = getCell(advanced, source.id)
 		const targetAfter = getCell(advanced, target.id)
-		assert(!sourceAfter.fire.blue)
-		assert(!targetAfter.fire.blue)
+		assert(!sourceAfter?.fire.blue)
+		assert(!targetAfter?.fire.blue)
 	})
 
 	it("unfires cells with firing parents", () => {
@@ -1324,8 +1324,8 @@ describe("advancing", () => {
 		const { advanced } = getAdvanced(nogan)
 		const parentAfter = getCell(advanced, parent.id)
 		const childAfter = getCell(advanced, child.id)
-		assert(!parentAfter.fire.blue)
-		assert(!childAfter.fire.blue)
+		assert(!parentAfter?.fire.blue)
+		assert(!childAfter?.fire.blue)
 	})
 
 	it("doesn't unfire cells with firing children", () => {
@@ -1339,8 +1339,8 @@ describe("advancing", () => {
 		const { advanced } = getAdvanced(nogan)
 		const parentAfter = getCell(advanced, parent.id)
 		const childAfter = getCell(advanced, child.id)
-		assert(!parentAfter.fire.blue)
-		assert(childAfter.fire.blue)
+		assert(!parentAfter?.fire.blue)
+		assert(childAfter?.fire.blue)
 	})
 
 	it("fires from the present", () => {
@@ -1355,8 +1355,8 @@ describe("advancing", () => {
 		const { advanced } = getAdvanced(nogan)
 		const sourceAfter = getCell(advanced, source.id)
 		const targetAfter = getCell(advanced, target.id)
-		assert(!sourceAfter.fire.blue)
-		assert(targetAfter.fire.blue)
+		assert(!sourceAfter?.fire.blue)
+		assert(targetAfter?.fire.blue)
 	})
 
 	it("fires from the real past", () => {
@@ -1374,9 +1374,9 @@ describe("advancing", () => {
 		const sourceAfter = getCell(advanced, source.id)
 		const middleAfter = getCell(advanced, middle.id)
 		const targetAfter = getCell(advanced, target.id)
-		assert(!sourceAfter.fire.blue)
-		assert(!middleAfter.fire.blue)
-		assert(targetAfter.fire.blue)
+		assert(!sourceAfter?.fire.blue)
+		assert(!middleAfter?.fire.blue)
+		assert(targetAfter?.fire.blue)
 	})
 
 	it("fires from the imagined future", () => {
@@ -1395,10 +1395,10 @@ describe("advancing", () => {
 		const middle1After = getCell(advanced, middle1.id)
 		const middle2After = getCell(advanced, middle2.id)
 		const targetAfter = getCell(advanced, target.id)
-		assert(!sourceAfter.fire.blue)
-		assert(middle1After.fire.blue)
-		assert(!middle2After.fire.blue)
-		assert(targetAfter.fire.blue)
+		assert(!sourceAfter?.fire.blue)
+		assert(middle1After?.fire.blue)
+		assert(!middle2After?.fire.blue)
+		assert(targetAfter?.fire.blue)
 	})
 })
 describe("operation", () => {
@@ -1488,7 +1488,7 @@ describe("creation", () => {
 		const slot = createCell(nogan, { type: "slot" })
 		createWire(nogan, { source: creation.id, target: slot.id })
 		const [operation] = fireCell(nogan, { id: creation.id })
-		assertEquals(operation.type === "modify" && operation.template.type, "recording")
+		assertEquals(operation.type === "modifyCell" && operation.template.type, "recording")
 		assertEquals(slot.type, "recording")
 	})
 
@@ -1522,12 +1522,12 @@ describe("creation", () => {
 		const { advanced } = getAdvanced(nogan)
 		const slot1After = getCell(advanced, slot1.id)
 		const slot2After = getCell(advanced, slot2.id)
-		assertEquals(slot1After.type, "recording")
-		assertEquals(slot2After.type, "slot")
+		assertEquals(slot1After?.type, "recording")
+		assertEquals(slot2After?.type, "slot")
 
 		fireCell(advanced, { id: creation.id })
-		assertEquals(slot1After.type, "recording")
-		assertEquals(slot2After.type, "recording")
+		assertEquals(slot1After?.type, "recording")
+		assertEquals(slot2After?.type, "recording")
 	})
 
 	it("creates when advancing", () => {
@@ -1538,7 +1538,7 @@ describe("creation", () => {
 		fireCell(nogan, { id: creation.id })
 		const { advanced } = getAdvanced(nogan)
 		const slotAfter = getCell(advanced, slot.id)
-		assertEquals(slotAfter.type, "recording")
+		assertEquals(slotAfter?.type, "recording")
 	})
 
 	it("creates with gaps", () => {
@@ -1562,7 +1562,7 @@ describe("creation", () => {
 		fireCell(nogan, { id: creation.id })
 		const { advanced } = getAdvanced(nogan)
 		const slotAfter = getCell(advanced, slot.id)
-		assertEquals(slotAfter.type, "recording")
+		assertEquals(slotAfter?.type, "recording")
 	})
 
 	it("clones cloneable cells", () => {

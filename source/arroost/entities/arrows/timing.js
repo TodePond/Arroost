@@ -31,6 +31,7 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Triangle } from "../shapes/triangle.js"
 import { ArrowOfConnection } from "./connection.js"
+import { getNextTiming } from "../../../nogan/behave.js"
 
 export class ArrowOfTiming extends Entity {
 	/** @type {Signal<Timing>} */
@@ -120,7 +121,7 @@ export class ArrowOfTiming extends Entity {
 		this.use(() => {
 			if (this.timing.get() !== -1) return
 			this.earlyFront.dom.style.fill.set(this.front.dom.style.fill.get())
-		}, [this.timing, this.back.dom.style.fill])
+		}, [this.timing, this.front.dom.style.fill])
 
 		this.use(() => {
 			const timing = this.timing.get()
@@ -172,29 +173,32 @@ export class ArrowOfTiming extends Entity {
 	}
 
 	onClick(e) {
-		// switch (this.timing.get()) {
-		// 	case 0: {
-		// 		this.timing.set(1)
-		// 		break
-		// 	}
-		// 	case 1: {
-		// 		this.timing.set(-1)
-		// 		break
-		// 	}
-		// 	case -1: {
-		// 		this.timing.set(0)
-		// 		break
-		// 	}
-		// }
+		switch (this.timing.get()) {
+			case 0: {
+				this.timing.set(1)
+				break
+			}
+			case 1: {
+				this.timing.set(-1)
+				break
+			}
+			case -1: {
+				this.timing.set(0)
+				break
+			}
+		}
 
-		// ArrowOfConnection.timing = this.timing.get()
+		ArrowOfConnection.timing = this.timing.get()
 
-		// Tunnel.apply(() => {
-		// 	return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
-		// })
-
-		Tunnel.schedule(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
+		Tunnel.perform(() => {
+			const wire = getWire(shared.nogan, this.wire)
+			if (!wire) throw new Error(`Couldn't find wire ${this.wire}`)
+			const timing = this.timing.get()
+			this.timing.set(timing)
+			const fireOperations = fireCell(shared.nogan, { id: this.tunnel.id })
+			const modifyOperations = modifyWire(shared.nogan, { id: wire.id, timing })
+			fireOperations.push(...modifyOperations)
+			return fireOperations
 		})
 	}
 }

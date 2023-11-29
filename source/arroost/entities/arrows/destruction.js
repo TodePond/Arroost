@@ -123,12 +123,12 @@ export class ArrowOfDestruction extends Entity {
 		}
 
 		this.tunnel.isFiring.set(true)
-		Tunnel.schedule(() => {
+		Tunnel.perform(() => {
 			if (!getCell(shared.nogan, this.tunnel.id)) return []
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		Tunnel.schedule(() => {
+		Tunnel.perform(() => {
 			const id = target.entity.tunnel.id
 			if (id < 0) {
 				throw new Error("Wait, you clicked on a wire? How??")

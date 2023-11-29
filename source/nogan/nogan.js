@@ -371,7 +371,6 @@ export const getCellClone = (cell) => {
 				fire: getFireClone(cell.fire),
 				tag: { ...cell.tag },
 				wire: cell.wire,
-				timing: cell.timing,
 			}
 
 			validate(clone, N.Cell)
@@ -1445,7 +1444,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 			source: wire.source,
 			target: wire.target,
 			previous: peak,
-			next: inputPeak,
+			peak: inputPeak,
 		})
 		if (peak.final) return peak // this may cause issues. it's just for perf. remove if necessary
 	}
@@ -1478,12 +1477,12 @@ export const isFiring = (nogan, { id }) => {
  *  source: CellId,
  *  target: CellId,
  *  previous: Peak,
- *  next: SuccessPeak,
+ *  peak: SuccessPeak,
  * }} options
  */
-const getBehavedPeak = ({ nogan, source, target, previous, next }) => {
-	const behave = getBehave(next.pulse)
-	const behaved = behave({ nogan, source, target, previous, next })
+const getBehavedPeak = ({ nogan, source, target, previous, peak }) => {
+	const behave = getBehave(peak.pulse)
+	const behaved = behave({ nogan, source, target, previous, peak })
 	validate(behaved, N.Peak)
 	return behaved
 }

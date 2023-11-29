@@ -90,7 +90,7 @@ declare type Behave<T extends Pulse> = ({
 	source: CellId
 	target: CellId
 	previous: Peak
-	next: SuccessPeak & { pulse: T }
+	peak: SuccessPeak & { pulse: T }
 }) => Peak
 
 declare type BehaviourMap = {
@@ -183,7 +183,7 @@ declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
-declare type TimingCell = { type: "timing"; timing: Timing; wire: WireId }
+declare type TimingCell = { type: "timing"; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
 
 //========//
@@ -215,16 +215,26 @@ declare type MovedOperation = { type: "moved"; id: CellId; position: Vector2D }
 //========================//
 // Instruction operations //
 //========================//
-type InstructionOperation = ModifyOperation | PongOperation | TagOperation
+type InstructionOperation =
+	| ModifyCellOperation
+	| PongOperation
+	| TagOperation
+	| ModifyWireOperation
 
 // For debugging
 declare type PongOperation = { type: "pong" }
 
 // For real
-declare type ModifyOperation = {
-	type: "modify"
+declare type ModifyCellOperation = {
+	type: "modifyCell"
 	id: CellId
 	template: Partial<CellTemplate>
+}
+
+declare type ModifyWireOperation = {
+	type: "modifyWire"
+	id: WireId
+	template: Partial<{ colour: WireColour; timing: Timing }>
 }
 
 declare type TagOperation = {
