@@ -45,7 +45,7 @@ export class ArrowOfTiming extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "time", position }).id,
+		id = createCell(shared.nogan, { type: "timing", position }).id,
 		wire,
 	}) {
 		super()
@@ -57,7 +57,7 @@ export class ArrowOfTiming extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { destroyable: true, entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "time",
+				id: "timing",
 				type: "html",
 				input: this.input,
 				position,

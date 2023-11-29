@@ -167,7 +167,7 @@ type CellTemplate =
 	| RecordingCell
 	| StopperCell
 	| ConnectionCell
-	| TimeCell
+	| TimingCell
 
 // Required
 declare type RootCell = { type: "root" }
@@ -182,7 +182,7 @@ declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
-declare type TimeCell = { type: "time" }
+declare type TimingCell = { type: "timing" }
 declare type ConnectionCell = { type: "connection" }
 
 //========//
