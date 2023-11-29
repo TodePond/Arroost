@@ -1,6 +1,6 @@
 import { equals } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { getCell, isFiring, moveCell } from "../../nogan/nogan.js"
+import { getCell, getWire, isFiring, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
@@ -13,6 +13,7 @@ import { ArrowOfRecording } from "../entities/arrows/recording.js"
 import { ArrowOfSlot } from "../entities/arrows/slot.js"
 import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
 import { ArrowOfConnection } from "../entities/arrows/connection.js"
+import { ArrowOfTiming } from "../entities/arrows/timing.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -87,16 +88,14 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {{
-	 *   concrete?: boolean
 	 *   destroyable?: boolean | undefined
-	 *   entity: Entity & {dom: Dom; input?: Input}
+	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming}
 	 * }} options
 	 **/
-	constructor(id, { concrete = true, destroyable, entity }) {
+	constructor(id, { destroyable, entity }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
-		this.concrete = concrete
 		this.destroyable = destroyable
 		this.entity = entity
 		Tunnel.tunnels.set(id, this)
@@ -144,9 +143,18 @@ export class Tunnel extends Component {
 	/**
 	 * @param {Partial<CellTemplate>} template
 	 */
-	applyTemplate(template) {
+	applyCellTemplate(template) {
 		// Currently, no cells have any extra properties.
 		// So there's nothing to do here!!!
+	}
+
+	/**
+	 * @param {Partial<{ timing: Timing }>} template
+	 */
+	applyWireTemplate(template) {
+		if (template.timing !== undefined) {
+			this.entity.flaps?.timing?.set(template.timing)
+		}
 	}
 }
 
@@ -165,13 +173,19 @@ const TUNNELS = {
 		if (!tunnel) return
 		tunnel.isFiring.set(false)
 	},
-	modify: ({ id, template }) => {
+	modifyWire: ({ id, template }) => {
 		const tunnel = Tunnel.tunnels.get(id)
-		if (!tunnel) throw new Error(`Tunnel: Can't modify cell ${id} does not exist`)
+		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to modify`)
+		tunnel.applyWireTemplate(template)
+	},
+	modifyCell: ({ id, template }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to modify`)
 		if (template.type !== undefined) {
 			const entity = tunnel.entity
 			const position = entity.dom.transform.position.get()
 			const oldCell = getCell(shared.nogan, id)
+			if (!oldCell) throw new Error(`Tunnel: Can't find cell ${id} to modify`)
 
 			const inputEntities = oldCell.inputs
 				.map((input) => Tunnel.tunnels.get(input)?.entity)
@@ -202,7 +216,7 @@ const TUNNELS = {
 			return
 		}
 
-		tunnel.applyTemplate(template)
+		tunnel.applyCellTemplate(template)
 	},
 	binned: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
@@ -225,7 +239,7 @@ export const CELL_CONSTRUCTORS = {
 	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
 	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
 
-	time: () => {
+	timing: () => {
 		throw new Error("Time cells cannot be created programmatically")
 	},
 	stopper: () => {

@@ -340,22 +340,42 @@ export const getClone = (nogan) => {
  * @returns {Cell}
  */
 export const getCellClone = (cell) => {
-	if (cell.type === "recording") {
-		const clone = {
-			type: cell.type,
-			id: cell.id,
-			parent: cell.parent,
-			position: c([cell.position[0], cell.position[1]]),
-			cells: [...cell.cells],
-			inputs: [...cell.inputs],
-			outputs: [...cell.outputs],
-			fire: getFireClone(cell.fire),
-			tag: { ...cell.tag },
-			key: cell.key,
+	switch (cell.type) {
+		case "recording": {
+			const clone = {
+				type: cell.type,
+				id: cell.id,
+				parent: cell.parent,
+				position: c([cell.position[0], cell.position[1]]),
+				cells: [...cell.cells],
+				inputs: [...cell.inputs],
+				outputs: [...cell.outputs],
+				fire: getFireClone(cell.fire),
+				tag: { ...cell.tag },
+				key: cell.key,
+			}
+
+			validate(clone, N.Cell)
+			return clone
 		}
 
-		validate(clone, N.Cell)
-		return clone
+		case "timing": {
+			const clone = {
+				type: cell.type,
+				id: cell.id,
+				parent: cell.parent,
+				position: c([cell.position[0], cell.position[1]]),
+				cells: [...cell.cells],
+				inputs: [...cell.inputs],
+				outputs: [...cell.outputs],
+				fire: getFireClone(cell.fire),
+				tag: { ...cell.tag },
+				wire: cell.wire,
+			}
+
+			validate(clone, N.Cell)
+			return clone
+		}
 	}
 
 	const clone = {
@@ -401,6 +421,7 @@ export const getWireClone = (wire) => {
 		target: wire.target,
 		colour: wire.colour,
 		timing: wire.timing,
+		cell: wire.cell,
 	}
 	validate(clone, N.Wire)
 	return clone
@@ -646,6 +667,7 @@ export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0
 	nogan.items[id] = cell
 
 	const parentCell = getCell(nogan, parent)
+	if (!parentCell) throw new Error(`Couldn't find parent cell ${parent}`)
 	parentCell.cells.push(id)
 
 	clearCache(nogan)
@@ -660,7 +682,7 @@ export const createCell = (nogan, { parent = 0, type = "dummy", position = [0, 0
  * @param {Nogan} nogan
  * @param {CellId} id
  * @param {{check?: boolean}} options
- * @returns {Cell}
+ * @returns {Cell | null}
  */
 export const getCell = (nogan, id, { check = true } = {}) => {
 	const cell = nogan.items[id]
@@ -722,6 +744,10 @@ export const giveChild = (nogan, { source = 0, target, child }) => {
 	const targetCell = getCell(nogan, target)
 	const childCell = getCell(nogan, child)
 
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
+	if (!childCell) throw new Error(`Couldn't find child cell ${child}`)
+
 	const sourceIndex = sourceCell.cells.indexOf(child)
 	sourceCell.cells.splice(sourceIndex, 1)
 
@@ -771,6 +797,7 @@ export const binCell = (
 	{ id, mode = "delete", check = true, propogate = false, past = [], future = [] },
 ) => {
 	const cell = getCell(nogan, id, { check })
+	if (!cell) throw new Error(`Couldn't find cell ${id} to delete`)
 	const parentCell = getCell(nogan, cell.parent, { check })
 	if (parentCell) {
 		const index = parentCell.cells.indexOf(id)
@@ -841,19 +868,25 @@ export const archiveCell = (nogan, id) => {
  * 	future?: Nogan[],
  * 	filter?: (id: CellId) => boolean,
  *  key?: number | null,
+ *  wire?: WireId | null,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyCell = (
 	nogan,
-	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key },
+	{ id, type, tag, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter, key, wire },
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to modify`)
 	cell.type = type ?? cell.type
 	cell.tag = tag ?? cell.tag
 	if (key !== undefined) {
-		// @ts-expect-error: validation will catch this anyway
+		// @ts-expect-error: cba
 		cell.key = key
+	}
+	if (wire !== undefined) {
+		// @ts-expect-error: cba
+		cell.wire = wire
 	}
 	clearCache(nogan)
 
@@ -884,6 +917,7 @@ export const moveCell = (
 	{ id, position, propogate = PROPOGATE_DEFAULT, past = [], future = [], filter },
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to move`)
 	cell.position = position
 	clearCache(nogan)
 
@@ -935,6 +969,8 @@ export const createWire = (
 
 	const sourceCell = getCell(nogan, source)
 	const targetCell = getCell(nogan, target)
+	if (!sourceCell) throw new Error(`Couldn't find source cell ${source}`)
+	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
 	sourceCell.outputs.push(id)
 	targetCell.inputs.push(id)
 	clearCache(nogan)
@@ -1014,12 +1050,22 @@ export const binWire = (
 		targetCell.inputs.splice(targetIndex, 1)
 	}
 
+	/** @type {Operation[]} */
+	const operations = [c({ type: "binned", id })]
+
+	if (wire.cell !== null) {
+		const cellCell = getCell(nogan, wire.cell, { check })
+		if (cellCell) {
+			const cellOperations = binCell(nogan, { id: wire.cell, mode, check: false, past, future })
+			operations.push(...cellOperations)
+		}
+	}
+
 	binWireId(nogan, { mode, id: wire.id, check: false })
 
-	const binnedOperation = c({ type: "binned", id })
 	if (propogate) {
-		const operations = refresh(nogan, { past, future })
-		operations.push(binnedOperation)
+		const refreshOperations = refresh(nogan, { past, future })
+		operations.push(...refreshOperations)
 		return operations
 	}
 
@@ -1029,7 +1075,7 @@ export const binWire = (
 		validate(nogan, N.Nogan)
 	}
 
-	return [binnedOperation]
+	return operations
 }
 
 /**
@@ -1081,16 +1127,18 @@ export const getWires = (nogan) => {
  * 	propogate?: boolean,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
+ * 	cell?: CellId,
  * }} options
  * @returns {Operation[]}
  */
 export const modifyWire = (
 	nogan,
-	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
+	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [], cell },
 ) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
+	wire.cell = cell ?? wire.cell
 	clearCache(nogan)
 
 	if (propogate) {
@@ -1156,6 +1204,7 @@ export const fireCell = (
 	},
 ) => {
 	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to fire`)
 	const { fire } = cell
 	const current = fire[colour]
 	if (objectEquals(current, pulse)) return []
@@ -1367,6 +1416,7 @@ export const getPeak = (
  */
 const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() }) => {
 	const cell = getCell(nogan, id)
+	if (!cell) return createPeak()
 	const { fire } = cell
 	const pulse = fire[colour]
 
@@ -1394,7 +1444,7 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 			source: wire.source,
 			target: wire.target,
 			previous: peak,
-			next: inputPeak,
+			peak: inputPeak,
 		})
 		if (peak.final) return peak // this may cause issues. it's just for perf. remove if necessary
 	}
@@ -1427,12 +1477,12 @@ export const isFiring = (nogan, { id }) => {
  *  source: CellId,
  *  target: CellId,
  *  previous: Peak,
- *  next: SuccessPeak,
+ *  peak: SuccessPeak,
  * }} options
  */
-const getBehavedPeak = ({ nogan, source, target, previous, next }) => {
-	const behave = getBehave(next.pulse)
-	const behaved = behave({ nogan, source, target, previous, next })
+const getBehavedPeak = ({ nogan, source, target, previous, peak }) => {
+	const behave = getBehave(peak.pulse)
+	const behaved = behave({ nogan, source, target, previous, peak })
 	validate(behaved, N.Peak)
 	return behaved
 }

@@ -94,12 +94,14 @@ export class Scene extends Entity {
 
 		const layer = (this.layer = {
 			wire: new Dom({ id: "wire-layer", type: "html" }),
+			timing: new Dom({ id: "timing-layer", type: "html" }),
 			cell: new Dom({ id: "cell-layer", type: "html" }),
 			ghost: new Dom({ id: "ghost-layer", type: "html" }),
 			hud: new Dom({ id: "hud-layer", type: "html" }),
 		})
 
 		this.dom.append(layer.wire)
+		this.dom.append(layer.timing)
 		this.dom.append(layer.cell)
 		this.dom.append(layer.ghost)
 

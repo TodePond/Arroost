@@ -47,6 +47,9 @@ export const Style = class extends Component {
 	/** @type {Signal<number | null>} */
 	zIndex = this.use(null)
 
+	/** @type {Signal<null | "relative" | "absolute" | "fixed" | "sticky">} */
+	position = this.use(null)
+
 	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
 	static SHADOW_FILTER =
 		"drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.15))"
@@ -109,6 +112,7 @@ export const Style = class extends Component {
 		this.useStyle(container, "visibility", this.visibility)
 		this.useStyle(container, "z-index", this.zIndex)
 		this.useStyle(container, "cursor", this.cursor)
+		this.useStyle(container, "position", this.position)
 	}
 
 	/**

@@ -1,8 +1,8 @@
 import { shared } from "../../../main.js"
 import {
-	archiveCell,
-	archiveWire,
 	createCell,
+	deleteCell,
+	deleteWire,
 	fireCell,
 	getCell,
 	getWire,
@@ -123,39 +123,25 @@ export class ArrowOfDestruction extends Entity {
 		}
 
 		this.tunnel.isFiring.set(true)
-		Tunnel.apply(() => {
+		Tunnel.perform(() => {
+			if (!getCell(shared.nogan, this.tunnel.id)) return []
 			return fireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		replenishUnlocks()
-
-		// Meaty stuff. Probably don't need to do this? I dunno. Maybe it's more robust to stay in nogan-land actually...
-		Tunnel.apply(() => {
+		Tunnel.perform(() => {
 			const id = target.entity.tunnel.id
 			if (id < 0) {
-				return archiveWire(shared.nogan, id)
-			} else {
-				let wireOperations = []
-				const cell = getCell(shared.nogan, id)
-				if (cell.type === "time") {
-					const [sourceWireId, targetWireId] = cell.outputs
-					const sourceWire = getWire(shared.nogan, sourceWireId)
-					const targetWire = getWire(shared.nogan, targetWireId)
-					const sourceId = sourceWire.target
-					const targetId = targetWire.target
-					const source = getCell(shared.nogan, sourceId)
-					for (const output of source.outputs) {
-						const wire = getWire(shared.nogan, output)
-						if (wire.target === targetId) {
-							wireOperations = archiveWire(shared.nogan, output)
-							break
-						}
-					}
-				}
-				const operations = archiveCell(shared.nogan, id)
-				operations.push(...wireOperations)
-				return operations
+				throw new Error("Wait, you clicked on a wire? How??")
 			}
+			const cell = getCell(shared.nogan, id)
+			if (!cell) return []
+			if (cell.type === "timing") {
+				const wire = getWire(shared.nogan, cell.wire)
+				return deleteWire(shared.nogan, wire.id)
+			}
+			const operations = deleteCell(shared.nogan, id)
+			replenishUnlocks()
+			return operations
 		})
 	}
 }

@@ -31,6 +31,7 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Triangle } from "../shapes/triangle.js"
 import { ArrowOfConnection } from "./connection.js"
+import { getNextTiming } from "../../../nogan/behave.js"
 
 export class ArrowOfTiming extends Entity {
 	/** @type {Signal<Timing>} */
@@ -43,24 +44,34 @@ export class ArrowOfTiming extends Entity {
 	 *  wire: WireId
 	 * }} options
 	 */
-	constructor({
-		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "time", position }).id,
-		wire,
-	}) {
+	constructor({ position = t([0, 0]), id, wire }) {
 		super()
 
 		triggerCounter()
 
+		if (id === undefined) {
+			const cell = createCell(shared.nogan, { type: "timing" })
+			Tunnel.apply(() => {
+				const operations = modifyCell(shared.nogan, {
+					id: cell.id,
+					wire,
+				})
+				const wireOperations = modifyWire(shared.nogan, {
+					id: wire,
+					cell: cell.id,
+				})
+				operations.push(...wireOperations)
+				return operations
+			})
+			id = cell.id
+		}
+
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(
-			// TODO: This shouldn't be concrete (ie: not part of the nogan)
-			new Tunnel(id, { concrete: false, destroyable: true, entity: this }),
-		)
+		this.tunnel = this.attach(new Tunnel(id, { destroyable: true, entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "time",
+				id: "timing",
 				type: "html",
 				input: this.input,
 				position,
@@ -86,10 +97,10 @@ export class ArrowOfTiming extends Entity {
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.earlyFrontFront.dom.transform.scale.set([1 / 4, 1 / 4])
 		this.delayFront.dom.transform.scale.set([1 / 4, 1 / 4])
-
 		this.earlyFront.dom.transform.scale.set([((2 / 3) * 2) / 3, ((2 / 3) * 2) / 3])
 		// this.earlyFront.dom.transform.scale.set([1 / 7, 1 / 7])
 		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
+
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
@@ -110,7 +121,7 @@ export class ArrowOfTiming extends Entity {
 		this.use(() => {
 			if (this.timing.get() !== -1) return
 			this.earlyFront.dom.style.fill.set(this.front.dom.style.fill.get())
-		}, [this.timing, this.back.dom.style.fill])
+		}, [this.timing, this.front.dom.style.fill])
 
 		this.use(() => {
 			const timing = this.timing.get()
@@ -137,23 +148,23 @@ export class ArrowOfTiming extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
 		this.wire = wire
-		const _wire = getWire(shared.nogan, wire)
-		Tunnel.apply(() => {
-			const { wire: sourceWire, operations } = createWire(shared.nogan, {
-				target: _wire.source,
-				source: id,
-			})
-			this.sourceWire = sourceWire.id
-			return operations
-		})
-		Tunnel.apply(() => {
-			const { wire: targetWire, operations } = createWire(shared.nogan, {
-				target: _wire.target,
-				source: id,
-			})
-			this.sourceWire = targetWire.id
-			return operations
-		})
+		// const _wire = getWire(shared.nogan, wire)
+		// Tunnel.apply(() => {
+		// 	const { wire: sourceWire, operations } = createWire(shared.nogan, {
+		// 		target: _wire.source,
+		// 		source: id,
+		// 	})
+		// 	this.sourceWire = sourceWire.id
+		// 	return operations
+		// })
+		// Tunnel.apply(() => {
+		// 	const { wire: targetWire, operations } = createWire(shared.nogan, {
+		// 		target: _wire.target,
+		// 		source: id,
+		// 	})
+		// 	this.sourceWire = targetWire.id
+		// 	return operations
+		// })
 	}
 
 	onPointingPointerMove() {
@@ -179,20 +190,15 @@ export class ArrowOfTiming extends Entity {
 
 		ArrowOfConnection.timing = this.timing.get()
 
-		Tunnel.apply(() => {
-			return modifyWire(shared.nogan, { id: this.wire, timing: this.timing.get() })
+		Tunnel.perform(() => {
+			const wire = getWire(shared.nogan, this.wire)
+			if (!wire) throw new Error(`Couldn't find wire ${this.wire}`)
+			const timing = this.timing.get()
+			this.timing.set(timing)
+			const fireOperations = fireCell(shared.nogan, { id: this.tunnel.id })
+			const modifyOperations = modifyWire(shared.nogan, { id: wire.id, timing })
+			fireOperations.push(...modifyOperations)
+			return fireOperations
 		})
-
-		// Tunnel.perform(() => {
-		// 	return fireCell(shared.nogan, { id: this.tunnel.id })
-		// })
-		// === Debug ===
-		// const dummy = new Dummy()
-		// shared.scene.dom.append(dummy.dom)
-		// const angle = Math.random() * Math.PI * 2
-		// const speed = 15
-		// const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-		// dummy.dom.transform.position.set(this.dom.transform.position.get())
-		// dummy.carry.movement.velocity.set(velocity)
 	}
 }

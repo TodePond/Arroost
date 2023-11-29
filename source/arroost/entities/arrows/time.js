@@ -55,8 +55,10 @@ export class ArrowOfTime extends Entity {
 		// Render elements
 		this.line = this.attach(new Line())
 		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id }))
+
+		shared.scene.layer.timing.append(this.flaps.dom)
 		this.dom.append(this.line.dom)
-		this.dom.append(this.flaps.dom)
+		// this.dom.append(this.flaps.dom)
 
 		// Style elements
 		this.flaps.dom.style.fill.set(WHITE.toString())
