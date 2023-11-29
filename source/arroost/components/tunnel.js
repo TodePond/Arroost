@@ -87,16 +87,14 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {{
-	 *   concrete?: boolean
 	 *   destroyable?: boolean | undefined
 	 *   entity: Entity & {dom: Dom; input?: Input}
 	 * }} options
 	 **/
-	constructor(id, { concrete = true, destroyable, entity }) {
+	constructor(id, { destroyable, entity }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
-		this.concrete = concrete
 		this.destroyable = destroyable
 		this.entity = entity
 		Tunnel.tunnels.set(id, this)
