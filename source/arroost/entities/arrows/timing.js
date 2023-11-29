@@ -83,10 +83,10 @@ export class ArrowOfTiming extends Entity {
 		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.earlyFrontFront.dom.transform.scale.set([1 / 4, 1 / 4])
 		this.delayFront.dom.transform.scale.set([1 / 4, 1 / 4])
-
 		this.earlyFront.dom.transform.scale.set([((2 / 3) * 2) / 3, ((2 / 3) * 2) / 3])
 		// this.earlyFront.dom.transform.scale.set([1 / 7, 1 / 7])
 		// this.front.dom.transform.position.set([0, (FULL - Triangle.HEIGHT) / 2])
+
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
@@ -134,23 +134,23 @@ export class ArrowOfTiming extends Entity {
 		pointing.pointerup = this.onClick.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
 		this.wire = wire
-		const _wire = getWire(shared.nogan, wire)
-		Tunnel.apply(() => {
-			const { wire: sourceWire, operations } = createWire(shared.nogan, {
-				target: _wire.source,
-				source: id,
-			})
-			this.sourceWire = sourceWire.id
-			return operations
-		})
-		Tunnel.apply(() => {
-			const { wire: targetWire, operations } = createWire(shared.nogan, {
-				target: _wire.target,
-				source: id,
-			})
-			this.sourceWire = targetWire.id
-			return operations
-		})
+		// const _wire = getWire(shared.nogan, wire)
+		// Tunnel.apply(() => {
+		// 	const { wire: sourceWire, operations } = createWire(shared.nogan, {
+		// 		target: _wire.source,
+		// 		source: id,
+		// 	})
+		// 	this.sourceWire = sourceWire.id
+		// 	return operations
+		// })
+		// Tunnel.apply(() => {
+		// 	const { wire: targetWire, operations } = createWire(shared.nogan, {
+		// 		target: _wire.target,
+		// 		source: id,
+		// 	})
+		// 	this.sourceWire = targetWire.id
+		// 	return operations
+		// })
 	}
 
 	onPointingPointerMove() {
