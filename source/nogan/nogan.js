@@ -376,6 +376,24 @@ export const getCellClone = (cell) => {
 			validate(clone, N.Cell)
 			return clone
 		}
+
+		case "colour": {
+			const clone = {
+				type: cell.type,
+				id: cell.id,
+				parent: cell.parent,
+				position: c([cell.position[0], cell.position[1]]),
+				cells: [...cell.cells],
+				inputs: [...cell.inputs],
+				outputs: [...cell.outputs],
+				fire: getFireClone(cell.fire),
+				tag: { ...cell.tag },
+				wire: cell.wire,
+			}
+
+			validate(clone, N.Cell)
+			return clone
+		}
 	}
 
 	const clone = {
@@ -421,7 +439,7 @@ export const getWireClone = (wire) => {
 		target: wire.target,
 		colour: wire.colour,
 		timing: wire.timing,
-		cell: wire.cell,
+		cells: [...wire.cells],
 	}
 	validate(clone, N.Wire)
 	return clone
@@ -1053,11 +1071,19 @@ export const binWire = (
 	/** @type {Operation[]} */
 	const operations = [c({ type: "binned", id })]
 
-	if (wire.cell !== null) {
-		const cellCell = getCell(nogan, wire.cell, { check })
-		if (cellCell) {
-			const cellOperations = binCell(nogan, { id: wire.cell, mode, check: false, past, future })
-			operations.push(...cellOperations)
+	for (const cell of wire.cells) {
+		if (wire.cells !== null) {
+			const cellCell = getCell(nogan, cell, { check })
+			if (cellCell) {
+				const cellOperations = binCell(nogan, {
+					id: cell,
+					mode,
+					check: false,
+					past,
+					future,
+				})
+				operations.push(...cellOperations)
+			}
 		}
 	}
 
@@ -1127,18 +1153,18 @@ export const getWires = (nogan) => {
  * 	propogate?: boolean,
  * 	past?: Nogan[],
  * 	future?: Nogan[],
- * 	cell?: CellId,
+ * 	cells?: CellId[],
  * }} options
  * @returns {Operation[]}
  */
 export const modifyWire = (
 	nogan,
-	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [], cell },
+	{ id, colour, timing, propogate = PROPOGATE_DEFAULT, past = [], future = [], cells },
 ) => {
 	const wire = getWire(nogan, id)
 	wire.colour = colour ?? wire.colour
 	wire.timing = timing ?? wire.timing
-	wire.cell = cell ?? wire.cell
+	wire.cells = cells ?? wire.cells
 	clearCache(nogan)
 
 	if (propogate) {
@@ -1224,15 +1250,43 @@ export const fireCell = (
 	validate(pulse, N.Pulse)
 	return [firedOperation]
 }
-
 /**
- * @param {Pulse | undefined} a
- * @param {Pulse | undefined} b
+ * Fully fire a cell.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * 	colour?: PulseColour,
+ * 	pulse?: Pulse,
+ * 	propogate?: boolean,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
+ * }} options
+ * @returns {Operation[]}
  */
-export const pulseEquals = (a, b) => {
-	if (!a || !b) return false
-	if (a.type !== b.type) return false
-	return objectEquals(a, b)
+export const fullFireCell = (
+	nogan,
+	{ id, pulse = { type: "raw" }, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
+) => {
+	const operations = []
+	for (const colour of c(["red", "green", "blue"])) {
+		const fireOperations = fireCell(nogan, {
+			id,
+			colour,
+			pulse,
+			propogate: false,
+			past,
+			future,
+		})
+		operations.push(...fireOperations)
+	}
+
+	if (propogate) {
+		const refreshOperations = refresh(nogan, { past, future })
+		operations.push(...refreshOperations)
+		return operations
+	}
+
+	return operations
 }
 
 //=========//

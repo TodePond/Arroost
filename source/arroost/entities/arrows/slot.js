@@ -9,7 +9,14 @@ import {
 	equals,
 } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER, shared } from "../../../main.js"
-import { createCell, fireCell, getCell, modifyCell, t } from "../../../nogan/nogan.js"
+import {
+	createCell,
+	fireCell,
+	fullFireCell,
+	getCell,
+	modifyCell,
+	t,
+} from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
 import { Entity } from "../entity.js"
@@ -73,7 +80,7 @@ export class ArrowOfSlot extends Entity {
 
 	onPointingPointerUp(e) {
 		Tunnel.perform(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
+			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
 	}
 }

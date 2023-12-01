@@ -1,6 +1,6 @@
 import { State } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { fireCell } from "../../nogan/nogan.js"
+import { fireCell, fullFireCell } from "../../nogan/nogan.js"
 import { Input } from "../components/input.js"
 import { Tunnel } from "../components/tunnel.js"
 import { ArrowOfRecording } from "../entities/arrows/recording.js"
@@ -46,7 +46,7 @@ export class Hovering extends InputState {
 						arrow.recordingBusy.set(true)
 						Tunnel.schedule(() => {
 							arrow.recordingBusy.set(false)
-							return fireCell(shared.nogan, { id: arrow.tunnel.id })
+							return fullFireCell(shared.nogan, { id: arrow.tunnel.id })
 						})
 					}
 					return
@@ -60,7 +60,7 @@ export class Hovering extends InputState {
 				arrowOfRecording.recordingBusy.set(true)
 				Tunnel.schedule(() => {
 					arrowOfRecording.recordingBusy.set(false)
-					return fireCell(shared.nogan, { id: arrowOfRecording.tunnel.id })
+					return fullFireCell(shared.nogan, { id: arrowOfRecording.tunnel.id })
 				})
 				return
 			}
