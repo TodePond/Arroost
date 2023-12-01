@@ -43,7 +43,7 @@ declare type Wire = {
 	timing: Timing
 	source: CellId
 	target: CellId
-	cell: CellId | null
+	cells: CellId[]
 }
 
 //=======//
@@ -169,6 +169,7 @@ type CellTemplate =
 	| StopperCell
 	| ConnectionCell
 	| TimingCell
+	| ColourCell
 
 // Required
 declare type RootCell = { type: "root" }
@@ -184,6 +185,7 @@ declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
 declare type MagnetCell = { type: "magnet" }
 declare type TimingCell = { type: "timing"; wire: WireId }
+declare type ColourCell = { type: "colour"; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
 
 //========//

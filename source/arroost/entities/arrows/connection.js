@@ -1,6 +1,6 @@
 import { angleBetween, subtract } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, fullFireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -119,6 +119,9 @@ export class ArrowOfConnection extends Entity {
 	/** @type {Timing} */
 	static timing = 0
 
+	/** @type {WireColour} */
+	static colour = "any"
+
 	onTargetingPointerUp(e) {
 		if (this.source === this.input) {
 			this.source = null
@@ -177,7 +180,7 @@ export class ArrowOfConnection extends Entity {
 
 		// Let's fire, for good measure!
 		Tunnel.perform(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
+			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
 		// Unlock the next thing!

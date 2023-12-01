@@ -14,6 +14,7 @@ import { ArrowOfSlot } from "../entities/arrows/slot.js"
 import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
 import { ArrowOfConnection } from "../entities/arrows/connection.js"
 import { ArrowOfTiming } from "../entities/arrows/timing.js"
+import { ArrowOfColour } from "../entities/arrows/colour.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -89,7 +90,7 @@ export class Tunnel extends Component {
 	 * @param {CellId | WireId} id
 	 * @param {{
 	 *   destroyable?: boolean | undefined
-	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming}
+	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming; wireColour?: Signal<WireColour>}
 	 * }} options
 	 **/
 	constructor(id, { destroyable, entity }) {
@@ -149,11 +150,17 @@ export class Tunnel extends Component {
 	}
 
 	/**
-	 * @param {Partial<{ timing: Timing }>} template
+	 * @param {Partial<{ timing: Timing; colour: WireColour }>} template
 	 */
 	applyWireTemplate(template) {
 		if (template.timing !== undefined) {
 			this.entity.flaps?.timing?.set(template.timing)
+			return
+		}
+
+		if (template.colour !== undefined) {
+			this.entity.wireColour?.set(template.colour)
+			return
 		}
 	}
 }
@@ -239,12 +246,18 @@ export const CELL_CONSTRUCTORS = {
 	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
 	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
 
+	colour: () => {
+		throw new Error("Colour cells cannot be created programmatically")
+	},
+
 	timing: () => {
 		throw new Error("Time cells cannot be created programmatically")
 	},
+
 	stopper: () => {
 		throw new Error("Stopper cells are unimplemented")
 	},
+
 	root: () => {
 		throw new Error("Root cells cannot be created")
 	},

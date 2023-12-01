@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, fullFireCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -145,7 +145,7 @@ export class ArrowOfCreation extends Entity {
 		// Fire myself!
 		this.tunnel.isFiring.set(true)
 		Tunnel.perform(() => {
-			return fireCell(shared.nogan, { id: this.tunnel.id })
+			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
 		// Fire anything along the way!
@@ -153,7 +153,7 @@ export class ArrowOfCreation extends Entity {
 			target.targeted.set(false)
 			target.entity.tunnel.isFiring.set(true)
 			Tunnel.perform(() => {
-				return fireCell(shared.nogan, { id: target.entity.tunnel.id })
+				return fullFireCell(shared.nogan, { id: target.entity.tunnel.id })
 			})
 		}
 

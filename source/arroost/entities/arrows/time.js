@@ -1,4 +1,7 @@
 import {
+	BLUE,
+	GREEN,
+	RED,
 	WHITE,
 	angleBetween,
 	distanceBetween,
@@ -12,11 +15,14 @@ import { Tunnel } from "../../components/tunnel.js"
 import { Entity } from "../entity.js"
 import { Line } from "../shapes/line.js"
 import { Triangle } from "../shapes/triangle.js"
+import { ArrowOfColour } from "./colour.js"
 import { ArrowOfTiming } from "./timing.js"
 
 export class ArrowOfTime extends Entity {
+	/** @type {Signal<WireColour>} */
+	wireColour = this.use("any")
+
 	/**
-	 *
 	 * @param {{
 	 * 	id?: WireId
 	 *  target: Entity & {dom: Dom, tunnel: Tunnel}
@@ -55,14 +61,34 @@ export class ArrowOfTime extends Entity {
 		// Render elements
 		this.line = this.attach(new Line())
 		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id }))
+		this.colour = this.attach(new ArrowOfColour({ wire: this.tunnel.id }))
 
 		shared.scene.layer.timing.append(this.flaps.dom)
+		shared.scene.layer.timing.append(this.colour.dom)
 		this.dom.append(this.line.dom)
 		// this.dom.append(this.flaps.dom)
 
 		// Style elements
 		this.flaps.dom.style.fill.set(WHITE.toString())
 		this.flaps.dom.transform.scale.set([2 / 3, 2 / 3])
+		this.colour.dom.transform.scale.set([2 / 3, 2 / 3])
+
+		this.use(() => {
+			switch (this.wireColour.get()) {
+				case "red": {
+					return this.line.dom.style.stroke.set(RED.toString())
+				}
+				case "green": {
+					return this.line.dom.style.stroke.set(GREEN.toString())
+				}
+				case "blue": {
+					return this.line.dom.style.stroke.set(BLUE.toString())
+				}
+				default: {
+					return this.line.dom.style.stroke.set(WHITE.toString())
+				}
+			}
+		}, [this.wireColour])
 
 		this.reusePosition()
 	}
@@ -76,17 +102,21 @@ export class ArrowOfTime extends Entity {
 			const sourcePosition = this.source.dom.transform.absolutePosition.get()
 			const targetPosition = this.target.dom.transform.absolutePosition.get()
 			const distance = distanceBetween(sourcePosition, targetPosition)
-			const middleDistance = distance / 2
 
 			const angle = angleBetween(sourcePosition, targetPosition)
-			const middleDisplacement = rotate([middleDistance, 0], angle)
-			const middle = subtract(sourcePosition, middleDisplacement)
+			const twoThirdsDisplacement = rotate([(distance * 2) / 3, 0], angle)
+			const twoThirds = subtract(sourcePosition, twoThirdsDisplacement)
+			const thirdDisplacement = rotate([distance / 3, 0], angle)
+			const third = subtract(sourcePosition, thirdDisplacement)
 
 			this.line.dom.transform.setAbsolutePosition(sourcePosition)
 			this.line.target.setAbsolutePosition(targetPosition)
 
-			this.flaps.dom.transform.setAbsolutePosition(middle)
+			this.flaps.dom.transform.setAbsolutePosition(twoThirds)
 			this.flaps.dom.transform.rotation.set(angle + Math.PI / 2)
+
+			this.colour.dom.transform.setAbsolutePosition(third)
+			this.colour.dom.transform.rotation.set(angle + Math.PI / 2)
 		}, [this.target.dom.transform.absolutePosition, this.source.dom.transform.absolutePosition])
 	}
 }

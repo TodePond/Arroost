@@ -77,8 +77,23 @@ const raw = (args) => {
 						type: "modifyWire",
 						id: wire.id,
 						template: c({
-							type: "timing",
 							timing: getNextTiming(wire.timing),
+						}),
+					}),
+				],
+			}
+		}
+		case "colour": {
+			const wire = getWire(nogan, targetCell.wire)
+			if (!wire) throw new Error(`Couldn't find wire ${targetCell.wire}`)
+			return {
+				...peak,
+				operations: [
+					c({
+						type: "modifyWire",
+						id: wire.id,
+						template: c({
+							colour: getNextColour(wire.colour),
 						}),
 					}),
 				],
@@ -101,6 +116,24 @@ export const getNextTiming = (timing) => {
 			return 1
 		case 1:
 			return -1
+	}
+}
+
+/**
+ *
+ * @param {WireColour} colour
+ * @returns
+ */
+export const getNextColour = (colour) => {
+	switch (colour) {
+		case "any":
+			return "red"
+		case "red":
+			return "green"
+		case "green":
+			return "blue"
+		case "blue":
+			return "any"
 	}
 }
 

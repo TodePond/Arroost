@@ -13,6 +13,7 @@ import {
 	createCell,
 	createWire,
 	fireCell,
+	fullFireCell,
 	getCell,
 	getWire,
 	modifyCell,
@@ -51,6 +52,7 @@ export class ArrowOfTiming extends Entity {
 
 		if (id === undefined) {
 			const cell = createCell(shared.nogan, { type: "timing" })
+			const wireWire = getWire(shared.nogan, wire)
 			Tunnel.apply(() => {
 				const operations = modifyCell(shared.nogan, {
 					id: cell.id,
@@ -58,7 +60,7 @@ export class ArrowOfTiming extends Entity {
 				})
 				const wireOperations = modifyWire(shared.nogan, {
 					id: wire,
-					cell: cell.id,
+					cells: [...wireWire.cells, cell.id],
 				})
 				operations.push(...wireOperations)
 				return operations
@@ -195,7 +197,7 @@ export class ArrowOfTiming extends Entity {
 			if (!wire) throw new Error(`Couldn't find wire ${this.wire}`)
 			const timing = this.timing.get()
 			this.timing.set(timing)
-			const fireOperations = fireCell(shared.nogan, { id: this.tunnel.id })
+			const fireOperations = fullFireCell(shared.nogan, { id: this.tunnel.id })
 			const modifyOperations = modifyWire(shared.nogan, { id: wire.id, timing })
 			fireOperations.push(...modifyOperations)
 			return fireOperations

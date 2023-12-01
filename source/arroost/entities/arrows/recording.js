@@ -15,6 +15,7 @@ import {
 	SharedResource,
 	createCell,
 	fireCell,
+	fullFireCell,
 	getCell,
 	modifyCell,
 	t,
@@ -192,7 +193,7 @@ export class ArrowOfRecording extends Entity {
 				this.recordingBusy.set(true)
 				Tunnel.schedule(() => {
 					this.recordingBusy.set(false)
-					return fireCell(shared.nogan, { id: this.tunnel.id })
+					return fullFireCell(shared.nogan, { id: this.tunnel.id })
 				})
 				return
 			}
@@ -201,13 +202,13 @@ export class ArrowOfRecording extends Entity {
 				Tunnel.schedule(() => {
 					this.recordingBusy.set(false)
 					this.fromClick = true
-					return fireCell(shared.nogan, { id: this.tunnel.id })
+					return fullFireCell(shared.nogan, { id: this.tunnel.id })
 				})
 				return
 			}
 			case "sound": {
 				Tunnel.schedule(() => {
-					return fireCell(shared.nogan, { id: this.tunnel.id })
+					return fullFireCell(shared.nogan, { id: this.tunnel.id })
 				})
 				return
 			}

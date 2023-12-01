@@ -116,7 +116,7 @@ N.Wire = S.Struct({
 	target: N.CellId,
 	colour: N.WireColour,
 	timing: N.Timing,
-	cell: N.CellId.nullable(),
+	cells: S.ArrayOf(N.CellId),
 })
 
 //=======//
