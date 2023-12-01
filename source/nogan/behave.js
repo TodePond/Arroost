@@ -149,7 +149,7 @@ const destruction = ({ nogan, target, next }) => {
 }
 
 const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])
-const DESTROYABLE_CELLS = new Set(["recording", "destruction", "creation"])
+const DESTROYABLE_CELLS = new Set(["recording", "destruction", "creation", "connection"])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {
