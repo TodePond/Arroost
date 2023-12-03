@@ -38,11 +38,17 @@ export class ArrowOfReality extends Entity {
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 *  fire?: Fire
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { type: "reality", position }).id,
+		fire = {
+			red: null,
+			green: null,
+			blue: null,
+		},
 	} = {}) {
 		super()
 
@@ -81,6 +87,16 @@ export class ArrowOfReality extends Entity {
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
 		pointing.pointerup = this.onPointingPointerUp.bind(this)
+
+		Tunnel.perform(() => {
+			const operations = []
+			for (const key in fire) {
+				if (fire[key] === null) continue
+				// @ts-expect-error: cant be fucked to type Fire correctly
+				operations.push(...fireCell(shared.nogan, { id, colour: key }))
+			}
+			return operations
+		})
 	}
 
 	onPointingPointerUp(e) {
