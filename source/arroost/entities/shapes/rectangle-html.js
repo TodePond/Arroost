@@ -28,6 +28,7 @@ export class RectangleHtml extends Entity {
 			element.style.height = height + "px"
 			element.style.top = -height / 2 + "px"
 			element.style.width = width + "px"
+			element.style.left = -width / 2 + "px"
 		}, [this.dimensions])
 
 		return element

@@ -27,6 +27,7 @@ import { ArrowOfDummy } from "./dummy.js"
 import { replenishUnlocks, unlocks } from "../unlock.js"
 import { Targeter } from "../shapes/targeter.js"
 import { ArrowOfSlot } from "./slot.js"
+import { ArrowOfReality } from "./reality.js"
 
 export class ArrowOfDestruction extends Entity {
 	pulling = this.use(false)
@@ -121,7 +122,7 @@ export class ArrowOfDestruction extends Entity {
 	onTargetingPointerUp(e) {
 		const target = e.state.target
 		if (!target.isDestroyable()) {
-			const reality = new ArrowOfSlot({
+			const reality = new ArrowOfReality({
 				position: shared.pointer.transform.absolutePosition.get(),
 			})
 			shared.scene.layer.cell.append(reality.dom)

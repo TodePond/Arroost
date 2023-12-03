@@ -170,6 +170,7 @@ type CellTemplate =
 	| ConnectionCell
 	| TimingCell
 	| ColourCell
+	| RealityCell
 
 // Required
 declare type RootCell = { type: "root" }
@@ -178,15 +179,15 @@ declare type RootCell = { type: "root" }
 declare type DummyCell = { type: "dummy" }
 declare type StopperCell = { type: "stopper" }
 
-// For real
+// For arroost
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-declare type MagnetCell = { type: "magnet" }
 declare type TimingCell = { type: "timing"; wire: WireId }
 declare type ColourCell = { type: "colour"; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
+declare type RealityCell = { type: "reality" }
 
 //========//
 // Pulses //
