@@ -231,8 +231,11 @@ const TUNNELS = {
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
 		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
+		const wasFiring = tunnel.isFiring.get()
 		tunnel.fire.set(cell.fire)
-		tunnel.onFire()
+		if (!wasFiring && tunnel.isFiring.get()) {
+			tunnel.onFire()
+		}
 	},
 	unfired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)

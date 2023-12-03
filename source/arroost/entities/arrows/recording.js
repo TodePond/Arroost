@@ -198,7 +198,7 @@ export class ArrowOfRecording extends Entity {
 				return
 			}
 			case "recording": {
-				this.recordingBusy.set(false)
+				this.recordingBusy.set(true)
 				Tunnel.schedule(() => {
 					this.recordingBusy.set(false)
 					this.fromClick = true
