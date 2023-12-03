@@ -99,15 +99,29 @@ export class Tunnel extends Component {
 		if (!cell) return null
 		const fire = cell.fire
 
-		// TODO: make this non slow
-		if (fire.red && fire.green && fire.blue) return WHITE
-		if (fire.red && fire.green) return YELLOW
-		if (fire.red && fire.blue) return PINK
-		if (fire.green && fire.blue) return CYAN
-		if (fire.red) return RED
-		if (fire.green) return GREEN
-		if (fire.blue) return BLUE
-		return null
+		let splash = 0
+		if (fire.red) splash += 100
+		if (fire.green) splash += 10
+		if (fire.blue) splash += 1
+
+		switch (splash) {
+			case 0:
+				return null
+			case 100:
+				return RED
+			case 10:
+				return GREEN
+			case 1:
+				return BLUE
+			case 110:
+				return YELLOW
+			case 101:
+				return PINK
+			case 11:
+				return CYAN
+			case 111:
+				return WHITE
+		}
 	})
 
 	onFire = () => {}
