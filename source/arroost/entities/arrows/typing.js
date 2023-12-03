@@ -69,7 +69,7 @@ export class ArrowOfTyping extends Entity {
 		// Style elements
 		const height = (FULL * 3) / 4
 		this.back.dimensions.set([THIRD, height])
-		this.back.dom.transform.position.set([-THIRD / 2, 0])
+		// this.back.dom.transform.position.set([-THIRD / 2, 0])
 		// this.back.dom.transform.scale.set([2 / 3, 2 / 3])
 		// this.front.dom.transform.scale.set([1 / 3, 1 / 3])
 		this.front.dimensions.set(["200vw", height + "px"])
