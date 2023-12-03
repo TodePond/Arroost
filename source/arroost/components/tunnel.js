@@ -1,4 +1,14 @@
-import { equals } from "../../../libraries/habitat-import.js"
+import {
+	BLUE,
+	CYAN,
+	GREEN,
+	PINK,
+	PURPLE,
+	RED,
+	WHITE,
+	YELLOW,
+	equals,
+} from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { getCell, getWire, isFiring, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
@@ -81,8 +91,38 @@ export class Tunnel extends Component {
 	//==========//
 	// INSTANCE //
 	//==========//
-	// todo: initialise to what the cell/wire currently is
 	isFiring = this.use(false)
+
+	firingColour = this.use(() => {
+		if (!this.isFiring.get()) return null
+		const cell = getCell(shared.nogan, this.id)
+		if (!cell) return null
+		const fire = cell.fire
+
+		let splash = 0
+		if (fire.red) splash += 100
+		if (fire.green) splash += 10
+		if (fire.blue) splash += 1
+
+		switch (splash) {
+			case 0:
+				return null
+			case 100:
+				return RED
+			case 10:
+				return GREEN
+			case 1:
+				return BLUE
+			case 110:
+				return YELLOW
+			case 101:
+				return PINK
+			case 11:
+				return CYAN
+			case 111:
+				return WHITE
+		}
+	})
 
 	onFire = () => {}
 
