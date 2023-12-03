@@ -67,6 +67,20 @@ const raw = (args) => {
 	if (!targetCell) throw new Error(`Couldn't find target cell ${target}`)
 
 	switch (targetCell.type) {
+		case "reality": {
+			const pulse = targetCell.fire[peak.colour]
+			if (!pulse) return peak
+			return {
+				...peak,
+				operations: [
+					c({
+						type: "unfire",
+						id: target,
+						colour: peak.colour,
+					}),
+				],
+			}
+		}
 		case "timing": {
 			const wire = getWire(nogan, targetCell.wire)
 			if (!wire) throw new Error(`Couldn't find wire ${targetCell.wire}`)
@@ -169,6 +183,7 @@ const creation = (args) => {
 	// If the pulse arrives at a slot, create a cell from the template
 	if (targetCell.type === "slot") {
 		return createPeak({
+			colour: peak.colour,
 			operations: [
 				c({
 					type: "modifyCell",
@@ -202,6 +217,7 @@ const destruction = ({ nogan, target, peak }) => {
 
 	if (DESTROYABLE_CELLS.has(targetCell.type)) {
 		return createPeak({
+			colour: peak.colour,
 			operations: [
 				c({
 					type: "modifyCell",

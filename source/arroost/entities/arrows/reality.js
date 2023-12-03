@@ -14,8 +14,10 @@ import {
 	fireCell,
 	fullFireCell,
 	getCell,
+	isFiring,
 	modifyCell,
 	t,
+	unfireCell,
 } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
@@ -29,6 +31,7 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
+import { PULSE_COLOURS } from "../../../nogan/schema.js"
 
 export class ArrowOfReality extends Entity {
 	/**
@@ -82,6 +85,17 @@ export class ArrowOfReality extends Entity {
 
 	onPointingPointerUp(e) {
 		Tunnel.perform(() => {
+			const cell = getCell(shared.nogan, this.tunnel.id)
+			if (!cell) return []
+
+			const operations = []
+			for (const colour of PULSE_COLOURS) {
+				const pulse = cell.fire[colour]
+				if (!pulse) continue
+				operations.push(...unfireCell(shared.nogan, { id: this.tunnel.id, colour }))
+			}
+			if (operations.length > 0) return operations
+
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
 	}

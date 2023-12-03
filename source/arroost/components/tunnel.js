@@ -213,14 +213,23 @@ const TUNNELS = {
 	fired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
-		if (tunnel.isFiring.get()) return
 		tunnel.isFiring.set(true)
+		tunnel.firingColour.update()
 		tunnel.onFire()
 	},
 	unfired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
-		tunnel.isFiring.set(false)
+		tunnel.isFiring.set(isFiring(shared.nogan, { id }))
+		tunnel.firingColour.update()
+	},
+	unfire: ({ id, colour }) => {
+		const tunnel = Tunnel.tunnels.get(id)
+		if (!tunnel) return
+		const cell = getCell(shared.nogan, id)
+		if (!cell) return
+		tunnel.isFiring.set(isFiring(shared.nogan, { id }))
+		tunnel.firingColour.update()
 	},
 	modifyWire: ({ id, template }) => {
 		const tunnel = Tunnel.tunnels.get(id)
@@ -264,7 +273,6 @@ const TUNNELS = {
 
 			return
 		}
-
 		tunnel.applyCellTemplate(template)
 	},
 	binned: ({ id }) => {
