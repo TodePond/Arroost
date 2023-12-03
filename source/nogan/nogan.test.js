@@ -527,8 +527,14 @@ describe("projecting", () => {
 
 describe("peaking", () => {
 	it("creates a peak", () => {
-		const peak = createPeak()
-		assertEquals(peak, { result: false, operations: [], pulse: null, final: false })
+		const peak = createPeak({ colour: "blue" })
+		assertEquals(peak, {
+			result: false,
+			operations: [],
+			pulse: null,
+			final: false,
+			colour: "blue",
+		})
 	})
 
 	it("checks if a cell is firing", () => {

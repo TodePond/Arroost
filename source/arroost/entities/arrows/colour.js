@@ -97,7 +97,7 @@ export class ArrowOfColour extends Entity {
 		this.front.dom.transform.scale.set([3 / 10, 3 / 10])
 		// this.middle.dom.transform.scale.set([1 / 3, 1 / 3])
 
-		this.back.dom.transform.position.set([(-FULL * 3) / 10, 0])
+		// this.back.dom.transform.position.set([(-FULL * 3) / 10, 0])
 
 		setCellStyles({
 			back: this.back.dom,

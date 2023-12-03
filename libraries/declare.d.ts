@@ -51,6 +51,7 @@ declare type Signal<T extends any> = {
 	get(): T
 	set(value: T): void
 	dispose(): void
+	update(): void
 }
 
 declare type Colour = [number, number, number]

@@ -68,6 +68,7 @@ declare type FailPeak = {
 	operations: Operation[]
 	pulse: null
 	final: boolean
+	colour: PulseColour
 }
 
 declare type SuccessPeak = {
@@ -75,6 +76,7 @@ declare type SuccessPeak = {
 	operations: Operation[]
 	pulse: Pulse
 	final: boolean
+	colour: PulseColour
 }
 
 declare type Peak = FailPeak | SuccessPeak
@@ -170,20 +172,23 @@ type CellTemplate =
 	| ConnectionCell
 	| TimingCell
 	| ColourCell
+	| RealityCell
 
 // Required
 declare type RootCell = { type: "root" }
+
+// In built in some way
+declare type RealityCell = { type: "reality" }
 
 // For debugging
 declare type DummyCell = { type: "dummy" }
 declare type StopperCell = { type: "stopper" }
 
-// For real
+// For arroost
 declare type SlotCell = { type: "slot" }
 declare type RecordingCell = { type: "recording"; key: number | null }
 declare type CreationCell = { type: "creation" }
 declare type DestructionCell = { type: "destruction" }
-declare type MagnetCell = { type: "magnet" }
 declare type TimingCell = { type: "timing"; wire: WireId }
 declare type ColourCell = { type: "colour"; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
@@ -222,6 +227,7 @@ type InstructionOperation =
 	| PongOperation
 	| TagOperation
 	| ModifyWireOperation
+	| UnfireOperation
 
 // For debugging
 declare type PongOperation = { type: "pong" }
@@ -244,4 +250,10 @@ declare type TagOperation = {
 	id: CellId
 	key: string
 	value?: Serialisable
+}
+
+declare type UnfireOperation = {
+	type: "unfire"
+	id: CellId
+	colour: PulseColour
 }

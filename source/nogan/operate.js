@@ -1,4 +1,4 @@
-import { getCell, getWire, modifyCell, modifyWire } from "./nogan.js"
+import { getCell, getWire, modifyCell, modifyWire, unfireCell } from "./nogan.js"
 
 /** @type {OperationMap} */
 export const OPERATIONS = {
@@ -11,6 +11,12 @@ export const OPERATIONS = {
 		const wire = getWire(nogan, id)
 		if (!wire) throw new Error(`Couldn't find wire ${id}`)
 		return modifyWire(nogan, { id, ...template })
+	},
+
+	unfire(nogan, { id, colour }) {
+		const cell = getCell(nogan, id)
+		if (!cell) throw new Error(`Couldn't find cell ${id}`)
+		return unfireCell(nogan, { id, colour })
 	},
 
 	/**

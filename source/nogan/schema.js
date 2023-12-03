@@ -353,6 +353,7 @@ N.FailPeak = S.Struct({
 	operations: S.ArrayOf(N.Operation),
 	pulse: S.Null,
 	final: S.Boolean,
+	colour: N.PulseColour,
 })
 
 N.SuccessPeak = S.Struct({
@@ -360,6 +361,7 @@ N.SuccessPeak = S.Struct({
 	operations: S.ArrayOf(N.Operation),
 	pulse: N.Pulse,
 	final: S.Boolean,
+	colour: N.PulseColour,
 })
 
 N.Peak = S.Any([N.FailPeak, N.SuccessPeak])

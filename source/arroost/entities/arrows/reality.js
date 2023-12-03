@@ -14,8 +14,10 @@ import {
 	fireCell,
 	fullFireCell,
 	getCell,
+	isFiring,
 	modifyCell,
 	t,
+	unfireCell,
 } from "../../../nogan/nogan.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Dom } from "../../components/dom.js"
@@ -29,18 +31,24 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
-import { TextInput } from "../shapes/text-input.js"
+import { PULSE_COLOURS } from "../../../nogan/schema.js"
 
-export class ArrowOfTyping extends Entity {
+export class ArrowOfReality extends Entity {
 	/**
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 *  fire?: Fire
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "slot", position }).id,
+		id = createCell(shared.nogan, { type: "reality", position }).id,
+		fire = {
+			red: null,
+			green: null,
+			blue: null,
+		},
 	} = {}) {
 		super()
 
@@ -51,7 +59,7 @@ export class ArrowOfTyping extends Entity {
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
-				id: "typing",
+				id: "reality",
 				type: "html",
 				input: this.input,
 				position,
@@ -62,51 +70,47 @@ export class ArrowOfTyping extends Entity {
 
 		// Render elements
 		this.back = this.attach(new RectangleHtml({ input: this.input }))
-		this.front = this.attach(new TextInput())
+		this.front = this.attach(new Rectangle())
 		this.dom.append(this.back.dom)
 		this.dom.append(this.front.dom)
 
 		// Style elements
-		const height = (FULL * 3) / 4
-		this.back.dimensions.set([THIRD, height])
-		// this.back.dom.transform.position.set([-THIRD / 2, 0])
-		// this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		// this.front.dom.transform.scale.set([1 / 3, 1 / 3])
-		this.front.dimensions.set(["200vw", height + "px"])
-		this.front.dom.transform.position.set([THIRD / 2 + SIXTH / 2, -height / 2])
-		this.front.dom.style.fontSize.set((height * 2) / 3)
-		this.front.dom.style.fontFamily.set("Rosario")
-		const element = this.front.dom.getElement()
-		if (element) {
-			element.style.outline = "none"
-		}
+		this.back.dom.transform.scale.set([1, 1])
+		this.front.dom.transform.scale.set([4 / 5, 4 / 5])
 		setCellStyles({
 			back: this.back.dom,
-			front: null,
-			// front: this.front.dom,
+			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
 		})
 
 		// Nogan behaviours
 		const pointing = this.input.state("pointing")
-		pointing.pointerup = this.onClick.bind(this)
-	}
-
-	onClick(e) {
-		this.front.dom.getElement()?.focus()
+		pointing.pointerup = this.onPointingPointerUp.bind(this)
 
 		Tunnel.perform(() => {
+			const operations = []
+			for (const key in fire) {
+				if (fire[key] === null) continue
+				// @ts-expect-error: cant be fucked to type Fire correctly
+				operations.push(...fireCell(shared.nogan, { id, colour: key }))
+			}
+			return operations
+		})
+	}
+
+	onPointingPointerUp(e) {
+		Tunnel.perform(() => {
+			const cell = getCell(shared.nogan, this.tunnel.id)
+			if (!cell) return []
+
+			const operations = []
+			for (const colour of PULSE_COLOURS) {
+				operations.push(...unfireCell(shared.nogan, { id: this.tunnel.id, colour }))
+			}
+			if (operations.length > 0) return operations
+
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
-
-		// === Debug ===
-		// const dummy = new Dummy()
-		// shared.scene.dom.append(dummy.dom)
-		// const angle = Math.random() * Math.PI * 2
-		// const speed = 15
-		// const velocity = t([Math.cos(angle) * speed, Math.sin(angle) * speed])
-		// dummy.dom.transform.position.set(this.dom.transform.position.get())
-		// dummy.carry.movement.velocity.set(velocity)
 	}
 }

@@ -1,5 +1,5 @@
 import { shared } from "../../../main.js"
-import { createCell, fireCell, fullFireCell, t } from "../../../nogan/nogan.js"
+import { createCell, fireCell, fullFireCell, getCell, t } from "../../../nogan/nogan.js"
 import { Carry } from "../../components/carry.js"
 import { Dom } from "../../components/dom.js"
 import { Input } from "../../components/input.js"
@@ -18,6 +18,7 @@ import { ArrowOfDummy } from "./dummy.js"
 import { progressUnlock, unlocks } from "../unlock.js"
 import { ArrowOfRecording } from "./recording.js"
 import { Targeter } from "../shapes/targeter.js"
+import { ArrowOfReality } from "./reality.js"
 
 export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
@@ -113,6 +114,12 @@ export class ArrowOfCreation extends Entity {
 			return { recordingKey: entity.recordingKey }
 		}
 
+		if (entity instanceof ArrowOfReality) {
+			const cell = getCell(shared.nogan, entity.tunnel.id)
+			if (!cell) throw new Error("No cell found for reality arrow")
+			return { fire: cell.fire }
+		}
+
 		return {}
 	}
 
@@ -143,7 +150,7 @@ export class ArrowOfCreation extends Entity {
 		shared.scene.layer.cell.append(dummy.dom)
 
 		// Fire myself!
-		this.tunnel.isFiring.set(true)
+		// this.tunnel.fire.set(this.tunnel.getFire())
 		Tunnel.perform(() => {
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
@@ -151,7 +158,7 @@ export class ArrowOfCreation extends Entity {
 		// Fire anything along the way!
 		for (const target of this.targets) {
 			target.targeted.set(false)
-			target.entity.tunnel.isFiring.set(true)
+			// this.tunnel.fire.set(this.tunnel.getFire())
 			Tunnel.perform(() => {
 				return fullFireCell(shared.nogan, { id: target.entity.tunnel.id })
 			})

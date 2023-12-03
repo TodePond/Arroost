@@ -1250,6 +1250,45 @@ export const fireCell = (
 	validate(pulse, N.Pulse)
 	return [firedOperation]
 }
+
+/**
+ *
+ * @param {Nogan} nogan
+ * @param {{
+ * 		id: CellId,
+ * 		colour: PulseColour,
+ * 		propogate?: boolean,
+ * 		past?: Nogan[],
+ * 		future?: Nogan[],
+ * }} options
+ * @returns {Operation[]}
+ */
+export const unfireCell = (
+	nogan,
+	{ id, colour, propogate = PROPOGATE_DEFAULT, past = [], future = [] },
+) => {
+	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to unfire`)
+	const { fire } = cell
+	const current = fire[colour]
+	if (!current) return []
+	fire[colour] = null
+	clearCache(nogan)
+
+	/** @type {Operation} */
+	const unfiredOperation = c({ type: "unfired", id })
+
+	if (propogate) {
+		const refreshOperations = refresh(nogan, { past, future })
+		refreshOperations.push(unfiredOperation)
+		return refreshOperations
+	}
+
+	validate(cell, N.Cell)
+	validate(nogan, N.Nogan)
+	return [unfiredOperation]
+}
+
 /**
  * Fully fire a cell.
  * @param {Nogan} nogan
@@ -1310,11 +1349,14 @@ export const getProjection = (nogan) => {
 		cell.tag = {}
 		const { parent } = cell
 
+		// Don't unfire reality cells
+		if (cell.type === "reality") continue
+
 		// No need to unfire if it's not firing
 		if (!cell.fire.blue && !cell.fire.red && !cell.fire.green) continue
 
 		// Don't unfire the cell if its parent isn't firing
-		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
+		if (!isRoot(parent) && !isPeakFiring(nogan, { id: parent })) continue
 
 		cell.fire = createFire()
 		const unfiredOperation = c({ type: "unfired", id: cell.id })
@@ -1339,13 +1381,14 @@ export const getProjection = (nogan) => {
  * 	operations?: Operation[],
  * 	pulse?: Pulse | null,
  * 	final?: boolean,
+ *  colour: PulseColour,
  * }} options
  * @returns {Peak}
  */
-export const createPeak = ({ operations = [], pulse, final = false } = {}) => {
+export const createPeak = ({ operations = [], pulse, final = false, colour }) => {
 	const peak = pulse
-		? N.SuccessPeak.make({ operations, pulse, final })
-		: N.FailPeak.make({ operations, final })
+		? N.SuccessPeak.make({ operations, pulse, final, colour })
+		: N.FailPeak.make({ operations, final, colour })
 	validate(peak, N.Peak)
 	return peak
 }
@@ -1407,7 +1450,7 @@ export const getPeak = (
 	const cached = memo.query(key)
 	if (cached === Cache.RESERVED) {
 		// Infinite wire loop detected!
-		return createPeak()
+		return createPeak({ colour })
 	} else if (cached !== Cache.NEW) {
 		return cached
 	}
@@ -1441,7 +1484,7 @@ export const getPeak = (
 	// But wait!
 	// Are we stuck in a loop?
 	if (noganEquals(from.at(0), nogan)) {
-		return createPeak()
+		return createPeak({ colour })
 	}
 
 	// If not, let's imagine the future/past!
@@ -1470,11 +1513,11 @@ export const getPeak = (
  */
 const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() }) => {
 	const cell = getCell(nogan, id)
-	if (!cell) return createPeak()
+	if (!cell) return createPeak({ colour })
 	const { fire } = cell
 	const pulse = fire[colour]
 
-	let peak = createPeak({ pulse })
+	let peak = createPeak({ pulse, colour })
 	if (peak.final) return peak // this may cause issues. it's just for perf. remove if necessary
 
 	for (const input of cell.inputs) {
@@ -1514,6 +1557,24 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
  * @returns {boolean}
  */
 export const isFiring = (nogan, { id }) => {
+	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to check if firing`)
+	for (const colour of PULSE_COLOURS) {
+		const pulse = cell.fire[colour]
+		if (pulse) return true
+	}
+	return false
+}
+
+/**
+ * Check if a cell is firing right now.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * }} options
+ * @returns {boolean}
+ */
+export const isPeakFiring = (nogan, { id }) => {
 	for (const colour of PULSE_COLOURS) {
 		const peak = getPeak(nogan, { id, colour })
 		if (peak.result) return true
