@@ -25,6 +25,7 @@ import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
 import { ArrowOfConnection } from "../entities/arrows/connection.js"
 import { ArrowOfTiming } from "../entities/arrows/timing.js"
 import { ArrowOfColour } from "../entities/arrows/colour.js"
+import { ArrowOfReality } from "../entities/arrows/reality.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -286,6 +287,7 @@ export const CELL_CONSTRUCTORS = {
 	slot: ({ id, position }) => new ArrowOfSlot({ id, position }),
 	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
 	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
+	reality: ({ id, position }) => new ArrowOfReality({ id, position }),
 
 	colour: () => {
 		throw new Error("Colour cells cannot be created programmatically")
