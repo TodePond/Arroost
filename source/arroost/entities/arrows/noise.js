@@ -5,7 +5,7 @@ import { Input } from "../../components/input.js"
 import { setCellStyles } from "./shared.js"
 import { ArrowOfRecording } from "./recording.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
-import { GREY_SILVER } from "../../../main.js"
+import { GREY_SILVER, shared } from "../../../main.js"
 import { GREY } from "../../../../libraries/habitat-import.js"
 import { FIFTH, FULL, HALF, TENTH, THIRD } from "../../unit.js"
 
@@ -57,10 +57,12 @@ export class ArrowOfNoise extends Entity {
 
 		this.stem.dimensions.set([FULL, this.height.get()])
 
-		this.dom.transform.position.set([-HALF + TENTH, 0])
+		// this.dom.transform.position.set([TENTH, 0])
 
 		this.use(() => {
+			const width = this.duration.get() * FULL + FULL - FIFTH
 			this.stem.dimensions.set([this.duration.get() * FULL + FULL - FIFTH, this.height.get()])
+			this.stem.dom.transform.position.set([width / 2 - FIFTH * 1.71, 0])
 		}, [this.duration])
 	}
 
