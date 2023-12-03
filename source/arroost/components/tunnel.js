@@ -212,6 +212,7 @@ const TUNNELS = {
 	fired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
+		if (tunnel.isFiring.get()) return
 		tunnel.isFiring.set(true)
 		tunnel.onFire()
 	},

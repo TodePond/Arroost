@@ -225,7 +225,6 @@ export class ArrowOfRecording extends Entity {
 		switch (this.recordingState.get()) {
 			case "idle": {
 				this.recordingState.set("recording")
-				this.recordingBusy.set(true)
 				if (shared.scene.focusMode.get()) {
 					Tone.Master.mute = true
 				}
