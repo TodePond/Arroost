@@ -155,13 +155,12 @@ export class ArrowOfCreation extends Entity {
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
 
-		// Fire anything along the way!
 		for (const target of this.targets) {
 			target.targeted.set(false)
 			// this.tunnel.fire.set(this.tunnel.getFire())
-			Tunnel.perform(() => {
-				return fullFireCell(shared.nogan, { id: target.entity.tunnel.id })
-			})
+			// Tunnel.perform(() => {
+			// 	return fullFireCell(shared.nogan, { id: target.entity.tunnel.id })
+			// })
 		}
 
 		// We're done here.
