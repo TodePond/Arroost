@@ -150,7 +150,7 @@ export class ArrowOfCreation extends Entity {
 		shared.scene.layer.cell.append(dummy.dom)
 
 		// Fire myself!
-		this.tunnel.isFiring.set(true)
+		// this.tunnel.fire.set(this.tunnel.getFire())
 		Tunnel.perform(() => {
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})
@@ -158,7 +158,7 @@ export class ArrowOfCreation extends Entity {
 		// Fire anything along the way!
 		for (const target of this.targets) {
 			target.targeted.set(false)
-			target.entity.tunnel.isFiring.set(true)
+			// this.tunnel.fire.set(this.tunnel.getFire())
 			Tunnel.perform(() => {
 				return fullFireCell(shared.nogan, { id: target.entity.tunnel.id })
 			})

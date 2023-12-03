@@ -1275,6 +1275,7 @@ export const unfireCell = (
 	fire[colour] = null
 	clearCache(nogan)
 
+	/** @type {Operation} */
 	const unfiredOperation = c({ type: "unfired", id })
 
 	if (propogate) {
@@ -1355,7 +1356,7 @@ export const getProjection = (nogan) => {
 		if (!cell.fire.blue && !cell.fire.red && !cell.fire.green) continue
 
 		// Don't unfire the cell if its parent isn't firing
-		if (!isRoot(parent) && !isFiring(nogan, { id: parent })) continue
+		if (!isRoot(parent) && !isPeakFiring(nogan, { id: parent })) continue
 
 		cell.fire = createFire()
 		const unfiredOperation = c({ type: "unfired", id: cell.id })
@@ -1561,6 +1562,22 @@ export const isFiring = (nogan, { id }) => {
 	for (const colour of PULSE_COLOURS) {
 		const pulse = cell.fire[colour]
 		if (pulse) return true
+	}
+	return false
+}
+
+/**
+ * Check if a cell is firing right now.
+ * @param {Nogan} nogan
+ * @param {{
+ * 	id: CellId,
+ * }} options
+ * @returns {boolean}
+ */
+export const isPeakFiring = (nogan, { id }) => {
+	for (const colour of PULSE_COLOURS) {
+		const peak = getPeak(nogan, { id, colour })
+		if (peak.result) return true
 	}
 	return false
 }

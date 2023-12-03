@@ -129,7 +129,7 @@ export class ArrowOfDestruction extends Entity {
 			return
 		}
 
-		this.tunnel.isFiring.set(true)
+		// this.tunnel.isFiring.set(true)
 		Tunnel.perform(() => {
 			if (!getCell(shared.nogan, this.tunnel.id)) return []
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })

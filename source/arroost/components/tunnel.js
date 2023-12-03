@@ -92,13 +92,29 @@ export class Tunnel extends Component {
 	//==========//
 	// INSTANCE //
 	//==========//
-	isFiring = this.use(false)
+	/** @type {Signal<Fire>} */
+	fire = this.use({
+		red: null,
+		green: null,
+		blue: null,
+	})
+
+	getFire() {
+		const cell = getCell(shared.nogan, this.id)
+		if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
+		return cell.fire
+	}
+
+	isFiring = this.use(() => {
+		const fire = this.fire.get()
+		for (const key in fire) {
+			if (fire[key]) return true
+		}
+		return false
+	}, [this.fire])
 
 	firingColour = this.use(() => {
-		if (!this.isFiring.get()) return null
-		const cell = getCell(shared.nogan, this.id)
-		if (!cell) return null
-		const fire = cell.fire
+		const fire = this.fire.get()
 
 		let splash = 0
 		if (fire.red) splash += 100
@@ -123,7 +139,7 @@ export class Tunnel extends Component {
 			case 111:
 				return WHITE
 		}
-	})
+	}, [this.fire])
 
 	onFire = () => {}
 
@@ -213,23 +229,24 @@ const TUNNELS = {
 	fired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
-		tunnel.isFiring.set(true)
-		tunnel.firingColour.update()
+		const cell = getCell(shared.nogan, id)
+		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
+		tunnel.fire.set(cell.fire)
 		tunnel.onFire()
 	},
 	unfired: ({ id }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
-		tunnel.isFiring.set(isFiring(shared.nogan, { id }))
-		tunnel.firingColour.update()
+		const cell = getCell(shared.nogan, id)
+		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
+		tunnel.fire.set(cell.fire)
 	},
 	unfire: ({ id, colour }) => {
 		const tunnel = Tunnel.tunnels.get(id)
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
-		if (!cell) return
-		tunnel.isFiring.set(isFiring(shared.nogan, { id }))
-		tunnel.firingColour.update()
+		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
+		tunnel.fire.set(cell.fire)
 	},
 	modifyWire: ({ id, template }) => {
 		const tunnel = Tunnel.tunnels.get(id)

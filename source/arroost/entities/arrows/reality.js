@@ -106,8 +106,6 @@ export class ArrowOfReality extends Entity {
 
 			const operations = []
 			for (const colour of PULSE_COLOURS) {
-				const pulse = cell.fire[colour]
-				if (!pulse) continue
 				operations.push(...unfireCell(shared.nogan, { id: this.tunnel.id, colour }))
 			}
 			if (operations.length > 0) return operations

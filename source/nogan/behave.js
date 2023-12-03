@@ -230,8 +230,14 @@ const destruction = ({ nogan, target, peak }) => {
 	return peak
 }
 
-const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation"])
-const DESTROYABLE_CELLS = new Set(["recording", "destruction", "creation", "connection"])
+const CLONEABLE_CELLS = new Set(["recording", "destruction", "creation", "reality"])
+const DESTROYABLE_CELLS = new Set([
+	"recording",
+	"destruction",
+	"creation",
+	"connection",
+	"reality",
+])
 
 /** @type {BehaviourMap} */
 export const BEHAVIOURS = {

@@ -107,7 +107,7 @@ export class ArrowOfWriting extends Entity {
 		textInput.front.dom.getElement()?.focus()
 
 		// Fire myself!
-		this.tunnel.isFiring.set(true)
+		// this.tunnel.isFiring.set(true)
 		Tunnel.perform(() => {
 			return fullFireCell(shared.nogan, { id: this.tunnel.id })
 		})

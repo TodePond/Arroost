@@ -177,7 +177,7 @@ export class ArrowOfConnection extends Entity {
 
 		// We're done here! Stop highlighting, etc...
 		this.source.targeted.set(false)
-		this.tunnel.isFiring.set(true)
+		// this.tunnel.fire.set(this.tunnel.getFire())
 
 		// Let's fire, for good measure!
 		Tunnel.perform(() => {
