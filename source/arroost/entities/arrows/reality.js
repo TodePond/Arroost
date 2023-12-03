@@ -54,7 +54,7 @@ export class ArrowOfReality extends Entity {
 				type: "html",
 				input: this.input,
 				position,
-				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
+				// cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
@@ -66,8 +66,8 @@ export class ArrowOfReality extends Entity {
 		this.dom.append(this.front.dom)
 
 		// Style elements
-		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.back.dom.transform.scale.set([1, 1])
+		this.front.dom.transform.scale.set([4 / 5, 4 / 5])
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,

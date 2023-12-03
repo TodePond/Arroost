@@ -1310,6 +1310,9 @@ export const getProjection = (nogan) => {
 		cell.tag = {}
 		const { parent } = cell
 
+		// Don't unfire reality cells
+		if (cell.type === "reality") continue
+
 		// No need to unfire if it's not firing
 		if (!cell.fire.blue && !cell.fire.red && !cell.fire.green) continue
 
