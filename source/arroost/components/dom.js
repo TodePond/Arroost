@@ -96,50 +96,52 @@ export class Dom extends Component {
 			if (transform !== "") container.style.transform = transform
 		}, [this.transform.scale, this.transform.absolutePosition, this.transform.rotation])
 
-		if (this.cullBounds.get()) {
+		const cullBounds = this.cullBounds.get()
+		if (cullBounds) {
+			const [cullX, cullY] = cullBounds
 			this.use(() => {
 				const [x, y] = this.transform.absolutePosition.get()
 
 				const bounds = shared.scene.bounds.get()
 				if (!this.outOfView.get()) {
 					const xPlacement = x - bounds.left
-					if (xPlacement <= -HALF) {
+					if (xPlacement <= -cullX) {
 						this.outOfView.set(true)
 						return
 					}
 
 					const yPlacement = y - bounds.top
-					if (yPlacement <= -HALF) {
+					if (yPlacement <= -cullY) {
 						this.outOfView.set(true)
 						return
 					}
 
-					if (xPlacement >= bounds.width + HALF) {
+					if (xPlacement >= bounds.width + cullX) {
 						this.outOfView.set(true)
 
 						return
 					}
 
-					if (yPlacement >= bounds.height + HALF) {
+					if (yPlacement >= bounds.height + cullY) {
 						this.outOfView.set(true)
 						return
 					}
 				} else {
 					const xPlacement = x - bounds.left
-					if (xPlacement <= -HALF) {
+					if (xPlacement <= -cullX) {
 						return
 					}
 
 					const yPlacement = y - bounds.top
-					if (yPlacement <= -HALF) {
+					if (yPlacement <= -cullY) {
 						return
 					}
 
-					if (xPlacement >= bounds.width + HALF) {
+					if (xPlacement >= bounds.width + cullX) {
 						return
 					}
 
-					if (yPlacement >= bounds.height + HALF) {
+					if (yPlacement >= bounds.height + cullY) {
 						return
 					}
 

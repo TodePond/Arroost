@@ -168,6 +168,14 @@ export class Tunnel extends Component {
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity ${this.entity} must have Dom component`)
 		}
+
+		this.use(() => {
+			if (this.entity.dom.outOfView.get()) {
+				Tunnel.inViewTunnels.delete(this)
+			} else {
+				Tunnel.inViewTunnels.add(this)
+			}
+		}, [this.entity.dom.outOfView])
 	}
 
 	/**

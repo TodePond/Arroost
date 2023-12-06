@@ -39,6 +39,7 @@ export class ArrowOfWriting extends Entity {
 				type: "html",
 				input: this.input,
 				position,
+				cullBounds: [HALF, HALF],
 			}),
 		)
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
