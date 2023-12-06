@@ -39,7 +39,7 @@ export class Tunnel extends Component {
 	/**
 	 * @type {Set<Tunnel>}
 	 */
-	static inViewTunnels = new Set()
+	static inViewZoomableTunnels = new Set()
 
 	/**
 	 * @param {Operation[]} operations
@@ -169,13 +169,15 @@ export class Tunnel extends Component {
 			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
-		this.use(() => {
-			if (this.entity.dom.outOfView.get()) {
-				Tunnel.inViewTunnels.delete(this)
-			} else {
-				Tunnel.inViewTunnels.add(this)
-			}
-		}, [this.entity.dom.outOfView])
+		if (this.zoomable) {
+			this.use(() => {
+				if (this.entity.dom.outOfView.get()) {
+					Tunnel.inViewZoomableTunnels.delete(this)
+				} else {
+					Tunnel.inViewZoomableTunnels.add(this)
+				}
+			}, [this.entity.dom.outOfView])
+		}
 	}
 
 	/**
@@ -193,7 +195,7 @@ export class Tunnel extends Component {
 		const tunnel = Tunnel.get(id)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		Tunnel.tunnels.delete(id)
-		Tunnel.inViewTunnels.delete(tunnel)
+		Tunnel.inViewZoomableTunnels.delete(tunnel)
 	}
 
 	/**

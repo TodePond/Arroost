@@ -230,7 +230,8 @@ export class Scene extends Entity {
 		// and maybe have a minimum distance from the center of the screen
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
-		for (const tunnel of Tunnel.inViewTunnels.values()) {
+		for (const tunnel of Tunnel.inViewZoomableTunnels.values()) {
+			if (!tunnel.zoomable) continue
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
