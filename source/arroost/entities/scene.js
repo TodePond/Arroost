@@ -226,7 +226,7 @@ export class Scene extends Entity {
 	}
 
 	dealWithZoomers() {
-		for (const tunnel of Tunnel.tunnels.values()) {
+		for (const tunnel of Tunnel.inViewTunnels.values()) {
 			print(tunnel.entity.dom.outOfView.get())
 		}
 	}

@@ -70,7 +70,6 @@ export class ArrowOfTiming extends Entity {
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { destroyable: true, entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "timing",
@@ -80,6 +79,7 @@ export class ArrowOfTiming extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { destroyable: true, entity: this }))
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))

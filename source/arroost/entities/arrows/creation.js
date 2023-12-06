@@ -32,7 +32,6 @@ export class ArrowOfCreation extends Entity {
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "creation",
@@ -42,6 +41,7 @@ export class ArrowOfCreation extends Entity {
 				position,
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

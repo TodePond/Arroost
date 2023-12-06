@@ -45,7 +45,6 @@ export class ArrowOfSlot extends Entity {
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "slot",
@@ -55,6 +54,7 @@ export class ArrowOfSlot extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

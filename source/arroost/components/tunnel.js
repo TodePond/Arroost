@@ -37,6 +37,11 @@ export class Tunnel extends Component {
 	static tunnels = new Map()
 
 	/**
+	 * @type {Set<Tunnel>}
+	 */
+	static inViewTunnels = new Set()
+
+	/**
 	 * @param {Operation[]} operations
 	 */
 	static applyOperations(operations) {
@@ -159,6 +164,10 @@ export class Tunnel extends Component {
 		this.entity = entity
 		this.zoomable = zoomable ?? this.type === "cell"
 		Tunnel.set(id, this)
+
+		if (!(this.entity.dom instanceof Dom)) {
+			throw new Error(`Tunnel: Entity ${this.entity} must have Dom component`)
+		}
 	}
 
 	/**
@@ -167,13 +176,19 @@ export class Tunnel extends Component {
 	 */
 	static set(id, tunnel) {
 		Tunnel.tunnels.set(id, tunnel)
+		if (!tunnel.entity.dom.outOfView.get()) {
+			Tunnel.inViewTunnels.add(tunnel)
+		}
 	}
 
 	/**
 	 * @param {CellId | WireId} id
 	 */
 	static delete(id) {
+		const tunnel = Tunnel.get(id)
+		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		Tunnel.tunnels.delete(id)
+		Tunnel.inViewTunnels.delete(tunnel)
 	}
 
 	/**
