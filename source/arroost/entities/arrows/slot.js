@@ -37,7 +37,7 @@ export class ArrowOfSlot extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "slot", position }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "slot", position }).id,
 	} = {}) {
 		super()
 

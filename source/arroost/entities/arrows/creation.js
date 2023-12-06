@@ -23,7 +23,10 @@ import { ArrowOfReality } from "./reality.js"
 export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
 
-	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
+	constructor({
+		id = createCell(shared.nogan, { parent: shared.level, type: "creation" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
 		triggerCounter()
 

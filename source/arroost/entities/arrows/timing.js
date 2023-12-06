@@ -51,7 +51,7 @@ export class ArrowOfTiming extends Entity {
 		triggerCounter()
 
 		if (id === undefined) {
-			const cell = createCell(shared.nogan, { type: "timing" })
+			const cell = createCell(shared.nogan, { parent: shared.level, type: "timing" })
 			const wireWire = getWire(shared.nogan, wire)
 			Tunnel.apply(() => {
 				const operations = modifyCell(shared.nogan, {

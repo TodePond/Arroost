@@ -52,7 +52,7 @@ export class ArrowOfColour extends Entity {
 		triggerCounter()
 
 		if (id === undefined) {
-			const cell = createCell(shared.nogan, { type: "colour" })
+			const cell = createCell(shared.nogan, { parent: shared.level, type: "colour" })
 			const wireWire = getWire(shared.nogan, wire)
 			Tunnel.apply(() => {
 				const operations = modifyCell(shared.nogan, {

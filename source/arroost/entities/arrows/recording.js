@@ -76,7 +76,7 @@ export class ArrowOfRecording extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "recording", position }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "recording", position }).id,
 		recordingKey = null,
 	} = {}) {
 		super()

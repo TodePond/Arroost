@@ -43,7 +43,7 @@ export class ArrowOfReality extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "reality", position }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "reality", position }).id,
 		fire = {
 			red: null,
 			green: null,

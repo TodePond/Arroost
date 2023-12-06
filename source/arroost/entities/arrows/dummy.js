@@ -37,7 +37,7 @@ export class ArrowOfDummy extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "dummy", position }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "dummy", position }).id,
 	} = {}) {
 		super()
 
