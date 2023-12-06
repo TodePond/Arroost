@@ -113,7 +113,7 @@ export class ArrowOfColour extends Entity {
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
 		this.wire = wire
 
-		const wireEntity = Tunnel.tunnels.get(wire)?.entity
+		const wireEntity = Tunnel.get(wire)?.entity
 
 		this.use(() => {
 			if (!wireEntity) return

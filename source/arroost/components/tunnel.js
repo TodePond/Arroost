@@ -148,20 +148,45 @@ export class Tunnel extends Component {
 	 * @param {{
 	 *   destroyable?: boolean | undefined
 	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming; wireColour?: Signal<WireColour>}
+	 *   zoomable?: boolean | undefined
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity }) {
+	constructor(id, { destroyable, entity, zoomable }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
-		Tunnel.tunnels.set(id, this)
+		this.zoomable = zoomable ?? this.type === "cell"
+		Tunnel.set(id, this)
+	}
+
+	/**
+	 * @param {CellId | WireId} id
+	 * @param {Tunnel} tunnel
+	 */
+	static set(id, tunnel) {
+		Tunnel.tunnels.set(id, tunnel)
+	}
+
+	/**
+	 * @param {CellId | WireId} id
+	 */
+	static delete(id) {
+		Tunnel.tunnels.delete(id)
+	}
+
+	/**
+	 * @param {CellId | WireId} id
+	 * @returns {Tunnel | undefined}
+	 */
+	static get(id) {
+		return Tunnel.tunnels.get(id)
 	}
 
 	dispose() {
 		super.dispose()
-		Tunnel.tunnels.delete(this.id)
+		Tunnel.delete(this.id)
 	}
 
 	/**
@@ -227,7 +252,7 @@ const noop = () => {}
 /** @type {TunnelMap} */
 const TUNNELS = {
 	fired: ({ id }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
 		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
@@ -238,26 +263,26 @@ const TUNNELS = {
 		}
 	},
 	unfired: ({ id }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
 		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
 		tunnel.fire.set(cell.fire)
 	},
 	unfire: ({ id, colour }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
 		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
 		tunnel.fire.set(cell.fire)
 	},
 	modifyWire: ({ id, template }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to modify`)
 		tunnel.applyWireTemplate(template)
 	},
 	modifyCell: ({ id, template }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to modify`)
 		if (template.type !== undefined) {
 			const entity = tunnel.entity
@@ -266,11 +291,11 @@ const TUNNELS = {
 			if (!oldCell) throw new Error(`Tunnel: Can't find cell ${id} to modify`)
 
 			const inputEntities = oldCell.inputs
-				.map((input) => Tunnel.tunnels.get(input)?.entity)
+				.map((input) => Tunnel.get(input)?.entity)
 				.filter((v) => v)
 
 			const outputEntities = oldCell.outputs
-				.map((output) => Tunnel.tunnels.get(output)?.entity)
+				.map((output) => Tunnel.get(output)?.entity)
 				.filter((v) => v)
 
 			tunnel.entity.dispose()
@@ -296,7 +321,7 @@ const TUNNELS = {
 		tunnel.applyCellTemplate(template)
 	},
 	binned: ({ id }) => {
-		const tunnel = Tunnel.tunnels.get(id)
+		const tunnel = Tunnel.get(id)
 		if (!tunnel) return
 		tunnel.entity.dispose()
 	},

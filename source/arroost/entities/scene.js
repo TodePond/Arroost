@@ -21,6 +21,7 @@ import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
+import { Tunnel } from "../components/tunnel.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -157,7 +158,10 @@ export class Scene extends Entity {
 		const start = e.state.start
 		const newPosition = add(pointerPosition, subtract(start, pointerStart))
 		this.dom.transform.setAbsolutePosition(newPosition)
+		this.shouldDealWithZoomers = true
 	}
+
+	shouldDealWithZoomers = false
 
 	onDraggingPointerUp(e) {
 		const velocity = shared.pointer.velocity.get()
@@ -185,6 +189,7 @@ export class Scene extends Entity {
 				},
 				PointerEvent,
 			)
+			this.shouldDealWithZoomers = true
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
@@ -194,10 +199,16 @@ export class Scene extends Entity {
 		} else {
 			this.zoom(shared.zoomer.speed + zoomSpeed)
 		}
+
+		if (this.shouldDealWithZoomers) {
+			this.dealWithZoomers()
+			this.shouldDealWithZoomers = false
+		}
 	}
 
 	zoomSpeed = this.use(0.0)
 	zoom(speed) {
+		if (speed === 0) return
 		const scale = this.dom.transform.scale.get()
 		const oldZoom = scale.x
 		const newZoom = oldZoom * (1 - speed)
@@ -210,5 +221,13 @@ export class Scene extends Entity {
 		const scaleRatio = newZoom / oldZoom
 		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
 		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
+
+		this.shouldDealWithZoomers = true
+	}
+
+	dealWithZoomers() {
+		for (const tunnel of Tunnel.tunnels.values()) {
+			print(tunnel.entity.dom.outOfView.get())
+		}
 	}
 }

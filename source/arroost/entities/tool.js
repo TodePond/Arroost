@@ -29,7 +29,7 @@ export function selectTool(type) {
 	}
 
 	const cell = nearestCell
-	const tunnel = Tunnel.tunnels.get(cell.id)
+	const tunnel = Tunnel.get(cell.id)
 	const entity = tunnel?.entity
 	if (!entity) return
 
@@ -65,7 +65,7 @@ export function fireTool(type, giveUp = false) {
 	}
 
 	const cell = nearestCell
-	const tunnel = Tunnel.tunnels.get(cell.id)
+	const tunnel = Tunnel.get(cell.id)
 	const entity = tunnel?.entity
 	if (!entity) return
 

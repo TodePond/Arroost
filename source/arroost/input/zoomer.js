@@ -18,7 +18,7 @@ export const getZoomer = () => {
 				this.speed += Math.sign(missingSpeed) * 0.00005
 			}
 
-			if (Math.abs(this.speed) < 0.0000001) {
+			if (Math.abs(this.speed) < 0.00001) {
 				this.speed = 0.0
 				return
 			}
