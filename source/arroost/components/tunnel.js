@@ -166,7 +166,7 @@ export class Tunnel extends Component {
 		Tunnel.set(id, this)
 
 		if (!(this.entity.dom instanceof Dom)) {
-			throw new Error(`Tunnel: Entity ${this.entity} must have Dom component`)
+			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
 		this.use(() => {
@@ -184,9 +184,6 @@ export class Tunnel extends Component {
 	 */
 	static set(id, tunnel) {
 		Tunnel.tunnels.set(id, tunnel)
-		if (!tunnel.entity.dom.outOfView.get()) {
-			Tunnel.inViewTunnels.add(tunnel)
-		}
 	}
 
 	/**

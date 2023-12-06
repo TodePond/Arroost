@@ -22,6 +22,7 @@ import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
 import { Tunnel } from "../components/tunnel.js"
+import { ZOOM_IN_THRESHOLD } from "../unit.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -225,9 +226,25 @@ export class Scene extends Entity {
 		this.shouldDealWithZoomers = true
 	}
 
+	/** @type {Signal<"none" | "zooming-in" | "zooming-out">} */
+	zoomState = this.use("none")
 	dealWithZoomers() {
+		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) return
+		print("ZOOM IN")
+		let distanceFromScreenCenter = Infinity
+		let closestTunnel = null
 		for (const tunnel of Tunnel.inViewTunnels.values()) {
 			const { transform } = tunnel.entity.dom
+			const position = transform.position.get()
+			const distance = distanceBetween(position, this.bounds.get().center)
+			if (distance < distanceFromScreenCenter) {
+				distanceFromScreenCenter = distance
+				closestTunnel = tunnel
+			}
 		}
+
+		if (!closestTunnel) return
+
+		print("ZOOM INTO", closestTunnel)
 	}
 }
