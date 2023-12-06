@@ -76,7 +76,7 @@ export class ArrowOfRecording extends Entity {
 	 */
 	constructor({
 		position = t([0, 0]),
-		id = createCell(shared.nogan, { type: "recording", position }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "recording", position }).id,
 		recordingKey = null,
 	} = {}) {
 		super()
@@ -85,7 +85,6 @@ export class ArrowOfRecording extends Entity {
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "recording",
@@ -95,6 +94,7 @@ export class ArrowOfRecording extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

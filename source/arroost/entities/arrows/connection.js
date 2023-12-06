@@ -22,7 +22,7 @@ export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { type: "connection" }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "connection" }).id,
 		position = t([0, 0]),
 	}) {
 		super()
@@ -30,7 +30,6 @@ export class ArrowOfConnection extends Entity {
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "connection",
@@ -40,6 +39,7 @@ export class ArrowOfConnection extends Entity {
 				position,
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

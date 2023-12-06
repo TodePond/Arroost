@@ -23,13 +23,15 @@ import { ArrowOfReality } from "./reality.js"
 export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
 
-	constructor({ id = createCell(shared.nogan, { type: "creation" }).id, position = t([0, 0]) }) {
+	constructor({
+		id = createCell(shared.nogan, { parent: shared.level, type: "creation" }).id,
+		position = t([0, 0]),
+	}) {
 		super()
 		triggerCounter()
 
 		// Attach components
 		this.input = this.attach(new Input(this))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.dom = this.attach(
 			new Dom({
 				id: "creation",
@@ -39,6 +41,7 @@ export class ArrowOfCreation extends Entity {
 				position,
 			}),
 		)
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

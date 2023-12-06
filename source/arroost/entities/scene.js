@@ -21,6 +21,9 @@ import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
+import { Tunnel } from "../components/tunnel.js"
+import { ZOOM_IN_THRESHOLD } from "../unit.js"
+import { c } from "../../nogan/nogan.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -92,18 +95,7 @@ export class Scene extends Entity {
 			})
 		}, [this.dom.transform.position, this.dom.transform.scale, this.width, this.height])
 
-		const layer = (this.layer = {
-			wire: new Dom({ id: "wire-layer", type: "html" }),
-			timing: new Dom({ id: "timing-layer", type: "html" }),
-			cell: new Dom({ id: "cell-layer", type: "html" }),
-			ghost: new Dom({ id: "ghost-layer", type: "html" }),
-			hud: new Dom({ id: "hud-layer", type: "html" }),
-		})
-
-		this.dom.append(layer.wire)
-		this.dom.append(layer.timing)
-		this.dom.append(layer.cell)
-		this.dom.append(layer.ghost)
+		this.recreateSceneLayers()
 
 		this.title = this.attach(new Title())
 		this.layer.ghost.append(this.title.dom)
@@ -157,7 +149,10 @@ export class Scene extends Entity {
 		const start = e.state.start
 		const newPosition = add(pointerPosition, subtract(start, pointerStart))
 		this.dom.transform.setAbsolutePosition(newPosition)
+		this.shouldDealWithZoomers = true
 	}
+
+	shouldDealWithZoomers = false
 
 	onDraggingPointerUp(e) {
 		const velocity = shared.pointer.velocity.get()
@@ -185,6 +180,7 @@ export class Scene extends Entity {
 				},
 				PointerEvent,
 			)
+			this.shouldDealWithZoomers = true
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
@@ -194,15 +190,26 @@ export class Scene extends Entity {
 		} else {
 			this.zoom(shared.zoomer.speed + zoomSpeed)
 		}
+
+		if (this.shouldDealWithZoomers) {
+			this.dealWithZoomers()
+			this.shouldDealWithZoomers = false
+		}
 	}
 
 	zoomSpeed = this.use(0.0)
 	zoom(speed) {
+		if (speed === 0) return
 		const scale = this.dom.transform.scale.get()
 		const oldZoom = scale.x
 		const newZoom = oldZoom * (1 - speed)
-		this.dom.transform.scale.set([newZoom, newZoom])
 
+		this.setZoom(newZoom)
+	}
+
+	setZoom(newZoom) {
+		const oldZoom = this.dom.transform.scale.get().x
+		this.dom.transform.scale.set([newZoom, newZoom])
 		const position = this.dom.transform.position.get()
 		const pointerPosition = shared.pointer.transform.position.get()
 
@@ -210,5 +217,68 @@ export class Scene extends Entity {
 		const scaleRatio = newZoom / oldZoom
 		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
 		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
+
+		this.shouldDealWithZoomers = true
+	}
+
+	/** @type {Signal<"none" | "zooming-in" | "zooming-out">} */
+	zoomState = this.use("none")
+	dealWithZoomers() {
+		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) return
+
+		// TODO: this should also factor in z-index
+		// and maybe have a minimum distance from the center of the screen
+		let distanceFromScreenCenter = Infinity
+		let closestTunnel = null
+		for (const tunnel of Tunnel.inViewZoomableTunnels.values()) {
+			if (!tunnel.zoomable) continue
+			const { transform } = tunnel.entity.dom
+			const position = transform.position.get()
+			const distance = distanceBetween(position, this.bounds.get().center)
+			if (distance < distanceFromScreenCenter) {
+				distanceFromScreenCenter = distance
+				closestTunnel = tunnel
+			}
+		}
+
+		if (!closestTunnel) return
+
+		this.replaceLayer(closestTunnel)
+	}
+
+	sceneLayerNames = c(["wire", "timing", "cell", "ghost"])
+
+	layer = {
+		wire: new Dom({ id: "wire-layer-placeholder", type: "html" }),
+		timing: new Dom({ id: "timing-layer-placeholder", type: "html" }),
+		cell: new Dom({ id: "cell-layer-placeholder", type: "html" }),
+		ghost: new Dom({ id: "ghost-layer-placeholder", type: "html" }),
+		hud: new Dom({ id: "hud-layer", type: "html" }),
+	}
+
+	recreateSceneLayers() {
+		this.layer.wire = new Dom({ id: "wire-layer", type: "html" })
+		this.layer.timing = new Dom({ id: "timing-layer", type: "html" })
+		this.layer.cell = new Dom({ id: "cell-layer", type: "html" })
+		this.layer.ghost = new Dom({ id: "ghost-layer", type: "html" })
+
+		this.dom.append(this.layer.wire)
+		this.dom.append(this.layer.timing)
+		this.dom.append(this.layer.cell)
+		this.dom.append(this.layer.ghost)
+	}
+
+	/**
+	 * @param {Tunnel} tunnel
+	 */
+	replaceLayer(tunnel) {
+		for (const layerName of this.sceneLayerNames) {
+			const layer = this.layer[layerName]
+			// layer.dispose()
+		}
+
+		this.setZoom(0.01)
+		// this.recreateSceneLayers()
+		// shared.level = tunnel.id
 	}
 }
