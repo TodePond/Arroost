@@ -4,6 +4,7 @@ import { triggerSomethingHasMoved } from "../machines/hover.js"
 
 const ZOOM_MOUSE_SPEED = 0.025
 const ZOOM_TRACKPAD_SPEED = 0.01
+const ZOOM_SMOOTH_MODIFIER = 0.001
 
 const RIGHT_CLICK_PITY_EASE_DURATION = 0.5
 
@@ -23,7 +24,7 @@ export const registerWheel = () => {
 					shared.scene.zoomSpeed.set(delta)
 				} else {
 					shared.zoomer.desiredSpeed += shared.zoomer.smoothMode
-						? Math.sign(event.deltaY)
+						? Math.sign(event.deltaY) * ZOOM_SMOOTH_MODIFIER
 						: Math.sign(event.deltaY) * ZOOM_MOUSE_SPEED
 				}
 				return
@@ -33,7 +34,7 @@ export const registerWheel = () => {
 
 			if (!isTrackpad) {
 				shared.zoomer.desiredSpeed += shared.zoomer.smoothMode
-					? Math.sign(event.deltaY)
+					? Math.sign(event.deltaY) * ZOOM_SMOOTH_MODIFIER
 					: Math.sign(event.deltaY) * ZOOM_MOUSE_SPEED
 				return
 			}
@@ -64,11 +65,14 @@ export const registerWheel = () => {
 	)
 
 	addEventListener("keydown", (e) => {
-		// if (e.key === "s") {
-		// 	// shared.zoomer.smoothMode = !shared.zoomer.smoothMode
-		// 	shared.zoomer.desiredSpeed = 0
-		// } else if (e.key === "r") {
-		// 	shared.zoomer.desiredSpeed = 0
-		// }
+		if (e.key === ".") {
+			shared.zoomer.smoothMode = false
+			shared.zoomer.desiredSpeed = 0
+		} else if (e.key === ",") {
+			shared.zoomer.smoothMode = true
+			shared.zoomer.desiredSpeed = 0
+		} else if (e.key === "/") {
+			shared.zoomer.desiredSpeed = 0
+		}
 	})
 }
