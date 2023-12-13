@@ -39,7 +39,7 @@ export class Tunnel extends Component {
 	/**
 	 * @type {Set<Tunnel>}
 	 */
-	static inViewZoomableTunnels = new Set()
+	static inViewInfiniteTunnels = new Set()
 
 	/**
 	 * @param {Operation[]} operations
@@ -153,28 +153,28 @@ export class Tunnel extends Component {
 	 * @param {{
 	 *   destroyable?: boolean | undefined
 	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming; wireColour?: Signal<WireColour>}
-	 *   zoomable?: boolean | undefined
+	 *   isInfinite?: boolean | undefined
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity, zoomable }) {
+	constructor(id, { destroyable, entity, isInfinite = false }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
-		this.zoomable = zoomable ?? this.type === "cell"
+		this.isInfinite = isInfinite
 		Tunnel.set(id, this)
 
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
-		if (this.zoomable) {
+		if (this.isInfinite) {
 			this.use(() => {
 				if (this.entity.dom.outOfView.get()) {
-					Tunnel.inViewZoomableTunnels.delete(this)
+					Tunnel.inViewInfiniteTunnels.delete(this)
 				} else {
-					Tunnel.inViewZoomableTunnels.add(this)
+					Tunnel.inViewInfiniteTunnels.add(this)
 				}
 			}, [this.entity.dom.outOfView])
 		}
@@ -195,7 +195,7 @@ export class Tunnel extends Component {
 		const tunnel = Tunnel.get(id)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		Tunnel.tunnels.delete(id)
-		Tunnel.inViewZoomableTunnels.delete(tunnel)
+		Tunnel.inViewInfiniteTunnels.delete(tunnel)
 	}
 
 	/**

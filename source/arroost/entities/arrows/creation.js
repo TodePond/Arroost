@@ -19,6 +19,7 @@ import { progressUnlock, unlocks } from "../unlock.js"
 import { ArrowOfRecording } from "./recording.js"
 import { Targeter } from "../shapes/targeter.js"
 import { ArrowOfReality } from "./reality.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfCreation extends Entity {
 	pulling = this.use(false)
@@ -41,8 +42,9 @@ export class ArrowOfCreation extends Entity {
 				position,
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: true }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))

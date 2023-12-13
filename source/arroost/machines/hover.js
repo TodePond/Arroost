@@ -4,7 +4,7 @@ import { shared } from "../../main.js"
 let somethingHasMoved = false
 export const triggerSomethingHasMoved = () => {
 	somethingHasMoved = true
-	shared.scene.shouldDealWithZoomers = true
+	shared.scene.shouldDealWithInfinites = true
 }
 
 class Hovering extends State {

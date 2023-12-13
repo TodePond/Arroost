@@ -149,10 +149,10 @@ export class Scene extends Entity {
 		const start = e.state.start
 		const newPosition = add(pointerPosition, subtract(start, pointerStart))
 		this.dom.transform.setAbsolutePosition(newPosition)
-		this.shouldDealWithZoomers = true
+		this.shouldDealWithInfinites = true
 	}
 
-	shouldDealWithZoomers = false
+	shouldDealWithInfinites = false
 
 	onDraggingPointerUp(e) {
 		const velocity = shared.pointer.velocity.get()
@@ -180,7 +180,7 @@ export class Scene extends Entity {
 				},
 				PointerEvent,
 			)
-			this.shouldDealWithZoomers = true
+			this.shouldDealWithInfinites = true
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
@@ -191,9 +191,9 @@ export class Scene extends Entity {
 			this.zoom(shared.zoomer.speed + zoomSpeed)
 		}
 
-		if (this.shouldDealWithZoomers) {
-			this.dealWithZoomers()
-			this.shouldDealWithZoomers = false
+		if (this.shouldDealWithInfinites) {
+			this.dealWithInfinites()
+			this.shouldDealWithInfinites = false
 		}
 	}
 
@@ -218,20 +218,20 @@ export class Scene extends Entity {
 		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
 		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
 
-		this.shouldDealWithZoomers = true
+		this.shouldDealWithInfinites = true
 	}
 
 	/** @type {Signal<"none" | "zooming-in" | "zooming-out">} */
 	zoomState = this.use("none")
-	dealWithZoomers() {
+	dealWithInfinites() {
 		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) return
 
 		// TODO: this should also factor in z-index
 		// and maybe have a minimum distance from the center of the screen
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
-		for (const tunnel of Tunnel.inViewZoomableTunnels.values()) {
-			if (!tunnel.zoomable) continue
+		for (const tunnel of Tunnel.inViewInfiniteTunnels.values()) {
+			if (!tunnel.isInfinite) continue
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
@@ -277,7 +277,7 @@ export class Scene extends Entity {
 			// layer.dispose()
 		}
 
-		this.setZoom(0.01)
+		this.setZoom(0.5)
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
 	}

@@ -60,7 +60,7 @@ export const registerWheel = () => {
 				pointerId: -1,
 				target: window, //maybe needs to be more specific?
 			})
-			shared.scene.shouldDealWithZoomers = true
+			shared.scene.shouldDealWithInfinites = true
 		},
 		{ passive: false },
 	)
