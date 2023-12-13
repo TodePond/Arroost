@@ -231,7 +231,6 @@ export class Scene extends Entity {
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
 		for (const tunnel of Tunnel.inViewInfiniteTunnels.values()) {
-			if (!tunnel.isInfinite) continue
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
