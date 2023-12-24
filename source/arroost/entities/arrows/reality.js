@@ -32,6 +32,7 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { PULSE_COLOURS } from "../../../nogan/schema.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfReality extends Entity {
 	/**
@@ -39,6 +40,7 @@ export class ArrowOfReality extends Entity {
 	 * 	id?: CellId
 	 * 	position?: [number, number]
 	 *  fire?: Fire
+	 *  preview?: boolean
 	 * }} options
 	 */
 	constructor({
@@ -49,6 +51,7 @@ export class ArrowOfReality extends Entity {
 			green: null,
 			blue: null,
 		},
+		preview = false,
 	} = {}) {
 		super()
 
@@ -67,6 +70,7 @@ export class ArrowOfReality extends Entity {
 		)
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new RectangleHtml({ input: this.input }))

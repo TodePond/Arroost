@@ -27,6 +27,7 @@ export class ArrowOfCreation extends Entity {
 	constructor({
 		id = createCell(shared.nogan, { parent: shared.level, type: "creation" }).id,
 		position = t([0, 0]),
+		preview = false,
 	}) {
 		super()
 		triggerCounter()
@@ -42,9 +43,9 @@ export class ArrowOfCreation extends Entity {
 				position,
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: true }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
-		this.infinite = this.attach(new Infinite({ dom: this.dom }))
+		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))

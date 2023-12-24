@@ -32,6 +32,7 @@ import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { ArrowOfNoise } from "./noise.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfRecording extends Entity {
 	static recordingArrows = new Set()
@@ -72,12 +73,14 @@ export class ArrowOfRecording extends Entity {
 	 * 	id?: CellId
 	 * 	position?: [number, number]
 	 *  recordingKey?: number | null
+	 * 	preview?: boolean
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { parent: shared.level, type: "recording", position }).id,
 		recordingKey = null,
+		preview = false,
 	} = {}) {
 		super()
 
@@ -94,8 +97,9 @@ export class ArrowOfRecording extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: true }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.noise = this.attach(new ArrowOfNoise(this))

@@ -173,6 +173,7 @@ type CellTemplate =
 	| TimingCell
 	| ColourCell
 	| RealityCell
+	| DefinitionCell
 
 // Required
 declare type RootCell = { type: "root" }
@@ -192,6 +193,7 @@ declare type DestructionCell = { type: "destruction" }
 declare type TimingCell = { type: "timing"; wire: WireId }
 declare type ColourCell = { type: "colour"; wire: WireId }
 declare type ConnectionCell = { type: "connection" }
+declare type DefinitionCell = { type: "definition" }
 
 //========//
 // Pulses //

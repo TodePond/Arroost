@@ -22,8 +22,9 @@ import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
 import { Tunnel } from "../components/tunnel.js"
-import { ZOOM_IN_THRESHOLD } from "../unit.js"
+import { ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { c } from "../../nogan/nogan.js"
+import { Infinite } from "../components/infinite.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -192,8 +193,8 @@ export class Scene extends Entity {
 		}
 
 		if (this.shouldDealWithInfinites) {
-			this.dealWithInfinites()
 			this.shouldDealWithInfinites = false
+			this.dealWithInfinites()
 		}
 	}
 
@@ -221,10 +222,14 @@ export class Scene extends Entity {
 		this.shouldDealWithInfinites = true
 	}
 
-	/** @type {Signal<"none" | "zooming-in" | "zooming-out">} */
-	zoomState = this.use("none")
+	/** @type {Signal<null | Entity & {infinite: Infinite; dom: Dom}>} */
+	infiniteTarget = this.use(null)
 	dealWithInfinites() {
-		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) return
+		if (shared.scene.dom.transform.scale.get().x < ZOOMING_IN_THRESHOLD) {
+			this.infiniteTarget.get()?.infinite.state.set("none")
+			this.infiniteTarget.set(null)
+			return
+		}
 
 		// TODO: this should also factor in z-index
 		// and maybe have a minimum distance from the center of the screen
@@ -238,6 +243,22 @@ export class Scene extends Entity {
 				distanceFromScreenCenter = distance
 				closestTunnel = tunnel
 			}
+		}
+
+		const newTarget = closestTunnel?.entity ?? null
+
+		// Swap out infinite target
+		if (newTarget !== this.infiniteTarget.get()) {
+			this.infiniteTarget.get()?.infinite.state.set("none")
+			this.infiniteTarget.set(newTarget)
+
+			if (newTarget) {
+				newTarget.infinite.state.set("zooming-in")
+			}
+		}
+
+		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) {
+			return
 		}
 
 		if (!closestTunnel) return
@@ -277,6 +298,8 @@ export class Scene extends Entity {
 		}
 
 		this.setZoom(0.5)
+		this.infiniteTarget.get()?.infinite.state.set("none")
+		this.infiniteTarget.set(null)
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
 	}

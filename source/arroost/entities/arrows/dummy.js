@@ -27,17 +27,20 @@ import { setCellStyles } from "./shared.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfDummy extends Entity {
 	/**
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 * 	preview?: boolean
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { parent: shared.level, type: "dummy", position }).id,
+		preview = false,
 	} = {}) {
 		super()
 
@@ -56,6 +59,7 @@ export class ArrowOfDummy extends Entity {
 		)
 		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
+		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))
