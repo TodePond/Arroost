@@ -297,7 +297,8 @@ export class Scene extends Entity {
 			// layer.dispose()
 		}
 
-		this.setZoom(0.5)
+		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOM_IN_THRESHOLD
+		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * 0.01)
 		this.infiniteTarget.get()?.infinite.state.set("none")
 		this.infiniteTarget.set(null)
 		// this.recreateSceneLayers()
