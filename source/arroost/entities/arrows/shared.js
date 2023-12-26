@@ -1,6 +1,7 @@
 import { WHITE, BLACK, GREY, SILVER } from "../../../../libraries/habitat-import.js"
 import { GREY_SILVER } from "../../../main.js"
 import { Dom } from "../../components/dom.js"
+import { Infinite } from "../../components/infinite.js"
 import { Input } from "../../components/input.js"
 import { Tunnel } from "../../components/tunnel.js"
 
@@ -10,11 +11,20 @@ import { Tunnel } from "../../components/tunnel.js"
  * 	front: Dom | null
  * 	input: Input
  * 	tunnel: Tunnel | null
+ *  infinite: Infinite | null
  * 	frontOverride?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
  * 	backOverride?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
  * }} options
  */
-export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backOverride }) => {
+export const setCellStyles = ({
+	back,
+	front,
+	input,
+	tunnel,
+	infinite,
+	frontOverride,
+	backOverride,
+}) => {
 	// front.style.pointerEvents.set("none")
 	if (front) {
 		input.use(() => {
@@ -32,7 +42,7 @@ export const setCellStyles = ({ back, front, input, tunnel, frontOverride, backO
 	back.style.stroke.set("rgba(0, 0, 0, 0.25)")
 	back.style.strokeWidth.set(2)
 
-	back.style.pointerEvents.set("all")
+	back.style.pointerEvents.set(infinite?.isPreview ? "none" : "all")
 
 	input.use(() => {
 		if (input.state("dragging").active.get()) {

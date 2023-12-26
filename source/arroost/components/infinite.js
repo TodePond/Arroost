@@ -23,10 +23,13 @@ export class Infinite extends Component {
 	/**
 	 * @param {{
 	 * 	dom: Dom
+	 * 	isPreview: boolean
 	 * }} options
 	 */
-	constructor({ dom }) {
+	constructor({ dom, isPreview = false }) {
 		super()
+		this.isPreview = isPreview
+		if (isPreview) return
 		this.parent = dom
 		this.dom = new Dom({
 			id: "infinite",
@@ -36,7 +39,6 @@ export class Infinite extends Component {
 
 		this.dom.style.zIndex.set(1000)
 		this.dom.transform.scale.set([CHILD_SCALE, CHILD_SCALE])
-		this.dom.style.pointerEvents.set("none")
 
 		this.parent.append(this.dom)
 
@@ -44,12 +46,12 @@ export class Infinite extends Component {
 			switch (this.state.get()) {
 				case "zooming-in": {
 					const t = ilerp(shared.scene.dom.transform.scale.get().x, ZOOMING_IN_THRESHOLD, 50)
-					const opacity = lerp([100, 0], t)
-					// this.dom.style.opacity.set(opacity)
+					const opacity = lerp([0, 100], t)
+					this.dom?.style.opacity.set(opacity)
 					break
 				}
 				case "none": {
-					// this.dom.style.opacity.set(null)
+					this.dom?.style.opacity.set(null)
 					break
 				}
 			}
@@ -62,7 +64,7 @@ export class Infinite extends Component {
 					break
 				}
 				case "none": {
-					this.dom.clear()
+					this.dom?.clear()
 					break
 				}
 			}
@@ -86,7 +88,7 @@ export class Infinite extends Component {
 			// 	position: scale(cell.position, 1),
 			// 	preview: true,
 			// })
-			if (entity) this.dom.append(entity.dom)
+			if (entity) this.dom?.append(entity.dom)
 		}
 	}
 }

@@ -97,7 +97,7 @@ export class ArrowOfRecording extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
-		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
 		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
@@ -127,6 +127,7 @@ export class ArrowOfRecording extends Entity {
 			frontOverride: () => {
 				if (this.recordingState.get() === "recording") return RED
 			},
+			infinite: this.infinite,
 		})
 
 		// Nogan behaviour

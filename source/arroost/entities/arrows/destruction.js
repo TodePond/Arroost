@@ -52,7 +52,7 @@ export class ArrowOfDestruction extends Entity {
 				position,
 			}),
 		)
-		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
 		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
@@ -97,6 +97,7 @@ export class ArrowOfDestruction extends Entity {
 			back: this.back.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 		this.front.dom.transform.rotation.set(Math.PI / 4)
 

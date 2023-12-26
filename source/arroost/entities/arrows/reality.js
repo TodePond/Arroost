@@ -68,9 +68,9 @@ export class ArrowOfReality extends Entity {
 				// cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
-		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new RectangleHtml({ input: this.input }))
@@ -86,6 +86,7 @@ export class ArrowOfReality extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 
 		// Nogan behaviours

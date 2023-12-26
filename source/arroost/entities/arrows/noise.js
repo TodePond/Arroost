@@ -53,6 +53,7 @@ export class ArrowOfNoise extends Entity {
 			front: null,
 			input: this.input,
 			tunnel: null,
+			infinite: null,
 		})
 
 		this.stem.dimensions.set([FULL, this.height.get()])

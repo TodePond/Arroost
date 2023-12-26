@@ -170,6 +170,7 @@ export class Tunnel extends Component {
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
+		this.isInfinite = isInfinite
 		Tunnel.set(id, this)
 
 		if (!(this.entity.dom instanceof Dom)) {
