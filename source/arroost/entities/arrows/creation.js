@@ -43,9 +43,9 @@ export class ArrowOfCreation extends Entity {
 				position,
 			}),
 		)
+		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
-		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
 
 		// Render elements
 		this.back = this.attach(new EllipseHtml({ input: this.input }))

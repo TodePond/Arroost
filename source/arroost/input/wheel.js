@@ -66,14 +66,29 @@ export const registerWheel = () => {
 	)
 
 	addEventListener("keydown", (e) => {
-		if (e.key === ".") {
-			shared.zoomer.smoothMode = false
-			shared.zoomer.desiredSpeed = 0
-		} else if (e.key === ",") {
-			shared.zoomer.smoothMode = true
-			shared.zoomer.desiredSpeed = 0
-		} else if (e.key === "/") {
-			shared.zoomer.desiredSpeed = 0
+		switch (e.key) {
+			case ".": {
+				shared.zoomer.smoothMode = false
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case ",": {
+				shared.zoomer.smoothMode = true
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case "/": {
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case "o": {
+				shared.scene.setCameraCenter([0.01, 0.01])
+				break
+			}
+			case "p": {
+				shared.scene.moveCameraCenter([100, 0])
+				break
+			}
 		}
 	})
 }

@@ -97,9 +97,9 @@ export class ArrowOfRecording extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: true }))
-		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 		if (!preview) this.infinite = this.attach(new Infinite({ dom: this.dom }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
+		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
 		this.noise = this.attach(new ArrowOfNoise(this))

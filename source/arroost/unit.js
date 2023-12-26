@@ -8,3 +8,5 @@ export const TENTH = FULL / 10
 
 export const ZOOMING_IN_THRESHOLD = 20.0
 export const ZOOM_IN_THRESHOLD = 60.0
+export const PARENT_SCALE = 100
+export const CHILD_SCALE = 1 / PARENT_SCALE

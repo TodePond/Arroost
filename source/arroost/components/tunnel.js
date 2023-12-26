@@ -240,7 +240,7 @@ export class Tunnel extends Component {
 	useCell({ dom, carry, input }) {
 		this.use(() => {
 			if (input?.state("dragging").active.get()) return
-			const position = dom.transform.position.get()
+			const position = dom.transform.absolutePosition.get()
 			const velocity = carry?.movement.velocity.get() ?? [0, 0]
 			const cell = getCell(shared.nogan, this.id)
 			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)

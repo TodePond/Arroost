@@ -9,6 +9,7 @@ import {
 	distanceBetween,
 	equals,
 	fireEvent,
+	scale,
 	subtract,
 	use,
 } from "../../../libraries/habitat-import.js"
@@ -22,9 +23,10 @@ import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
 import { Tunnel } from "../components/tunnel.js"
-import { ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { c } from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
+import { triggerSomethingHasMoved } from "../machines/hover.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -222,6 +224,30 @@ export class Scene extends Entity {
 		this.shouldDealWithInfinites = true
 	}
 
+	setCameraCenter(position = [0, 0]) {
+		const { width, height } = this.bounds.get()
+		const scale = this.dom.transform.scale.get().x
+		this.dom.transform.position.set([
+			(width / 2 - position.x) * scale,
+			(height / 2 - position.y) * scale,
+		])
+
+		triggerSomethingHasMoved()
+		fireEvent("pointermove", {
+			clientX: shared.pointer.transform.position.get().x,
+			clientY: shared.pointer.transform.position.get().y,
+			pointerId: -1,
+			target: window, //maybe needs to be more specific?
+		})
+		shared.scene.shouldDealWithInfinites = true
+	}
+
+	moveCameraCenter(displacement = [0, 0]) {
+		const { center } = this.bounds.get()
+		const newCenter = add(center, displacement)
+		this.setCameraCenter(newCenter)
+	}
+
 	/** @type {Signal<null | Entity & {infinite: Infinite; dom: Dom}>} */
 	infiniteTarget = this.use(null)
 	dealWithInfinites() {
@@ -257,11 +283,11 @@ export class Scene extends Entity {
 			}
 		}
 
+		if (!closestTunnel) return
+
 		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) {
 			return
 		}
-
-		if (!closestTunnel) return
 
 		this.replaceLayer(closestTunnel)
 	}
@@ -297,8 +323,10 @@ export class Scene extends Entity {
 			// layer.dispose()
 		}
 
+		const tunnelPosition = tunnel.entity.dom.transform.absolutePosition.get()
+
 		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOM_IN_THRESHOLD
-		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * 0.01)
+		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * CHILD_SCALE)
 		this.infiniteTarget.get()?.infinite.state.set("none")
 		this.infiniteTarget.set(null)
 		// this.recreateSceneLayers()

@@ -97,6 +97,7 @@ addEventListener(
 Object.assign(window, { Nogan, shared, NoganSchema })
 Object.assign(window, shared)
 Object.assign(window, Habitat)
+window["Habitat"] = Habitat
 
 //================//
 // START THE LOOP //

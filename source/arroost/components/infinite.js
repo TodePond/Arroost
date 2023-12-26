@@ -8,7 +8,7 @@ import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, getTemplate, iterateCells, t } from "../../nogan/nogan.js"
-import { ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import { CHILD_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
 import { CELL_CONSTRUCTORS } from "./tunnel.js"
 
@@ -35,7 +35,7 @@ export class Infinite extends Component {
 		})
 
 		this.dom.style.zIndex.set(1000)
-		this.dom.transform.scale.set([1 / 100, 1 / 100])
+		this.dom.transform.scale.set([CHILD_SCALE, CHILD_SCALE])
 		this.dom.style.pointerEvents.set("none")
 
 		this.parent.append(this.dom)
@@ -73,7 +73,6 @@ export class Infinite extends Component {
 	 * @param {number} level
 	 */
 	appendContentsForLevel(level) {
-		console.log("APPEND")
 		for (const cell of iterateCells(shared.nogan)) {
 			if (cell.parent !== level) continue
 			const entity = CELL_CONSTRUCTORS[cell.type]({
