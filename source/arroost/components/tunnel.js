@@ -8,6 +8,8 @@ import {
 	WHITE,
 	YELLOW,
 	equals,
+	scale,
+	subtract,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { getCell, getWire, isFiring, moveCell } from "../../nogan/nogan.js"
@@ -28,6 +30,8 @@ import { ArrowOfColour } from "../entities/arrows/colour.js"
 import { ArrowOfReality } from "../entities/arrows/reality.js"
 import { ArrowOfDefinition } from "../entities/arrows/writing.js"
 import { Infinite } from "./infinite.js"
+import { Marker } from "../entities/debug/marker.js"
+import { PARENT_SCALE } from "../unit.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -397,6 +401,30 @@ export const CELL_CONSTRUCTORS = {
 	},
 
 	root: () => {
+		// const centerMarker = new Marker()
+		// centerMarker.dom.transform.setAbsolutePosition([0, 0])
+
+		// const cameraCenterMarker = new Marker()
+		// // shared.scene.layer.ghost.append(cameraCenterMarker.dom)
+		// let i = 0
+		// cameraCenterMarker.use(() => {
+		// 	const center = shared.scene.bounds.get().center
+		// 	const target = shared.scene.infiniteTarget.get()
+		// 	if (!target) return
+
+		// 	const sceneScale = shared.scene.dom.transform.scale.get().x
+		// 	const targetPosition = target.dom.transform.absolutePosition.get()
+
+		// 	const position = scale(subtract(center, targetPosition), PARENT_SCALE)
+
+		// 	cameraCenterMarker.dom.transform.position.set(position)
+
+		// 	// const scale = shared.scene.dom.transform.scale.get().x
+		// 	// cameraCenterMarker.dom.transform.scale.set([(1 / scale) * 0.5, (1 / scale) * 0.5])
+		// }, [shared.scene.bounds, shared.scene.infiniteTarget])
+
+		// return cameraCenterMarker
+
 		// Don't need to do anything for this!
 		return null
 	},
