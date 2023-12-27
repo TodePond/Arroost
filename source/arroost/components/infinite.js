@@ -45,7 +45,11 @@ export class Infinite extends Component {
 		this.use(() => {
 			switch (this.state.get()) {
 				case "zooming-in": {
-					const t = ilerp(shared.scene.dom.transform.scale.get().x, ZOOMING_IN_THRESHOLD, 50)
+					const t = ilerp(
+						shared.scene.dom.transform.scale.get().x,
+						ZOOMING_IN_THRESHOLD,
+						ZOOM_IN_THRESHOLD,
+					)
 					const opacity = lerp([0, 100], t)
 					this.dom?.style.opacity.set(opacity)
 					break

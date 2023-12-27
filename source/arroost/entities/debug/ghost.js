@@ -1,8 +1,8 @@
-import { WHITE, equals } from "../../../libraries/habitat-import.js"
-import { shared } from "../../main.js"
-import { Dom } from "../components/dom.js"
-import { Entity } from "./entity.js"
-import { Ellipse } from "./shapes/ellipse.js"
+import { WHITE, equals } from "../../../../libraries/habitat-import.js"
+import { shared } from "../../../main.js"
+import { Dom } from "../../components/dom.js"
+import { Entity } from "../entity.js"
+import { Ellipse } from "../shapes/ellipse.js"
 
 export class Ghost extends Entity {
 	constructor() {

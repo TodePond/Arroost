@@ -159,6 +159,7 @@ export class Carry extends Component {
 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
 		const position = subtract(pointerPosition, e.state.absoluteOffset)
 		this.setAbsolutePosition(position)
+		shared.scene.shouldDealWithInfinites = true
 	}
 
 	onDraggingPointerUp(e) {
