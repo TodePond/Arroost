@@ -8,6 +8,8 @@ import {
 	WHITE,
 	YELLOW,
 	equals,
+	scale,
+	subtract,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { getCell, getWire, isFiring, moveCell } from "../../nogan/nogan.js"
@@ -26,6 +28,10 @@ import { ArrowOfConnection } from "../entities/arrows/connection.js"
 import { ArrowOfTiming } from "../entities/arrows/timing.js"
 import { ArrowOfColour } from "../entities/arrows/colour.js"
 import { ArrowOfReality } from "../entities/arrows/reality.js"
+import { ArrowOfDefinition } from "../entities/arrows/writing.js"
+import { Infinite } from "./infinite.js"
+import { Marker } from "../entities/debug/marker.js"
+import { PARENT_SCALE } from "../unit.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -37,9 +43,9 @@ export class Tunnel extends Component {
 	static tunnels = new Map()
 
 	/**
-	 * @type {Set<Tunnel>}
+	 * @type {Set<Tunnel & {entity: { infinite: Infinite}}>}
 	 */
-	static inViewZoomableTunnels = new Set()
+	static inViewInfiniteTunnels = new Set()
 
 	/**
 	 * @param {Operation[]} operations
@@ -152,31 +158,47 @@ export class Tunnel extends Component {
 	 * @param {CellId | WireId} id
 	 * @param {{
 	 *   destroyable?: boolean | undefined
-	 *   entity: Entity & {dom: Dom; input?: Input; flaps?: ArrowOfTiming; wireColour?: Signal<WireColour>}
-	 *   zoomable?: boolean | undefined
+	 *   entity: Entity & {
+	 * 		dom: Dom;
+	 * 		input?: Input;
+	 * 		flaps?: ArrowOfTiming;
+	 * 		wireColour?: Signal<WireColour>;
+	 * 		carry?: Carry;
+	 * 	 }
+	 *   isInfinite?: boolean | undefined
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity, zoomable }) {
+	constructor(id, { destroyable, entity, isInfinite = false }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
-		this.zoomable = zoomable ?? this.type === "cell"
+		this.isInfinite = isInfinite
 		Tunnel.set(id, this)
 
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
-		if (this.zoomable) {
+		if (isInfinite) {
 			this.use(() => {
 				if (this.entity.dom.outOfView.get()) {
-					Tunnel.inViewZoomableTunnels.delete(this)
+					// @ts-expect-error: i promise not to remove components
+					Tunnel.inViewInfiniteTunnels.delete(this)
 				} else {
-					Tunnel.inViewZoomableTunnels.add(this)
+					// @ts-expect-error: i promise not to remove components
+					Tunnel.inViewInfiniteTunnels.add(this)
 				}
 			}, [this.entity.dom.outOfView])
+		}
+
+		if (this.type === "cell") {
+			this.useCell({
+				dom: this.entity.dom,
+				carry: this.entity.carry,
+				input: this.entity.input,
+			})
 		}
 	}
 
@@ -195,7 +217,8 @@ export class Tunnel extends Component {
 		const tunnel = Tunnel.get(id)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		Tunnel.tunnels.delete(id)
-		Tunnel.inViewZoomableTunnels.delete(tunnel)
+		// @ts-expect-error: i promise not to remove components
+		Tunnel.inViewInfiniteTunnels.delete(tunnel)
 	}
 
 	/**
@@ -216,34 +239,31 @@ export class Tunnel extends Component {
 	 * @param {{
 	 * 	dom: Dom
 	 * 	carry?: Carry
-	 * 	input: Input
+	 * 	input?: Input
 	 * }} option
 	 */
-	// useCell({ dom, carry, input }) {
-	// -------
-	// TODO: This will update the position of the cell in the nogan
-	// But there's currently nothing that can programmatically move a cell
-	// So it's not needed yet
-	// -------
-	// this.use(() => {
-	// 	if (input.state("dragging").active.get()) return
-	// 	const position = dom.transform.position.get()
-	// 	const velocity = carry?.movement.velocity.get() ?? [0, 0]
-	// 	const cell = getCell(shared.nogan, this.id)
-	// 	if (equals(cell.position, position)) return
-	// 	Tunnel.apply(() => {
-	// 		return moveCell(shared.nogan, {
-	// 			id: this.id,
-	// 			position,
-	// 			propogate: equals(velocity, [0, 0]),
-	// 			filter: (id) => {
-	// 				const cell = getCell(shared.nogan, id)
-	// 				return cell.type === "slot"
-	// 			},
-	// 		})
-	// 	})
-	// })
-	// }
+	useCell({ dom, carry, input }) {
+		this.use(() => {
+			if (input?.state("dragging").active.get()) return
+			const position = dom.transform.absolutePosition.get()
+			const velocity = carry?.movement.velocity.get() ?? [0, 0]
+			const cell = getCell(shared.nogan, this.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
+			if (equals(cell.position, position)) return
+			Tunnel.apply(() => {
+				return moveCell(shared.nogan, {
+					id: this.id,
+					position,
+					propogate: equals(velocity, [0, 0]),
+					filter: (id) => {
+						const cell = getCell(shared.nogan, id)
+						if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
+						return cell.type === "slot"
+					},
+				})
+			})
+		})
+	}
 
 	/**
 	 * @param {Partial<CellTemplate>} template
@@ -322,6 +342,7 @@ const TUNNELS = {
 
 			tunnel.entity.dispose()
 			const newEntity = CELL_CONSTRUCTORS[template.type]({ id, position, template })
+			if (!newEntity) return
 			shared.scene.layer.cell.append(newEntity.dom)
 
 			for (const inputEntity of inputEntities) {
@@ -352,17 +373,20 @@ const TUNNELS = {
 	tag: noop,
 }
 
-/** @type {Record<Cell['type'], (args: any) => Entity & {dom: Dom}>} */
+/** @type {Record<Cell['type'], (args: any) => (Entity & {dom: Dom}) | null>} */
 export const CELL_CONSTRUCTORS = {
-	creation: ({ id, position }) => new ArrowOfCreation({ id, position }),
-	dummy: ({ id, position }) => new ArrowOfDummy({ id, position }),
-	recording: ({ id, position, template }) => {
-		return new ArrowOfRecording({ id, position, recordingKey: template.key })
+	creation: ({ id, position, preview }) => new ArrowOfCreation({ id, position, preview }),
+	dummy: ({ id, position, preview }) => new ArrowOfDummy({ id, position, preview }),
+	recording: ({ id, position, template, preview }) => {
+		return new ArrowOfRecording({ id, position, recordingKey: template.key, preview })
 	},
-	slot: ({ id, position }) => new ArrowOfSlot({ id, position }),
-	destruction: ({ id, position }) => new ArrowOfDestruction({ id, position }),
-	connection: ({ id, position }) => new ArrowOfConnection({ id, position }),
-	reality: ({ id, position }) => new ArrowOfReality({ id, position }),
+	slot: ({ id, position, preview }) => new ArrowOfSlot({ id, position, preview }),
+	destruction: ({ id, position, preview }) => new ArrowOfDestruction({ id, position, preview }),
+	connection: ({ id, position, preview }) => new ArrowOfConnection({ id, position, preview }),
+	reality: ({ id, position, preview }) => new ArrowOfReality({ id, position, preview }),
+	definition: ({ id, position, preview }) => {
+		return new ArrowOfDefinition({ id, position, preview })
+	},
 
 	colour: () => {
 		throw new Error("Colour cells cannot be created programmatically")
@@ -377,6 +401,31 @@ export const CELL_CONSTRUCTORS = {
 	},
 
 	root: () => {
-		throw new Error("Root cells cannot be created")
+		// const centerMarker = new Marker()
+		// centerMarker.dom.transform.setAbsolutePosition([0, 0])
+
+		// const cameraCenterMarker = new Marker()
+		// // shared.scene.layer.ghost.append(cameraCenterMarker.dom)
+		// let i = 0
+		// cameraCenterMarker.use(() => {
+		// 	const center = shared.scene.bounds.get().center
+		// 	const target = shared.scene.infiniteTarget.get()
+		// 	if (!target) return
+
+		// 	const sceneScale = shared.scene.dom.transform.scale.get().x
+		// 	const targetPosition = target.dom.transform.absolutePosition.get()
+
+		// 	const position = scale(subtract(center, targetPosition), PARENT_SCALE)
+
+		// 	cameraCenterMarker.dom.transform.position.set(position)
+
+		// 	// const scale = shared.scene.dom.transform.scale.get().x
+		// 	// cameraCenterMarker.dom.transform.scale.set([(1 / scale) * 0.5, (1 / scale) * 0.5])
+		// }, [shared.scene.bounds, shared.scene.infiniteTarget])
+
+		// return cameraCenterMarker
+
+		// Don't need to do anything for this!
+		return null
 	},
 }

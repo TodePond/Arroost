@@ -145,7 +145,7 @@ export class Carry extends Component {
 			const position = subtract(pointerPosition, e.state.absoluteOffset)
 			const dampened = lerp([e.state.absoluteStart, position], 0.5)
 			this.setAbsolutePosition(dampened)
-			shared.scene.shouldDealWithZoomers = true
+			shared.scene.shouldDealWithInfinites = true
 			return new Dragging(this.input)
 		}
 	}
@@ -159,6 +159,7 @@ export class Carry extends Component {
 		const pointerPosition = shared.pointer.transform.absolutePosition.get()
 		const position = subtract(pointerPosition, e.state.absoluteOffset)
 		this.setAbsolutePosition(position)
+		shared.scene.shouldDealWithInfinites = true
 	}
 
 	onDraggingPointerUp(e) {

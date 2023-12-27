@@ -50,6 +50,7 @@ export const getPointer = () => {
 	addEventListener("pointermove", (e) => {
 		if (e.pointerId < 0) return
 		updatePosition([e.clientX, e.clientY])
+		// print(transform.absolutePosition.get())
 	})
 
 	addEventListener("pointerup", (e) => {

@@ -6,4 +6,8 @@ export const FIFTH = FULL / 5
 export const SIXTH = FULL / 6
 export const TENTH = FULL / 10
 
-export const ZOOM_IN_THRESHOLD = 60.0
+export const ZOOMING_IN_THRESHOLD = 5.0
+export const ZOOM_IN_THRESHOLD = 40.0
+
+export const PARENT_SCALE = 100
+export const CHILD_SCALE = 1 / PARENT_SCALE

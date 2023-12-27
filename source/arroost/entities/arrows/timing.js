@@ -108,6 +108,7 @@ export class ArrowOfTiming extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: null,
 		})
 		this.timing.set(getWire(shared.nogan, wire).timing)
 		this.use(() => {

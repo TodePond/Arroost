@@ -86,6 +86,7 @@ export class ArrowOfTyping extends Entity {
 			// front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: null,
 		})
 
 		// Nogan behaviours

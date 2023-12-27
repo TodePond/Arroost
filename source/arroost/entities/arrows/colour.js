@@ -104,6 +104,7 @@ export class ArrowOfColour extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: null,
 		})
 		this.colour.set(getWire(shared.nogan, wire).colour)
 

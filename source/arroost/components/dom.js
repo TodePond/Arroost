@@ -66,6 +66,7 @@ export class Dom extends Component {
 	}
 
 	outOfView = this.use(false)
+	forceInView = this.use(false)
 
 	getContainer() {
 		if (this.#container) return this.#container
@@ -150,15 +151,10 @@ export class Dom extends Component {
 			}, [this.transform.absolutePosition, shared.scene.bounds])
 		}
 
-		this.use(
-			() => {
-				const outOfView = this.outOfView.get()
-				container.style.display = outOfView ? "none" : "block"
-			},
-			{
-				parents: [this.outOfView],
-			},
-		)
+		this.use(() => {
+			const outOfView = this.outOfView.get()
+			container.style.display = outOfView ? "block" : "block"
+		}, [this.outOfView, this.forceInView])
 
 		const element = this.getElement()
 		if (element) container.append(element)
@@ -176,6 +172,10 @@ export class Dom extends Component {
 		const container = dom.getContainer()
 		this.getContainer().append(container)
 		return container
+	}
+
+	clear() {
+		this.getContainer().innerHTML = ""
 	}
 
 	dispose() {

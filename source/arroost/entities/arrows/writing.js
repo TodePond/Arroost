@@ -20,13 +20,15 @@ import { ArrowOfRecording } from "./recording.js"
 import { Targeter } from "../shapes/targeter.js"
 import { TextInput } from "../shapes/text-input.js"
 import { ArrowOfTyping } from "./typing.js"
+import { Infinite } from "../../components/infinite.js"
 
-export class ArrowOfWriting extends Entity {
+export class ArrowOfDefinition extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { parent: shared.level, type: "dummy" }).id,
+		id = createCell(shared.nogan, { parent: shared.level, type: "definition" }).id,
 		position = t([0, 0]),
+		preview = false,
 	}) {
 		super()
 		triggerCounter()
@@ -42,7 +44,8 @@ export class ArrowOfWriting extends Entity {
 				cullBounds: [HALF, HALF],
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
@@ -86,6 +89,7 @@ export class ArrowOfWriting extends Entity {
 			back: this.back.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 
 		// Nogan behaviours

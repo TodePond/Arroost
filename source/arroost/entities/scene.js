@@ -9,21 +9,23 @@ import {
 	distanceBetween,
 	equals,
 	fireEvent,
+	scale,
 	subtract,
 	use,
 } from "../../../libraries/habitat-import.js"
 import { Dragging } from "../machines/input.js"
 import { Input } from "../components/input.js"
 import { Movement } from "../components/movement.js"
-import { Ghost } from "./ghost.js"
-import { Counter } from "./counter.js"
 import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
 import { Tunnel } from "../components/tunnel.js"
-import { ZOOM_IN_THRESHOLD } from "../unit.js"
-import { c } from "../../nogan/nogan.js"
+import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import { c, t } from "../../nogan/nogan.js"
+import { Infinite } from "../components/infinite.js"
+import { triggerSomethingHasMoved } from "../machines/hover.js"
+import { Marker } from "./debug/marker.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -40,7 +42,7 @@ export class Scene extends Entity {
 		height: innerHeight,
 		right: innerWidth,
 		bottom: innerHeight,
-		center: [innerWidth / 2, innerHeight / 2],
+		center: t([innerWidth / 2, innerHeight / 2]),
 	})
 
 	constructor() {
@@ -115,6 +117,18 @@ export class Scene extends Entity {
 		}, [this.focusMode])
 		this.layer.hud.append(this.focusModeIndicator.dom)
 
+		// const centerMarker = new Marker()
+		// this.layer.ghost.append(centerMarker.dom)
+		// centerMarker.dom.transform.setAbsolutePosition([0, 0])
+
+		// const cameraCenterMarker = new Marker()
+		// this.layer.ghost.append(cameraCenterMarker.dom)
+		// this.use(() => {
+		// 	cameraCenterMarker.dom.transform.setAbsolutePosition(this.bounds.get().center)
+		// 	const scale = this.dom.transform.scale.get().x
+		// 	cameraCenterMarker.dom.transform.scale.set([(1 / scale) * 0.3, (1 / scale) * 0.3])
+		// }, [this.bounds])
+
 		addEventListener("keydown", () => replenishUnlocks(true), { once: true })
 		addEventListener("pointerdown", () => replenishUnlocks(true), { once: true })
 	}
@@ -124,6 +138,9 @@ export class Scene extends Entity {
 		const container = this.dom.getContainer()
 		html.append(container)
 		html.append(this.layer.hud.getContainer())
+
+		// const centerMarker = new Marker()
+		// this.layer.hud.append(centerMarker.dom)
 	}
 
 	resize() {
@@ -149,10 +166,10 @@ export class Scene extends Entity {
 		const start = e.state.start
 		const newPosition = add(pointerPosition, subtract(start, pointerStart))
 		this.dom.transform.setAbsolutePosition(newPosition)
-		this.shouldDealWithZoomers = true
+		this.shouldDealWithInfinites = true
 	}
 
-	shouldDealWithZoomers = false
+	shouldDealWithInfinites = false
 
 	onDraggingPointerUp(e) {
 		const velocity = shared.pointer.velocity.get()
@@ -180,7 +197,7 @@ export class Scene extends Entity {
 				},
 				PointerEvent,
 			)
-			this.shouldDealWithZoomers = true
+			this.shouldDealWithInfinites = true
 		}
 
 		const zoomSpeed = this.zoomSpeed.get()
@@ -191,9 +208,9 @@ export class Scene extends Entity {
 			this.zoom(shared.zoomer.speed + zoomSpeed)
 		}
 
-		if (this.shouldDealWithZoomers) {
-			this.dealWithZoomers()
-			this.shouldDealWithZoomers = false
+		if (this.shouldDealWithInfinites) {
+			this.shouldDealWithInfinites = false
+			this.dealWithInfinites()
 		}
 	}
 
@@ -218,20 +235,47 @@ export class Scene extends Entity {
 		const scaledPointerOffset = Habitat.scale(pointerOffset, scaleRatio)
 		this.dom.transform.position.set(subtract(pointerPosition, scaledPointerOffset))
 
-		this.shouldDealWithZoomers = true
+		this.shouldDealWithInfinites = true
 	}
 
-	/** @type {Signal<"none" | "zooming-in" | "zooming-out">} */
-	zoomState = this.use("none")
-	dealWithZoomers() {
-		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) return
+	setCameraCenter(position = [0, 0]) {
+		const { width, height } = this.bounds.get()
+		const scale = this.dom.transform.scale.get().x
+		this.dom.transform.position.set([
+			(width / 2 - position.x) * scale,
+			(height / 2 - position.y) * scale,
+		])
+
+		triggerSomethingHasMoved()
+		fireEvent("pointermove", {
+			clientX: shared.pointer.transform.position.get().x,
+			clientY: shared.pointer.transform.position.get().y,
+			pointerId: -1,
+			target: window, //maybe needs to be more specific?
+		})
+		shared.scene.shouldDealWithInfinites = true
+	}
+
+	moveCameraCenter(displacement = [0, 0]) {
+		const { center } = this.bounds.get()
+		const newCenter = add(center, displacement)
+		this.setCameraCenter(newCenter)
+	}
+
+	/** @type {Signal<null | Entity & {infinite: Infinite; dom: Dom}>} */
+	infiniteTarget = this.use(null)
+	dealWithInfinites() {
+		if (shared.scene.dom.transform.scale.get().x < ZOOMING_IN_THRESHOLD) {
+			this.infiniteTarget.get()?.infinite.state.set("none")
+			this.infiniteTarget.set(null)
+			return
+		}
 
 		// TODO: this should also factor in z-index
 		// and maybe have a minimum distance from the center of the screen
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
-		for (const tunnel of Tunnel.inViewZoomableTunnels.values()) {
-			if (!tunnel.zoomable) continue
+		for (const tunnel of Tunnel.inViewInfiniteTunnels.values()) {
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
@@ -241,7 +285,32 @@ export class Scene extends Entity {
 			}
 		}
 
+		const newTarget = closestTunnel?.entity ?? null
+
+		// Swap out infinite target
+		if (newTarget !== this.infiniteTarget.get()) {
+			this.infiniteTarget.get()?.infinite.state.set("none")
+			this.infiniteTarget.set(newTarget)
+
+			if (newTarget) {
+				newTarget.infinite.state.set("zooming-in")
+			}
+		}
+
 		if (!closestTunnel) return
+
+		// print(
+		// 	"CELL:",
+		// 	...closestTunnel.entity.dom.transform.absolutePosition.get().map((v) => parseInt("" + v)),
+		// )
+
+		// print("SCENE:", ...this.dom.transform.absolutePosition.get().map((v) => parseInt("" + v)))
+
+		// print("CAMERA:", ...this.bounds.get().center.map((v) => parseInt("" + v)))
+
+		if (shared.scene.dom.transform.scale.get().x < ZOOM_IN_THRESHOLD) {
+			return
+		}
 
 		this.replaceLayer(closestTunnel)
 	}
@@ -277,7 +346,15 @@ export class Scene extends Entity {
 			// layer.dispose()
 		}
 
-		this.setZoom(0.01)
+		const { center } = this.bounds.get()
+		const targetPosition = tunnel.entity.dom.transform.absolutePosition.get()
+		const position = scale(subtract(center, targetPosition), PARENT_SCALE)
+
+		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOM_IN_THRESHOLD
+		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * CHILD_SCALE)
+		this.setCameraCenter(position)
+		this.infiniteTarget.get()?.infinite.state.set("none")
+		this.infiniteTarget.set(null)
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
 	}

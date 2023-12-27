@@ -28,6 +28,7 @@ import { replenishUnlocks, unlocks } from "../unlock.js"
 import { Targeter } from "../shapes/targeter.js"
 import { ArrowOfSlot } from "./slot.js"
 import { ArrowOfReality } from "./reality.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfDestruction extends Entity {
 	pulling = this.use(false)
@@ -35,6 +36,7 @@ export class ArrowOfDestruction extends Entity {
 	constructor({
 		id = createCell(shared.nogan, { parent: shared.level, type: "destruction" }).id,
 		position = t([0, 0]),
+		preview = false,
 	}) {
 		super()
 		triggerCounter()
@@ -50,7 +52,8 @@ export class ArrowOfDestruction extends Entity {
 				position,
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
@@ -94,6 +97,7 @@ export class ArrowOfDestruction extends Entity {
 			back: this.back.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 		this.front.dom.transform.rotation.set(Math.PI / 4)
 

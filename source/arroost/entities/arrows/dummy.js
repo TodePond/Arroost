@@ -27,17 +27,20 @@ import { setCellStyles } from "./shared.js"
 import { FULL, HALF, QUARTER, SIXTH, THIRD } from "../../unit.js"
 import { triggerCounter } from "../counter.js"
 import { EllipseHtml } from "../shapes/ellipse-html.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfDummy extends Entity {
 	/**
 	 * @param {{
 	 * 	id?: CellId
 	 * 	position?: [number, number]
+	 * 	preview?: boolean
 	 * }} options
 	 */
 	constructor({
 		position = t([0, 0]),
 		id = createCell(shared.nogan, { parent: shared.level, type: "dummy", position }).id,
+		preview = false,
 	} = {}) {
 		super()
 
@@ -54,7 +57,8 @@ export class ArrowOfDummy extends Entity {
 				cullBounds: [(FULL * 2) / 3, (FULL * 2) / 3],
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
@@ -71,6 +75,7 @@ export class ArrowOfDummy extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 
 		// Nogan behaviours

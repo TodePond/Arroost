@@ -60,20 +60,43 @@ export const registerWheel = () => {
 				pointerId: -1,
 				target: window, //maybe needs to be more specific?
 			})
-			shared.scene.shouldDealWithZoomers = true
+			shared.scene.shouldDealWithInfinites = true
 		},
 		{ passive: false },
 	)
 
 	addEventListener("keydown", (e) => {
-		if (e.key === ".") {
-			shared.zoomer.smoothMode = false
-			shared.zoomer.desiredSpeed = 0
-		} else if (e.key === ",") {
-			shared.zoomer.smoothMode = true
-			shared.zoomer.desiredSpeed = 0
-		} else if (e.key === "/") {
-			shared.zoomer.desiredSpeed = 0
+		switch (e.key) {
+			case ".": {
+				shared.zoomer.smoothMode = false
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case ",": {
+				shared.zoomer.smoothMode = true
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case "/": {
+				shared.zoomer.desiredSpeed = 0
+				break
+			}
+			case "o": {
+				shared.scene.setCameraCenter([0.01, 0.01])
+				break
+			}
+			case "p": {
+				shared.scene.moveCameraCenter([100, 0])
+				break
+			}
+			case "ArrowUp": {
+				shared.zoomer.desiredSpeed -= 0.005
+				break
+			}
+			case "ArrowDown": {
+				shared.zoomer.desiredSpeed += 0.005
+				break
+			}
 		}
 	})
 }

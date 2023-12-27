@@ -17,6 +17,7 @@ import { ArrowOfTime } from "./time.js"
 import { setCellStyles } from "./shared.js"
 import { ArrowOfSlot } from "./slot.js"
 import { Targeter } from "../shapes/targeter.js"
+import { Infinite } from "../../components/infinite.js"
 
 export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
@@ -24,6 +25,7 @@ export class ArrowOfConnection extends Entity {
 	constructor({
 		id = createCell(shared.nogan, { parent: shared.level, type: "connection" }).id,
 		position = t([0, 0]),
+		preview = false,
 	}) {
 		super()
 		triggerCounter()
@@ -39,7 +41,8 @@ export class ArrowOfConnection extends Entity {
 				position,
 			}),
 		)
-		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements
@@ -96,6 +99,7 @@ export class ArrowOfConnection extends Entity {
 			back: this.back.dom,
 			input: this.input,
 			tunnel: this.tunnel,
+			infinite: this.infinite,
 		})
 		this.use(() => {
 			this.backFront.dom.style.fill.set(this.back.dom.style.fill.get())
