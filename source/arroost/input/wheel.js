@@ -89,6 +89,14 @@ export const registerWheel = () => {
 				shared.scene.moveCameraCenter([100, 0])
 				break
 			}
+			case "ArrowUp": {
+				shared.zoomer.desiredSpeed -= 0.005
+				break
+			}
+			case "ArrowDown": {
+				shared.zoomer.desiredSpeed += 0.005
+				break
+			}
 		}
 	})
 }
