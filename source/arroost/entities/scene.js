@@ -376,8 +376,7 @@ export class Scene extends Entity {
 		const { center } = this.bounds.get()
 		const tunnel = Tunnel.get(1)
 		const targetPosition = tunnel?.entity.dom.transform.absolutePosition.get()
-		const position = scale(add(center, targetPosition), CHILD_SCALE)
-		//targetPosition //add(targetPosition, scale(center, CHILD_SCALE))
+		const position = add(targetPosition, scale(center, CHILD_SCALE))
 
 		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOMING_OUT_THRESHOLD
 		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
