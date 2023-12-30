@@ -69,7 +69,7 @@ export class ArrowOfReality extends Entity {
 			}),
 		)
 		this.infinite = this.attach(new Infinite({ dom: this.dom, isPreview: preview }))
-		this.tunnel = this.attach(new Tunnel(id, { entity: this, isInfinite: !preview }))
+		this.tunnel = this.attach(new Tunnel(id, { entity: this }))
 		this.carry = this.attach(new Carry({ input: this.input, dom: this.dom }))
 
 		// Render elements

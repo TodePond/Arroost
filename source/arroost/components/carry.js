@@ -162,6 +162,7 @@ export class Carry extends Component {
 		const position = subtract(pointerPosition, e.state.absoluteOffset)
 		this.setAbsolutePosition(position)
 		shared.scene.shouldDealWithInfinites = true
+		// Tunnel.get(1)?.entity["dom"].transform.getAbsolutePosition().d
 	}
 
 	onDraggingPointerUp(e) {

@@ -28,7 +28,7 @@ import { ArrowOfConnection } from "../entities/arrows/connection.js"
 import { ArrowOfTiming } from "../entities/arrows/timing.js"
 import { ArrowOfColour } from "../entities/arrows/colour.js"
 import { ArrowOfReality } from "../entities/arrows/reality.js"
-import { ArrowOfDefinition } from "../entities/arrows/writing.js"
+import { ArrowOfDefinition } from "../entities/arrows/definition.js"
 import { Infinite } from "./infinite.js"
 import { Marker } from "../entities/debug/marker.js"
 import { PARENT_SCALE } from "../unit.js"
@@ -164,24 +164,29 @@ export class Tunnel extends Component {
 	 * 		flaps?: ArrowOfTiming;
 	 * 		wireColour?: Signal<WireColour>;
 	 * 		carry?: Carry;
+	 * 		infinite?: Infinite;
 	 * 	 }
-	 *   isInfinite?: boolean | undefined
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity, isInfinite = false }) {
+	constructor(id, { destroyable, entity }) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
-		this.isInfinite = isInfinite
-		Tunnel.set(id, this)
+		this.isInfinite = entity.infinite !== undefined
+		this.isPreview = entity.infinite?.isPreview ?? false
+
+		// Todo: Registered tunnels should be an array of entities, not a single entity
+		if (!this.isPreview) {
+			Tunnel.set(id, this)
+		}
 
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
-		if (isInfinite) {
+		if (this.isInfinite && !this.isPreview) {
 			this.use(() => {
 				if (this.entity.dom.outOfView.get()) {
 					// @ts-expect-error: i promise not to remove components
