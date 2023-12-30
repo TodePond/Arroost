@@ -21,8 +21,14 @@ import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
 import { Tunnel } from "../components/tunnel.js"
-import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
-import { c, t } from "../../nogan/nogan.js"
+import {
+	CHILD_SCALE,
+	PARENT_SCALE,
+	ZOOMING_IN_THRESHOLD,
+	ZOOMING_OUT_THRESHOLD,
+	ZOOM_IN_THRESHOLD,
+} from "../unit.js"
+import { c, getCell, t } from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
 import { triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
@@ -264,10 +270,17 @@ export class Scene extends Entity {
 
 	/** @type {Signal<null | Entity & {infinite: Infinite; dom: Dom}>} */
 	infiniteTarget = this.use(null)
+
 	dealWithInfinites() {
-		if (shared.scene.dom.transform.scale.get().x < ZOOMING_IN_THRESHOLD) {
+		const scale = this.dom.transform.scale.get().x
+		if (scale < ZOOMING_IN_THRESHOLD) {
 			this.infiniteTarget.get()?.infinite.state.set("none")
 			this.infiniteTarget.set(null)
+
+			if (scale < ZOOMING_OUT_THRESHOLD) {
+				this.replaceLayerBackwards()
+			}
+
 			return
 		}
 
@@ -358,4 +371,26 @@ export class Scene extends Entity {
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
 	}
+
+	replaceLayerBackwards() {
+		const { center } = this.bounds.get()
+		const cell = getCell(shared.nogan, 1)
+		if (!cell) {
+			throw new Error("Couldn't find cell to come out of")
+		}
+
+		const position = add(cell.position, scale(center, CHILD_SCALE))
+		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOMING_OUT_THRESHOLD
+		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
+		this.dom.transform.scale.set([zoom, zoom])
+		this.setCameraCenter(position)
+	}
 }
+
+addEventListener("keydown", (e) => {
+	if (e.key === "y") {
+		const tunnel = Tunnel.get(1)
+		const entity = tunnel?.entity
+		entity?.dom.transform.setAbsolutePosition([0.001, 0.001])
+	}
+})

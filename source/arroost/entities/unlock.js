@@ -9,7 +9,7 @@ import { ArrowOfCreation } from "./arrows/creation.js"
 import { ArrowOfDestruction } from "./arrows/destruction.js"
 import { ArrowOfConnection } from "./arrows/connection.js"
 import { Entity } from "./entity.js"
-import { ArrowOfDefinition } from "./arrows/writing.js"
+import { ArrowOfDefinition } from "./arrows/definition.js"
 
 /**
  * @typedef {{

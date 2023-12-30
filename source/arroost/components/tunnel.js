@@ -28,10 +28,11 @@ import { ArrowOfConnection } from "../entities/arrows/connection.js"
 import { ArrowOfTiming } from "../entities/arrows/timing.js"
 import { ArrowOfColour } from "../entities/arrows/colour.js"
 import { ArrowOfReality } from "../entities/arrows/reality.js"
-import { ArrowOfDefinition } from "../entities/arrows/writing.js"
+import { ArrowOfDefinition } from "../entities/arrows/definition.js"
 import { Infinite } from "./infinite.js"
 import { Marker } from "../entities/debug/marker.js"
 import { PARENT_SCALE } from "../unit.js"
+import { ArrowOfTime } from "../entities/arrows/time.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -41,6 +42,11 @@ export class Tunnel extends Component {
 	 * @type {Map<number, Tunnel>}
 	 */
 	static tunnels = new Map()
+
+	/**
+	 * @type {Map<number, Tunnel>}
+	 */
+	static tunnelPreviews = new Map()
 
 	/**
 	 * @type {Set<Tunnel & {entity: { infinite: Infinite}}>}
@@ -164,24 +170,29 @@ export class Tunnel extends Component {
 	 * 		flaps?: ArrowOfTiming;
 	 * 		wireColour?: Signal<WireColour>;
 	 * 		carry?: Carry;
+	 * 		infinite?: Infinite;
 	 * 	 }
-	 *   isInfinite?: boolean | undefined
+	 *   forcePreview?: boolean
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity, isInfinite = false }) {
+	constructor(id, { destroyable, entity }, forcePreview = false) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
-		this.isInfinite = isInfinite
-		Tunnel.set(id, this)
+		this.isInfinite = entity.infinite !== undefined
+		this.isPreview = forcePreview || (entity.infinite?.isPreview ?? false)
+
+		// Todo: Registered tunnels should be an array of entities, not a single entity
+		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+		Tunnel.set(id, this, store)
 
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity must have Dom component`)
 		}
 
-		if (isInfinite) {
+		if (this.isInfinite && !this.isPreview) {
 			this.use(() => {
 				if (this.entity.dom.outOfView.get()) {
 					// @ts-expect-error: i promise not to remove components
@@ -205,33 +216,40 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {Tunnel} tunnel
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 */
-	static set(id, tunnel) {
-		Tunnel.tunnels.set(id, tunnel)
+	static set(id, tunnel, store = Tunnel.tunnels) {
+		store.set(id, tunnel)
 	}
 
 	/**
 	 * @param {CellId | WireId} id
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 */
-	static delete(id) {
-		const tunnel = Tunnel.get(id)
+	static delete(id, store = Tunnel.tunnels) {
+		const tunnel = Tunnel.get(id, store)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
-		Tunnel.tunnels.delete(id)
-		// @ts-expect-error: i promise not to remove components
-		Tunnel.inViewInfiniteTunnels.delete(tunnel)
+		store.delete(id)
+
+		if (store === Tunnel.tunnels) {
+			// @ts-expect-error: i promise not to remove components
+			Tunnel.inViewInfiniteTunnels.delete(tunnel)
+		}
 	}
 
 	/**
 	 * @param {CellId | WireId} id
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 * @returns {Tunnel | undefined}
 	 */
-	static get(id) {
-		return Tunnel.tunnels.get(id)
+	static get(id, store = Tunnel.tunnels) {
+		return store.get(id)
 	}
 
 	dispose() {
 		super.dispose()
-		Tunnel.delete(this.id)
+		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+		Tunnel.delete(this.id, store)
 	}
 
 	/**
@@ -389,10 +407,12 @@ export const CELL_CONSTRUCTORS = {
 	},
 
 	colour: () => {
+		return null
 		throw new Error("Colour cells cannot be created programmatically")
 	},
 
 	timing: () => {
+		return null
 		throw new Error("Time cells cannot be created programmatically")
 	},
 
@@ -428,4 +448,27 @@ export const CELL_CONSTRUCTORS = {
 		// Don't need to do anything for this!
 		return null
 	},
+}
+
+// Must be called only after all relevant cells have been created
+export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }) => {
+	const targetTunnel = Tunnel.get(target, Tunnel.tunnelPreviews)
+	const sourceTunnel = Tunnel.get(source, Tunnel.tunnelPreviews)
+
+	const targetEntity = targetTunnel?.entity
+	const sourceEntity = sourceTunnel?.entity
+
+	if (!targetEntity) throw new Error(`Wire: Can't find target entity ${target}`)
+	if (!sourceEntity) throw new Error(`Wire: Can't find source entity ${source}`)
+
+	return new ArrowOfTime({
+		id,
+		colour,
+		timing,
+		// @ts-expect-error: I promise I'll be careful!
+		source: sourceEntity,
+		// @ts-expect-error: I promise I'll be careful!
+		target: targetEntity,
+		preview,
+	})
 }
