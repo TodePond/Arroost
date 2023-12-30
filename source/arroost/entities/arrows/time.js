@@ -56,10 +56,12 @@ export class ArrowOfTime extends Entity {
 				colour,
 			})
 
-			this.tunnel = this.attach(new Tunnel(wire.id, { entity: this }))
+			this.tunnel = this.attach(
+				new Tunnel(wire.id, { entity: this, forcePreview: this.isPreview }),
+			)
 			Tunnel.apply(() => operations)
 		} else {
-			this.tunnel = this.attach(new Tunnel(id, { entity: this }))
+			this.tunnel = this.attach(new Tunnel(id, { entity: this, forcePreview: this.isPreview }))
 		}
 
 		// Render elements

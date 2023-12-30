@@ -91,6 +91,9 @@ export class Infinite extends Component {
 	 * @param {number} level
 	 */
 	appendContentsForLevel(level) {
+		const cellEntities = []
+		const wireEntities = []
+
 		for (const cell of iterateCells(shared.nogan)) {
 			if (cell.parent !== level) continue
 			const entity = CELL_CONSTRUCTORS[cell.type]({
@@ -105,7 +108,7 @@ export class Infinite extends Component {
 			// 	preview: true,
 			// })
 			if (entity) {
-				this.dom?.append(entity.dom)
+				cellEntities.push(entity)
 				this.previews.add(entity)
 			}
 		}
@@ -124,9 +127,17 @@ export class Infinite extends Component {
 			})
 
 			if (entity) {
-				this.dom?.append(entity.dom)
+				wireEntities.push(entity)
 				this.previews.add(entity)
 			}
+		}
+
+		for (const entity of wireEntities) {
+			this.dom?.append(entity.dom)
+		}
+
+		for (const entity of cellEntities) {
+			this.dom?.append(entity.dom)
 		}
 	}
 }

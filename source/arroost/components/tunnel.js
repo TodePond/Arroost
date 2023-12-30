@@ -44,6 +44,11 @@ export class Tunnel extends Component {
 	static tunnels = new Map()
 
 	/**
+	 * @type {Map<number, Tunnel>}
+	 */
+	static tunnelPreviews = new Map()
+
+	/**
 	 * @type {Set<Tunnel & {entity: { infinite: Infinite}}>}
 	 */
 	static inViewInfiniteTunnels = new Set()
@@ -167,21 +172,21 @@ export class Tunnel extends Component {
 	 * 		carry?: Carry;
 	 * 		infinite?: Infinite;
 	 * 	 }
+	 *   forcePreview?: boolean
 	 * }} options
 	 **/
-	constructor(id, { destroyable, entity }) {
+	constructor(id, { destroyable, entity }, forcePreview = false) {
 		super()
 		this.id = id
 		this.type = id >= 0 ? "cell" : "wire"
 		this.destroyable = destroyable
 		this.entity = entity
 		this.isInfinite = entity.infinite !== undefined
-		this.isPreview = entity.infinite?.isPreview ?? false
+		this.isPreview = forcePreview || (entity.infinite?.isPreview ?? false)
 
 		// Todo: Registered tunnels should be an array of entities, not a single entity
-		if (!this.isPreview) {
-			Tunnel.set(id, this)
-		}
+		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+		Tunnel.set(id, this, store)
 
 		if (!(this.entity.dom instanceof Dom)) {
 			throw new Error(`Tunnel: Entity must have Dom component`)
@@ -211,34 +216,40 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {Tunnel} tunnel
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 */
-	static set(id, tunnel) {
-		Tunnel.tunnels.set(id, tunnel)
+	static set(id, tunnel, store = Tunnel.tunnels) {
+		store.set(id, tunnel)
 	}
 
 	/**
 	 * @param {CellId | WireId} id
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 */
-	static delete(id) {
-		const tunnel = Tunnel.get(id)
+	static delete(id, store = Tunnel.tunnels) {
+		const tunnel = Tunnel.get(id, store)
 		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
-		Tunnel.tunnels.delete(id)
-		// @ts-expect-error: i promise not to remove components
-		Tunnel.inViewInfiniteTunnels.delete(tunnel)
+		store.delete(id)
+
+		if (store === Tunnel.tunnels) {
+			// @ts-expect-error: i promise not to remove components
+			Tunnel.inViewInfiniteTunnels.delete(tunnel)
+		}
 	}
 
 	/**
 	 * @param {CellId | WireId} id
+	 * @param {Map<CellId | WireId, Tunnel>} store
 	 * @returns {Tunnel | undefined}
 	 */
-	static get(id) {
-		return Tunnel.tunnels.get(id)
+	static get(id, store = Tunnel.tunnels) {
+		return store.get(id)
 	}
 
 	dispose() {
 		super.dispose()
-		if (this.isPreview) return
-		Tunnel.delete(this.id)
+		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+		Tunnel.delete(this.id, store)
 	}
 
 	/**
@@ -439,15 +450,25 @@ export const CELL_CONSTRUCTORS = {
 	},
 }
 
+// Must be called only after all relevant cells have been created
 export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }) => {
-	// const targetEntity
+	const targetTunnel = Tunnel.get(target, Tunnel.tunnelPreviews)
+	const sourceTunnel = Tunnel.get(source, Tunnel.tunnelPreviews)
+
+	const targetEntity = targetTunnel?.entity
+	const sourceEntity = sourceTunnel?.entity
+
+	if (!targetEntity) throw new Error(`Wire: Can't find target entity ${target}`)
+	if (!sourceEntity) throw new Error(`Wire: Can't find source entity ${source}`)
 
 	return new ArrowOfTime({
 		id,
 		colour,
 		timing,
-		source,
-		target,
+		// @ts-expect-error: I promise I'll be careful!
+		source: sourceEntity,
+		// @ts-expect-error: I promise I'll be careful!
+		target: targetEntity,
 		preview,
 	})
 }
