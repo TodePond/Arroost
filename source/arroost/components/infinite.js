@@ -59,16 +59,16 @@ export class Infinite extends Component {
 						ZOOM_IN_THRESHOLD,
 					)
 					const childOpacity = lerp([0, 100], t)
-					const parentOpacity = lerp([100, 0], t, EASE.easeOutExpo)
+					const parentOpacity = lerp([100, 0], t, EASE.easeInExpo)
 
-					const childBlur = lerp([300, 0], t, EASE.easeInOutExpo)
-					const parentBlur = lerp([0, 20], t, EASE.easeInOutExpo)
+					// const childBlur = lerp([300, 0], t, EASE.easeInOutExpo)
+					// const parentBlur = lerp([0, 20], t, EASE.easeInOutExpo)
 
 					this.dom?.style.opacity.set(childOpacity)
 					this.parent?.style.opacity.set(parentOpacity)
 
-					this.dom?.style.blur.set(childBlur)
-					this.parent?.style.blur.set(parentBlur)
+					// this.dom?.style.blur.set(childBlur)
+					// this.parent?.style.blur.set(parentBlur)
 
 					break
 				}
@@ -76,8 +76,8 @@ export class Infinite extends Component {
 					this.dom?.style.opacity.set(null)
 					this.parent?.style.opacity.set(null)
 
-					this.dom?.style.blur.set(null)
-					this.parent?.style.blur.set(null)
+					// this.dom?.style.blur.set(null)
+					// this.parent?.style.blur.set(null)
 					break
 				}
 			}
