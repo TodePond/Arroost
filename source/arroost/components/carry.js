@@ -118,6 +118,9 @@ export class Carry extends Component {
 			this.constrain.x ? currentPosition.x : position.x,
 			this.constrain.y ? currentPosition.y : position.y,
 		])
+		// if (this.input.entity.infinite?.isPreview) {
+
+		// }
 		this.transform.setAbsolutePosition(constrainedPosition)
 	}
 

@@ -39,7 +39,7 @@ export const unlocks = c({
 		remaining: 1,
 		create: (arg) => new ArrowOfDestruction(arg),
 	},
-	dummy: {
+	definition: {
 		unlockable: true,
 		unlocked: false,
 		remaining: 99999999,

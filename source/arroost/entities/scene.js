@@ -30,7 +30,7 @@ import {
 } from "../unit.js"
 import { c, getCell, t } from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
-import { triggerSomethingHasMoved } from "../machines/hover.js"
+import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
 
 const ZOOM_FRICTION = 0.75
@@ -274,8 +274,14 @@ export class Scene extends Entity {
 	dealWithInfinites() {
 		const scale = this.dom.transform.scale.get().x
 		if (scale < ZOOMING_IN_THRESHOLD) {
+			const oldState = this.infiniteTarget.get()?.infinite.state.get()
+
 			this.infiniteTarget.get()?.infinite.state.set("none")
 			this.infiniteTarget.set(null)
+
+			if (oldState === "zooming-in") {
+				checkUnderPointer()
+			}
 
 			if (scale < ZOOMING_OUT_THRESHOLD) {
 				this.replaceLayerBackwards()
@@ -384,6 +390,7 @@ export class Scene extends Entity {
 		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
 		this.dom.transform.scale.set([zoom, zoom])
 		this.setCameraCenter(position)
+		this.dealWithInfinites()
 	}
 }
 

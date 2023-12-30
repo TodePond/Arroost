@@ -13,24 +13,7 @@ class Hovering extends State {
 	tick() {
 		if (!somethingHasMoved) return
 		somethingHasMoved = false
-		const point = shared.pointer.transform.position.get()
-		if (point.x === undefined || point.y === undefined) return
-		const element = document.elementFromPoint(point.x, point.y)
-		if (!element) return
-		const oldInput = this.input.get()
-		const newInput = element["input"] ?? shared.scene.input
-		if (oldInput !== newInput) {
-			fireEvent(
-				"pointerover",
-				{
-					clientX: point.x,
-					clientY: point.y,
-					target: element,
-					pointerId: -1,
-				},
-				PointerEvent,
-			)
-		}
+		checkUnderPointer()
 	}
 
 	pointerover(event) {
@@ -42,3 +25,24 @@ class Hovering extends State {
 }
 
 export const HoverMachine = Hovering
+
+export function checkUnderPointer() {
+	const point = shared.pointer.transform.position.get()
+	if (point.x === undefined || point.y === undefined) return
+	const element = document.elementFromPoint(point.x, point.y)
+	if (!element) return
+	const oldInput = shared.hovering.input.get()
+	const newInput = element["input"] ?? shared.scene.input
+	if (oldInput !== newInput) {
+		fireEvent(
+			"pointerover",
+			{
+				clientX: point.x,
+				clientY: point.y,
+				target: element,
+				pointerId: -1,
+			},
+			PointerEvent,
+		)
+	}
+}
