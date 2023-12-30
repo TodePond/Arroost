@@ -374,10 +374,12 @@ export class Scene extends Entity {
 
 	replaceLayerBackwards() {
 		const { center } = this.bounds.get()
-		const tunnel = Tunnel.get(1)
-		const targetPosition = tunnel?.entity.dom.transform.absolutePosition.get()
-		const position = add(targetPosition, scale(center, CHILD_SCALE))
+		const cell = getCell(shared.nogan, 1)
+		if (!cell) {
+			throw new Error("Couldn't find cell to come out of")
+		}
 
+		const position = add(cell.position, scale(center, CHILD_SCALE))
 		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOMING_OUT_THRESHOLD
 		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
 		this.dom.transform.scale.set([zoom, zoom])

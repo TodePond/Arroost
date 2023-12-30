@@ -15,6 +15,7 @@ import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, t } from "../../nogan/nogan.js"
+import { Tunnel } from "./tunnel.js"
 
 export class Carry extends Component {
 	/** @type {Input} */
@@ -45,6 +46,7 @@ export class Carry extends Component {
 	constructor({ input, dom, movement, constrain = [false, false], raise = true }) {
 		super()
 		this.input = input
+		this.dom = dom
 		this.transform = dom.transform
 		this.style = dom.style
 		this.constrain = constrain
