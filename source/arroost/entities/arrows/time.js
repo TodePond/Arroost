@@ -69,10 +69,14 @@ export class ArrowOfTime extends Entity {
 		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id }))
 		this.colour = this.attach(new ArrowOfColour({ wire: this.tunnel.id }))
 
-		shared.scene.layer.timing.append(this.flaps.dom)
-		shared.scene.layer.timing.append(this.colour.dom)
 		this.dom.append(this.line.dom)
-		// this.dom.append(this.flaps.dom)
+		if (!this.isPreview) {
+			shared.scene.layer.timing.append(this.flaps.dom)
+			shared.scene.layer.timing.append(this.colour.dom)
+		} else {
+			this.dom.append(this.flaps.dom)
+			this.dom.append(this.colour.dom)
+		}
 
 		// Style elements
 		this.flaps.dom.style.fill.set(WHITE.toString())
