@@ -1,7 +1,6 @@
 import {
 	add,
 	distanceBetween,
-	lerp,
 	normalise,
 	scale,
 	subtract,
@@ -16,6 +15,7 @@ import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, t } from "../../nogan/nogan.js"
 import { Tunnel } from "./tunnel.js"
+import { lerp } from "../../../libraries/lerp.js"
 
 export class Carry extends Component {
 	/** @type {Input} */

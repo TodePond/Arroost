@@ -1,4 +1,5 @@
 import { glue, GREY, use } from "../../../libraries/habitat-import.js"
+import { shared } from "../../main.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 
@@ -22,6 +23,9 @@ export const Style = class extends Component {
 
 	/** @type {Signal<boolean | null>} */
 	shadow = this.use(null)
+
+	/** @type {Signal<number | null>} */
+	blur = this.use(null)
 
 	/** @type {Signal<string | null>} */
 	color = this.use(null)
@@ -72,7 +76,7 @@ export const Style = class extends Component {
 				"This is quite slow.",
 				"Consider changing the element type to HTML :)",
 			)
-			return value ? Style.SHADOW : "none"
+			return value ? Style.SHADOW_FILTER : "none"
 		})
 	}
 
@@ -117,6 +121,18 @@ export const Style = class extends Component {
 		this.useStyle(container, "cursor", this.cursor)
 		this.useStyle(container, "position", this.position)
 		this.useStyle(container, "opacity", this.opacity, (value) => value + "%")
+		this.useStyle(
+			container,
+			"filter",
+			this.blur,
+			/** @param {number | null} value */
+			// @ts-expect-error - trust me bro
+			(value) => {
+				if (value === null) return "none"
+				const scaledBlur = value / shared.scene.dom.transform.scale.get().x
+				return `blur(${scaledBlur}px)`
+			},
+		)
 	}
 
 	/**
