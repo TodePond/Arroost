@@ -7,10 +7,11 @@ import { Input } from "./input.js"
 import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
-import { c, getTemplate, iterateCells, t } from "../../nogan/nogan.js"
+import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
 import { CHILD_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
-import { CELL_CONSTRUCTORS } from "./tunnel.js"
+import { CELL_CONSTRUCTORS, WIRE_CONSTRUCTOR } from "./tunnel.js"
+import { Entity } from "../entities/entity.js"
 
 export function ilerp(x, a, b) {
 	return (x - a) / (b - a)
@@ -69,10 +70,21 @@ export class Infinite extends Component {
 				}
 				case "none": {
 					this.dom?.clear()
+					this.disposePreviews()
 					break
 				}
 			}
 		}, [this.state])
+	}
+
+	/** @type {Set<Entity>} */
+	previews = new Set()
+
+	disposePreviews() {
+		for (const preview of this.previews) {
+			preview.dispose()
+		}
+		this.previews.clear()
 	}
 
 	/**
@@ -92,7 +104,29 @@ export class Infinite extends Component {
 			// 	position: scale(cell.position, 1),
 			// 	preview: true,
 			// })
-			if (entity) this.dom?.append(entity.dom)
+			if (entity) {
+				this.dom?.append(entity.dom)
+				this.previews.add(entity)
+			}
+		}
+
+		for (const wire of iterateWires(shared.nogan)) {
+			const cells = wire.cells.map((id) => getCell(shared.nogan, id))
+			if (!cells.every((cell) => cell?.parent === level)) continue
+
+			const entity = WIRE_CONSTRUCTOR({
+				id: wire.id,
+				colour: wire.colour,
+				timing: wire.timing,
+				source: wire.source,
+				target: wire.target,
+				preview: true,
+			})
+
+			if (entity) {
+				this.dom?.append(entity.dom)
+				this.previews.add(entity)
+			}
 		}
 	}
 }

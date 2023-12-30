@@ -174,6 +174,7 @@ export class ArrowOfConnection extends Entity {
 			target: entity,
 			timing: ArrowOfConnection.timing,
 			colour: ArrowOfConnection.colour,
+			preview: false,
 		})
 
 		// Add it to the scene!

@@ -32,6 +32,7 @@ import { ArrowOfDefinition } from "../entities/arrows/definition.js"
 import { Infinite } from "./infinite.js"
 import { Marker } from "../entities/debug/marker.js"
 import { PARENT_SCALE } from "../unit.js"
+import { ArrowOfTime } from "../entities/arrows/time.js"
 
 export class Tunnel extends Component {
 	//========//
@@ -236,6 +237,7 @@ export class Tunnel extends Component {
 
 	dispose() {
 		super.dispose()
+		if (this.isPreview) return
 		Tunnel.delete(this.id)
 	}
 
@@ -394,10 +396,12 @@ export const CELL_CONSTRUCTORS = {
 	},
 
 	colour: () => {
+		return null
 		throw new Error("Colour cells cannot be created programmatically")
 	},
 
 	timing: () => {
+		return null
 		throw new Error("Time cells cannot be created programmatically")
 	},
 
@@ -433,4 +437,17 @@ export const CELL_CONSTRUCTORS = {
 		// Don't need to do anything for this!
 		return null
 	},
+}
+
+export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }) => {
+	// const targetEntity
+
+	return new ArrowOfTime({
+		id,
+		colour,
+		timing,
+		source,
+		target,
+		preview,
+	})
 }

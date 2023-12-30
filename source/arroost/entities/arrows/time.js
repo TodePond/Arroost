@@ -29,9 +29,10 @@ export class ArrowOfTime extends Entity {
 	 *  source: Entity & {dom: Dom, tunnel: Tunnel}
 	 *  timing: Timing
 	 *  colour: WireColour
+	 *  preview: boolean
 	 * }} options
 	 */
-	constructor({ id, target, source, timing = 0, colour = "any" }) {
+	constructor({ id, target, source, timing = 0, colour = "any", preview = false }) {
 		super()
 
 		// Attach components
@@ -44,6 +45,7 @@ export class ArrowOfTime extends Entity {
 		)
 		this.source = source
 		this.target = target
+		this.isPreview = preview
 
 		// Setup tunnel
 		if (id === undefined) {
