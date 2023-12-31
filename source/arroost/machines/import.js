@@ -14,7 +14,6 @@ export function registerImporters() {
  * @param {DataTransferItem} item
  */
 async function dealWithPasteItem(item) {
-	console.log(item.kind, item.type)
 	switch (item.kind) {
 		case "string": {
 			// TODO: Paste text
