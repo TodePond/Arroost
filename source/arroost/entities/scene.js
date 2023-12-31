@@ -380,6 +380,7 @@ export class Scene extends Entity {
 		this.setCameraCenter(position)
 		this.infiniteTarget.get()?.infinite.state.set("none")
 		this.infiniteTarget.set(null)
+		checkUnderPointer()
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
 	}
