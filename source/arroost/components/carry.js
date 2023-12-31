@@ -2,11 +2,12 @@ import {
 	add,
 	distanceBetween,
 	normalise,
+	print,
 	scale,
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { Dragging } from "../machines/input.js"
+import { Dragging, Pointing } from "../machines/input.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 import { Input } from "./input.js"
@@ -56,6 +57,14 @@ export class Carry extends Component {
 			this.movement.friction.set([0.9, 0.9])
 		}
 
+		this.isPreview = input.entity.infinite?.isPreview
+
+		if (this.isPreview) {
+			const pointing = input.state("pointing")
+			pointing.enter = this.onPreviewPointingEnter.bind(this)
+			return
+		}
+
 		const pointing = input.state("pointing")
 		pointing.enter = this.onPointingEnter.bind(this)
 		pointing.pointermove = this.onPointingPointerMove.bind(this)
@@ -65,6 +74,12 @@ export class Carry extends Component {
 		dragging.enter = this.onDraggingEnter.bind(this)
 		dragging.pointermove = this.onDraggingPointerMove.bind(this)
 		dragging.pointerup = this.onDraggingPointerUp.bind(this)
+	}
+
+	onPreviewPointingEnter(e) {
+		const target = shared.scene.infiniteTarget.get()
+		if (!target) throw new Error("Can't have a preview without zooming in to a cell")
+		return new Pointing(target.input)
 	}
 
 	onPointingEnter(e) {
@@ -119,7 +134,7 @@ export class Carry extends Component {
 			this.constrain.y ? currentPosition.y : position.y,
 		])
 		// if (this.input.entity.infinite?.isPreview) {
-
+		// TODO: move preview cell appropriate amount, and reflect everywhere
 		// }
 		this.transform.setAbsolutePosition(constrainedPosition)
 	}

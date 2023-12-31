@@ -268,7 +268,13 @@ export class Scene extends Entity {
 		this.setCameraCenter(newCenter)
 	}
 
-	/** @type {Signal<null | Entity & {infinite: Infinite; dom: Dom}>} */
+	/**
+	 * @type {Signal<null | Entity & {
+	 * 	infinite: Infinite;
+	 * 	dom: Dom
+	 *  input: Input
+	 * }>}
+	 * */
 	infiniteTarget = this.use(null)
 
 	dealWithInfinites() {

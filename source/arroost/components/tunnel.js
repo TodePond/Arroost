@@ -49,7 +49,10 @@ export class Tunnel extends Component {
 	static tunnelPreviews = new Map()
 
 	/**
-	 * @type {Set<Tunnel & {entity: { infinite: Infinite}}>}
+	 * @type {Set<Tunnel & {entity: {
+	 * 	infinite: Infinite;
+	 *  input: Input;
+	 * }}>}
 	 */
 	static inViewInfiniteTunnels = new Set()
 
