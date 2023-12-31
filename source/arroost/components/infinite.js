@@ -1,4 +1,4 @@
-import { scale } from "../../../libraries/habitat-import.js"
+import { BLACK, RED, scale } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dragging } from "../machines/input.js"
 import { Component } from "./component.js"
@@ -8,11 +8,12 @@ import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
-import { CHILD_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
 import { CELL_CONSTRUCTORS, WIRE_CONSTRUCTOR } from "./tunnel.js"
 import { Entity } from "../entities/entity.js"
 import { EASE, lerp } from "../../../libraries/lerp.js"
+import { Ellipse } from "../entities/shapes/ellipse.js"
 
 export function ilerp(x, a, b) {
 	return (x - a) / (b - a)
@@ -26,11 +27,13 @@ export class Infinite extends Component {
 	 * @param {{
 	 * 	dom: Dom
 	 * 	isPreview: boolean
+	 * 	scale: [number, number]
 	 * }} options
 	 */
-	constructor({ dom, isPreview = false }) {
+	constructor({ dom, isPreview = false, scale = t([1, 1]) }) {
 		super()
 		this.isPreview = isPreview
+		this.scale = scale
 		if (isPreview) return
 		this.parent = dom
 		this.dom = new Dom({
@@ -153,6 +156,20 @@ export class Infinite extends Component {
 			}
 		}
 
+		const background = new Ellipse()
+		background.dom.style.fill.set(BLACK.toString())
+
+		const parent = this.parent
+		if (!parent) throw new Error("Missing parent")
+		background.dom.transform.scale.set(this.scale)
+		this.use(() => {
+			background.dom.transform.position.set(parent.transform.position.get() ?? [0, 0])
+		}, [parent.transform.position])
+
+		this.previews.add(background)
+
+		shared.scene.layer.cell.append(background.dom)
+
 		for (const entity of wireEntities) {
 			this.dom?.append(entity.dom)
 		}
@@ -160,5 +177,7 @@ export class Infinite extends Component {
 		for (const entity of cellEntities) {
 			this.dom?.append(entity.dom)
 		}
+
+		parent.style.bringToFront()
 	}
 }
