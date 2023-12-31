@@ -19,6 +19,7 @@ import { HoverMachine } from "./arroost/machines/hover.js"
 import { InputMachine } from "./arroost/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
 import { clock } from "./clock.js"
+import { registerImporters } from "./arroost/machines/import.js"
 
 //======//
 // Tone //
@@ -82,6 +83,7 @@ registerWheel()
 registerMachine(hover)
 registerMachine(input)
 registerPreventDefaults()
+registerImporters()
 
 addEventListener(
 	"click",
