@@ -391,7 +391,8 @@ export class Scene extends Entity {
 		const { center } = this.bounds.get()
 		const cell = getCell(shared.nogan, 1)
 		if (!cell) {
-			throw new Error("Couldn't find cell to come out of")
+			return
+			// throw new Error("Couldn't find cell to come out of")
 		}
 
 		const position = add(cell.position, scale(center, CHILD_SCALE))
