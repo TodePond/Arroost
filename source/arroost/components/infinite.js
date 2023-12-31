@@ -27,7 +27,7 @@ export class Infinite extends Component {
 	 * @param {{
 	 * 	dom: Dom
 	 * 	isPreview: boolean
-	 * 	scale: [number, number]
+	 * 	scale?: [number, number]
 	 * }} options
 	 */
 	constructor({ dom, isPreview = false, scale = t([1, 1]) }) {
