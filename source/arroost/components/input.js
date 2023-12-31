@@ -2,10 +2,15 @@ import { Component } from "./component.js"
 import { Entity } from "../entities/entity.js"
 import { Dom } from "./dom.js"
 import { Tunnel } from "./tunnel.js"
+import { Infinite } from "./infinite.js"
 
 export class Input extends Component {
 	/**
-	 * @param {Entity & {dom: Dom, tunnel?: Tunnel}} entity
+	 * @param {Entity & {
+	 * 	dom: Dom,
+	 * 	tunnel?: Tunnel,
+	 * 	infinite?: Infinite
+	 * }} entity
 	 */
 	constructor(entity) {
 		super()

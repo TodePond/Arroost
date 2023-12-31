@@ -35,14 +35,17 @@ export const setCellStyles = ({
 	}
 
 	input.use(() => {
-		back.style.fill.set(getCellBackgroundColour({ input, tunnel, override: backOverride }))
+		back.style.fill.set(
+			getCellBackgroundColour({ input, tunnel, override: backOverride, infinite }),
+		)
 	})
 
 	back.style.shadow.set(true)
 	back.style.stroke.set("rgba(0, 0, 0, 0.25)")
 	back.style.strokeWidth.set(2)
 
-	back.style.pointerEvents.set(infinite?.isPreview ? "none" : "all")
+	// back.style.pointerEvents.set(infinite?.isPreview ? "none" : "all")
+	back.style.pointerEvents.set("all")
 
 	input.use(() => {
 		if (input.state("dragging").active.get()) {
@@ -78,11 +81,12 @@ export const getCellForegroundColour = ({ tunnel, input, override }) => {
  * @param {{
  * 	tunnel: Tunnel | null
  * 	input: Input
+ * 	infinite: Infinite | null
  * 	override?: (options: { tunnel: Tunnel | null, input: Input }) => Colour | undefined | null | false
  * }} options
  * @returns
  */
-export const getCellBackgroundColour = ({ tunnel, input, override }) => {
+export const getCellBackgroundColour = ({ tunnel, input, override, infinite }) => {
 	const overriden = override?.({ tunnel, input })
 	if (overriden) return overriden
 
@@ -92,5 +96,10 @@ export const getCellBackgroundColour = ({ tunnel, input, override }) => {
 	if (input.highlighted.get()) {
 		return GREY_SILVER
 	}
+
+	if (infinite?.state.get() === "zooming-in") {
+		return GREY_SILVER
+	}
+
 	return GREY
 }
