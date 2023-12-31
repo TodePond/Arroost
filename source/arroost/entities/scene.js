@@ -290,7 +290,9 @@ export class Scene extends Entity {
 			}
 
 			if (scale < ZOOMING_OUT_THRESHOLD) {
+				// console.log(scale)
 				this.replaceLayerBackwards()
+				// console.log(shared.scene.dom.transform.scale.get().x)
 			}
 
 			return
