@@ -7,6 +7,7 @@ import {
 	registerMethods,
 	Colour,
 	getKeyboard,
+	use,
 } from "../libraries/habitat-import.js"
 import { getPointer } from "./arroost/input/pointer.js"
 import { registerPreventDefaults } from "./arroost/input/prevent.js"
@@ -20,6 +21,7 @@ import { InputMachine } from "./arroost/machines/input.js"
 import { getZoomer } from "./arroost/input/zoomer.js"
 import { clock } from "./clock.js"
 import { registerImporters } from "./arroost/machines/import.js"
+import { useCursor } from "./arroost/cursor.js"
 
 //======//
 // Tone //
@@ -54,6 +56,9 @@ export const shared = {
 	/** @type {Pointer} */
 	// @ts-expect-error
 	pointer: undefined,
+
+	/** @type {Signal<"luke" | "berd">} */
+	hero: use("luke"),
 }
 
 document.body.style["background-color"] = BLACK
@@ -84,6 +89,7 @@ registerMachine(hover)
 registerMachine(input)
 registerPreventDefaults()
 registerImporters()
+useCursor()
 
 addEventListener(
 	"click",

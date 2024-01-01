@@ -106,10 +106,11 @@ export class Entity {
 	}
 
 	/**
+	 * @template {string | boolean | number} T
 	 * @param {HTMLElement | SVGElement} element
 	 * @param {string} style
-	 * @param {Signal<string | boolean | number | null>} signal
-	 * @param {(value: string | boolean | number) => string} transform
+	 * @param {Signal<T | null>} signal
+	 * @param {(value: T) => string | null} transform
 	 * @param {Signal<any>[]} dependencies
 	 * @returns {Signal<any>}
 	 */
@@ -127,7 +128,13 @@ export class Entity {
 				return
 			}
 
-			element.style.setProperty(style, transform(value))
+			const transformed = transform(value)
+			if (transformed === null) {
+				element.style.removeProperty(style)
+				return
+			}
+
+			element.style.setProperty(style, transformed)
 		}, dependencies)
 	}
 }

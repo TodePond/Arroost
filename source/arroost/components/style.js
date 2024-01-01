@@ -118,21 +118,23 @@ export const Style = class extends Component {
 	applyContainer(container) {
 		this.useStyle(container, "visibility", this.visibility)
 		this.useStyle(container, "z-index", this.zIndex)
-		this.useStyle(container, "cursor", this.cursor)
-		this.useStyle(container, "position", this.position)
-		this.useStyle(container, "opacity", this.opacity, (value) => value + "%")
 		this.useStyle(
 			container,
-			"filter",
-			this.blur,
-			/** @param {number | null} value */
-			// @ts-expect-error - trust me bro
+			"cursor",
+			this.cursor,
 			(value) => {
-				if (value === null) return "none"
-				const scaledBlur = value / shared.scene.dom.transform.scale.get().x
-				return `blur(${scaledBlur}px)`
+				if (shared.hero.get() !== "luke") return null
+				return value
 			},
+			[this.cursor, shared.hero],
 		)
+		this.useStyle(container, "position", this.position)
+		this.useStyle(container, "opacity", this.opacity, (value) => value + "%")
+		this.useStyle(container, "filter", this.blur, (value) => {
+			if (value === null) return "none"
+			const scaledBlur = value / shared.scene.dom.transform.scale.get().x
+			return `blur(${scaledBlur}px)`
+		})
 	}
 
 	/**
