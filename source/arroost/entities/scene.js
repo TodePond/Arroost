@@ -73,12 +73,15 @@ export class Scene extends Entity {
 			const _dragging = dragging.active.get()
 
 			if (!shared.stage.context.html) return
-			if (_dragging) {
-				// shared.stage.context.html.style.cursor = "grabbing"
-			} else {
-				// shared.stage.context.html.style.cursor = "default"
+
+			if (shared.hero.get() === "luke") {
+				if (_dragging) {
+					document.body.style.cursor = "grabbing"
+				} else {
+					document.body.style.cursor = "default"
+				}
 			}
-		})
+		}, [dragging.active])
 
 		this.use(() => {
 			const [sx, sy] = this.dom.transform.position.get() ?? [0, 0]
