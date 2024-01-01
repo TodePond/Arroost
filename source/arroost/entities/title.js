@@ -16,7 +16,7 @@ export class Title extends Entity {
 
 		this.dom.append(this.heading.dom)
 
-		document.body.style.cursor = "pointer"
+		// document.body.style.cursor = "pointer"
 
 		const element = this.heading.dom.getElement()
 		if (!element) return
@@ -27,7 +27,7 @@ export class Title extends Entity {
 	}
 
 	dispose() {
-		document.body.style.cursor = "default"
+		// document.body.style.cursor = "default"
 		super.dispose()
 	}
 }

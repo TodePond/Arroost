@@ -74,9 +74,9 @@ export class Scene extends Entity {
 
 			if (!shared.stage.context.html) return
 			if (_dragging) {
-				shared.stage.context.html.style["cursor"] = "grabbing"
+				// shared.stage.context.html.style.cursor = "grabbing"
 			} else {
-				shared.stage.context.html.style["cursor"] = "default"
+				// shared.stage.context.html.style.cursor = "default"
 			}
 		})
 

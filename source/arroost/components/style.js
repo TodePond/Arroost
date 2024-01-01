@@ -118,7 +118,7 @@ export const Style = class extends Component {
 	applyContainer(container) {
 		this.useStyle(container, "visibility", this.visibility)
 		this.useStyle(container, "z-index", this.zIndex)
-		this.useStyle(container, "cursor", this.cursor)
+		// this.useStyle(container, "cursor", this.cursor)
 		this.useStyle(container, "position", this.position)
 		this.useStyle(container, "opacity", this.opacity, (value) => value + "%")
 		this.useStyle(
