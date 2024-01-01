@@ -26,7 +26,8 @@ export class Hovering extends InputState {
 		return new Pointing(this.input)
 	}
 
-	keydown({ ctrlKey, metaKey, key }) {
+	keydown(event) {
+		const { ctrlKey, metaKey, key, altKey } = event
 		switch (key.toLowerCase()) {
 			case "q": {
 				unlockEverything()
@@ -82,6 +83,13 @@ export class Hovering extends InputState {
 			}
 			case "t": {
 				return selectTool("definition")
+			}
+			case "tab": {
+				if (ctrlKey || metaKey || altKey) return
+				const hero = shared.hero.get()
+				const newHero = hero === "luke" ? "berd" : "luke"
+				shared.hero.set(newHero)
+				return event.preventDefault()
 			}
 		}
 	}

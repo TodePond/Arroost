@@ -30,7 +30,3 @@
 .text-input-element {
 	pointer-events: none;
 }
-
-* {
-	cursor: url("/assets/berd-cursor.svg") 0 20, auto !important;
-}

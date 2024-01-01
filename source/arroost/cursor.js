@@ -1,5 +1,21 @@
-export async function registerCursor() {
-	const path = "/assets/berd-cursor.svg"
+import { use } from "../../libraries/habitat-import.js"
+import { shared } from "../main.js"
 
-	// document.body.style.cursor = `url(data:image/svg+xml;base64,<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg" ><rect stroke="red" fill="transparent" height="128" width="128" /><image href="/assets/berd-cursor.png" height="128" width="128" /></svg>) 64 64, auto`
+export function useCursor() {
+	use(() => {
+		const hero = shared.hero.get()
+
+		switch (hero) {
+			case "luke": {
+				document.body.style.removeProperty("cursor")
+				return
+			}
+
+			case "berd": {
+				const path = "/assets/berd-cursor.svg"
+				document.body.style.cursor = `url(${path}) 0 20, auto`
+				return
+			}
+		}
+	}, [shared.hero])
 }
