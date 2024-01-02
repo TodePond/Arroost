@@ -223,7 +223,6 @@ export class ArrowOfRecording extends Entity {
 	fromClick = false
 
 	async onFire() {
-		print("fire")
 		const cell = getCell(shared.nogan, this.tunnel.id)
 		if (!cell) throw new Error(`Can't find cell ${this.tunnel.id}`)
 		if (cell.tag.justCreated) return
