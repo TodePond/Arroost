@@ -36,6 +36,9 @@ class Clock {
 						// document.body.style["background-color"] = BLACK
 
 						this.count++
+						if (this.count > 999) {
+							this.count = 0
+						}
 						Tunnel.applyOperations(queuedUnfiredOperations)
 						Tunnel.applyOperations(queuedOperations)
 
