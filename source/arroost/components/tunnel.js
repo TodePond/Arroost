@@ -12,7 +12,7 @@ import {
 	subtract,
 } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
-import { getCell, getWire, isFiring, moveCell } from "../../nogan/nogan.js"
+import { getCell, getWire, isFiring, modifyWire, moveCell } from "../../nogan/nogan.js"
 import { Carry } from "./carry.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
@@ -161,6 +161,7 @@ export class Tunnel extends Component {
 		}
 	}, [this.fire])
 
+	lastFireBeat = -1
 	onFire = () => {}
 
 	/**
@@ -319,9 +320,10 @@ const TUNNELS = {
 		if (!tunnel) return
 		const cell = getCell(shared.nogan, id)
 		if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
-		const wasFiring = tunnel.isFiring.get()
+		const hasFiredThisBeat = tunnel.lastFireBeat === shared.clock.count
 		tunnel.fire.set(cell.fire)
-		if (!wasFiring && tunnel.isFiring.get()) {
+		if (!hasFiredThisBeat && tunnel.isFiring.get()) {
+			tunnel.lastFireBeat = shared.clock.count
 			tunnel.onFire()
 		}
 	},

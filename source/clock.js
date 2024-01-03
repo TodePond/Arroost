@@ -12,6 +12,8 @@ class Clock {
 	/** @type {Function[]} */
 	queue = []
 
+	count = 0
+
 	start() {
 		const metronome = new Tone.PluckSynth().toDestination()
 
@@ -33,6 +35,10 @@ class Clock {
 					Tone.Draw.schedule(() => {
 						// document.body.style["background-color"] = BLACK
 
+						this.count++
+						if (this.count > 999) {
+							this.count = 0
+						}
 						Tunnel.applyOperations(queuedUnfiredOperations)
 						Tunnel.applyOperations(queuedOperations)
 
