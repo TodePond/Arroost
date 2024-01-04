@@ -32,6 +32,8 @@ import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../no
 import { Infinite } from "../components/infinite.js"
 import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
+import { ArrowOfTiming } from "./arrows/timing.js"
+import { ArrowOfColour } from "./arrows/colour.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -306,6 +308,9 @@ export class Scene extends Entity {
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
 		for (const tunnel of Tunnel.inViewInfiniteTunnels.values()) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error("No cell found for tunnel")
+			if (cell.parent !== shared.level) continue
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
@@ -411,11 +416,17 @@ export class Scene extends Entity {
 		}
 
 		for (const entity of wireEntities) {
-			this.dom?.append(entity.dom)
+			this.layer.wire.append(entity.dom)
 		}
 
 		for (const entity of cellEntities) {
-			this.dom?.append(entity.dom)
+			if (entity instanceof ArrowOfTiming) {
+				this.layer.timing.append(entity.dom)
+			} else if (entity instanceof ArrowOfColour) {
+				this.layer.timing.append(entity.dom)
+			} else {
+				this.layer.cell.append(entity.dom)
+			}
 		}
 
 		const { center } = this.bounds.get()
