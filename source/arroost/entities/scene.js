@@ -20,7 +20,7 @@ import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
-import { Tunnel } from "../components/tunnel.js"
+import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "../components/tunnel.js"
 import {
 	CHILD_SCALE,
 	PARENT_SCALE,
@@ -28,7 +28,7 @@ import {
 	ZOOMING_OUT_THRESHOLD,
 	ZOOM_IN_THRESHOLD,
 } from "../unit.js"
-import { c, getCell, t } from "../../nogan/nogan.js"
+import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
 import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
@@ -373,7 +373,49 @@ export class Scene extends Entity {
 	replaceLayer(tunnel) {
 		for (const layerName of this.sceneLayerNames) {
 			const layer = this.layer[layerName]
-			// layer.dispose()
+			layer.dispose()
+		}
+
+		shared.level = tunnel.id
+
+		this.recreateSceneLayers()
+
+		const wireEntities = []
+		const cellEntities = []
+
+		for (const cell of iterateCells(shared.nogan)) {
+			if (cell.parent !== shared.level) continue
+			const entity = CELL_CONSTRUCTORS[cell.type]({
+				id: cell.id,
+				position: cell.position,
+				template: getTemplate(cell),
+			})
+
+			if (!entity) continue
+			cellEntities.push(entity)
+		}
+
+		for (const wire of iterateWires(shared.nogan)) {
+			const cells = wire.cells.map((id) => getCell(shared.nogan, id))
+			if (!cells.every((cell) => cell?.parent === shared.level)) continue
+
+			const entity = WIRE_CONSTRUCTOR({
+				id: wire.id,
+				colour: wire.colour,
+				timing: wire.timing,
+				source: wire.source,
+				target: wire.target,
+				preview: false,
+			})
+			wireEntities.push(entity)
+		}
+
+		for (const entity of wireEntities) {
+			this.dom?.append(entity.dom)
+		}
+
+		for (const entity of cellEntities) {
+			this.dom?.append(entity.dom)
 		}
 
 		const { center } = this.bounds.get()
