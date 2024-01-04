@@ -165,6 +165,16 @@ export class Infinite extends Component {
 			}
 		}
 
+		if (cellEntities.length === 0) {
+			const entity = new ArrowOfCreation({
+				position: [0, 0],
+				preview: true,
+				level: newLevel,
+			})
+			cellEntities.push(entity)
+			this.previews.add(entity)
+		}
+
 		const background = new Ellipse()
 		background.dom.style.fill.set(BLACK.toString())
 
