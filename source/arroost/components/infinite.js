@@ -10,7 +10,7 @@ import { Style } from "./style.js"
 import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
 import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
-import { CELL_CONSTRUCTORS, WIRE_CONSTRUCTOR } from "./tunnel.js"
+import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "./tunnel.js"
 import { Entity } from "../entities/entity.js"
 import { EASE, lerp } from "../../../libraries/lerp.js"
 import { Ellipse } from "../entities/shapes/ellipse.js"
@@ -89,7 +89,9 @@ export class Infinite extends Component {
 		this.use(() => {
 			switch (this.state.get()) {
 				case "zooming-in": {
-					this.appendContentsForLevel(shared.level)
+					if (!this.dom?.input.entity?.tunnel) throw new Error("Missing tunnel")
+					const tunnel = this.dom.input.entity.tunnel
+					this.appendContentsForLevel(tunnel.id)
 					break
 				}
 				case "none": {
@@ -112,14 +114,21 @@ export class Infinite extends Component {
 	}
 
 	/**
-	 * @param {number} level
+	 * @param {number} newLevel
 	 */
-	appendContentsForLevel(level) {
+	appendContentsForLevel(newLevel) {
 		const cellEntities = []
 		const wireEntities = []
 
+		const oldLevelCell = getCell(shared.nogan, shared.level)
+		const newLevelCell = getCell(shared.nogan, newLevel)
+
+		if (!oldLevelCell || !newLevelCell) {
+			throw new Error("Missing level cell - this shouldn't happen")
+		}
+
 		for (const cell of iterateCells(shared.nogan)) {
-			if (cell.parent !== level) continue
+			if (cell.parent !== newLevel) continue
 			const entity = CELL_CONSTRUCTORS[cell.type]({
 				id: cell.id,
 				position: cell.position,
@@ -139,7 +148,7 @@ export class Infinite extends Component {
 
 		for (const wire of iterateWires(shared.nogan)) {
 			const cells = wire.cells.map((id) => getCell(shared.nogan, id))
-			if (!cells.every((cell) => cell?.parent === level)) continue
+			if (!cells.every((cell) => cell?.parent === newLevel)) continue
 
 			const entity = WIRE_CONSTRUCTOR({
 				id: wire.id,
