@@ -8,12 +8,20 @@ import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
-import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import {
+	CHILD_SCALE,
+	FULL,
+	PARENT_SCALE,
+	ZOOMING_IN_THRESHOLD,
+	ZOOM_IN_THRESHOLD,
+} from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
 import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "./tunnel.js"
 import { Entity } from "../entities/entity.js"
 import { EASE, lerp } from "../../../libraries/lerp.js"
 import { Ellipse } from "../entities/shapes/ellipse.js"
+import { ArrowOfConnection } from "../entities/arrows/connection.js"
+import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
 
 export function ilerp(x, a, b) {
 	return (x - a) / (b - a)
@@ -166,13 +174,46 @@ export class Infinite extends Component {
 		}
 
 		if (cellEntities.length === 0) {
-			const entity = new ArrowOfCreation({
-				position: [0, 0],
+			const distance = FULL * 2
+			const angle = Math.random() * Math.PI * 2
+
+			// Three points of an equilateral triangle
+			/** @type {[number, number][]} */
+			const positions = [
+				[distance * Math.cos(angle), distance * Math.sin(angle)],
+				[
+					distance * Math.cos(angle + (2 * Math.PI) / 3),
+					distance * Math.sin(angle + (2 * Math.PI) / 3),
+				],
+				[
+					distance * Math.cos(angle + (4 * Math.PI) / 3),
+					distance * Math.sin(angle + (4 * Math.PI) / 3),
+				],
+			]
+
+			const entity1 = new ArrowOfCreation({
+				position: positions[0],
 				preview: true,
 				level: newLevel,
 			})
-			cellEntities.push(entity)
-			this.previews.add(entity)
+			cellEntities.push(entity1)
+			this.previews.add(entity1)
+
+			const entity2 = new ArrowOfConnection({
+				position: positions[1],
+				preview: true,
+				level: newLevel,
+			})
+			cellEntities.push(entity2)
+			this.previews.add(entity2)
+
+			const entity3 = new ArrowOfDestruction({
+				position: positions[2],
+				preview: true,
+				level: newLevel,
+			})
+			cellEntities.push(entity3)
+			this.previews.add(entity3)
 		}
 
 		const background = new Ellipse()

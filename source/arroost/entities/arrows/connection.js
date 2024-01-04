@@ -23,7 +23,8 @@ export class ArrowOfConnection extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { parent: shared.level, type: "connection" }).id,
+		level = shared.level,
+		id = createCell(shared.nogan, { parent: level, type: "connection" }).id,
 		position = t([0, 0]),
 		preview = false,
 	}) {
