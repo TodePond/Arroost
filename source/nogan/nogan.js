@@ -1467,15 +1467,21 @@ export const getPeak = (
 
 	// First, let's try to look in the known future/past
 	// But wait! only if my parent is firing
-	const cell = getCell(nogan, id)
-	if (!cell) throw new Error(`Couldn't find cell ${id} to get peak`)
-	const { parent } = cell
-	if (
-		!isRoot(parent) &&
-		!isPeakFiring(nogan, { id: parent, past, future, memo, timing: getFlippedTiming(timing) })
-	) {
-		return createPeak({ colour })
-	}
+	// const cell = getCell(nogan, id)
+	// if (!cell) throw new Error(`Couldn't find cell ${id} to get peak`)
+	// const { parent } = cell
+	// if (
+	// 	!isRoot(parent) &&
+	// 	!isPeakFiring(nogan, {
+	// 		id: parent,
+	// 		past,
+	// 		future,
+	// 		memo,
+	// 		timing: getFlippedTiming(timing),
+	// 	})
+	// ) {
+	// 	return createPeak({ colour })
+	// }
 
 	// Parent is firing, so let's look in the known future/past!
 	const [next, ...rest] = to
@@ -1549,6 +1555,24 @@ const getPeakNow = (nogan, { id, colour, past, future, memo = new GetPeakMemo() 
 		})
 
 		if (!inputPeak.result) continue
+
+		// Check if the input's parent is firing
+		const inputCell = getCell(nogan, wire.source)
+		if (!inputCell) throw new Error(`Couldn't find input cell ${wire.source}`)
+		const { parent } = inputCell
+		if (
+			!isRoot(parent) &&
+			!isPeakFiring(nogan, {
+				id: parent,
+				timing: getFlippedTiming(wire.timing),
+				past,
+				future,
+				memo,
+			})
+		) {
+			continue
+		}
+
 		peak = getBehavedPeak({
 			nogan,
 			source: wire.source,
@@ -1593,7 +1617,7 @@ export const isFiring = (nogan, { id }) => {
  */
 export const isPeakFiring = (nogan, options) => {
 	for (const colour of PULSE_COLOURS) {
-		const peak = getPeak(nogan, options)
+		const peak = getPeak(nogan, { ...options, colour })
 		if (peak.result) return true
 	}
 	return false
@@ -1656,6 +1680,12 @@ export const refresh = (
 	let memo = new GetPeakMemo()
 	for (const id of iterateCellIds(snapshot)) {
 		if (filter && !filter(id)) continue
+		const cell = getCell(snapshot, id)
+		if (!cell) throw new Error(`Couldn't find cell ${id} to refresh`)
+		// if (!isRoot(cell.parent) && !isPeakFiring(nogan, { id: cell.parent, memo, past, future })) {
+		// 	continue
+		// }
+
 		for (const colour of PULSE_COLOURS) {
 			const peak = getPeak(snapshot, {
 				id,
