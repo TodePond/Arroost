@@ -396,6 +396,7 @@ export class Scene extends Entity {
 		this.setCameraCenter(position)
 		this.infiniteTarget.get()?.infinite.state.set("none")
 		this.infiniteTarget.set(null)
+		Tunnel.purgeOtherLevelInfiniteTunnels()
 		checkUnderPointer()
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
@@ -414,6 +415,11 @@ export class Scene extends Entity {
 		let cellToComeOutOf = oldLevelCell.id
 		// If we're at the top level, just find any cell on the top level
 		if (shared.level === 0) {
+			// Purge everything, because we're gonna remake it
+			shared.level = NaN
+			Tunnel.purgeOtherLevelInfiniteTunnels()
+			shared.level = 0
+
 			for (const cell of iterateCells(shared.nogan)) {
 				if (cell.id === 0) continue
 				if (cell.parent === 0) {
@@ -429,6 +435,7 @@ export class Scene extends Entity {
 		const { center } = this.bounds.get()
 		const cell = getCell(shared.nogan, cellToComeOutOf)
 		if (!cell) {
+			console.warn("Couldn't find cell to come out of")
 			return
 			// throw new Error("Couldn't find cell to come out of")
 		}
@@ -438,6 +445,7 @@ export class Scene extends Entity {
 		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
 		this.dom.transform.scale.set([zoom, zoom])
 		this.setCameraCenter(position)
+		Tunnel.purgeOtherLevelInfiniteTunnels()
 		this.dealWithInfinites()
 	}
 
@@ -486,7 +494,7 @@ export class Scene extends Entity {
 			} else {
 				this.layer.cell.append(entity.dom)
 				if (entity.infinite) {
-					// entity.infinite.background?.dom.style.sendToBack()
+					entity.infinite.background?.dom.style.sendToBack()
 					// entity.infinite.dom?.style.bringToFront()
 					entity.dom.style.bringToFront()
 				}

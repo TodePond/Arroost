@@ -56,6 +56,17 @@ export class Tunnel extends Component {
 	 */
 	static inViewInfiniteTunnels = new Set()
 
+	static purgeOtherLevelInfiniteTunnels() {
+		for (const tunnel of Tunnel.inViewInfiniteTunnels) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${tunnel.id}`)
+			if (cell.parent !== shared.level) {
+				tunnel.entity.dispose()
+				Tunnel.inViewInfiniteTunnels.delete(tunnel)
+			}
+		}
+	}
+
 	/**
 	 * @param {Operation[]} operations
 	 */
@@ -229,10 +240,11 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {Map<CellId | WireId, Tunnel>} store
+	 * @param {boolean} quiet
 	 */
-	static delete(id, store = Tunnel.tunnels) {
+	static delete(id, store = Tunnel.tunnels, quiet = false) {
 		const tunnel = Tunnel.get(id, store)
-		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
+		if (!tunnel && !quiet) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		store.delete(id)
 
 		if (store === Tunnel.tunnels) {
@@ -478,3 +490,5 @@ export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }
 		preview,
 	})
 }
+
+window["Tunnel"] = Tunnel
