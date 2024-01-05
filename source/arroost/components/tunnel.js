@@ -229,6 +229,11 @@ export class Tunnel extends Component {
 		}
 
 		if (this.type === "cell") {
+			const cell = getCell(shared.nogan, this.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
+			if (cell.type === "timing" || cell.type === "colour") {
+				return
+			}
 			this.useCell({
 				dom: this.entity.dom,
 				carry: this.entity.carry,
@@ -293,16 +298,11 @@ export class Tunnel extends Component {
 			const cell = getCell(shared.nogan, this.id)
 			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
 			if (equals(cell.position, position)) return
+			if (!equals(velocity, [0, 0])) return
 			Tunnel.apply(() => {
 				return moveCell(shared.nogan, {
 					id: this.id,
 					position,
-					propogate: equals(velocity, [0, 0]),
-					filter: (id) => {
-						const cell = getCell(shared.nogan, id)
-						if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
-						return cell.type === "slot"
-					},
 				})
 			})
 		})

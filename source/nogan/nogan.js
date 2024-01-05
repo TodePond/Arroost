@@ -1705,7 +1705,10 @@ export const refresh = (
 
 			// If we've changed the nogan, we need to refresh the cache
 			// (as things might be different now)
-			memo = new GetPeakMemo()
+
+			// COMMENT OUT FOR BUGS BUT HUGE PERFORMANCE INCREASE
+			// memo = new GetPeakMemo()
+
 			operations.push(...firedOperations)
 		}
 	}
