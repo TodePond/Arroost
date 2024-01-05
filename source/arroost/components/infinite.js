@@ -1,4 +1,4 @@
-import { BLACK, RED, scale } from "../../../libraries/habitat-import.js"
+import { BLACK, RED, rotate, scale } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dragging } from "../machines/input.js"
 import { Component } from "./component.js"
@@ -177,19 +177,8 @@ export class Infinite extends Component {
 			const distance = FULL * 2
 			const angle = Math.random() * Math.PI * 2
 
-			// Three points of an equilateral triangle
 			/** @type {[number, number][]} */
-			const positions = [
-				[distance * Math.cos(angle), distance * Math.sin(angle)],
-				[
-					distance * Math.cos(angle + (2 * Math.PI) / 3),
-					distance * Math.sin(angle + (2 * Math.PI) / 3),
-				],
-				[
-					distance * Math.cos(angle + (4 * Math.PI) / 3),
-					distance * Math.sin(angle + (4 * Math.PI) / 3),
-				],
-			]
+			const positions = [rotate([distance, 0], angle), rotate([-distance, 0], angle)]
 
 			const entity1 = new ArrowOfCreation({
 				position: positions[0],
@@ -207,13 +196,13 @@ export class Infinite extends Component {
 			cellEntities.push(entity2)
 			this.previews.add(entity2)
 
-			const entity3 = new ArrowOfDestruction({
-				position: positions[2],
-				preview: true,
-				level: newLevel,
-			})
-			cellEntities.push(entity3)
-			this.previews.add(entity3)
+			// const entity3 = new ArrowOfDestruction({
+			// 	position: positions[2],
+			// 	preview: true,
+			// 	level: newLevel,
+			// })
+			// cellEntities.push(entity3)
+			// this.previews.add(entity3)
 		}
 
 		const background = new Ellipse()

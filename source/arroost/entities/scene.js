@@ -9,6 +9,7 @@ import {
 	distanceBetween,
 	equals,
 	fireEvent,
+	rotate,
 	scale,
 	subtract,
 	use,
@@ -23,12 +24,21 @@ import { Transform } from "../components/transform.js"
 import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "../components/tunnel.js"
 import {
 	CHILD_SCALE,
+	FULL,
 	PARENT_SCALE,
 	ZOOMING_IN_THRESHOLD,
 	ZOOMING_OUT_THRESHOLD,
 	ZOOM_IN_THRESHOLD,
 } from "../unit.js"
-import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
+import {
+	c,
+	createCell,
+	getCell,
+	getTemplate,
+	iterateCells,
+	iterateWires,
+	t,
+} from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
 import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
@@ -419,13 +429,25 @@ export class Scene extends Entity {
 			Tunnel.purgeOtherLevelInfiniteTunnels()
 			shared.level = 0
 
+			const newCell = createCell(shared.nogan, {
+				type: "creation",
+			})
+
+			cellToComeOutOf = newCell.id
+
 			for (const cell of iterateCells(shared.nogan)) {
 				if (cell.id === 0) continue
+				if (cell.id === newCell.id) continue
 				if (cell.parent === 0) {
-					cellToComeOutOf = cell.id
+					cell.parent = newCell.id
 					break
 				}
 			}
+
+			// createCell(shared.nogan, {
+			// 	type: "connection",
+			// 	position: rotate([FULL * 2, 0], Math.random() * Math.PI * 2),
+			// })
 		}
 
 		Tunnel.purgeOtherLevelInfiniteTunnels()
