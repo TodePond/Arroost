@@ -14,6 +14,7 @@ export function selectTool(type) {
 	let nearestDistance = Infinity
 	for (const cell of iterateCells(shared.nogan)) {
 		if (cell.type !== type) continue
+		if (cell.parent !== shared.level) continue
 		const distance = distanceBetween(cell.position, pointer)
 		if (distance < nearestDistance) {
 			nearestDistance = distance
