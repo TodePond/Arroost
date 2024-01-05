@@ -457,8 +457,9 @@ export const CELL_CONSTRUCTORS = {
 
 // Must be called only after all relevant cells have been created
 export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }) => {
-	const targetTunnel = Tunnel.get(target, Tunnel.tunnelPreviews)
-	const sourceTunnel = Tunnel.get(source, Tunnel.tunnelPreviews)
+	const store = preview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+	const targetTunnel = Tunnel.get(target, store)
+	const sourceTunnel = Tunnel.get(source, store)
 
 	const targetEntity = targetTunnel?.entity
 	const sourceEntity = sourceTunnel?.entity
