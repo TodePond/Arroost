@@ -217,6 +217,7 @@ export class Infinite extends Component {
 		}
 
 		const background = new Ellipse()
+		this.background = background
 		background.dom.style.fill.set(BLACK.toString())
 
 		const parent = this.parent

@@ -385,7 +385,66 @@ export class Scene extends Entity {
 
 		this.recreateSceneLayers()
 
+		this.rebuildWorldFromNogan()
+
+		const { center } = this.bounds.get()
+		const targetPosition = tunnel.entity.dom.transform.absolutePosition.get()
+		const position = scale(subtract(center, targetPosition), PARENT_SCALE)
+
+		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOM_IN_THRESHOLD
+		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * CHILD_SCALE)
+		this.setCameraCenter(position)
+		this.infiniteTarget.get()?.infinite.state.set("none")
+		this.infiniteTarget.set(null)
+		checkUnderPointer()
+		// this.recreateSceneLayers()
+		// shared.level = tunnel.id
+	}
+
+	replaceLayerBackwards() {
+		for (const layerName of this.sceneLayerNames) {
+			const layer = this.layer[layerName]
+			layer.dispose()
+		}
+
+		const oldLevelCell = getCell(shared.nogan, shared.level)
+		if (!oldLevelCell) throw new Error("Missing level cell - this shouldn't happen")
+		shared.level = oldLevelCell.parent
+
+		let cellToComeOutOf = oldLevelCell.id
+		// If we're at the top level, just find any cell on the top level
+		if (shared.level === 0) {
+			for (const cell of iterateCells(shared.nogan)) {
+				if (cell.id === 0) continue
+				if (cell.parent === 0) {
+					cellToComeOutOf = cell.id
+					break
+				}
+			}
+		}
+
+		this.recreateSceneLayers()
+		this.rebuildWorldFromNogan()
+
+		const { center } = this.bounds.get()
+		const cell = getCell(shared.nogan, cellToComeOutOf)
+		if (!cell) {
+			return
+			// throw new Error("Couldn't find cell to come out of")
+		}
+
+		const position = add(cell.position, scale(center, CHILD_SCALE))
+		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOMING_OUT_THRESHOLD
+		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
+		this.dom.transform.scale.set([zoom, zoom])
+		this.setCameraCenter(position)
+		this.dealWithInfinites()
+	}
+
+	rebuildWorldFromNogan() {
 		const wireEntities = []
+
+		/** @type { (Entity & {dom: Dom; infinite?: Infinite})[] } */
 		const cellEntities = []
 
 		for (const cell of iterateCells(shared.nogan)) {
@@ -426,37 +485,13 @@ export class Scene extends Entity {
 				this.layer.timing.append(entity.dom)
 			} else {
 				this.layer.cell.append(entity.dom)
+				if (entity.infinite) {
+					// entity.infinite.background?.dom.style.sendToBack()
+					// entity.infinite.dom?.style.bringToFront()
+					entity.dom.style.bringToFront()
+				}
 			}
 		}
-
-		const { center } = this.bounds.get()
-		const targetPosition = tunnel.entity.dom.transform.absolutePosition.get()
-		const position = scale(subtract(center, targetPosition), PARENT_SCALE)
-
-		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOM_IN_THRESHOLD
-		this.setZoom((ZOOM_IN_THRESHOLD + zoomDiff) * CHILD_SCALE)
-		this.setCameraCenter(position)
-		this.infiniteTarget.get()?.infinite.state.set("none")
-		this.infiniteTarget.set(null)
-		checkUnderPointer()
-		// this.recreateSceneLayers()
-		// shared.level = tunnel.id
-	}
-
-	replaceLayerBackwards() {
-		const { center } = this.bounds.get()
-		const cell = getCell(shared.nogan, 1)
-		if (!cell) {
-			return
-			// throw new Error("Couldn't find cell to come out of")
-		}
-
-		const position = add(cell.position, scale(center, CHILD_SCALE))
-		const zoomDiff = shared.scene.dom.transform.scale.get().x - ZOOMING_OUT_THRESHOLD
-		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
-		this.dom.transform.scale.set([zoom, zoom])
-		this.setCameraCenter(position)
-		this.dealWithInfinites()
 	}
 }
 
