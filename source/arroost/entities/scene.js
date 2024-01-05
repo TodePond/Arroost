@@ -414,7 +414,7 @@ export class Scene extends Entity {
 
 		let cellToComeOutOf = oldLevelCell.id
 		// If we're at the top level, just find any cell on the top level
-		if (shared.level === 0) {
+		if (shared.level === 0 && oldLevelCell.id === 0) {
 			// Purge everything, because we're gonna remake it
 			shared.level = NaN
 			Tunnel.purgeOtherLevelInfiniteTunnels()
@@ -429,6 +429,7 @@ export class Scene extends Entity {
 			}
 		}
 
+		Tunnel.purgeOtherLevelInfiniteTunnels()
 		this.recreateSceneLayers()
 		this.rebuildWorldFromNogan()
 
@@ -445,7 +446,6 @@ export class Scene extends Entity {
 		const zoom = (ZOOMING_OUT_THRESHOLD + zoomDiff) * PARENT_SCALE
 		this.dom.transform.scale.set([zoom, zoom])
 		this.setCameraCenter(position)
-		Tunnel.purgeOtherLevelInfiniteTunnels()
 		this.dealWithInfinites()
 	}
 

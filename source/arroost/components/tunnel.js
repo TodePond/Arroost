@@ -265,7 +265,7 @@ export class Tunnel extends Component {
 	dispose() {
 		super.dispose()
 		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
-		Tunnel.delete(this.id, store)
+		Tunnel.delete(this.id, store, true)
 	}
 
 	/**
