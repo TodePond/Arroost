@@ -57,6 +57,15 @@ export class Tunnel extends Component {
 	static inViewInfiniteTunnels = new Set()
 
 	static purgeOtherLevelInfiniteTunnels() {
+		for (const [key, tunnel] of Tunnel.tunnels) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${tunnel.id}`)
+			if (cell.parent !== shared.level) {
+				tunnel.entity.dispose()
+				Tunnel.tunnels.delete(key)
+			}
+		}
+
 		for (const tunnel of Tunnel.inViewInfiniteTunnels) {
 			const cell = getCell(shared.nogan, tunnel.id)
 			if (!cell) throw new Error(`Tunnel: Can't find cell ${tunnel.id}`)

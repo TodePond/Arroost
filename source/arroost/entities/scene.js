@@ -383,8 +383,8 @@ export class Scene extends Entity {
 
 		shared.level = tunnel.id
 
+		Tunnel.purgeOtherLevelInfiniteTunnels()
 		this.recreateSceneLayers()
-
 		this.rebuildWorldFromNogan()
 
 		const { center } = this.bounds.get()
@@ -396,7 +396,6 @@ export class Scene extends Entity {
 		this.setCameraCenter(position)
 		this.infiniteTarget.get()?.infinite.state.set("none")
 		this.infiniteTarget.set(null)
-		Tunnel.purgeOtherLevelInfiniteTunnels()
 		checkUnderPointer()
 		// this.recreateSceneLayers()
 		// shared.level = tunnel.id
