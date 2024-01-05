@@ -1723,3 +1723,64 @@ describe("memoisation", () => {
 		assertEquals(operations.length, 3) // Should have fired all three slots
 	})
 })
+
+describe("infinity", () => {
+	it("deals with wires inside cells", () => {
+		const nogan = createNogan()
+		const cell1 = createCell(nogan, { type: "slot" })
+		const cell2 = createCell(nogan, { type: "slot" })
+		createWire(nogan, { source: cell1.id, target: cell2.id, timing: 1 })
+		createWire(nogan, { source: cell2.id, target: cell1.id, timing: 1 })
+
+		const child1 = createCell(nogan, { type: "slot", parent: cell1.id })
+		const child2 = createCell(nogan, { type: "slot", parent: cell1.id })
+		createWire(nogan, { source: child1.id, target: child2.id, timing: 1 })
+
+		const advanced0 = getAdvanced(nogan).advanced
+		const cell1after0 = getCell(advanced0, cell1.id)
+		const cell2after0 = getCell(advanced0, cell2.id)
+		const child1after0 = getCell(advanced0, child1.id)
+		const child2after0 = getCell(advanced0, child2.id)
+
+		assertEquals(cell1after0?.fire.blue, null)
+		assertEquals(cell2after0?.fire.blue, null)
+		assertEquals(child1after0?.fire.blue, null)
+		assertEquals(child2after0?.fire.blue, null)
+
+		fireCell(nogan, { id: child1.id })
+
+		assertEquals(cell1.fire.blue, null)
+		assertEquals(cell2.fire.blue, null)
+		assertEquals(child1.fire.blue, { type: "raw" })
+		assertEquals(child2.fire.blue, null)
+
+		const advanced1 = getAdvanced(nogan).advanced
+		const cell1after1 = getCell(advanced1, cell1.id)
+		const cell2after1 = getCell(advanced1, cell2.id)
+		const child1after1 = getCell(advanced1, child1.id)
+		const child2after1 = getCell(advanced1, child2.id)
+
+		assertEquals(cell1after1?.fire.blue, null)
+		assertEquals(cell2after1?.fire.blue, null)
+		assertEquals(child1after1?.fire.blue, { type: "raw" })
+		assertEquals(child2after1?.fire.blue, null)
+
+		fireCell(nogan, { id: cell1.id })
+
+		assertEquals(cell1.fire.blue, { type: "raw" })
+		assertEquals(cell2.fire.blue, null)
+		assertEquals(child1.fire.blue, { type: "raw" })
+		assertEquals(child2.fire.blue, null)
+
+		const advanced2 = getAdvanced(nogan).advanced
+		const cell1after2 = getCell(advanced2, cell1.id)
+		const cell2after2 = getCell(advanced2, cell2.id)
+		const child1after2 = getCell(advanced2, child1.id)
+		const child2after2 = getCell(advanced2, child2.id)
+
+		assertEquals(cell1after2?.fire.blue, null)
+		assertEquals(cell2after2?.fire.blue, { type: "raw" })
+		assertEquals(child1after2?.fire.blue, null)
+		assertEquals(child2after2?.fire.blue, { type: "raw" })
+	})
+})

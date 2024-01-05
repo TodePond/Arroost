@@ -1334,12 +1334,13 @@ export const fullFireCell = (
 /**
  * Clone a nogan, ending all fires of cells whose parents are firing.
  * @param {Nogan} nogan
+ * @param {GetPeakMemo | undefined} memo
  * @returns {{
  * 	projection: Nogan,
  * 	operations: Operation[],
  * }}
  */
-export const getProjection = (nogan) => {
+export const getProjection = (nogan, memo = undefined) => {
 	const projection = getClone(nogan)
 	const operations = []
 
@@ -1356,7 +1357,7 @@ export const getProjection = (nogan) => {
 		if (!cell.fire.blue && !cell.fire.red && !cell.fire.green) continue
 
 		// Don't unfire the cell if its parent isn't firing
-		if (!isRoot(parent) && !isPeakFiring(nogan, { id: parent })) continue
+		if (!isRoot(parent) && !isPeakFiring(nogan, { id: parent, memo })) continue
 
 		cell.fire = createFire()
 		const unfiredOperation = c({ type: "unfired", id: cell.id })
@@ -1465,6 +1466,18 @@ export const getPeak = (
 	const from = timing === 1 ? past : future
 
 	// First, let's try to look in the known future/past
+	// But wait! only if my parent is firing
+	const cell = getCell(nogan, id)
+	if (!cell) throw new Error(`Couldn't find cell ${id} to get peak`)
+	const { parent } = cell
+	if (
+		!isRoot(parent) &&
+		!isPeakFiring(nogan, { id: parent, past, future, memo, timing: getFlippedTiming(timing) })
+	) {
+		return createPeak({ colour })
+	}
+
+	// Parent is firing, so let's look in the known future/past!
 	const [next, ...rest] = to
 	if (next) {
 		const peak = getPeakNow(next, {
@@ -1479,7 +1492,7 @@ export const getPeak = (
 	}
 
 	// Otherwise, let's prepare to imagine the future/past
-	const { projection } = getProjection(nogan)
+	const { projection } = getProjection(nogan, memo)
 
 	// But wait!
 	// Are we stuck in a loop?
@@ -1571,12 +1584,16 @@ export const isFiring = (nogan, { id }) => {
  * @param {Nogan} nogan
  * @param {{
  * 	id: CellId,
+ * 	timing?: Timing,
+ * 	past?: Nogan[],
+ * 	future?: Nogan[],
+ *   memo?: GetPeakMemo,
  * }} options
  * @returns {boolean}
  */
-export const isPeakFiring = (nogan, { id }) => {
+export const isPeakFiring = (nogan, options) => {
 	for (const colour of PULSE_COLOURS) {
-		const peak = getPeak(nogan, { id, colour })
+		const peak = getPeak(nogan, options)
 		if (peak.result) return true
 	}
 	return false
