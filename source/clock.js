@@ -1,6 +1,6 @@
 import { BLACK, GREY, VOID } from "../libraries/habitat-import.js"
 import { Tunnel } from "./arroost/components/tunnel.js"
-import { GREY_BLACK, shared } from "./main.js"
+import { shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
 class Clock {

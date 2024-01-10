@@ -8,7 +8,7 @@ import {
 	WHITE,
 	equals,
 } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER, shared } from "../../../main.js"
+import { shared } from "../../../main.js"
 import {
 	createCell,
 	fireCell,

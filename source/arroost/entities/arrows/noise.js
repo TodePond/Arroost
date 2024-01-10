@@ -5,7 +5,7 @@ import { Input } from "../../components/input.js"
 import { setCellStyles } from "./shared.js"
 import { ArrowOfRecording } from "./recording.js"
 import { RectangleHtml } from "../shapes/rectangle-html.js"
-import { GREY_SILVER, shared } from "../../../main.js"
+import { shared } from "../../../main.js"
 import { GREY } from "../../../../libraries/habitat-import.js"
 import { FIFTH, FULL, HALF, TENTH, THIRD } from "../../unit.js"
 

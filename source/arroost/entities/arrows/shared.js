@@ -1,5 +1,5 @@
 import { WHITE, BLACK, GREY, SILVER } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER } from "../../../main.js"
+import { GREY_SILVER, theme } from "../../../theme.js"
 import { Dom } from "../../components/dom.js"
 import { Infinite } from "../../components/infinite.js"
 import { Input } from "../../components/input.js"
@@ -41,7 +41,7 @@ export const setCellStyles = ({
 	})
 
 	back.style.shadow.set(true)
-	back.style.stroke.set("rgba(0, 0, 0, 0.25)")
+	back.style.stroke.set(theme.get() === "dark" ? "rgba(0, 0, 0, 0.25)" : "rgba(0, 0, 20, 0.02)")
 	back.style.strokeWidth.set(2)
 
 	// back.style.pointerEvents.set(infinite?.isPreview ? "none" : "all")

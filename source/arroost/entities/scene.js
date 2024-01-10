@@ -1,4 +1,4 @@
-import { GREY_SILVER, shared } from "../../main.js"
+import { shared } from "../../main.js"
 import { Entity } from "./entity.js"
 import { Dom } from "../components/dom.js"
 import {
@@ -44,6 +44,7 @@ import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.j
 import { Marker } from "./debug/marker.js"
 import { ArrowOfTiming } from "./arrows/timing.js"
 import { ArrowOfColour } from "./arrows/colour.js"
+import { GREY_SILVER } from "../../theme.js"
 
 const ZOOM_FRICTION = 0.75
 
