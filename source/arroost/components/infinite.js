@@ -76,7 +76,7 @@ export class Infinite extends Component {
 					// const parentBlur = lerp([0, 20], t, EASE.easeInOutExpo)
 
 					this.dom?.style.opacity.set(childOpacity)
-					this.parent?.style.opacity.set(parentOpacity)
+					// this.parent?.style.opacity.set(parentOpacity)
 
 					// this.dom?.style.blur.set(childBlur)
 					// this.parent?.style.blur.set(parentBlur)

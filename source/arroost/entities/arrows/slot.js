@@ -70,8 +70,8 @@ export class ArrowOfSlot extends Entity {
 		this.dom.append(this.front.dom)
 
 		// Style elements
-		this.back.dom.transform.scale.set([2 / 3, 2 / 3])
-		this.front.dom.transform.scale.set([1 / 3, 1 / 3])
+		this.back.dom.transform.scale.set([1, 1])
+		this.front.dom.transform.scale.set([1 / 2, 1 / 2])
 		setCellStyles({
 			back: this.back.dom,
 			front: this.front.dom,
