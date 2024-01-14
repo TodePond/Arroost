@@ -87,6 +87,9 @@ It's a secret (for now).
       <td align="center" valign="top" width="14.28%"><a href="http://edibotopic.com"><img src="https://avatars.githubusercontent.com/u/66971213?v=4?s=100" width="100px;" alt="Shane Crowley"/><br /><sub><b>Shane Crowley</b></sub></a><br /><a href="#userTesting-edibotopic" title="User Testing">📓</a> <a href="https://github.com/TodePond/Arroost/issues?q=author%3Aedibotopic" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://thacuber2a03.github.io"><img src="https://avatars.githubusercontent.com/u/70547062?v=4?s=100" width="100px;" alt="ThaCuber"/><br /><sub><b>ThaCuber</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Athacuber2a03" title="Bug reports">🐛</a> <a href="#userTesting-thacuber2a03" title="User Testing">📓</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/anderium"><img src="https://avatars.githubusercontent.com/u/33520919?v=4?s=100" width="100px;" alt="anderium"/><br /><sub><b>anderium</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Aanderium" title="Bug reports">🐛</a> <a href="https://github.com/TodePond/Arroost/commits?author=anderium" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
