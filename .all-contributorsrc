@@ -78,6 +78,16 @@
         "bug",
         "userTesting"
       ]
+    },
+    {
+      "login": "anderium",
+      "name": "anderium",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33520919?v=4",
+      "profile": "https://github.com/anderium",
+      "contributions": [
+        "bug",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
