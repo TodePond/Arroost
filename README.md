@@ -10,7 +10,7 @@
 
 Arroost is a ridiculous music-making tool.
 
-I'm making it for my next video called 🎵 **Arrows in Arrows in Arrows**. Watch the [teaser trailer](https://www.youtube.com/watch?v=8TFuKwdixlU)!
+I've been making it for my video called [🎵 **Arrows in Arrows in Arrows**](https://www.youtube.com/watch?v=DNBKdU6XrLY)!
 
 ## What's the big idea?
 
