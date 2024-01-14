@@ -146,7 +146,7 @@ export class ArrowOfDestruction extends Entity {
 			}
 			const cell = getCell(shared.nogan, id)
 			if (!cell) return []
-			if (cell.type === "timing") {
+			if (cell.type === "timing" || cell.type === "colour") {
 				const wire = getWire(shared.nogan, cell.wire)
 				return deleteWire(shared.nogan, wire.id)
 			}
