@@ -97,7 +97,7 @@ export class ArrowOfReality extends Entity {
 			const operations = []
 			for (const key in fire) {
 				if (fire[key] === null) continue
-				// @ts-expect-error: cant be fucked to type Fire correctly
+				// @ts-expect-error: `Fire` is typed correctly, but `fire` may theoretically be a subtype with additional keys
 				operations.push(...fireCell(shared.nogan, { id, colour: key }))
 			}
 			return operations
