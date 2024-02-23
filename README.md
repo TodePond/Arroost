@@ -23,8 +23,8 @@ Arroost is a mad all-star mix of big ideas from my previous projects:
 
 ## How can I use it?
 
-It's not ready yet!<br>
-But when it is, it'll be up at [arroost.com](https://arroost.com).
+Go to [arroost.com](https://arroost.com) on a device with a microphone.<br>
+Watch out, it's buggy!
 
 ## What's in the code?
 
@@ -69,7 +69,7 @@ deno test --watch .
 
 ## How does it all work?
 
-It's a secret (for now).
+It's a secret.
 
 ## Contributors
 
