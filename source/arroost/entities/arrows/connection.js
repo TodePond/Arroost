@@ -170,6 +170,7 @@ export class ArrowOfConnection extends Entity {
 		const entity = target.entity
 		const dummyWire = new ArrowOfTime({
 			// @ts-expect-error - Don't know why it isn't figuring out its type here.
+			// See: https://github.com/microsoft/TypeScript/issues/50651#issuecomment-1476795579
 			source: sourceEntity,
 			target: entity,
 			timing: ArrowOfConnection.timing,

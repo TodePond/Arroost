@@ -95,31 +95,43 @@ declare type Behave<T extends Pulse> = ({
 	peak: SuccessPeak & { pulse: T }
 }) => Peak
 
-declare type BehaviourMap = {
-	[key in PulseType]: Behave<Extract<Pulse, { type: key }>>
+declare type PulseMap<key extends PulseType = PulseType> = {
+	[P in key]: { type: P } & Omit<Extract<Pulse, { type: P }>, "type">
+}[key]
+
+declare type BehaviourMap<key extends PulseType = PulseType> = {
+	[P in key]: Behave<PulseMap<P>>
 }
 
 //===========//
 // Operation //
 //===========//
+// Based on: https://github.com/microsoft/TypeScript/pull/47109
 declare type Operation = ReportOperation | InstructionOperation
-declare type Operate<T extends Operation> = (nogan: Nogan, operation: T) => Operation[]
-declare type OperationMap = {
-	[key in OperationType]: Operate<Extract<Operation, { type: key }>>
+declare type OperationMap<key extends OperationType = OperationType> = {
+	[P in key]: { type: P } & Omit<Extract<Operation, { type: P }>, "type">
+}[key]
+
+declare type Operate<key extends OperationType> = (nogan: Nogan, operation: OperationMap<key>) => Operation[]
+declare type OperateMap<key extends OperationType = OperationType> = {
+	[P in key]: Operate<P>
 }
 
-declare type TunnelFunction<T extends Operation> = (operation: T) => void
-declare type TunnelMap = {
-	[key in OperationType]: TunnelFunction<Extract<Operation, { type: key }>>
+declare type TunnelFunction<key extends OperationType = OperationType> = (operation: OperationMap<key>) => void
+declare type TunnelMap<key extends OperationType = OperationType> = {
+	[P in key]: TunnelFunction<P>
 }
 
 //======//
 // Fire //
 //======//
+// declare type Fire = {
+// 	red: Pulse | null
+// 	green: Pulse | null
+// 	blue: Pulse | null
+// }
 declare type Fire = {
-	red: Pulse | null
-	green: Pulse | null
-	blue: Pulse | null
+	[key in PulseColour]: Pulse | null
 }
 
 //=======//

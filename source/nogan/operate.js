@@ -1,6 +1,6 @@
 import { getCell, getWire, modifyCell, modifyWire, unfireCell } from "./nogan.js"
 
-/** @type {OperationMap} */
+/** @type {OperateMap} */
 export const OPERATIONS = {
 	/** Modify a cell */
 	modifyCell(nogan, { id, template }) {
