@@ -1,4 +1,4 @@
-import { GREY_SILVER, shared } from "../../main.js"
+import { shared } from "../../main.js"
 import { Entity } from "./entity.js"
 import { Dom } from "../components/dom.js"
 import {
@@ -9,6 +9,7 @@ import {
 	distanceBetween,
 	equals,
 	fireEvent,
+	rotate,
 	scale,
 	subtract,
 	use,
@@ -20,18 +21,30 @@ import { replenishUnlocks } from "./unlock.js"
 import { Title } from "./title.js"
 import { TextHtml } from "./shapes/text-html.js"
 import { Transform } from "../components/transform.js"
-import { Tunnel } from "../components/tunnel.js"
+import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "../components/tunnel.js"
 import {
 	CHILD_SCALE,
+	FULL,
 	PARENT_SCALE,
 	ZOOMING_IN_THRESHOLD,
 	ZOOMING_OUT_THRESHOLD,
 	ZOOM_IN_THRESHOLD,
 } from "../unit.js"
-import { c, getCell, t } from "../../nogan/nogan.js"
+import {
+	c,
+	createCell,
+	getCell,
+	getTemplate,
+	iterateCells,
+	iterateWires,
+	t,
+} from "../../nogan/nogan.js"
 import { Infinite } from "../components/infinite.js"
 import { checkUnderPointer, triggerSomethingHasMoved } from "../machines/hover.js"
 import { Marker } from "./debug/marker.js"
+import { ArrowOfTiming } from "./arrows/timing.js"
+import { ArrowOfColour } from "./arrows/colour.js"
+import { GREY_SILVER } from "../../theme.js"
 
 const ZOOM_FRICTION = 0.75
 
@@ -306,6 +319,9 @@ export class Scene extends Entity {
 		let distanceFromScreenCenter = Infinity
 		let closestTunnel = null
 		for (const tunnel of Tunnel.inViewInfiniteTunnels.values()) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error("No cell found for tunnel")
+			if (cell.parent !== shared.level) continue
 			const { transform } = tunnel.entity.dom
 			const position = transform.position.get()
 			const distance = distanceBetween(position, this.bounds.get().center)
@@ -373,8 +389,14 @@ export class Scene extends Entity {
 	replaceLayer(tunnel) {
 		for (const layerName of this.sceneLayerNames) {
 			const layer = this.layer[layerName]
-			// layer.dispose()
+			layer.dispose()
 		}
+
+		shared.level = tunnel.id
+
+		Tunnel.purgeOtherLevelInfiniteTunnels()
+		this.recreateSceneLayers()
+		this.rebuildWorldFromNogan()
 
 		const { center } = this.bounds.get()
 		const targetPosition = tunnel.entity.dom.transform.absolutePosition.get()
@@ -391,9 +413,52 @@ export class Scene extends Entity {
 	}
 
 	replaceLayerBackwards() {
+		for (const layerName of this.sceneLayerNames) {
+			const layer = this.layer[layerName]
+			layer.dispose()
+		}
+
+		const oldLevelCell = getCell(shared.nogan, shared.level)
+		if (!oldLevelCell) throw new Error("Missing level cell - this shouldn't happen")
+		shared.level = oldLevelCell.parent
+
+		let cellToComeOutOf = oldLevelCell.id
+		// If we're at the top level, just find any cell on the top level
+		if (shared.level === 0 && oldLevelCell.id === 0) {
+			// Purge everything, because we're gonna remake it
+			shared.level = NaN
+			Tunnel.purgeOtherLevelInfiniteTunnels()
+			shared.level = 0
+
+			const newCell = createCell(shared.nogan, {
+				type: "creation",
+			})
+
+			cellToComeOutOf = newCell.id
+
+			for (const cell of iterateCells(shared.nogan)) {
+				if (cell.id === 0) continue
+				if (cell.id === newCell.id) continue
+				if (cell.parent === 0) {
+					cell.parent = newCell.id
+					break
+				}
+			}
+
+			// createCell(shared.nogan, {
+			// 	type: "connection",
+			// 	position: rotate([FULL * 2, 0], Math.random() * Math.PI * 2),
+			// })
+		}
+
+		Tunnel.purgeOtherLevelInfiniteTunnels()
+		this.recreateSceneLayers()
+		this.rebuildWorldFromNogan()
+
 		const { center } = this.bounds.get()
-		const cell = getCell(shared.nogan, 1)
+		const cell = getCell(shared.nogan, cellToComeOutOf)
 		if (!cell) {
+			console.warn("Couldn't find cell to come out of")
 			return
 			// throw new Error("Couldn't find cell to come out of")
 		}
@@ -404,6 +469,59 @@ export class Scene extends Entity {
 		this.dom.transform.scale.set([zoom, zoom])
 		this.setCameraCenter(position)
 		this.dealWithInfinites()
+	}
+
+	rebuildWorldFromNogan() {
+		const wireEntities = []
+
+		/** @type { (Entity & {dom: Dom; infinite?: Infinite})[] } */
+		const cellEntities = []
+
+		for (const cell of iterateCells(shared.nogan)) {
+			if (cell.parent !== shared.level) continue
+			const entity = CELL_CONSTRUCTORS[cell.type]({
+				id: cell.id,
+				position: cell.position,
+				template: getTemplate(cell),
+			})
+
+			if (!entity) continue
+			cellEntities.push(entity)
+		}
+
+		for (const wire of iterateWires(shared.nogan)) {
+			const cells = wire.cells.map((id) => getCell(shared.nogan, id))
+			if (!cells.every((cell) => cell?.parent === shared.level)) continue
+
+			const entity = WIRE_CONSTRUCTOR({
+				id: wire.id,
+				colour: wire.colour,
+				timing: wire.timing,
+				source: wire.source,
+				target: wire.target,
+				preview: false,
+			})
+			wireEntities.push(entity)
+		}
+
+		for (const entity of wireEntities) {
+			this.layer.wire.append(entity.dom)
+		}
+
+		for (const entity of cellEntities) {
+			if (entity instanceof ArrowOfTiming) {
+				this.layer.timing.append(entity.dom)
+			} else if (entity instanceof ArrowOfColour) {
+				this.layer.timing.append(entity.dom)
+			} else {
+				this.layer.cell.append(entity.dom)
+				if (entity.infinite) {
+					entity.infinite.background?.dom.style.sendToBack()
+					// entity.infinite.dom?.style.bringToFront()
+					entity.dom.style.bringToFront()
+				}
+			}
+		}
 	}
 }
 

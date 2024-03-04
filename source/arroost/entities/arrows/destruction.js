@@ -34,7 +34,8 @@ export class ArrowOfDestruction extends Entity {
 	pulling = this.use(false)
 
 	constructor({
-		id = createCell(shared.nogan, { parent: shared.level, type: "destruction" }).id,
+		level = shared.level,
+		id = createCell(shared.nogan, { parent: level, type: "destruction" }).id,
 		position = t([0, 0]),
 		preview = false,
 	}) {

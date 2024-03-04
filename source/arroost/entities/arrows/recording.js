@@ -10,7 +10,7 @@ import {
 	equals,
 	subtract,
 } from "../../../../libraries/habitat-import.js"
-import { GREY_SILVER, MIDDLE_C, shared } from "../../../main.js"
+import { MIDDLE_C, shared } from "../../../main.js"
 import {
 	SharedResource,
 	createCell,

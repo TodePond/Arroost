@@ -1,10 +1,10 @@
 import { BLACK, GREY, VOID } from "../libraries/habitat-import.js"
 import { Tunnel } from "./arroost/components/tunnel.js"
-import { GREY_BLACK, shared } from "./main.js"
+import { shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
 class Clock {
-	bpm = 120
+	bpm = 160
 
 	/** @type {"buildup" | "aftermath"} */
 	phase = "buildup"
@@ -13,6 +13,10 @@ class Clock {
 	queue = []
 
 	count = 0
+	setBpm(bpm) {
+		this.bpm = bpm
+		Tone.Transport.bpm.value = bpm
+	}
 
 	start() {
 		const metronome = new Tone.PluckSynth().toDestination()

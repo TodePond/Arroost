@@ -22,6 +22,7 @@ import { getZoomer } from "./arroost/input/zoomer.js"
 import { clock } from "./clock.js"
 import { registerImporters } from "./arroost/machines/import.js"
 import { useCursor } from "./arroost/cursor.js"
+import { useTheme } from "./theme.js"
 
 //======//
 // Tone //
@@ -35,8 +36,7 @@ window["print"] = print
 window["dir"] = console.dir.bind(console)
 registerMethods()
 
-export const GREY_SILVER = new Colour(83, 101, 147)
-export const GREY_BLACK = new Colour(31, 39, 54)
+useTheme()
 
 //==============//
 // Setup Engine //

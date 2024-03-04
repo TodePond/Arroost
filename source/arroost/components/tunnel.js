@@ -56,6 +56,26 @@ export class Tunnel extends Component {
 	 */
 	static inViewInfiniteTunnels = new Set()
 
+	static purgeOtherLevelInfiniteTunnels() {
+		for (const [key, tunnel] of Tunnel.tunnels) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${tunnel.id}`)
+			if (cell.parent !== shared.level) {
+				tunnel.entity.dispose()
+				Tunnel.tunnels.delete(key)
+			}
+		}
+
+		for (const tunnel of Tunnel.inViewInfiniteTunnels) {
+			const cell = getCell(shared.nogan, tunnel.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${tunnel.id}`)
+			if (cell.parent !== shared.level) {
+				tunnel.entity.dispose()
+				Tunnel.inViewInfiniteTunnels.delete(tunnel)
+			}
+		}
+	}
+
 	/**
 	 * @param {Operation[]} operations
 	 */
@@ -209,6 +229,11 @@ export class Tunnel extends Component {
 		}
 
 		if (this.type === "cell") {
+			const cell = getCell(shared.nogan, this.id)
+			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
+			if (cell.type === "timing" || cell.type === "colour") {
+				return
+			}
 			this.useCell({
 				dom: this.entity.dom,
 				carry: this.entity.carry,
@@ -229,10 +254,11 @@ export class Tunnel extends Component {
 	/**
 	 * @param {CellId | WireId} id
 	 * @param {Map<CellId | WireId, Tunnel>} store
+	 * @param {boolean} quiet
 	 */
-	static delete(id, store = Tunnel.tunnels) {
+	static delete(id, store = Tunnel.tunnels, quiet = false) {
 		const tunnel = Tunnel.get(id, store)
-		if (!tunnel) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
+		if (!tunnel && !quiet) throw new Error(`Tunnel: Can't find tunnel ${id} to delete`)
 		store.delete(id)
 
 		if (store === Tunnel.tunnels) {
@@ -253,7 +279,7 @@ export class Tunnel extends Component {
 	dispose() {
 		super.dispose()
 		const store = this.isPreview ? Tunnel.tunnelPreviews : Tunnel.tunnels
-		Tunnel.delete(this.id, store)
+		Tunnel.delete(this.id, store, true)
 	}
 
 	/**
@@ -272,16 +298,11 @@ export class Tunnel extends Component {
 			const cell = getCell(shared.nogan, this.id)
 			if (!cell) throw new Error(`Tunnel: Can't find cell ${this.id}`)
 			if (equals(cell.position, position)) return
+			if (!equals(velocity, [0, 0])) return
 			Tunnel.apply(() => {
 				return moveCell(shared.nogan, {
 					id: this.id,
 					position,
-					propogate: equals(velocity, [0, 0]),
-					filter: (id) => {
-						const cell = getCell(shared.nogan, id)
-						if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)
-						return cell.type === "slot"
-					},
 				})
 			})
 		})
@@ -457,8 +478,9 @@ export const CELL_CONSTRUCTORS = {
 
 // Must be called only after all relevant cells have been created
 export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }) => {
-	const targetTunnel = Tunnel.get(target, Tunnel.tunnelPreviews)
-	const sourceTunnel = Tunnel.get(source, Tunnel.tunnelPreviews)
+	const store = preview ? Tunnel.tunnelPreviews : Tunnel.tunnels
+	const targetTunnel = Tunnel.get(target, store)
+	const sourceTunnel = Tunnel.get(source, store)
 
 	const targetEntity = targetTunnel?.entity
 	const sourceEntity = sourceTunnel?.entity
@@ -477,3 +499,5 @@ export const WIRE_CONSTRUCTOR = ({ id, colour, timing, source, target, preview }
 		preview,
 	})
 }
+
+window["Tunnel"] = Tunnel

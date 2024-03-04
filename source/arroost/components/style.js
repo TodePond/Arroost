@@ -1,9 +1,10 @@
-import { glue, GREY, use } from "../../../libraries/habitat-import.js"
+import { BLACK, glue, GREY, use } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
+import { theme } from "../../theme.js"
 import { Component } from "./component.js"
 import { Dom } from "./dom.js"
 
-export const Style = class extends Component {
+export class Style extends Component {
 	static highestZIndex = 0
 	static lowestZIndex = 0
 
@@ -57,9 +58,15 @@ export const Style = class extends Component {
 	/** @type {Signal<null | number>} */
 	opacity = this.use(null)
 
-	static SHADOW = "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 0px 4px rgba(0, 0, 0, 0.15)"
-	static SHADOW_FILTER =
-		"drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.15))"
+	static SHADOW_COLOUR = theme.get() === "dark" ? "0, 0, 0" : "0, 0, 20"
+	static SHADOW_OPACITY = theme.get() === "dark" ? 0.25 : 0.03
+
+	static SHADOW = `0px 4px 8px rgba(${Style.SHADOW_COLOUR}, ${
+		Style.SHADOW_OPACITY
+	}), 0px 0px 4px rgba(${Style.SHADOW_COLOUR}, ${Style.SHADOW_OPACITY * 0.6})`
+	static SHADOW_FILTER = `drop-shadow(0px 4px 8px rgba(${Style.SHADOW_COLOUR}, ${
+		Style.SHADOW_OPACITY
+	})) drop-shadow(0px 0px 4px rgba(${Style.SHADOW_COLOUR}, ${Style.SHADOW_OPACITY * 0.6}))`
 
 	/**
 	 * @param {SVGElement} element
@@ -153,3 +160,5 @@ export const Style = class extends Component {
 		this.zIndex.set(zIndex)
 	}
 }
+
+window["Style"] = Style

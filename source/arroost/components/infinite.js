@@ -1,4 +1,4 @@
-import { BLACK, RED, scale } from "../../../libraries/habitat-import.js"
+import { BLACK, RED, rotate, scale } from "../../../libraries/habitat-import.js"
 import { shared } from "../../main.js"
 import { Dragging } from "../machines/input.js"
 import { Component } from "./component.js"
@@ -8,12 +8,20 @@ import { Transform } from "./transform.js"
 import { Movement } from "./movement.js"
 import { Style } from "./style.js"
 import { c, getCell, getTemplate, iterateCells, iterateWires, t } from "../../nogan/nogan.js"
-import { CHILD_SCALE, PARENT_SCALE, ZOOMING_IN_THRESHOLD, ZOOM_IN_THRESHOLD } from "../unit.js"
+import {
+	CHILD_SCALE,
+	FULL,
+	PARENT_SCALE,
+	ZOOMING_IN_THRESHOLD,
+	ZOOM_IN_THRESHOLD,
+} from "../unit.js"
 import { ArrowOfCreation } from "../entities/arrows/creation.js"
-import { CELL_CONSTRUCTORS, WIRE_CONSTRUCTOR } from "./tunnel.js"
+import { CELL_CONSTRUCTORS, Tunnel, WIRE_CONSTRUCTOR } from "./tunnel.js"
 import { Entity } from "../entities/entity.js"
 import { EASE, lerp } from "../../../libraries/lerp.js"
 import { Ellipse } from "../entities/shapes/ellipse.js"
+import { ArrowOfConnection } from "../entities/arrows/connection.js"
+import { ArrowOfDestruction } from "../entities/arrows/destruction.js"
 
 export function ilerp(x, a, b) {
 	return (x - a) / (b - a)
@@ -68,7 +76,7 @@ export class Infinite extends Component {
 					// const parentBlur = lerp([0, 20], t, EASE.easeInOutExpo)
 
 					this.dom?.style.opacity.set(childOpacity)
-					this.parent?.style.opacity.set(parentOpacity)
+					// this.parent?.style.opacity.set(parentOpacity)
 
 					// this.dom?.style.blur.set(childBlur)
 					// this.parent?.style.blur.set(parentBlur)
@@ -89,7 +97,9 @@ export class Infinite extends Component {
 		this.use(() => {
 			switch (this.state.get()) {
 				case "zooming-in": {
-					this.appendContentsForLevel(shared.level)
+					if (!this.dom?.input.entity?.tunnel) throw new Error("Missing tunnel")
+					const tunnel = this.dom.input.entity.tunnel
+					this.appendContentsForLevel(tunnel.id)
 					break
 				}
 				case "none": {
@@ -112,14 +122,21 @@ export class Infinite extends Component {
 	}
 
 	/**
-	 * @param {number} level
+	 * @param {number} newLevel
 	 */
-	appendContentsForLevel(level) {
+	appendContentsForLevel(newLevel) {
 		const cellEntities = []
 		const wireEntities = []
 
+		const oldLevelCell = getCell(shared.nogan, shared.level)
+		const newLevelCell = getCell(shared.nogan, newLevel)
+
+		if (!oldLevelCell || !newLevelCell) {
+			throw new Error("Missing level cell - this shouldn't happen")
+		}
+
 		for (const cell of iterateCells(shared.nogan)) {
-			if (cell.parent !== level) continue
+			if (cell.parent !== newLevel) continue
 			const entity = CELL_CONSTRUCTORS[cell.type]({
 				id: cell.id,
 				position: cell.position,
@@ -139,7 +156,7 @@ export class Infinite extends Component {
 
 		for (const wire of iterateWires(shared.nogan)) {
 			const cells = wire.cells.map((id) => getCell(shared.nogan, id))
-			if (!cells.every((cell) => cell?.parent === level)) continue
+			if (!cells.every((cell) => cell?.parent === newLevel)) continue
 
 			const entity = WIRE_CONSTRUCTOR({
 				id: wire.id,
@@ -156,7 +173,40 @@ export class Infinite extends Component {
 			}
 		}
 
+		if (cellEntities.length === 0) {
+			const distance = FULL * 2
+			const angle = Math.random() * Math.PI * 2
+
+			/** @type {[number, number][]} */
+			const positions = [rotate([distance, 0], angle), rotate([-distance, 0], angle)]
+
+			const entity1 = new ArrowOfCreation({
+				position: positions[0],
+				preview: true,
+				level: newLevel,
+			})
+			cellEntities.push(entity1)
+			this.previews.add(entity1)
+
+			const entity2 = new ArrowOfConnection({
+				position: positions[1],
+				preview: true,
+				level: newLevel,
+			})
+			cellEntities.push(entity2)
+			this.previews.add(entity2)
+
+			// const entity3 = new ArrowOfDestruction({
+			// 	position: positions[2],
+			// 	preview: true,
+			// 	level: newLevel,
+			// })
+			// cellEntities.push(entity3)
+			// this.previews.add(entity3)
+		}
+
 		const background = new Ellipse()
+		this.background = background
 		background.dom.style.fill.set(BLACK.toString())
 
 		const parent = this.parent

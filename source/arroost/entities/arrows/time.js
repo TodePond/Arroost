@@ -9,7 +9,7 @@ import {
 	subtract,
 } from "../../../../libraries/habitat-import.js"
 import { shared } from "../../../main.js"
-import { createWire } from "../../../nogan/nogan.js"
+import { createWire, getCell, getWire } from "../../../nogan/nogan.js"
 import { Dom } from "../../components/dom.js"
 import { Tunnel } from "../../components/tunnel.js"
 import { Entity } from "../entity.js"
@@ -47,6 +47,9 @@ export class ArrowOfTime extends Entity {
 		this.target = target
 		this.isPreview = preview
 
+		let timingId = undefined
+		let colourId = undefined
+
 		// Setup tunnel
 		if (id === undefined) {
 			const { wire, operations } = createWire(shared.nogan, {
@@ -62,12 +65,21 @@ export class ArrowOfTime extends Entity {
 			Tunnel.apply(() => operations)
 		} else {
 			this.tunnel = this.attach(new Tunnel(id, { entity: this, forcePreview: this.isPreview }))
+			const wireWire = getWire(shared.nogan, id)
+			for (const cellId of wireWire.cells) {
+				const cell = getCell(shared.nogan, cellId)
+				if (cell?.type === "timing") {
+					timingId = cellId
+				} else if (cell?.type === "colour") {
+					colourId = cellId
+				}
+			}
 		}
 
 		// Render elements
 		this.line = this.attach(new Line())
-		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id }))
-		this.colour = this.attach(new ArrowOfColour({ wire: this.tunnel.id }))
+		this.flaps = this.attach(new ArrowOfTiming({ wire: this.tunnel.id, id: timingId }))
+		this.colour = this.attach(new ArrowOfColour({ wire: this.tunnel.id, id: colourId }))
 
 		this.dom.append(this.line.dom)
 		if (!this.isPreview) {
