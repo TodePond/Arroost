@@ -276,7 +276,7 @@ export class Tunnel extends Component {
 				return moveCell(shared.nogan, {
 					id: this.id,
 					position,
-					propogate: equals(velocity, [0, 0]),
+					propogate: false, // equals(velocity, [0, 0]),
 					filter: (id) => {
 						const cell = getCell(shared.nogan, id)
 						if (!cell) throw new Error(`Tunnel: Can't find cell ${id}`)

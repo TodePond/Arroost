@@ -4,7 +4,7 @@ import { GREY_BLACK, shared } from "./main.js"
 import { getAdvanced } from "./nogan/nogan.js"
 
 class Clock {
-	bpm = 120
+	bpm = 128
 
 	/** @type {"buildup" | "aftermath"} */
 	phase = "buildup"
