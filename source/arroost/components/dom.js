@@ -153,7 +153,7 @@ export class Dom extends Component {
 
 		this.use(() => {
 			const outOfView = this.outOfView.get()
-			container.style.display = outOfView ? "none" : "block"
+			container.style.display = outOfView ? "block" : "block"
 		}, [this.outOfView, this.forceInView])
 
 		const element = this.getElement()
