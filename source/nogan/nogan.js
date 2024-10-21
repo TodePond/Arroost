@@ -937,7 +937,7 @@ export const moveCell = (
 	const cell = getCell(nogan, id)
 	if (!cell) throw new Error(`Couldn't find cell ${id} to move`)
 	cell.position = position
-	// clearCache(nogan)
+	clearCache(nogan)
 
 	const movedOperation = c({ type: "moved", id, position })
 
