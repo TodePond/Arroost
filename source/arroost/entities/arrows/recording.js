@@ -1,4 +1,5 @@
 import {
+	Colour,
 	BLACK,
 	BLUE,
 	CYAN,
@@ -33,13 +34,15 @@ import { EllipseHtml } from "../shapes/ellipse-html.js"
 import { Rectangle } from "../shapes/rectangle.js"
 import { ArrowOfNoise } from "./noise.js"
 import { Infinite } from "../../components/infinite.js"
+import { lerp } from "../../../../libraries/lerp.js"
 
 export class ArrowOfRecording extends Entity {
 	static recordingArrows = new Set()
 	static recordings = new SharedResource()
 
 	recorder = new Tone.Recorder()
-	microphone = new Tone.UserMedia().connect(this.recorder)
+	meter = new Tone.Meter()
+	microphone = new Tone.UserMedia().connect(this.recorder).connect(this.meter)
 	players = new Set()
 
 	/** @type {Signal<"idle" | "recording" | "sound">} */
@@ -124,9 +127,6 @@ export class ArrowOfRecording extends Entity {
 			front: this.front.dom,
 			input: this.input,
 			tunnel: this.tunnel,
-			frontOverride: () => {
-				if (this.recordingState.get() === "recording") return RED
-			},
 			infinite: this.infinite,
 		})
 
@@ -189,6 +189,13 @@ export class ArrowOfRecording extends Entity {
 		}
 
 		this.recordingDuration.set(Tone.now() - recordingStart)
+
+		// Show input level to indicate whether the mic is working.
+		const minDecibels = -50, maxDecibels = 0
+		const clamped = Math.max(minDecibels, Math.min(this.meter.getValue(), maxDecibels))
+		const frac = (clamped - minDecibels) / (maxDecibels - minDecibels)
+		const color = new Colour(...lerp([BLACK, RED], frac).map(Math.round))
+		this.front.dom.style.fill.set(color.toString())
 	}
 
 	async onClickAsync() {
@@ -305,6 +312,7 @@ export class ArrowOfRecording extends Entity {
 			ArrowOfRecording.recordings.free(this.recordingKey)
 		}
 		this.recorder.dispose()
+		this.meter.dispose()
 		this.microphone.dispose()
 		super.dispose()
 	}
