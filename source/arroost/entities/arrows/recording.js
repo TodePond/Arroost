@@ -41,7 +41,7 @@ export class ArrowOfRecording extends Entity {
 	static recordings = new SharedResource()
 
 	recorder = new Tone.Recorder()
-	meter = new Tone.Meter()
+	meter = new Tone.Meter(0.9)
 	microphone = new Tone.UserMedia().connect(this.recorder).connect(this.meter)
 	players = new Set()
 
