@@ -66,11 +66,12 @@ export class Tunnel extends Component {
 	}
 
 	/**
-	 * @param {Operation} operation
+	 * Typing based on: https://github.com/microsoft/TypeScript/pull/47109
+	 * @template {OperationType} key
+	 * @param {OperationMap<key>} operation
 	 */
 	static applyOperation(operation) {
 		const tunnelFunction = TUNNELS[operation.type]
-		// @ts-expect-error: freaks out
 		tunnelFunction(operation)
 	}
 

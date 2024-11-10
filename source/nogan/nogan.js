@@ -1603,13 +1603,12 @@ const getBehavedPeak = ({ nogan, source, target, previous, peak }) => {
 }
 
 /**
- * @template {Pulse} T
- * @param {T} pulse
- * @returns {Behave<T>}
+ * @template {PulseType} T
+ * @param {PulseMap<T>} pulse
+ * @returns {Behave<PulseMap<T>>}
  */
 export const getBehave = (pulse) => {
 	const behave = BEHAVIOURS[pulse.type]
-	// @ts-expect-error
 	return behave
 }
 
@@ -1721,12 +1720,11 @@ export const applyOperations = (nogan, { operations }) => {
 }
 
 /**
- * @template {Operation} T
- * @param {T} operation
+ * @template {OperationType} T
+ * @param {OperationMap<T>} operation
  * @returns {Operate<T>}
  */
 export const getOperate = (operation) => {
 	const operate = OPERATIONS[operation.type]
-	// @ts-expect-error
 	return operate
 }
