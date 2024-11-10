@@ -89,6 +89,7 @@ It's a secret.
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/anderium"><img src="https://avatars.githubusercontent.com/u/33520919?v=4?s=100" width="100px;" alt="anderium"/><br /><sub><b>anderium</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/issues?q=author%3Aanderium" title="Bug reports">🐛</a> <a href="https://github.com/TodePond/Arroost/commits?author=anderium" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://ijc8.me"><img src="https://avatars.githubusercontent.com/u/99575?v=4?s=100" width="100px;" alt="Ian Clester"/><br /><sub><b>Ian Clester</b></sub></a><br /><a href="https://github.com/TodePond/Arroost/commits?author=ijc8" title="Code">💻</a> <a href="#design-ijc8" title="Design">🎨</a></td>
     </tr>
   </tbody>
 </table>
