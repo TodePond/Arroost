@@ -88,6 +88,16 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "ijc8",
+      "name": "Ian Clester",
+      "avatar_url": "https://avatars.githubusercontent.com/u/99575?v=4",
+      "profile": "http://ijc8.me",
+      "contributions": [
+        "code",
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
