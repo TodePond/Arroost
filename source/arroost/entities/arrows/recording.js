@@ -194,7 +194,8 @@ export class ArrowOfRecording extends Entity {
 		const minDecibels = -50, maxDecibels = 0
 		const clamped = Math.max(minDecibels, Math.min(this.meter.getValue(), maxDecibels))
 		const frac = (clamped - minDecibels) / (maxDecibels - minDecibels)
-		const color = new Colour(...lerp([BLACK, RED], frac).map(Math.round))
+		const fracWeight = 0.5
+		const color = new Colour(...lerp([BLACK, RED], (1 - fracWeight) + frac * fracWeight).map(Math.round))
 		this.front.dom.style.fill.set(color.toString())
 	}
 
