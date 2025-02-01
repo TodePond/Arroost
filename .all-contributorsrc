@@ -98,6 +98,15 @@
         "code",
         "design"
       ]
+    },
+    {
+      "login": "evoL",
+      "name": "Rafał Hirsch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/155995?v=4",
+      "profile": "https://github.com/evoL",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
